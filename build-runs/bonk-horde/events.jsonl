@@ -1,0 +1,7 @@
+{"kind": "run-start", "mode": "fanout", "ts": "2026-10-12T22:11:19+01:00"}
+{"kind": "start", "stage": "market-research", "ts": "2026-10-12T22:11:19+01:00"}
+{"kind": "end", "stage": "market-research", "status": "ok", "ts": "2026-10-12T22:25:22+01:00"}
+{"kind": "note", "stage": "market-research", "note": "Genre fixed by the brief (Megabonk-like 3D survivors roguelike). Findings in design/research.md, reference study in design/refs/REFERENCE.md. Probed: AssetService:CreateAssetAsync is not available in this Studio build; Forge not installed; ROBLOX_API_KEY unset.", "ts": "2026-10-12T22:25:23+01:00"}
+{"kind": "start", "stage": "design-spec", "ts": "2026-10-12T22:25:23+01:00"}
+{"kind": "end", "stage": "design-spec", "status": "ok", "ts": "2026-10-12T22:30:31+01:00"}
+{"kind": "intervention", "stage": "design-spec", "note": "User changed the art direction after the first close: not the reference's pixelated look, a more cartoonish one. Contract, six stage specs, PLAN.md and HANDOFF.md regenerated; validate green. Also from the user: push work to their GitHub repo BonkHorde, Forge install approved, Roblox API key available, place saved to Roblox as BonkHorde (place 125855916502243, universe 10770589827).", "ts": "2026-10-12T23:10:53+01:00"}

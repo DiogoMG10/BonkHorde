@@ -1,0 +1,2733 @@
+{
+ "title": "Bonk Horde",
+ "slug": "BonkHorde",
+ "pitch": "Run, jump and slide through a cartoon forest while your weapons fire on their own, stack upgrades into a ridiculous build, and beat the boss before the ten-minute timer brings the final horde. Solo or with two friends.",
+ "core_loop": [
+  "Pick a hero (and the host picks the map); the squad steps out of the portal.",
+  "Move to survive: run, hold jump to bunny hop, slide down slopes. Weapons attack automatically; kills drop XP gems and gold.",
+  "Level up: the game pauses and each player picks one of three upgrade offers (a new weapon, a weapon level or a tome), or banishes, skips or refreshes.",
+  "Spend gold on chests and the vendor, charge shrines for stat boosts, crack pots, take the risky shrines.",
+  "Find the boss portal and summon Old Man Timber before the 10:00 countdown ends, then kill him.",
+  "Enter the exit portal to bank the win, or stay for the final horde to push the kill score. The run ends in results and silver, then back to the menu."
+ ],
+ "win_condition": "The stage boss is dead and the squad enters the exit portal: victory screen, silver banked, best time and kill score recorded.",
+ "lose_condition": "Every player in the squad is down at the same time: the death screen, with silver still paid for kills made.",
+ "players": {
+  "min": 1,
+  "max": 3
+ },
+ "session_minutes": 12,
+ "out_of_scope": [
+  "The Desert and Graveyard maps: shown locked in map select, built as the first content update after this run ships. Desert reference study is kept in design/refs.",
+  "Tier 2 and Tier 3 multi-stage runs (portal into a second and third stage)",
+  "Procedurally generated terrain: the map layout is fixed; only interactable, portal and spawn placement is randomised per run",
+  "Quests, hero ranks, skins, challenges and the unlock shop for weapons, tomes and items: everything except one hero is unlocked from the start",
+  "Hidden bosses, secret unlock objects and character-specific secret interactions",
+  "Weapon evolutions",
+  "Robux purchases, gamepasses and developer products",
+  "Global leaderboards, trading and chat features beyond Roblox defaults",
+  "Reserved-server matchmaking and cross-server parties: a server is one squad of up to three",
+  "Any use of the reference game's name, logo, character designs, item names, item art, music or jokes"
+ ],
+ "stages": {
+  "map": {
+   "spec": "design/map.json",
+   "status": "todo"
+  },
+  "meshes": {
+   "spec": "design/meshes.json",
+   "status": "todo"
+  },
+  "ui": {
+   "spec": "design/ui.json",
+   "status": "todo"
+  },
+  "animation": {
+   "spec": "design/animations.json",
+   "status": "todo"
+  },
+  "vfx": {
+   "spec": "design/vfx.json",
+   "status": "todo"
+  },
+  "sfx": {
+   "spec": "design/sfx.json",
+   "status": "todo"
+  }
+ },
+ "systems": [
+  {
+   "name": "PartyService",
+   "side": "server",
+   "owns": "the squad roster: who is in the server, each player's hero pick and ready flag, the host's map choice"
+  },
+  {
+   "name": "RunDirectorService",
+   "side": "server",
+   "owns": "the run state machine (Lobby, Intro, Playing, BossFight, Overtime, Victory, Wipe, Results), the stage timer, the pause flag and the difficulty value"
+  },
+  {
+   "name": "MapService",
+   "side": "server",
+   "owns": "the loaded map, its heightfield and blocked-cell grid, and the anchor points interactables and spawns are placed on"
+  },
+  {
+   "name": "PlayerStateService",
+   "side": "server",
+   "owns": "each player's run state: HP, shield, gold, downed flag, weapons, tomes, items and the resolved stat block"
+  },
+  {
+   "name": "XPService",
+   "side": "server",
+   "owns": "the squad's shared XP and level, and the queue of level-ups each player still has to choose"
+  },
+  {
+   "name": "UpgradeService",
+   "side": "server",
+   "owns": "the offers rolled for each pending choice and each player's banish, skip and refresh charges"
+  },
+  {
+   "name": "EnemyService",
+   "side": "server",
+   "owns": "every enemy as plain data (position, HP, type, target, status effects), the spawn director and the snapshot stream to clients"
+  },
+  {
+   "name": "CombatService",
+   "side": "server",
+   "owns": "weapon cooldown timers, hit resolution and all damage dealt to enemies and to players"
+  },
+  {
+   "name": "BossService",
+   "side": "server",
+   "owns": "boss and miniboss entities, their attack timelines and telegraphs"
+  },
+  {
+   "name": "PickupService",
+   "side": "server",
+   "owns": "XP gems, gold and powerups lying on the ground, and who collected what"
+  },
+  {
+   "name": "InteractableService",
+   "side": "server",
+   "owns": "every chest, shrine, statue, vendor, pot, crate and portal placed this run, their state and per-player use counts and prices"
+  },
+  {
+   "name": "ItemService",
+   "side": "server",
+   "owns": "the item effect registry and each proc's cooldown and counters"
+  },
+  {
+   "name": "DataService",
+   "side": "server",
+   "owns": "the persistent profile: silver, unlocked heroes, run counts and best scores"
+  },
+  {
+   "name": "CameraController",
+   "side": "client",
+   "owns": "the orbit camera and mouse lock"
+  },
+  {
+   "name": "MovementController",
+   "side": "client",
+   "owns": "local movement feel: slide, bunny hop, extra jumps (validated by the server's speed and position checks)"
+  },
+  {
+   "name": "EnemyRenderController",
+   "side": "client",
+   "owns": "pooled enemy models driven by server snapshots: interpolation, limb animation, hit flash, level of detail"
+  },
+  {
+   "name": "WeaponFxController",
+   "side": "client",
+   "owns": "weapon and projectile visuals replayed from server fire events"
+  },
+  {
+   "name": "PickupRenderController",
+   "side": "client",
+   "owns": "gem, coin and powerup visuals and their fly-to-player animation"
+  },
+  {
+   "name": "WorldFxController",
+   "side": "client",
+   "owns": "damage numbers, VFX one-shots, shrine domes, telegraphs"
+  },
+  {
+   "name": "HudController",
+   "side": "client",
+   "owns": "the HUD: bars, counters, timer, quest tracker, boss bars, item strip, teammate bars"
+  },
+  {
+   "name": "MinimapController",
+   "side": "client",
+   "owns": "the round minimap and the Tab big map"
+  },
+  {
+   "name": "MenuController",
+   "side": "client",
+   "owns": "main menu, hero select, map select, results and the death screen"
+  },
+  {
+   "name": "ChoiceController",
+   "side": "client",
+   "owns": "every pause panel: upgrade offers, chest, shrine, shop, statue"
+  },
+  {
+   "name": "AudioController",
+   "side": "client",
+   "owns": "music state machine and pooled 2D / 3D sound playback"
+  },
+  {
+   "name": "InputController",
+   "side": "client",
+   "owns": "keyboard and mouse, gamepad and touch bindings"
+  }
+ ],
+ "config": {
+  "MaxPlayers": 3,
+  "StageSeconds": 600,
+  "OvertimeTierSeconds": 30,
+  "SimHz": 20,
+  "SnapshotHz": 10,
+  "EnemyCapSolo": 250,
+  "EnemyCapPerExtraPlayer": 50,
+  "SpawnRatePerExtraPlayer": 0.6,
+  "BossHPPerExtraPlayer": 0.75,
+  "EnemySpeedScale": 2.6,
+  "PlayerWalkSpeed": 20,
+  "PlayerJumpHeight": 7,
+  "SlideBoost": 1.35,
+  "BunnyHopKeep": 0.92,
+  "CameraDistance": 18,
+  "CameraFOV": 80,
+  "BaseMaxHP": 100,
+  "BaseHPRegenPerMinute": 10,
+  "BaseCritChance": 0.01,
+  "BaseCritDamage": 2.0,
+  "BasePickupRange": 10,
+  "XPBase": 6,
+  "XPLinear": 4,
+  "XPQuadratic": 0.35,
+  "OfferCount": 3,
+  "OfferChoiceSecondsCoop": 12,
+  "BanishCharges": 1,
+  "SkipCharges": 5,
+  "RefreshCharges": 3,
+  "WeaponSlots": 4,
+  "TomeSlots": 4,
+  "RarityWeights": {
+   "Common": 60,
+   "Uncommon": 25,
+   "Rare": 10,
+   "Epic": 4,
+   "Legendary": 1
+  },
+  "RarityMultiplier": {
+   "Common": 1.0,
+   "Uncommon": 1.5,
+   "Rare": 2.0,
+   "Epic": 2.75,
+   "Legendary": 4.0
+  },
+  "ChestPriceBase": 30,
+  "ChestPriceLinear": 40,
+  "ChestPriceQuadratic": 3,
+  "ShopPriceCommon": 60,
+  "ShopPriceRare": 120,
+  "ShopPriceEpic": 200,
+  "ShopPriceLegendary": 290,
+  "ChargeShrineSeconds": 8,
+  "ChargeShrineRadius": 22,
+  "GreedDifficultyStep": 0.05,
+  "GreedGoldStep": 0.1,
+  "EliteHPMultiplier": 8,
+  "EliteScale": 1.5,
+  "EliteBaseChance": 0.02,
+  "ReviveSeconds": 3,
+  "ReviveHPFraction": 0.5,
+  "InteractablesPerRun": {
+   "Chest": 14,
+   "ChargeShrine": 6,
+   "GreedShrine": 2,
+   "ChallengeShrine": 2,
+   "VacuumShrine": 1,
+   "SmugStatue": 2,
+   "DodgyDan": 1,
+   "Pot": 30,
+   "Crate": 16
+  },
+  "SilverPerHundredKills": 1,
+  "SilverPerBossKill": 10,
+  "SilverPerMinibossKill": 3,
+  "UnlockFrostlingSilver": 150,
+  "GemCap": 400,
+  "MapSizeStuds": 720,
+  "HeightCellStuds": 4
+ },
+ "roster": {
+  "heroes": [
+   {
+    "id": "Knight",
+    "name": "Sir Clonk",
+    "blurb": "Slow, but all that armour makes him properly chunky.",
+    "weapon": "Sword",
+    "passive": "Thick Plating",
+    "passive_text": "Gain 1% Armor per level.",
+    "base": {
+     "MaxHP": 150,
+     "Armor": 0.15,
+     "MoveSpeed": 0.9
+    },
+    "unlock": "free",
+    "look": "full plate knight, bucket great-helm with a cross slit, grey steel with tan leather straps"
+   },
+   {
+    "id": "Fox",
+    "name": "Zib",
+    "blurb": "A fox in a wizard hat. Luck does most of the work.",
+    "weapon": "FireStaff",
+    "passive": "Lucky Tail",
+    "passive_text": "Gain 1% Luck per level.",
+    "base": {
+     "MaxHP": 100,
+     "Luck": 0.05,
+     "MoveSpeed": 1.0
+    },
+    "unlock": "free",
+    "look": "orange fox, tall blue wizard hat with a star, blue robe, white-tipped bushy tail, wooden staff"
+   },
+   {
+    "id": "Frostling",
+    "name": "Mint",
+    "blurb": "Chilly hooded mage. Stand close, regret it.",
+    "weapon": "FrostRing",
+    "passive": "Brain Freeze",
+    "passive_text": "Gain 0.5% Freeze Chance per level.",
+    "base": {
+     "MaxHP": 90,
+     "Shield": 25,
+     "MoveSpeed": 1.05
+    },
+    "unlock": "150 silver",
+    "look": "teal hooded mage with two long upright ears on the hood, belt, tall crystal-tipped staff, faint cyan glow"
+   }
+  ],
+  "weapons": [
+   {
+    "id": "Sword",
+    "name": "Sword",
+    "text": "Slashes through multiple enemies.",
+    "kind": "melee arc in the facing direction",
+    "base": {
+     "Damage": 11,
+     "Cooldown": 1.1,
+     "Size": 1.0,
+     "ProjectileCount": 1,
+     "Knockback": 3
+    },
+    "pool": [
+     "Damage",
+     "Size",
+     "ProjectileCount",
+     "Knockback",
+     "CritChance"
+    ],
+    "mesh": "WeaponSword",
+    "vfx": [
+     "SwordSlash"
+    ],
+    "sfx": [
+     "sword_swing"
+    ],
+    "anim": "AttackSwing"
+   },
+   {
+    "id": "FireStaff",
+    "name": "Fire Staff",
+    "text": "Lobs fireballs that explode on impact.",
+    "kind": "projectile with area explosion at the nearest enemy",
+    "base": {
+     "Damage": 9,
+     "Cooldown": 1.4,
+     "Size": 1.0,
+     "ProjectileCount": 1,
+     "ProjectileSpeed": 1.0
+    },
+    "pool": [
+     "Damage",
+     "Size",
+     "ProjectileCount",
+     "ProjectileSpeed",
+     "CritDamage"
+    ],
+    "mesh": "WeaponFireStaff",
+    "vfx": [
+     "FireballTrail",
+     "FireballExplosion"
+    ],
+    "sfx": [
+     "fireball_cast",
+     "fireball_explode"
+    ],
+    "anim": "AttackCast"
+   },
+   {
+    "id": "FrostRing",
+    "name": "Frost Ring",
+    "text": "Freezes and damages enemies around you.",
+    "kind": "ground aura that pulses around the player",
+    "base": {
+     "Damage": 9,
+     "Cooldown": 1.6,
+     "Size": 1.0,
+     "Duration": 1.6
+    },
+    "pool": [
+     "Damage",
+     "Size",
+     "Duration",
+     "CritChance"
+    ],
+    "mesh": null,
+    "vfx": [
+     "FrostRingGround",
+     "FreezeShatter"
+    ],
+    "sfx": [
+     "frost_pulse"
+    ],
+    "anim": null
+   },
+   {
+    "id": "LightningStaff",
+    "name": "Lightning Staff",
+    "text": "Summons lightning to smite nearby enemies.",
+    "kind": "instant strike on random nearby enemies, chains with bounces",
+    "base": {
+     "Damage": 9.4,
+     "Cooldown": 1.5,
+     "Size": 1.0,
+     "ProjectileCount": 1,
+     "ProjectileBounces": 0
+    },
+    "pool": [
+     "Damage",
+     "Size",
+     "ProjectileCount",
+     "ProjectileBounces",
+     "CritChance"
+    ],
+    "mesh": "WeaponLightningStaff",
+    "vfx": [
+     "LightningBolt",
+     "LightningImpact"
+    ],
+    "sfx": [
+     "lightning_strike"
+    ],
+    "anim": null
+   },
+   {
+    "id": "Bone",
+    "name": "Bone",
+    "text": "Throws bones that bounce off enemies.",
+    "kind": "thrown projectile that ricochets between enemies",
+    "base": {
+     "Damage": 8,
+     "Cooldown": 1.2,
+     "ProjectileCount": 1,
+     "ProjectileSpeed": 0.4,
+     "ProjectileBounces": 2
+    },
+    "pool": [
+     "Damage",
+     "ProjectileCount",
+     "ProjectileSpeed",
+     "ProjectileBounces",
+     "CritChance",
+     "CritDamage"
+    ],
+    "mesh": "WeaponBone",
+    "vfx": [
+     "ProjectileTrailPale"
+    ],
+    "sfx": [
+     "bone_throw"
+    ],
+    "anim": "AttackThrow"
+   },
+   {
+    "id": "Boomernana",
+    "name": "Boomernana",
+    "text": "A banana that always comes back. Hits twice.",
+    "kind": "returning boomerang projectile",
+    "base": {
+     "Damage": 9,
+     "Cooldown": 1.8,
+     "ProjectileCount": 1,
+     "ProjectileSpeed": 1.0,
+     "Size": 1.0
+    },
+    "pool": [
+     "Damage",
+     "ProjectileCount",
+     "ProjectileSpeed",
+     "Size",
+     "Knockback"
+    ],
+    "mesh": "WeaponBoomernana",
+    "vfx": [
+     "ProjectileTrailPale"
+    ],
+    "sfx": [
+     "boomerang_whoosh"
+    ],
+    "anim": "AttackThrow"
+   },
+   {
+    "id": "Axe",
+    "name": "Axe",
+    "text": "Hurls spinning axes that hang around and shred.",
+    "kind": "thrown spinner that lingers at its landing spot",
+    "base": {
+     "Damage": 7,
+     "Cooldown": 2.2,
+     "ProjectileCount": 1,
+     "Duration": 2.0,
+     "Size": 1.0
+    },
+    "pool": [
+     "Damage",
+     "ProjectileCount",
+     "Duration",
+     "Size",
+     "CritChance"
+    ],
+    "mesh": "WeaponAxe",
+    "vfx": [
+     "AxeSpin"
+    ],
+    "sfx": [
+     "axe_throw"
+    ],
+    "anim": "AttackThrow"
+   },
+   {
+    "id": "PartyRocket",
+    "name": "Party Rocket",
+    "text": "Fires homing rockets. Fashionably late, very loud.",
+    "kind": "homing missile with explosion",
+    "base": {
+     "Damage": 14,
+     "Cooldown": 2.6,
+     "ProjectileCount": 1,
+     "ProjectileSpeed": 1.0,
+     "Size": 1.0
+    },
+    "pool": [
+     "Damage",
+     "ProjectileCount",
+     "ProjectileSpeed",
+     "Size",
+     "CritDamage"
+    ],
+    "mesh": "WeaponRocket",
+    "vfx": [
+     "RocketTrail",
+     "RocketExplosion"
+    ],
+    "sfx": [
+     "rocket_launch",
+     "rocket_explode"
+    ],
+    "anim": null
+   }
+  ],
+  "tomes": [
+   {
+    "id": "Damage",
+    "name": "Damage Tome",
+    "stat": "Damage",
+    "per_level": "+0.08x"
+   },
+   {
+    "id": "Agility",
+    "name": "Agility Tome",
+    "stat": "MoveSpeed",
+    "per_level": "+15%"
+   },
+   {
+    "id": "Cooldown",
+    "name": "Cooldown Tome",
+    "stat": "AttackSpeed",
+    "per_level": "+7.5%"
+   },
+   {
+    "id": "Precision",
+    "name": "Precision Tome",
+    "stat": "CritChance",
+    "per_level": "+7%"
+   },
+   {
+    "id": "Size",
+    "name": "Size Tome",
+    "stat": "Size",
+    "per_level": "+10%"
+   },
+   {
+    "id": "Shield",
+    "name": "Shield Tome",
+    "stat": "Shield",
+    "per_level": "+25"
+   },
+   {
+    "id": "Health",
+    "name": "Health Tome",
+    "stat": "MaxHP",
+    "per_level": "+25"
+   },
+   {
+    "id": "Regen",
+    "name": "Regen Tome",
+    "stat": "HPRegen",
+    "per_level": "+40 per minute"
+   },
+   {
+    "id": "XP",
+    "name": "XP Tome",
+    "stat": "XPGain",
+    "per_level": "+7%"
+   },
+   {
+    "id": "Luck",
+    "name": "Luck Tome",
+    "stat": "Luck",
+    "per_level": "+7%"
+   },
+   {
+    "id": "Attraction",
+    "name": "Attraction Tome",
+    "stat": "PickupRange",
+    "per_level": "+75%"
+   },
+   {
+    "id": "Quantity",
+    "name": "Quantity Tome",
+    "stat": "ProjectileCount",
+    "per_level": "+1"
+   }
+  ],
+  "items": [
+   {
+    "id": "TickingBracelet",
+    "name": "Ticking Bracelet",
+    "rarity": "Common",
+    "text": "+8% XP Gain. Definitely just a watch."
+   },
+   {
+    "id": "LuckyClover",
+    "name": "Lucky Clover",
+    "rarity": "Common",
+    "text": "+7.5% Luck."
+   },
+   {
+    "id": "ZoomSocks",
+    "name": "Zoom Socks",
+    "rarity": "Common",
+    "text": "+8% Movement Speed."
+   },
+   {
+    "id": "ProteinGoop",
+    "name": "Protein Goop",
+    "rarity": "Common",
+    "text": "+8% Damage."
+   },
+   {
+    "id": "SusJuice",
+    "name": "Sus Juice",
+    "rarity": "Common",
+    "text": "+6% Crit Chance."
+   },
+   {
+    "id": "DodgyBattery",
+    "name": "Dodgy Battery",
+    "rarity": "Common",
+    "text": "+8% Attack Speed."
+   },
+   {
+    "id": "BandageBox",
+    "name": "Bandage Box",
+    "rarity": "Common",
+    "text": "+10 Max HP and +30 HP Regen per minute."
+   },
+   {
+    "id": "StinkyCheese",
+    "name": "Stinky Cheese",
+    "rarity": "Common",
+    "text": "25% chance to poison enemies on hit (30% damage per second for 3s)."
+   },
+   {
+    "id": "FrostShard",
+    "name": "Frost Shard",
+    "rarity": "Common",
+    "text": "4% chance to freeze enemies on hit for 1.5s."
+   },
+   {
+    "id": "GiantSlayerPin",
+    "name": "Giant Slayer Pin",
+    "rarity": "Common",
+    "text": "+15% Damage to Elites and Bosses."
+   },
+   {
+    "id": "ShrineWrench",
+    "name": "Shrine Wrench",
+    "rarity": "Rare",
+    "text": "Charge Shrines charge 30% faster and give 10% bigger rewards."
+   },
+   {
+    "id": "GildedSneakers",
+    "name": "Gilded Sneakers",
+    "rarity": "Rare",
+    "text": "Earn 1 gold for every 25 studs you run."
+   },
+   {
+    "id": "EchoGem",
+    "name": "Echo Gem",
+    "rarity": "Rare",
+    "text": "8% chance for a kill to drop an extra XP gem."
+   },
+   {
+    "id": "PocketCampfire",
+    "name": "Pocket Campfire",
+    "rarity": "Rare",
+    "text": "Standing still for 1s heals 3 HP per second."
+   },
+   {
+    "id": "Featherweight",
+    "name": "Featherweight",
+    "rarity": "Rare",
+    "text": "+1 Extra Jump and +10% Jump Height."
+   },
+   {
+    "id": "StaticMitts",
+    "name": "Static Mitts",
+    "rarity": "Rare",
+    "text": "Every 6th hit calls a lightning strike for 120% damage."
+   },
+   {
+    "id": "SkeletonKey",
+    "name": "Skeleton Key",
+    "rarity": "Rare",
+    "text": "15% chance a chest opens for free."
+   },
+   {
+    "id": "VampireMitts",
+    "name": "Vampire Mitts",
+    "rarity": "Epic",
+    "text": "+4% Lifesteal."
+   },
+   {
+    "id": "Nightlight",
+    "name": "Nightlight",
+    "rarity": "Epic",
+    "text": "Every 9s a pulse of light deals 300% damage to everything within 22 studs."
+   },
+   {
+    "id": "CrackedGoggles",
+    "name": "Cracked Goggles",
+    "rarity": "Epic",
+    "text": "+1% Damage for every 1% of HP you are missing."
+   },
+   {
+    "id": "PanicMirror",
+    "name": "Panic Mirror",
+    "rarity": "Epic",
+    "text": "Getting hit reflects 200% of it and makes you untouchable for 0.6s. 3s cooldown."
+   },
+   {
+    "id": "VolatileMeatball",
+    "name": "Volatile Meatball",
+    "rarity": "Legendary",
+    "text": "Attacks have a 25% chance to explode for 65% damage to everything nearby."
+   },
+   {
+    "id": "BigIceCube",
+    "name": "Big Ice Cube",
+    "rarity": "Legendary",
+    "text": "20% chance to deal 50% bonus ice damage on hit. Ice can freeze."
+   },
+   {
+    "id": "ColossalFork",
+    "name": "Colossal Fork",
+    "rarity": "Legendary",
+    "text": "Crits have a 12% chance to become Megacrits for triple crit damage."
+   },
+   {
+    "id": "SecondWindClock",
+    "name": "Second Wind Clock",
+    "rarity": "Legendary",
+    "text": "A killing blow leaves you at 30% HP and freezes every enemy for 4s. Breaks after one use."
+   }
+  ],
+  "enemies": [
+   {
+    "id": "GoblinRunt",
+    "name": "Goblin Runt",
+    "role": "fodder from 0:00",
+    "hp": 7,
+    "dmg": 15,
+    "speed": 5.0,
+    "h": 3.2,
+    "look": "small skinny bright-green goblin, big pointed ears, brown loincloth, hunched run"
+   },
+   {
+    "id": "GoblinBruiser",
+    "name": "Goblin Bruiser",
+    "role": "tougher goblin from 2:00, carries a wooden round shield and a short sword",
+    "hp": 15,
+    "dmg": 25,
+    "speed": 5.5,
+    "h": 4.6,
+    "look": "larger dark-green goblin, leather cap, round wooden shield with iron rim, short rusty sword"
+   },
+   {
+    "id": "Slime",
+    "name": "Slime",
+    "role": "fast weak swarm from 1:30, hops",
+    "hp": 6,
+    "dmg": 8,
+    "speed": 6.5,
+    "h": 2.4,
+    "look": "bright lime-green blob with a grumpy face, pointed top, squashes as it hops"
+   },
+   {
+    "id": "Skeleton",
+    "name": "Skeleton",
+    "role": "mid enemy from 3:00",
+    "hp": 20,
+    "dmg": 20,
+    "speed": 5.5,
+    "h": 4.8,
+    "look": "bone-white skeleton, slightly stooped, arms forward, dark eye sockets"
+   },
+   {
+    "id": "ShieldSkeleton",
+    "name": "Shield Skeleton",
+    "role": "slow tank from 5:00",
+    "hp": 30,
+    "dmg": 25,
+    "speed": 4.0,
+    "h": 5.0,
+    "look": "skeleton with a dented iron helmet, a kite shield and a notched sword"
+   },
+   {
+    "id": "RockGolem",
+    "name": "Rock Golem",
+    "role": "heavy from 7:00, shrugs off knockback",
+    "hp": 20,
+    "dmg": 20,
+    "speed": 5.0,
+    "h": 6.0,
+    "look": "hunched grey rock creature made of boulders, long arms, glowing cyan eyes"
+   },
+   {
+    "id": "Ghost",
+    "name": "Ghost",
+    "role": "final swarm only, flies over obstacles",
+    "hp": 10,
+    "dmg": 10,
+    "speed": 6.0,
+    "h": 3.6,
+    "look": "white sheet ghost, ragged trailing hem, two black eye holes, arms raised"
+   },
+   {
+    "id": "Twiglet",
+    "name": "Twiglet",
+    "role": "summoned by the stage boss in packs",
+    "hp": 40,
+    "dmg": 18,
+    "speed": 6.0,
+    "h": 3.4,
+    "look": "angry little tree stump on root legs with two twig arms and glowing green eyes"
+   }
+  ],
+  "minibosses": [
+   {
+    "id": "BoulderBro",
+    "name": "Boulder Bro",
+    "hp": 250,
+    "dmg": 40,
+    "speed": 6.0,
+    "h": 14,
+    "mesh": "RockGolem",
+    "look": "the Rock Golem mesh at 2.4x scale with a mossy texture variant",
+    "attacks": "ground slam with a red dome telegraph, rock toss"
+   },
+   {
+    "id": "Hamlet",
+    "name": "Hamlet the Hangry",
+    "hp": 320,
+    "dmg": 40,
+    "speed": 6.5,
+    "h": 13,
+    "mesh": "HogBrute",
+    "look": "huge pale boar-man, tusks, bare belly, ragged shorts, small furious eyes",
+    "attacks": "charge in a straight line, belly-flop shockwave"
+   }
+  ],
+  "boss": {
+   "id": "OldManTimber",
+   "name": "Old Man Timber",
+   "hp": 9000,
+   "dmg": 40,
+   "speed": 3.0,
+   "h": 26,
+   "mesh": "OldManTimber",
+   "look": "towering walking tree: bark body, heavy fists, horn-like broken branches, moss shoulders, glowing teal eyes",
+   "attacks": "root eruptions under players (red dome telegraphs), thorn volley, summons Twiglet packs, stomp shockwave below 50% HP"
+  },
+  "interactables": [
+   {
+    "id": "Chest",
+    "text": "Costs gold, price rises with every chest you open. Gives one item."
+   },
+   {
+    "id": "ChargeShrine",
+    "text": "Stand inside the dome until it fills, then pick one of three stat boosts."
+   },
+   {
+    "id": "GreedShrine",
+    "text": "+5% Difficulty and +10% Gold Gain each time you touch it."
+   },
+   {
+    "id": "ChallengeShrine",
+    "text": "Summons a pack of elites. Clear them for a free chest."
+   },
+   {
+    "id": "VacuumShrine",
+    "text": "One use. Pulls every XP gem on the map to the squad."
+   },
+   {
+    "id": "SmugStatue",
+    "text": "Free item: pick one of three. One use per player."
+   },
+   {
+    "id": "DodgyDan",
+    "text": "Vendor. Three items for gold."
+   },
+   {
+    "id": "BossPortal",
+    "text": "Skull-topped stone arch on a stepped dais. Interact to summon the stage boss; becomes the exit after the boss dies."
+   },
+   {
+    "id": "Pot",
+    "text": "Breaks when hit. Drops gold or XP."
+   },
+   {
+    "id": "Crate",
+    "text": "Breaks when hit. Small chance of a powerup."
+   },
+   {
+    "id": "Tombstone",
+    "text": "Marks a downed teammate. Stand in the ring for 3s to revive them."
+   }
+  ],
+  "pickups": [
+   {
+    "id": "XPGem",
+    "text": "blue elongated hexagonal crystal; three sizes as gems merge"
+   },
+   {
+    "id": "GoldCoin",
+    "text": "chunky gold coin with a stamped G"
+   },
+   {
+    "id": "PowerupMagnet",
+    "text": "red horseshoe magnet with silver tips; pulls all gems to the squad"
+   },
+   {
+    "id": "PowerupSnack",
+    "text": "a burger; heals 25% of max HP"
+   },
+   {
+    "id": "PowerupFrenzy",
+    "text": "red chilli; +50% Damage and Attack Speed for 10s"
+   }
+  ],
+  "stats": {
+   "Defence": [
+    "MaxHP",
+    "HPRegen",
+    "Overheal",
+    "Shield",
+    "Armor",
+    "Evasion",
+    "Lifesteal",
+    "Thorns"
+   ],
+   "Offence": [
+    "Damage",
+    "CritChance",
+    "CritDamage",
+    "AttackSpeed",
+    "ProjectileCount",
+    "ProjectileBounces"
+   ],
+   "Weapon": [
+    "Size",
+    "ProjectileSpeed",
+    "Duration",
+    "DamageToElites",
+    "Knockback",
+    "MoveSpeed"
+   ],
+   "Movement": [
+    "ExtraJumps",
+    "JumpHeight",
+    "Luck",
+    "Difficulty"
+   ],
+   "Economy": [
+    "PickupRange",
+    "XPGain",
+    "GoldGain",
+    "SilverGain",
+    "EliteSpawnIncrease",
+    "PowerupMultiplier",
+    "PowerupDropChance"
+   ]
+  },
+  "spawn_timeline": [
+   {
+    "from": "0:00",
+    "types": [
+     "GoblinRunt"
+    ]
+   },
+   {
+    "from": "1:30",
+    "types": [
+     "GoblinRunt",
+     "Slime"
+    ]
+   },
+   {
+    "from": "2:00",
+    "types": [
+     "GoblinRunt",
+     "Slime",
+     "GoblinBruiser"
+    ]
+   },
+   {
+    "from": "3:00",
+    "types": [
+     "Slime",
+     "GoblinBruiser",
+     "Skeleton"
+    ]
+   },
+   {
+    "from": "5:00",
+    "types": [
+     "GoblinBruiser",
+     "Skeleton",
+     "ShieldSkeleton"
+    ]
+   },
+   {
+    "from": "7:00",
+    "types": [
+     "Skeleton",
+     "ShieldSkeleton",
+     "RockGolem"
+    ]
+   },
+   {
+    "from": "boss summoned",
+    "types": [
+     "Twiglet",
+     "Skeleton",
+     "RockGolem"
+    ]
+   },
+   {
+    "from": "10:00 overtime",
+    "types": [
+     "Ghost",
+     "ShieldSkeleton",
+     "RockGolem"
+    ]
+   }
+  ]
+ },
+ "asset_plan": [
+  {
+   "entity": "Hero: Sir Clonk (Knight)",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "HeroKnight",
+     "why": "the playable body, an R15-compatible low-poly rig: full plate knight, bucket great-helm with a cross slit, grey steel with tan leather straps"
+    },
+    {
+     "stage": "ui",
+     "name": "PortraitKnight",
+     "why": "portrait tile in character select, the detail card and toasts"
+    }
+   ]
+  },
+  {
+   "entity": "Hero: Zib (Fox)",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "HeroFox",
+     "why": "the playable body, an R15-compatible low-poly rig: orange fox, tall blue wizard hat with a star, blue robe, white-tipped bushy tail, wooden staff"
+    },
+    {
+     "stage": "ui",
+     "name": "PortraitFox",
+     "why": "portrait tile in character select, the detail card and toasts"
+    }
+   ]
+  },
+  {
+   "entity": "Hero: Mint (Frostling)",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "HeroFrostling",
+     "why": "the playable body, an R15-compatible low-poly rig: teal hooded mage with two long upright ears on the hood, belt, tall crystal-tipped staff, faint cyan glow"
+    },
+    {
+     "stage": "ui",
+     "name": "PortraitFrostling",
+     "why": "portrait tile in character select, the detail card and toasts"
+    }
+   ]
+  },
+  {
+   "entity": "Hero movement and poses (shared by all heroes)",
+   "needs": [
+    {
+     "stage": "animation",
+     "name": "Idle",
+     "why": "relaxed ready stance with a slow breath; weapon hand low"
+    },
+    {
+     "stage": "animation",
+     "name": "Run",
+     "why": "fast forward-leaning sprint, short quick strides, arms pumping, weapon trailing"
+    },
+    {
+     "stage": "animation",
+     "name": "Jump",
+     "why": "knees tucked, arms up, launch pose"
+    },
+    {
+     "stage": "animation",
+     "name": "Fall",
+     "why": "legs loose, arms out for balance"
+    },
+    {
+     "stage": "animation",
+     "name": "Land",
+     "why": "short crouch absorbing the landing"
+    },
+    {
+     "stage": "animation",
+     "name": "Slide",
+     "why": "low feet-first slide, leaning back, one hand down"
+    },
+    {
+     "stage": "animation",
+     "name": "AttackSwing",
+     "why": "upper-body horizontal sword slash, right to left, torso twist"
+    },
+    {
+     "stage": "animation",
+     "name": "AttackCast",
+     "why": "upper-body staff thrust forward with the off hand open"
+    },
+    {
+     "stage": "animation",
+     "name": "AttackThrow",
+     "why": "upper-body overhand throw"
+    },
+    {
+     "stage": "animation",
+     "name": "Downed",
+     "why": "collapsed on one knee, head down, loop"
+    },
+    {
+     "stage": "animation",
+     "name": "Kneel",
+     "why": "kneeling on one knee leaning on the weapon, the death-screen pose"
+    },
+    {
+     "stage": "animation",
+     "name": "Cheer",
+     "why": "victory: weapon raised overhead, small hop"
+    },
+    {
+     "stage": "animation",
+     "name": "PortalStep",
+     "why": "step forward out of the portal and settle into Idle"
+    },
+    {
+     "stage": "vfx",
+     "name": "DustPuff",
+     "why": "run start, slide and landing need a ground cue or movement feels weightless"
+    },
+    {
+     "stage": "sfx",
+     "name": "jump",
+     "why": "jump feedback"
+    },
+    {
+     "stage": "sfx",
+     "name": "land",
+     "why": "landing feedback"
+    },
+    {
+     "stage": "sfx",
+     "name": "slide",
+     "why": "slide loop"
+    },
+    {
+     "stage": "sfx",
+     "name": "footstep_grass",
+     "why": "footsteps while running"
+    },
+    {
+     "stage": "sfx",
+     "name": "player_hurt",
+     "why": "taking damage must be heard through the horde"
+    },
+    {
+     "stage": "sfx",
+     "name": "shield_break",
+     "why": "losing the shield is a distinct danger cue"
+    },
+    {
+     "stage": "sfx",
+     "name": "player_down",
+     "why": "going down"
+    },
+    {
+     "stage": "sfx",
+     "name": "revive",
+     "why": "being revived"
+    },
+    {
+     "stage": "meshes",
+     "name": "Tombstone",
+     "why": "marks a downed teammate for the revive"
+    },
+    {
+     "stage": "vfx",
+     "name": "ReviveRing",
+     "why": "shows revive progress around the tombstone"
+    }
+   ]
+  },
+  {
+   "entity": "Weapon: Sword",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "WeaponSword",
+     "why": "the Sword as held or thrown in the world"
+    },
+    {
+     "stage": "ui",
+     "name": "IconSword",
+     "why": "weapon icon in the HUD row, inventory and upgrade cards"
+    },
+    {
+     "stage": "vfx",
+     "name": "SwordSlash",
+     "why": "Sword: melee arc in the facing direction"
+    },
+    {
+     "stage": "sfx",
+     "name": "sword_swing",
+     "why": "Sword firing or landing"
+    }
+   ]
+  },
+  {
+   "entity": "Weapon: Fire Staff",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "WeaponFireStaff",
+     "why": "the Fire Staff as held or thrown in the world"
+    },
+    {
+     "stage": "ui",
+     "name": "IconFireStaff",
+     "why": "weapon icon in the HUD row, inventory and upgrade cards"
+    },
+    {
+     "stage": "vfx",
+     "name": "FireballTrail",
+     "why": "Fire Staff: projectile with area explosion at the nearest enemy"
+    },
+    {
+     "stage": "vfx",
+     "name": "FireballExplosion",
+     "why": "Fire Staff: projectile with area explosion at the nearest enemy"
+    },
+    {
+     "stage": "sfx",
+     "name": "fireball_cast",
+     "why": "Fire Staff firing or landing"
+    },
+    {
+     "stage": "sfx",
+     "name": "fireball_explode",
+     "why": "Fire Staff firing or landing"
+    }
+   ]
+  },
+  {
+   "entity": "Weapon: Frost Ring",
+   "needs": [
+    {
+     "stage": "ui",
+     "name": "IconFrostRing",
+     "why": "weapon icon in the HUD row, inventory and upgrade cards"
+    },
+    {
+     "stage": "vfx",
+     "name": "FrostRingGround",
+     "why": "Frost Ring: ground aura that pulses around the player"
+    },
+    {
+     "stage": "vfx",
+     "name": "FreezeShatter",
+     "why": "Frost Ring: ground aura that pulses around the player"
+    },
+    {
+     "stage": "sfx",
+     "name": "frost_pulse",
+     "why": "Frost Ring firing or landing"
+    }
+   ]
+  },
+  {
+   "entity": "Weapon: Lightning Staff",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "WeaponLightningStaff",
+     "why": "the Lightning Staff as held or thrown in the world"
+    },
+    {
+     "stage": "ui",
+     "name": "IconLightningStaff",
+     "why": "weapon icon in the HUD row, inventory and upgrade cards"
+    },
+    {
+     "stage": "vfx",
+     "name": "LightningBolt",
+     "why": "Lightning Staff: instant strike on random nearby enemies, chains with bounces"
+    },
+    {
+     "stage": "vfx",
+     "name": "LightningImpact",
+     "why": "Lightning Staff: instant strike on random nearby enemies, chains with bounces"
+    },
+    {
+     "stage": "sfx",
+     "name": "lightning_strike",
+     "why": "Lightning Staff firing or landing"
+    }
+   ]
+  },
+  {
+   "entity": "Weapon: Bone",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "WeaponBone",
+     "why": "the Bone as held or thrown in the world"
+    },
+    {
+     "stage": "ui",
+     "name": "IconBone",
+     "why": "weapon icon in the HUD row, inventory and upgrade cards"
+    },
+    {
+     "stage": "vfx",
+     "name": "ProjectileTrailPale",
+     "why": "Bone: thrown projectile that ricochets between enemies"
+    },
+    {
+     "stage": "sfx",
+     "name": "bone_throw",
+     "why": "Bone firing or landing"
+    }
+   ]
+  },
+  {
+   "entity": "Weapon: Boomernana",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "WeaponBoomernana",
+     "why": "the Boomernana as held or thrown in the world"
+    },
+    {
+     "stage": "ui",
+     "name": "IconBoomernana",
+     "why": "weapon icon in the HUD row, inventory and upgrade cards"
+    },
+    {
+     "stage": "vfx",
+     "name": "ProjectileTrailPale",
+     "why": "Boomernana: returning boomerang projectile"
+    },
+    {
+     "stage": "sfx",
+     "name": "boomerang_whoosh",
+     "why": "Boomernana firing or landing"
+    }
+   ]
+  },
+  {
+   "entity": "Weapon: Axe",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "WeaponAxe",
+     "why": "the Axe as held or thrown in the world"
+    },
+    {
+     "stage": "ui",
+     "name": "IconAxe",
+     "why": "weapon icon in the HUD row, inventory and upgrade cards"
+    },
+    {
+     "stage": "vfx",
+     "name": "AxeSpin",
+     "why": "Axe: thrown spinner that lingers at its landing spot"
+    },
+    {
+     "stage": "sfx",
+     "name": "axe_throw",
+     "why": "Axe firing or landing"
+    }
+   ]
+  },
+  {
+   "entity": "Weapon: Party Rocket",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "WeaponRocket",
+     "why": "the Party Rocket as held or thrown in the world"
+    },
+    {
+     "stage": "ui",
+     "name": "IconPartyRocket",
+     "why": "weapon icon in the HUD row, inventory and upgrade cards"
+    },
+    {
+     "stage": "vfx",
+     "name": "RocketTrail",
+     "why": "Party Rocket: homing missile with explosion"
+    },
+    {
+     "stage": "vfx",
+     "name": "RocketExplosion",
+     "why": "Party Rocket: homing missile with explosion"
+    },
+    {
+     "stage": "sfx",
+     "name": "rocket_launch",
+     "why": "Party Rocket firing or landing"
+    },
+    {
+     "stage": "sfx",
+     "name": "rocket_explode",
+     "why": "Party Rocket firing or landing"
+    }
+   ]
+  },
+  {
+   "entity": "Tomes (12)",
+   "needs": [
+    {
+     "stage": "ui",
+     "name": "IconTomeDamage",
+     "why": "Damage Tome icon: +0.08x Damage per level"
+    },
+    {
+     "stage": "ui",
+     "name": "IconTomeAgility",
+     "why": "Agility Tome icon: +15% MoveSpeed per level"
+    },
+    {
+     "stage": "ui",
+     "name": "IconTomeCooldown",
+     "why": "Cooldown Tome icon: +7.5% AttackSpeed per level"
+    },
+    {
+     "stage": "ui",
+     "name": "IconTomePrecision",
+     "why": "Precision Tome icon: +7% CritChance per level"
+    },
+    {
+     "stage": "ui",
+     "name": "IconTomeSize",
+     "why": "Size Tome icon: +10% Size per level"
+    },
+    {
+     "stage": "ui",
+     "name": "IconTomeShield",
+     "why": "Shield Tome icon: +25 Shield per level"
+    },
+    {
+     "stage": "ui",
+     "name": "IconTomeHealth",
+     "why": "Health Tome icon: +25 MaxHP per level"
+    },
+    {
+     "stage": "ui",
+     "name": "IconTomeRegen",
+     "why": "Regen Tome icon: +40 per minute HPRegen per level"
+    },
+    {
+     "stage": "ui",
+     "name": "IconTomeXP",
+     "why": "XP Tome icon: +7% XPGain per level"
+    },
+    {
+     "stage": "ui",
+     "name": "IconTomeLuck",
+     "why": "Luck Tome icon: +7% Luck per level"
+    },
+    {
+     "stage": "ui",
+     "name": "IconTomeAttraction",
+     "why": "Attraction Tome icon: +75% PickupRange per level"
+    },
+    {
+     "stage": "ui",
+     "name": "IconTomeQuantity",
+     "why": "Quantity Tome icon: +1 ProjectileCount per level"
+    }
+   ]
+  },
+  {
+   "entity": "Items (25)",
+   "needs": [
+    {
+     "stage": "ui",
+     "name": "IconItemTickingBracelet",
+     "why": "Ticking Bracelet (Common): +8% XP Gain. Definitely just a watch."
+    },
+    {
+     "stage": "ui",
+     "name": "IconItemLuckyClover",
+     "why": "Lucky Clover (Common): +7.5% Luck."
+    },
+    {
+     "stage": "ui",
+     "name": "IconItemZoomSocks",
+     "why": "Zoom Socks (Common): +8% Movement Speed."
+    },
+    {
+     "stage": "ui",
+     "name": "IconItemProteinGoop",
+     "why": "Protein Goop (Common): +8% Damage."
+    },
+    {
+     "stage": "ui",
+     "name": "IconItemSusJuice",
+     "why": "Sus Juice (Common): +6% Crit Chance."
+    },
+    {
+     "stage": "ui",
+     "name": "IconItemDodgyBattery",
+     "why": "Dodgy Battery (Common): +8% Attack Speed."
+    },
+    {
+     "stage": "ui",
+     "name": "IconItemBandageBox",
+     "why": "Bandage Box (Common): +10 Max HP and +30 HP Regen per minute."
+    },
+    {
+     "stage": "ui",
+     "name": "IconItemStinkyCheese",
+     "why": "Stinky Cheese (Common): 25% chance to poison enemies on hit (30% damage per second for 3s)."
+    },
+    {
+     "stage": "ui",
+     "name": "IconItemFrostShard",
+     "why": "Frost Shard (Common): 4% chance to freeze enemies on hit for 1.5s."
+    },
+    {
+     "stage": "ui",
+     "name": "IconItemGiantSlayerPin",
+     "why": "Giant Slayer Pin (Common): +15% Damage to Elites and Bosses."
+    },
+    {
+     "stage": "ui",
+     "name": "IconItemShrineWrench",
+     "why": "Shrine Wrench (Rare): Charge Shrines charge 30% faster and give 10% bigger rewards."
+    },
+    {
+     "stage": "ui",
+     "name": "IconItemGildedSneakers",
+     "why": "Gilded Sneakers (Rare): Earn 1 gold for every 25 studs you run."
+    },
+    {
+     "stage": "ui",
+     "name": "IconItemEchoGem",
+     "why": "Echo Gem (Rare): 8% chance for a kill to drop an extra XP gem."
+    },
+    {
+     "stage": "ui",
+     "name": "IconItemPocketCampfire",
+     "why": "Pocket Campfire (Rare): Standing still for 1s heals 3 HP per second."
+    },
+    {
+     "stage": "ui",
+     "name": "IconItemFeatherweight",
+     "why": "Featherweight (Rare): +1 Extra Jump and +10% Jump Height."
+    },
+    {
+     "stage": "ui",
+     "name": "IconItemStaticMitts",
+     "why": "Static Mitts (Rare): Every 6th hit calls a lightning strike for 120% damage."
+    },
+    {
+     "stage": "ui",
+     "name": "IconItemSkeletonKey",
+     "why": "Skeleton Key (Rare): 15% chance a chest opens for free."
+    },
+    {
+     "stage": "ui",
+     "name": "IconItemVampireMitts",
+     "why": "Vampire Mitts (Epic): +4% Lifesteal."
+    },
+    {
+     "stage": "ui",
+     "name": "IconItemNightlight",
+     "why": "Nightlight (Epic): Every 9s a pulse of light deals 300% damage to everything within 22 studs."
+    },
+    {
+     "stage": "ui",
+     "name": "IconItemCrackedGoggles",
+     "why": "Cracked Goggles (Epic): +1% Damage for every 1% of HP you are missing."
+    },
+    {
+     "stage": "ui",
+     "name": "IconItemPanicMirror",
+     "why": "Panic Mirror (Epic): Getting hit reflects 200% of it and makes you untouchable for 0.6s. 3s cooldown."
+    },
+    {
+     "stage": "ui",
+     "name": "IconItemVolatileMeatball",
+     "why": "Volatile Meatball (Legendary): Attacks have a 25% chance to explode for 65% damage to everything nearby."
+    },
+    {
+     "stage": "ui",
+     "name": "IconItemBigIceCube",
+     "why": "Big Ice Cube (Legendary): 20% chance to deal 50% bonus ice damage on hit. Ice can freeze."
+    },
+    {
+     "stage": "ui",
+     "name": "IconItemColossalFork",
+     "why": "Colossal Fork (Legendary): Crits have a 12% chance to become Megacrits for triple crit damage."
+    },
+    {
+     "stage": "ui",
+     "name": "IconItemSecondWindClock",
+     "why": "Second Wind Clock (Legendary): A killing blow leaves you at 30% HP and freezes every enemy for 4s. Breaks after one use."
+    },
+    {
+     "stage": "vfx",
+     "name": "PoisonCloud",
+     "why": "Stinky Cheese poison must show on the enemy"
+    },
+    {
+     "stage": "vfx",
+     "name": "FreezeShatter",
+     "why": "Frost Shard and Big Ice Cube freezes"
+    },
+    {
+     "stage": "vfx",
+     "name": "HealPlus",
+     "why": "Pocket Campfire and lifesteal heals"
+    },
+    {
+     "stage": "sfx",
+     "name": "freeze",
+     "why": "freeze proc"
+    }
+   ]
+  },
+  {
+   "entity": "Enemy: Goblin Runt",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "EnemyGoblinRunt",
+     "why": "fodder from 0:00: small skinny bright-green goblin, big pointed ears, brown loincloth, hunched run"
+    }
+   ]
+  },
+  {
+   "entity": "Enemy: Goblin Bruiser",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "EnemyGoblinBruiser",
+     "why": "tougher goblin from 2:00, carries a wooden round shield and a short sword: larger dark-green goblin, leather cap, round wooden shield with iron rim, short rusty sword"
+    }
+   ]
+  },
+  {
+   "entity": "Enemy: Slime",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "EnemySlime",
+     "why": "fast weak swarm from 1:30, hops: bright lime-green blob with a grumpy face, pointed top, squashes as it hops"
+    }
+   ]
+  },
+  {
+   "entity": "Enemy: Skeleton",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "EnemySkeleton",
+     "why": "mid enemy from 3:00: bone-white skeleton, slightly stooped, arms forward, dark eye sockets"
+    }
+   ]
+  },
+  {
+   "entity": "Enemy: Shield Skeleton",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "EnemyShieldSkeleton",
+     "why": "slow tank from 5:00: skeleton with a dented iron helmet, a kite shield and a notched sword"
+    }
+   ]
+  },
+  {
+   "entity": "Enemy: Rock Golem",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "EnemyRockGolem",
+     "why": "heavy from 7:00, shrugs off knockback: hunched grey rock creature made of boulders, long arms, glowing cyan eyes"
+    }
+   ]
+  },
+  {
+   "entity": "Enemy: Ghost",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "EnemyGhost",
+     "why": "final swarm only, flies over obstacles: white sheet ghost, ragged trailing hem, two black eye holes, arms raised"
+    }
+   ]
+  },
+  {
+   "entity": "Enemy: Twiglet",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "EnemyTwiglet",
+     "why": "summoned by the stage boss in packs: angry little tree stump on root legs with two twig arms and glowing green eyes"
+    }
+   ]
+  },
+  {
+   "entity": "Enemies, shared feedback",
+   "needs": [
+    {
+     "stage": "vfx",
+     "name": "HitSpark",
+     "why": "every hit needs a flash or damage is unreadable in a crowd"
+    },
+    {
+     "stage": "vfx",
+     "name": "CritBurst",
+     "why": "crits must read differently from normal hits"
+    },
+    {
+     "stage": "vfx",
+     "name": "EnemyDeathPoof",
+     "why": "a kill must pop, not vanish"
+    },
+    {
+     "stage": "vfx",
+     "name": "EliteCrownGlow",
+     "why": "elites are picked out at distance"
+    },
+    {
+     "stage": "vfx",
+     "name": "GhostTrail",
+     "why": "final-swarm ghosts read as flying"
+    },
+    {
+     "stage": "meshes",
+     "name": "EliteCrown",
+     "why": "small gold crown floating over elites"
+    },
+    {
+     "stage": "sfx",
+     "name": "enemy_hit",
+     "why": "hit confirm"
+    },
+    {
+     "stage": "sfx",
+     "name": "enemy_crit",
+     "why": "crit confirm"
+    },
+    {
+     "stage": "sfx",
+     "name": "enemy_death",
+     "why": "kill confirm"
+    },
+    {
+     "stage": "sfx",
+     "name": "ghost_wail",
+     "why": "final swarm ambience"
+    }
+   ]
+  },
+  {
+   "entity": "Miniboss: Boulder Bro",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "EnemyRockGolem",
+     "why": "reuses the Rock Golem mesh at 2.4x with a mossy texture variant"
+    },
+    {
+     "stage": "vfx",
+     "name": "BossTelegraphDome",
+     "why": "ground slam warning"
+    },
+    {
+     "stage": "vfx",
+     "name": "BossShockwave",
+     "why": "ground slam impact"
+    },
+    {
+     "stage": "sfx",
+     "name": "boss_slam",
+     "why": "slam impact"
+    },
+    {
+     "stage": "sfx",
+     "name": "boss_roar",
+     "why": "aggro roar"
+    }
+   ]
+  },
+  {
+   "entity": "Miniboss: Hamlet the Hangry",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "EnemyHogBrute",
+     "why": "huge pale boar-man, tusks, bare belly, ragged shorts, small furious eyes"
+    },
+    {
+     "stage": "vfx",
+     "name": "BossTelegraphDome",
+     "why": "belly-flop warning"
+    },
+    {
+     "stage": "vfx",
+     "name": "BossShockwave",
+     "why": "belly-flop impact"
+    },
+    {
+     "stage": "sfx",
+     "name": "boss_slam",
+     "why": "belly-flop impact"
+    },
+    {
+     "stage": "sfx",
+     "name": "boss_roar",
+     "why": "aggro squeal"
+    }
+   ]
+  },
+  {
+   "entity": "Stage boss: Old Man Timber",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "BossOldManTimber",
+     "why": "towering walking tree: bark body, heavy fists, horn-like broken branches, moss shoulders, glowing teal eyes"
+    },
+    {
+     "stage": "vfx",
+     "name": "BossTelegraphDome",
+     "why": "root eruption warnings under players"
+    },
+    {
+     "stage": "vfx",
+     "name": "RootEruption",
+     "why": "the root attack itself"
+    },
+    {
+     "stage": "vfx",
+     "name": "ThornVolley",
+     "why": "ranged thorn attack"
+    },
+    {
+     "stage": "vfx",
+     "name": "BossShockwave",
+     "why": "stomp below 50% HP"
+    },
+    {
+     "stage": "sfx",
+     "name": "boss_spawn",
+     "why": "arrival"
+    },
+    {
+     "stage": "sfx",
+     "name": "boss_roar",
+     "why": "phase change"
+    },
+    {
+     "stage": "sfx",
+     "name": "boss_roots",
+     "why": "root eruption"
+    },
+    {
+     "stage": "sfx",
+     "name": "boss_slam",
+     "why": "stomp"
+    },
+    {
+     "stage": "sfx",
+     "name": "boss_death",
+     "why": "defeat"
+    },
+    {
+     "stage": "sfx",
+     "name": "music_boss",
+     "why": "the fight needs its own track"
+    }
+   ]
+  },
+  {
+   "entity": "Interactable: Chest",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "Chest",
+     "why": "Costs gold, price rises with every chest you open. Gives one item."
+    },
+    {
+     "stage": "vfx",
+     "name": "ChestBeam",
+     "why": "Chest state change"
+    },
+    {
+     "stage": "sfx",
+     "name": "chest_open",
+     "why": "Chest feedback"
+    },
+    {
+     "stage": "sfx",
+     "name": "chest_reveal",
+     "why": "Chest feedback"
+    },
+    {
+     "stage": "sfx",
+     "name": "chest_reveal_legendary",
+     "why": "Chest feedback"
+    }
+   ]
+  },
+  {
+   "entity": "Interactable: ChargeShrine",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "ChargeShrine",
+     "why": "Stand inside the dome until it fills, then pick one of three stat boosts."
+    },
+    {
+     "stage": "vfx",
+     "name": "ShrineDome",
+     "why": "ChargeShrine state change"
+    },
+    {
+     "stage": "vfx",
+     "name": "ShrineChargedBurst",
+     "why": "ChargeShrine state change"
+    },
+    {
+     "stage": "sfx",
+     "name": "shrine_charge_loop",
+     "why": "ChargeShrine feedback"
+    },
+    {
+     "stage": "sfx",
+     "name": "shrine_complete",
+     "why": "ChargeShrine feedback"
+    }
+   ]
+  },
+  {
+   "entity": "Interactable: GreedShrine",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "GreedShrine",
+     "why": "+5% Difficulty and +10% Gold Gain each time you touch it."
+    },
+    {
+     "stage": "vfx",
+     "name": "ShrineChargedBurst",
+     "why": "GreedShrine state change"
+    },
+    {
+     "stage": "sfx",
+     "name": "shrine_greed",
+     "why": "GreedShrine feedback"
+    }
+   ]
+  },
+  {
+   "entity": "Interactable: ChallengeShrine",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "ChallengeShrine",
+     "why": "Summons a pack of elites. Clear them for a free chest."
+    },
+    {
+     "stage": "vfx",
+     "name": "ShrineChargedBurst",
+     "why": "ChallengeShrine state change"
+    },
+    {
+     "stage": "sfx",
+     "name": "shrine_complete",
+     "why": "ChallengeShrine feedback"
+    }
+   ]
+  },
+  {
+   "entity": "Interactable: VacuumShrine",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "VacuumShrine",
+     "why": "One use. Pulls every XP gem on the map to the squad."
+    },
+    {
+     "stage": "vfx",
+     "name": "MagnetPull",
+     "why": "VacuumShrine state change"
+    },
+    {
+     "stage": "sfx",
+     "name": "magnet",
+     "why": "VacuumShrine feedback"
+    }
+   ]
+  },
+  {
+   "entity": "Interactable: SmugStatue",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "SmugStatue",
+     "why": "Free item: pick one of three. One use per player."
+    },
+    {
+     "stage": "vfx",
+     "name": "ShrineChargedBurst",
+     "why": "SmugStatue state change"
+    },
+    {
+     "stage": "sfx",
+     "name": "shrine_complete",
+     "why": "SmugStatue feedback"
+    }
+   ]
+  },
+  {
+   "entity": "Interactable: DodgyDan",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "DodgyDan",
+     "why": "Vendor. Three items for gold."
+    },
+    {
+     "stage": "sfx",
+     "name": "shop_buy",
+     "why": "DodgyDan feedback"
+    },
+    {
+     "stage": "sfx",
+     "name": "shop_denied",
+     "why": "DodgyDan feedback"
+    }
+   ]
+  },
+  {
+   "entity": "Interactable: BossPortal",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "BossPortal",
+     "why": "Skull-topped stone arch on a stepped dais. Interact to summon the stage boss; becomes the exit after the boss dies."
+    },
+    {
+     "stage": "vfx",
+     "name": "PortalSwirl",
+     "why": "BossPortal state change"
+    },
+    {
+     "stage": "vfx",
+     "name": "BossPortalWind",
+     "why": "BossPortal state change"
+    },
+    {
+     "stage": "sfx",
+     "name": "portal_open",
+     "why": "BossPortal feedback"
+    },
+    {
+     "stage": "sfx",
+     "name": "portal_enter",
+     "why": "BossPortal feedback"
+    },
+    {
+     "stage": "sfx",
+     "name": "boss_spawn",
+     "why": "BossPortal feedback"
+    }
+   ]
+  },
+  {
+   "entity": "Interactable: Pot",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "Pot",
+     "why": "Breaks when hit. Drops gold or XP."
+    },
+    {
+     "stage": "vfx",
+     "name": "BreakPuff",
+     "why": "Pot state change"
+    },
+    {
+     "stage": "sfx",
+     "name": "pot_break",
+     "why": "Pot feedback"
+    }
+   ]
+  },
+  {
+   "entity": "Interactable: Crate",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "Crate",
+     "why": "Breaks when hit. Small chance of a powerup."
+    },
+    {
+     "stage": "vfx",
+     "name": "BreakPuff",
+     "why": "Crate state change"
+    },
+    {
+     "stage": "sfx",
+     "name": "crate_break",
+     "why": "Crate feedback"
+    }
+   ]
+  },
+  {
+   "entity": "Pickup: XPGem",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "XPGem",
+     "why": "blue elongated hexagonal crystal; three sizes as gems merge"
+    },
+    {
+     "stage": "vfx",
+     "name": "PickupGlint",
+     "why": "XPGem collect cue"
+    },
+    {
+     "stage": "sfx",
+     "name": "xp_pickup",
+     "why": "XPGem collect sound"
+    }
+   ]
+  },
+  {
+   "entity": "Pickup: GoldCoin",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "GoldCoin",
+     "why": "chunky gold coin with a stamped G"
+    },
+    {
+     "stage": "vfx",
+     "name": "PickupGlint",
+     "why": "GoldCoin collect cue"
+    },
+    {
+     "stage": "sfx",
+     "name": "coin_pickup",
+     "why": "GoldCoin collect sound"
+    }
+   ]
+  },
+  {
+   "entity": "Pickup: PowerupMagnet",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "PowerupMagnet",
+     "why": "red horseshoe magnet with silver tips; pulls all gems to the squad"
+    },
+    {
+     "stage": "vfx",
+     "name": "MagnetPull",
+     "why": "PowerupMagnet collect cue"
+    },
+    {
+     "stage": "sfx",
+     "name": "magnet",
+     "why": "PowerupMagnet collect sound"
+    }
+   ]
+  },
+  {
+   "entity": "Pickup: PowerupSnack",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "PowerupSnack",
+     "why": "a burger; heals 25% of max HP"
+    },
+    {
+     "stage": "vfx",
+     "name": "HealPlus",
+     "why": "PowerupSnack collect cue"
+    },
+    {
+     "stage": "sfx",
+     "name": "heal",
+     "why": "PowerupSnack collect sound"
+    }
+   ]
+  },
+  {
+   "entity": "Pickup: PowerupFrenzy",
+   "needs": [
+    {
+     "stage": "meshes",
+     "name": "PowerupFrenzy",
+     "why": "red chilli; +50% Damage and Attack Speed for 10s"
+    },
+    {
+     "stage": "vfx",
+     "name": "FrenzyAura",
+     "why": "PowerupFrenzy collect cue"
+    },
+    {
+     "stage": "sfx",
+     "name": "frenzy",
+     "why": "PowerupFrenzy collect sound"
+    }
+   ]
+  },
+  {
+   "entity": "World: Mossy Woods (the forest map)",
+   "needs": [
+    {
+     "stage": "map",
+     "name": "MossyWoods",
+     "why": "the playable 720 x 720 stud hill map: heightfield, cliffs, paths, anchor points for interactables and spawns"
+    },
+    {
+     "stage": "map",
+     "name": "LobbyGlade",
+     "why": "small forest diorama behind the menus, with the spawn portal"
+    },
+    {
+     "stage": "meshes",
+     "name": "TerrainMossyWoods",
+     "why": "smooth rolling terrain mesh chunks with painted cartoon grass, dirt and stone textures"
+    },
+    {
+     "stage": "meshes",
+     "name": "SkyForestNight",
+     "why": "six-face painted twilight sky: teal-blue gradient, soft puffy clouds, far mountain silhouettes"
+    },
+    {
+     "stage": "meshes",
+     "name": "TreeLeaning",
+     "why": "tall tree, thick trunk leaning 15 degrees with one forked branch, four rounded puffy canopies"
+    },
+    {
+     "stage": "meshes",
+     "name": "TreeTwin",
+     "why": "tree with two trunks from one base and five rounded puffy canopies at different heights"
+    },
+    {
+     "stage": "meshes",
+     "name": "TreeSapling",
+     "why": "short young tree, straight trunk, two small puffy canopies"
+    },
+    {
+     "stage": "meshes",
+     "name": "Bush",
+     "why": "low round puffy bush with a few orange berries"
+    },
+    {
+     "stage": "meshes",
+     "name": "BoulderLarge",
+     "why": "large chunky grey boulder with soft bevelled planes and a slightly flat top"
+    },
+    {
+     "stage": "meshes",
+     "name": "BoulderFlat",
+     "why": "wide low slab of grey rock with rounded edges, jumpable"
+    },
+    {
+     "stage": "meshes",
+     "name": "RockSmall",
+     "why": "small rounded grey rock"
+    },
+    {
+     "stage": "meshes",
+     "name": "RuinTower",
+     "why": "round stone-brick tower three storeys high with chunky uneven bricks, broken top, ivy patches, doorway"
+    },
+    {
+     "stage": "meshes",
+     "name": "RuinWall",
+     "why": "length of thick chunky stone-brick wall with a collapsed end and ivy"
+    },
+    {
+     "stage": "meshes",
+     "name": "RuinArch",
+     "why": "chunky stone-brick archway wide enough to run through"
+    },
+    {
+     "stage": "meshes",
+     "name": "StoneSteps",
+     "why": "broad flight of worn stone steps with rounded edges"
+    },
+    {
+     "stage": "meshes",
+     "name": "FallenLog",
+     "why": "fallen tree trunk with a broken end and bark rings"
+    },
+    {
+     "stage": "meshes",
+     "name": "Stump",
+     "why": "tree stump with visible rings"
+    },
+    {
+     "stage": "meshes",
+     "name": "LanternPost",
+     "why": "short stone post with a hanging iron lantern, warm glow"
+    },
+    {
+     "stage": "meshes",
+     "name": "GrassTuft",
+     "why": "cross-plane cartoon grass and fern tuft"
+    },
+    {
+     "stage": "meshes",
+     "name": "EmberMote",
+     "why": "tiny quad used for drifting embers and fireflies"
+    },
+    {
+     "stage": "vfx",
+     "name": "AmbientEmbers",
+     "why": "drifting red embers, seen in the reference night forest"
+    },
+    {
+     "stage": "vfx",
+     "name": "PortalSwirl",
+     "why": "spawn ring the squad steps out of"
+    },
+    {
+     "stage": "sfx",
+     "name": "ambience_forest",
+     "why": "night forest bed under the music"
+    },
+    {
+     "stage": "sfx",
+     "name": "music_forest",
+     "why": "run music"
+    },
+    {
+     "stage": "sfx",
+     "name": "music_overtime",
+     "why": "final-horde music"
+    }
+   ]
+  },
+  {
+   "entity": "The level-up moment",
+   "needs": [
+    {
+     "stage": "ui",
+     "name": "LevelUpFx",
+     "why": "light rays, gem confetti and the rainbow XP bar"
+    },
+    {
+     "stage": "ui",
+     "name": "UpgradeOffers",
+     "why": "the three cards with BANISH / SKIP / REFRESH"
+    },
+    {
+     "stage": "vfx",
+     "name": "LevelUpBurst",
+     "why": "world-space ring so teammates see who levelled"
+    },
+    {
+     "stage": "sfx",
+     "name": "level_up",
+     "why": "fanfare"
+    },
+    {
+     "stage": "sfx",
+     "name": "offer_pick",
+     "why": "card chosen"
+    },
+    {
+     "stage": "sfx",
+     "name": "banish",
+     "why": "banish used"
+    },
+    {
+     "stage": "sfx",
+     "name": "refresh",
+     "why": "refresh used"
+    }
+   ]
+  },
+  {
+   "entity": "Screens",
+   "needs": [
+    {
+     "stage": "ui",
+     "name": "MainMenu",
+     "why": "first thing a player sees: tilted wordmark banner, PLAY, squad list"
+    },
+    {
+     "stage": "ui",
+     "name": "CharacterSelect",
+     "why": "pick a hero: 4x5 portrait grid with locked silhouettes, detail card, CONFIRM"
+    },
+    {
+     "stage": "ui",
+     "name": "MapSelect",
+     "why": "host picks the map; shows tier table, highscore, locked maps"
+    },
+    {
+     "stage": "ui",
+     "name": "HUD",
+     "why": "everything read during play"
+    },
+    {
+     "stage": "ui",
+     "name": "InventoryPanel",
+     "why": "left flank of every pause panel and the Tab overlay"
+    },
+    {
+     "stage": "ui",
+     "name": "StatsPanel",
+     "why": "right flank of every pause panel: 31 stats in five groups"
+    },
+    {
+     "stage": "ui",
+     "name": "ChestPanel",
+     "why": "open prompt, reveal animation and the item card with BANISH / TAKE"
+    },
+    {
+     "stage": "ui",
+     "name": "ShrineOffers",
+     "why": "charge shrine reward: three stat rows and Ignore Offers"
+    },
+    {
+     "stage": "ui",
+     "name": "ShopPanel",
+     "why": "vendor: flavour line, three priced cards, LEAVE"
+    },
+    {
+     "stage": "ui",
+     "name": "StatueOffers",
+     "why": "free item pick from the statue: three item cards, SKIP"
+    },
+    {
+     "stage": "ui",
+     "name": "BigMap",
+     "why": "Tab overlay: whole-map view with interactable icons and teammates"
+    },
+    {
+     "stage": "ui",
+     "name": "StageTitle",
+     "why": "stage intro card under the letterbox: tier, name, joke line"
+    },
+    {
+     "stage": "ui",
+     "name": "Banner",
+     "why": "centre-screen announcements: FINAL HORDE INCOMING!, boss name, LEVEL UP"
+    },
+    {
+     "stage": "ui",
+     "name": "DownedOverlay",
+     "why": "co-op: you are down, who is alive, spectate arrows"
+    },
+    {
+     "stage": "ui",
+     "name": "DeathScreen",
+     "why": "the wipe: black screen, title, joke line, kneeling hero, CONFIRM"
+    },
+    {
+     "stage": "ui",
+     "name": "Results",
+     "why": "end of run: kills, level, time, gold, silver earned, per-player table, PLAY AGAIN"
+    },
+    {
+     "stage": "ui",
+     "name": "PauseMenu",
+     "why": "resume, settings (volume, sensitivity, damage numbers), leave run"
+    },
+    {
+     "stage": "ui",
+     "name": "TouchControls",
+     "why": "mobile: move stick, look drag area, JUMP, SLIDE, INTERACT, TAB"
+    },
+    {
+     "stage": "ui",
+     "name": "Toast",
+     "why": "unlock and notice toasts, top-left over the HUD"
+    }
+   ]
+  },
+  {
+   "entity": "HUD and map icons",
+   "needs": [
+    {
+     "stage": "ui",
+     "name": "IconClock",
+     "why": "cartoon icon used by the HUD, minimap or menus"
+    },
+    {
+     "stage": "ui",
+     "name": "IconSilver",
+     "why": "cartoon icon used by the HUD, minimap or menus"
+    },
+    {
+     "stage": "ui",
+     "name": "IconGold",
+     "why": "cartoon icon used by the HUD, minimap or menus"
+    },
+    {
+     "stage": "ui",
+     "name": "IconSkull",
+     "why": "cartoon icon used by the HUD, minimap or menus"
+    },
+    {
+     "stage": "ui",
+     "name": "IconChest",
+     "why": "cartoon icon used by the HUD, minimap or menus"
+    },
+    {
+     "stage": "ui",
+     "name": "IconPadlock",
+     "why": "cartoon icon used by the HUD, minimap or menus"
+    },
+    {
+     "stage": "ui",
+     "name": "IconCheck",
+     "why": "cartoon icon used by the HUD, minimap or menus"
+    },
+    {
+     "stage": "ui",
+     "name": "IconCrown",
+     "why": "cartoon icon used by the HUD, minimap or menus"
+    },
+    {
+     "stage": "ui",
+     "name": "IconRun",
+     "why": "cartoon icon used by the HUD, minimap or menus"
+    },
+    {
+     "stage": "ui",
+     "name": "IconArrowPlayer",
+     "why": "cartoon icon used by the HUD, minimap or menus"
+    },
+    {
+     "stage": "ui",
+     "name": "IconMapChest",
+     "why": "cartoon icon used by the HUD, minimap or menus"
+    },
+    {
+     "stage": "ui",
+     "name": "IconMapShrine",
+     "why": "cartoon icon used by the HUD, minimap or menus"
+    },
+    {
+     "stage": "ui",
+     "name": "IconMapBoss",
+     "why": "cartoon icon used by the HUD, minimap or menus"
+    },
+    {
+     "stage": "ui",
+     "name": "IconMapVendor",
+     "why": "cartoon icon used by the HUD, minimap or menus"
+    },
+    {
+     "stage": "ui",
+     "name": "IconMapTeammate",
+     "why": "cartoon icon used by the HUD, minimap or menus"
+    },
+    {
+     "stage": "ui",
+     "name": "IconShield",
+     "why": "cartoon icon used by the HUD, minimap or menus"
+    },
+    {
+     "stage": "ui",
+     "name": "IconPassive",
+     "why": "cartoon icon used by the HUD, minimap or menus"
+    },
+    {
+     "stage": "ui",
+     "name": "IconExclaim",
+     "why": "cartoon icon used by the HUD, minimap or menus"
+    }
+   ]
+  },
+  {
+   "entity": "Logo and frame ornaments",
+   "needs": [
+    {
+     "stage": "ui",
+     "name": "LogoBanner",
+     "why": "tilted white strip with the bold black BONK HORDE wordmark, cartoon lettering"
+    },
+    {
+     "stage": "ui",
+     "name": "IconRivet",
+     "why": "small round rivet drawn in each panel corner, the cartoon version of the reference riveted frames"
+    }
+   ]
+  },
+  {
+   "entity": "Interface sound and run stings",
+   "needs": [
+    {
+     "stage": "sfx",
+     "name": "ui_click",
+     "why": "interface or run-state feedback"
+    },
+    {
+     "stage": "sfx",
+     "name": "ui_hover",
+     "why": "interface or run-state feedback"
+    },
+    {
+     "stage": "sfx",
+     "name": "ui_confirm",
+     "why": "interface or run-state feedback"
+    },
+    {
+     "stage": "sfx",
+     "name": "ui_back",
+     "why": "interface or run-state feedback"
+    },
+    {
+     "stage": "sfx",
+     "name": "timer_tick",
+     "why": "interface or run-state feedback"
+    },
+    {
+     "stage": "sfx",
+     "name": "final_swarm_alarm",
+     "why": "interface or run-state feedback"
+    },
+    {
+     "stage": "sfx",
+     "name": "victory_sting",
+     "why": "interface or run-state feedback"
+    },
+    {
+     "stage": "sfx",
+     "name": "death_sting",
+     "why": "interface or run-state feedback"
+    },
+    {
+     "stage": "sfx",
+     "name": "music_menu",
+     "why": "interface or run-state feedback"
+    },
+    {
+     "stage": "sfx",
+     "name": "music_results",
+     "why": "interface or run-state feedback"
+    }
+   ]
+  }
+ ],
+ "publish": {
+  "universe_id": 10770589827,
+  "place_id": 125855916502243,
+  "creator_user_id": 1600089176,
+  "state": "private place saved to Roblox by the user on 2026-10-12; not public"
+ },
+ "plan": {
+  "overview": "Bonk Horde. A 3D survivors-like roguelike for Roblox: third-person, auto-attacking weapons, hordes of enemies, level-up build choices, ten-minute runs. PC, gamepad and mobile. Squads of 1 to 3. Cartoon violence only, suitable for the Mild maturity label (ages 9+).",
+  "pitch_and_usp": "Survive a ten-minute goblin horde with a build you assemble on the fly, then beat the boss before the final horde arrives. Against the game it resembles: it is on Roblox, it is free, and it is co-op for three. Against the Roblox horde games measured in research: weapons fire themselves so the skill is movement and build choice, with jump and slide momentum on a vertical map instead of flat arenas, in a bright cartoon style.",
+  "core_concept": "0 min: pick a hero, step out of the portal, one weapon, goblins trickle in, first level-up inside 30 seconds. 5 min: three or four weapons, a couple of tomes, a handful of items; you are choosing between greed (shrines, chests) and finding the boss portal while skeletons thicken. 10 min: the boss fight under a countdown, then the final horde and the question of how long you can last. 30 min: second and third runs trying a different hero and build, chasing a faster boss kill or a higher kill score. Tomorrow: silver saved toward the third hero, a best time and a best score to beat, friends to carry.",
+  "player_experience": "Fast, loud and a little silly. Movement should feel like the reference: quick acceleration, long downhill slides, chained hops. The power curve is the hook: one-shotting goblins at minute one, wading through two hundred enemies with five effects firing at minute eight. First win lands inside 30 seconds (first level-up with rays and confetti), a bigger one around 2 minutes (first chest reveal), and the run-defining one when the boss bar empties.",
+  "audience": "Roblox players who already play horde and wave survival games, mostly casual and social: friends dropping in together. Build depth and score chasing serve dedicated players. Not competitive: no PvP.",
+  "market": "Measured live on 2026-10-12, see design/research.md. Survive a Million Monkeys (18.8K playing, 97.6% likes) and Zombie Rush Survival (6.8K, 97.4%) prove demand for co-op horde survival; both are gun-and-wave games on flat maps with shallow builds. Robong Survivors (46 playing, 6.8M visits, 94.6% likes) is the closest survivors-like and is well liked but small; it is top-down-ish with no movement tech. Orbit Survivors is dead at 0 playing. Nobody on Roblox has the 3D momentum movement, the vertical map and the ten-minute boss-then-swarm structure together.",
+  "mechanics": "Movement: run, jump, hold-jump bunny hop that keeps 92% of speed, slide (speed boost on flat, acceleration downhill), extra jumps and jump height as stats. Combat: up to 4 weapons that fire on their own timers at the nearest or facing enemies; 8 weapons with distinct behaviours; 31 stats (the reference's full stats panel) fed by hero base, 12 tomes, 25 items and shrine boosts; crits and megacrits, knockback, poison, freeze, lifesteal, thorns, armour, evasion, shield that recharges out of combat. Levelling: shared squad XP from gems; on level-up the simulation pauses and every player picks from three offers rolled with rarity (Common to Legendary, shifted by Luck), with 1 banish, 5 skips and 3 refreshes per run. Economy: gold from kills and pots buys chests (price rises 30, 73, 122...) and vendor items; silver is paid at run end and persists. World: chests, charge shrines (stand in the dome for 8s, pick a boost), greed shrine (+difficulty for +gold), challenge shrine (elite pack for a free chest), vacuum shrine, statue (free item pick), vendor, pots and crates, magnet / snack / frenzy powerups, the boss portal. Timer: 10:00 countdown; at zero the final horde starts and difficulty tiers up every 30s. Co-op: instanced loot and prices per player, shared XP and gold drops, tombstone revives, enemy count and boss HP scale with squad size; solo pauses on every panel, co-op pauses only for level-ups and ghosts the chooser on other panels.",
+  "progression": "Short (seconds): kill, collect, level up, pick. Medium (one run): assemble 4 weapons and 4 tomes, stack items, find the portal, beat the boss, survive overtime. Long (across runs): silver toward unlocking the third hero, personal best boss-kill time and best kill score per hero shown in the menus. Deeper long-term tracks (quests, more unlocks) are out of scope for this build.",
+  "content": "1 map (Mossy Woods) plus a small lobby glade. 3 heroes (Sir Clonk the knight with Sword, Zib the fox with Fire Staff, Mint the frost mage with Frost Ring; Mint costs 150 silver). 8 weapons, 12 tomes, 25 items in four rarities. 8 enemy types (Goblin Runt, Goblin Bruiser, Slime, Skeleton, Shield Skeleton, Rock Golem, Twiglet, Ghost), any of which can spawn as a crowned elite; 2 minibosses (Boulder Bro, Hamlet the Hangry); 1 stage boss (Old Man Timber). 11 interactable kinds and 5 pickups. The full roster with numbers is in game.json under roster.",
+  "world": "Lobby Glade: a small forest clearing with the spawn portal; purpose is the backdrop for menus and where the squad stands between runs; no enemies. Mossy Woods: the run map, about 720 x 720 studs of hills, plateaus up to 60 studs high, ramps, cliff walls at the edge, dirt paths, stone-tile ruins, towers and walls to fight around; twilight palette with blue haze, warm lanterns and drifting fireflies and embers; difficulty rises with the clock (spawn timeline in roster); unlocked from the start. The boss portal, shrines, chests and vendor are placed on randomised anchor points each run so no two runs route the same. Desert and Graveyard appear in map select as locked.",
+  "story": "A horde has overrun the old woods and something big is asleep under the ruins. You jump through a portal, bonk everything, wake it up on purpose and bonk that too. Told through one-line jokes on the stage card, item descriptions and the death screen; no cutscenes or dialogue.",
+  "ui_ux": "Screens: MainMenu, CharacterSelect, MapSelect, HUD, UpgradeOffers (with InventoryPanel and StatsPanel flanking), ChestPanel, ShrineOffers, ShopPanel, StatueOffers, BigMap, StageTitle, Banner, LevelUpFx, DownedOverlay, DeathScreen, Results, PauseMenu, TouchControls, Toast. Layout, proportions and colour roles follow design/refs/REFERENCE.md at 1920x1080 and scale down for phones; the skin is cartoon (rounded panels, thick outlines, bold rounded fonts). Common actions: start a run in 3 clicks (Play, Confirm hero, Confirm map); take an upgrade in 1 click or one key (1, 2, 3); open a chest with one key press and one click; every panel is fully usable with a gamepad (focus brackets) and by touch.",
+  "tutorial": "No separate tutorial level. 0:00 the stage card names the place; the quest tracker says 'Find the Boss Portal'. First 10s: only Goblin Runts, slow, so the first kills happen without input beyond moving. First level-up (about 25s) teaches the offer panel by pausing on it. A chest is always placed within 60 studs of spawn with a visible price prompt, and a charge shrine with its '!' within 120 studs. One-time hint toasts on first run: 'Hold JUMP to bunny hop', 'SLIDE downhill to go fast', 'Stand in the dome to charge the shrine'. At 5:00 a toast points at the minimap's red portal mark if the portal has not been found.",
+  "art_direction": "Stylised cartoon, at the user's direction (2026-10-12): the reference decides WHAT is on screen and where; the look is clean cartoon, not pixelated. Shapes: chunky and exaggerated (big heads, big hands, oversized weapons), smooth rounded forms with clean bevels. Meshes: props 100 to 2,200 triangles, enemies 500 to 1,200, heroes about 3,200, smooth shading. Textures: hand-painted cartoon at 512 to 1024 px with flat base colours, soft gradient shading and a few bold details; no visible pixels, no photo detail. Palette keeps the reference's colour roles, more saturated: grass #4C9A2E to #2F6B2A, dirt #8A5A30, stone #9AA0A6, bark #8A5230, canopy #3F8A2E with #7FC244 highlights, twilight sky #2A86B8 to #123E66, haze #2A6A8C. Lighting: cool moon key light with soft shadows, warm lantern lights, light bloom, a saturated colour grade and distance haze matched to the horizon. Skybox: painted twilight with soft puffy clouds, mountain silhouettes and a few stars. Readability: heroes get a thin cyan outline when shielded, enemies flash white on hit, elites wear a gold crown. UI: the reference's layout and colour roles (dark green panels, rarity-tinted cards, blue / green / red buttons) in a cartoon skin with rounded corners, thick dark outlines, a soft top gradient, chunky buttons with a darker lip, Luckiest Guy for titles and numbers, Fredoka One for body text, and sticker-style icons with thick outlines. A one-page style sheet (one hero, one enemy, one prop, one icon, one panel) is made first and judged against the reference before any batch work; every asset class is then compared side by side with both the reference still and the style sheet, and fidelity passes repeat until it holds.",
+  "audio": "Music by state: menu (laid back), forest run (upbeat adventure action), boss fight, overtime (faster), results. Ambience: night forest bed. SFX roles (63) cover interface, level-up and offers, chest and shrine interactions, each weapon's fire and impact, enemy hit / crit / death, player hurt / shield break / down / revive, movement, boss arrival / attacks / death, portal, final-horde alarm, pots and crates, vendor, timer ticks and the win and loss stings. Hit and pickup sounds are pitch-randomised and voice-limited so two hundred kills a minute stay pleasant. All audio is sourced from the Roblox Creator Store by asset id.",
+  "technical_architecture": "Rojo project with Knit services (server) and controllers (client), plain RemoteEvents, all tunables in Config, rules written as pure Core modules with Lune specs (Stats, Damage, XPCurve, Offers, SpawnDirector, Economy, Grid, Steering, WeaponMath, RunState, Snapshot). The horde is server-authoritative data, not instances: EnemyService simulates up to 350 enemies at 20 Hz on a spatial grid over the map's heightfield and blocked-cell grid, and streams compact buffer snapshots at 10 Hz over an UnreliableRemoteEvent; each client renders pooled low-poly models with interpolation, procedural limb animation and distance level-of-detail, moved in one BulkMoveTo per frame. Only players use Humanoids. Weapons, hits, pickups, prices and offers are resolved on the server; clients replay visuals from events. Roblox services: Players, RunService, DataStoreService, UserInputService, ContextActionService, TweenService, SoundService, Lighting, CollectionService, AssetService (EditableImage for the minimap). Asset routes: textures, icons, portraits, the logo and the sky are generated locally with Forge (driven through its local API) and uploaded through Open Cloud or the Studio MCP's upload_image; meshes that must be exact (hero limb sets, terrain, chest, portal, weapons) are authored in Blender and uploaded through Open Cloud with the user's API key, and organic meshes (enemies, bosses, trees, statues) come from Studio's generate_mesh off an approved Forge concept; in-Studio CreateAssetAsync is not available in this Studio build (probed).",
+  "data_saving": "One DataStore record per player: silver, unlocked heroes, runs per hero, best boss-kill time and best kill score per map. Loaded on join with three retries; saved at run end and on leave, with a 60s autosave. If the load fails the player still plays with defaults and saving is disabled for that session so a blank profile can never overwrite a real one; a toast says progress will not be saved this session. Run state itself is never saved: a run lives and dies with its server.",
+  "security": "The client sends only intent: move input (through the character), interact requests, offer choices, hero and map picks. The server validates every one: offer choices must match the offers it rolled for that player; purchases check the player's gold and the server-side price; interactions check distance to the interactable; hero picks check the unlock; pickups are collected by server-side range checks, never by client claim; damage, kills, XP, gold and silver are computed only on the server. Movement is client-owned as on any Roblox character, so the server clamps speed against the player's Movement Speed stat with a tolerance and snaps back teleports. Remote calls are rate limited per player.",
+  "multiplayer": "A server is one squad of up to 3; friends join through Roblox's own join. The first player is host and picks the map; everyone picks a hero and readies up; the run starts when all are ready. Joining mid-run: the newcomer picks a hero and drops in beside the squad with the starter weapon and queued level-ups worth 75% of the squad's level. Leaving mid-run: their gems and gold stay shared, enemy count and boss HP rescale down on the next spawn tick, and if the host leaves the next player becomes host. If the last living player leaves, the run ends for the downed. XP is shared; gold drops credit every player; chests, shrine rewards, statue picks and vendor stock are instanced per player so nobody can take another player's loot.",
+  "monetisation": {
+   "declined": "No Robux in this build. The loop has to be proven fun first; out_of_scope lists it. Natural later hooks are cosmetic hero skins and extra banish or refresh charges, noted here so the code leaves room."
+  },
+  "economy": "Gold (run-only): enters from kills (1 to 3 per enemy, more from elites and bosses, scaled by Gold Gain), pots, Gilded Sneakers and greed shrines; leaves through chests (rising price per chest opened, per player) and the vendor; resets every run. Silver (persistent): enters at run end from kills (1 per 100), minibosses (3 each) and the boss (10), times Silver Gain and the overtime tier multiplier; leaves only by unlocking Mint for 150. XP (run-only, shared): enters from gems dropped by every kill; consumed by level thresholds 6 + 4L + 0.35L squared.",
+  "retention": "Short runs with a strong 'one more' pull: a different hero or build each time, a best boss-kill time and kill score per hero to beat, silver accumulating toward the third hero, and friends to bring. Daily rewards, quests and seasons are out of scope for this build.",
+  "social": "Co-op for up to three with shared XP, revives and a results table comparing each player's kills and damage. Friends join through Roblox's join-friend flow. No trading, guilds or global leaderboards in this build."
+ }
+}

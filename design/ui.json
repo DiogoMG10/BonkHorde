@@ -1,0 +1,390 @@
+{
+ "resolution": [
+  1920,
+  1080
+ ],
+ "reference": "design/refs/REFERENCE.md (measurements) and design/refs/frames/*.jpg (stills)",
+ "theme": {
+  "panel_fill": "#222A25",
+  "panel_header": "#2E4637",
+  "panel_border": "#A3A69F",
+  "ink": "#FFFFFF",
+  "ink_shadow": "#000000",
+  "label_tan": "#D9B45A",
+  "value_up": "#35D04A",
+  "xp": "#11B4F4",
+  "hp": "#E5121B",
+  "shield": "#12A8E8",
+  "rarity": {
+   "Common": "#35D07A",
+   "Uncommon": "#3D8BFF",
+   "Rare": "#B04DFF",
+   "Epic": "#FF4D9A",
+   "Legendary": "#FFD23A",
+   "New": "#FFFFFF"
+  },
+  "card_fill": {
+   "Common": "#0F3B24",
+   "Uncommon": "#12294A",
+   "Rare": "#2A1040",
+   "Epic": "#401028",
+   "Legendary": "#4A4309",
+   "New": "#2B2B2B"
+  },
+  "button": {
+   "confirm": "#2E7FD1",
+   "skip": "#2E9E4C",
+   "banish": "#B3263A",
+   "leave": "#6B6F6B"
+  },
+  "fonts": {
+   "title": "LuckiestGuy with a 3 px dark UIStroke",
+   "body": "FredokaOne",
+   "numbers": "LuckiestGuy"
+  },
+  "shape": {
+   "corner_radius": 12,
+   "stroke": "3 px #101512",
+   "button_lip": "darker bottom lip plus soft drop shadow",
+   "panel_gradient": "8% lighter at the top"
+  }
+ },
+ "screens": [
+  {
+   "name": "MainMenu",
+   "why": "first thing a player sees: tilted wordmark banner, PLAY, squad list",
+   "elements": [
+    "LogoBanner",
+    "PlayButton",
+    "SquadList",
+    "SilverTotal",
+    "SettingsButton",
+    "VersionLabel"
+   ]
+  },
+  {
+   "name": "CharacterSelect",
+   "why": "pick a hero: 4x5 portrait grid with locked silhouettes, detail card, CONFIRM",
+   "elements": [
+    "CharacterGrid",
+    "PortraitTile",
+    "LockedTile",
+    "DetailCard",
+    "CharacterName",
+    "RunCount",
+    "Blurb",
+    "StartWeaponRow",
+    "PassiveRow",
+    "UnlockButton",
+    "ConfirmButton",
+    "SilverTotal",
+    "CloseButton"
+   ]
+  },
+  {
+   "name": "MapSelect",
+   "why": "host picks the map; shows tier table, highscore, locked maps",
+   "elements": [
+    "MapList",
+    "MapRow",
+    "DetailCard",
+    "MapName",
+    "TierTable",
+    "Highscore",
+    "BestTime",
+    "StageCount",
+    "ConfirmButton",
+    "ReadyList",
+    "CloseButton"
+   ]
+  },
+  {
+   "name": "HUD",
+   "why": "everything read during play",
+   "elements": [
+    "XPBar",
+    "RunClock",
+    "SilverCount",
+    "GoldCount",
+    "KillCount",
+    "NextChestPrice",
+    "StageTimer",
+    "DifficultyPill",
+    "LevelLabel",
+    "ShieldBar",
+    "HPBar",
+    "WeaponRow",
+    "TomeRow",
+    "QuestTracker",
+    "Minimap",
+    "ItemStrip",
+    "BossBars",
+    "TeammateBars",
+    "InteractPrompt",
+    "PickupToast"
+   ]
+  },
+  {
+   "name": "UpgradeOffers",
+   "why": "the level-up choice: three cards, BANISH / SKIP / REFRESH with charges, countdown in co-op",
+   "elements": [
+    "OffersPanel",
+    "OfferCard",
+    "RarityTag",
+    "OfferIcon",
+    "OfferName",
+    "StatLine",
+    "LevelTag",
+    "BanishButton",
+    "SkipButton",
+    "RefreshButton",
+    "ChoiceTimer",
+    "FocusBrackets"
+   ]
+  },
+  {
+   "name": "InventoryPanel",
+   "why": "left flank of every pause panel and the Tab overlay",
+   "elements": [
+    "WeaponSlots",
+    "TomeSlots",
+    "ItemGrid",
+    "SlotLevel"
+   ]
+  },
+  {
+   "name": "StatsPanel",
+   "why": "right flank of every pause panel: 31 stats in five groups",
+   "elements": [
+    "StatsHeader",
+    "StatRow"
+   ]
+  },
+  {
+   "name": "ChestPanel",
+   "why": "open prompt, reveal animation and the item card with BANISH / TAKE",
+   "elements": [
+    "ChestStage",
+    "OpenButton",
+    "RarityWord",
+    "ItemName",
+    "ItemText",
+    "ItemSprite",
+    "LightRays",
+    "BanishButton",
+    "TakeButton"
+   ]
+  },
+  {
+   "name": "ShrineOffers",
+   "why": "charge shrine reward: three stat rows and Ignore Offers",
+   "elements": [
+    "ShrinePanel",
+    "RewardRow",
+    "RarityTag",
+    "IgnoreRow"
+   ]
+  },
+  {
+   "name": "ShopPanel",
+   "why": "vendor: flavour line, three priced cards, LEAVE",
+   "elements": [
+    "ShopPanelFrame",
+    "FlavourLine",
+    "ShopCard",
+    "PriceTag",
+    "LeaveButton"
+   ]
+  },
+  {
+   "name": "StatueOffers",
+   "why": "free item pick from the statue: three item cards, SKIP",
+   "elements": [
+    "StatuePanel",
+    "FlavourLine",
+    "ItemCard",
+    "SkipButton"
+   ]
+  },
+  {
+   "name": "BigMap",
+   "why": "Tab overlay: whole-map view with interactable icons and teammates",
+   "elements": [
+    "MapFrame",
+    "MapIcons",
+    "CompassLetters",
+    "PlayerArrow"
+   ]
+  },
+  {
+   "name": "StageTitle",
+   "why": "stage intro card under the letterbox: tier, name, joke line",
+   "elements": [
+    "TierLabel",
+    "StageName",
+    "StageJoke",
+    "Letterbox"
+   ]
+  },
+  {
+   "name": "Banner",
+   "why": "centre-screen announcements: FINAL HORDE INCOMING!, boss name, LEVEL UP",
+   "elements": [
+    "BannerText"
+   ]
+  },
+  {
+   "name": "LevelUpFx",
+   "why": "the level-up moment in screen space: light rays, gem confetti, rainbow XP bar",
+   "elements": [
+    "RayBurst",
+    "GemConfetti",
+    "RainbowBar"
+   ]
+  },
+  {
+   "name": "DownedOverlay",
+   "why": "co-op: you are down, who is alive, spectate arrows",
+   "elements": [
+    "DownedLabel",
+    "ReviveProgress",
+    "SpectateName"
+   ]
+  },
+  {
+   "name": "DeathScreen",
+   "why": "the wipe: black screen, title, joke line, kneeling hero, CONFIRM",
+   "elements": [
+    "DeathTitle",
+    "DeathJoke",
+    "HeroViewport",
+    "ConfirmButton"
+   ]
+  },
+  {
+   "name": "Results",
+   "why": "end of run: kills, level, time, gold, silver earned, per-player table, PLAY AGAIN",
+   "elements": [
+    "ResultTitle",
+    "StatTable",
+    "SilverEarned",
+    "PlayerRows",
+    "PlayAgainButton",
+    "LobbyButton"
+   ]
+  },
+  {
+   "name": "PauseMenu",
+   "why": "resume, settings (volume, sensitivity, damage numbers), leave run",
+   "elements": [
+    "ResumeButton",
+    "VolumeSliders",
+    "SensitivitySlider",
+    "DamageNumbersToggle",
+    "LeaveButton"
+   ]
+  },
+  {
+   "name": "TouchControls",
+   "why": "mobile: move stick, look drag area, JUMP, SLIDE, INTERACT, TAB",
+   "elements": [
+    "MoveStick",
+    "JumpButton",
+    "SlideButton",
+    "InteractButton",
+    "TabButton"
+   ]
+  },
+  {
+   "name": "Toast",
+   "why": "unlock and notice toasts, top-left over the HUD",
+   "elements": [
+    "ToastFrame",
+    "ToastPortrait",
+    "ToastTitle",
+    "ToastText"
+   ]
+  }
+ ],
+ "icons": [
+  "IconClock",
+  "IconSilver",
+  "IconGold",
+  "IconSkull",
+  "IconChest",
+  "IconPadlock",
+  "IconCheck",
+  "IconCrown",
+  "IconRun",
+  "IconArrowPlayer",
+  "IconMapChest",
+  "IconMapShrine",
+  "IconMapBoss",
+  "IconMapVendor",
+  "IconMapTeammate",
+  "IconShield",
+  "IconPassive",
+  "IconExclaim",
+  "IconSword",
+  "IconFireStaff",
+  "IconFrostRing",
+  "IconLightningStaff",
+  "IconBone",
+  "IconBoomernana",
+  "IconAxe",
+  "IconPartyRocket",
+  "IconTomeDamage",
+  "IconTomeAgility",
+  "IconTomeCooldown",
+  "IconTomePrecision",
+  "IconTomeSize",
+  "IconTomeShield",
+  "IconTomeHealth",
+  "IconTomeRegen",
+  "IconTomeXP",
+  "IconTomeLuck",
+  "IconTomeAttraction",
+  "IconTomeQuantity",
+  "IconItemTickingBracelet",
+  "IconItemLuckyClover",
+  "IconItemZoomSocks",
+  "IconItemProteinGoop",
+  "IconItemSusJuice",
+  "IconItemDodgyBattery",
+  "IconItemBandageBox",
+  "IconItemStinkyCheese",
+  "IconItemFrostShard",
+  "IconItemGiantSlayerPin",
+  "IconItemShrineWrench",
+  "IconItemGildedSneakers",
+  "IconItemEchoGem",
+  "IconItemPocketCampfire",
+  "IconItemFeatherweight",
+  "IconItemStaticMitts",
+  "IconItemSkeletonKey",
+  "IconItemVampireMitts",
+  "IconItemNightlight",
+  "IconItemCrackedGoggles",
+  "IconItemPanicMirror",
+  "IconItemVolatileMeatball",
+  "IconItemBigIceCube",
+  "IconItemColossalFork",
+  "IconItemSecondWindClock",
+  "PortraitKnight",
+  "PortraitFox",
+  "PortraitFrostling"
+ ],
+ "frames": [
+  "LogoBanner",
+  "IconRivet"
+ ],
+ "rules": [
+  "Icons are cartoon sticker-style: bold shapes, thick dark outline, one highlight, 256 px, transparent background.",
+  "Panels, cards and buttons are built from native rounded corners, strokes and gradients, so they stay crisp at every screen size.",
+  "Layout, proportions and colour roles follow the reference measurements; only the skin is cartoon.",
+  "Nothing touches: 8 px minimum between siblings at 1920x1080. Centred means measured. No frame draws a box round a single child.",
+  "Every dynamic label ships bound to live data; a label still showing its mockup text in play is a defect.",
+  "Every panel works with mouse, gamepad focus and touch."
+ ],
+ "note": "roblox-ui spec. One tree emits the mockup, the .model.json and the Luau. Each screen above becomes one roblox-ui spec file in the UI stage."
+}

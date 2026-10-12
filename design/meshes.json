@@ -1,0 +1,379 @@
+{
+ "assets": [
+  {
+   "name": "HeroKnight",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: full plate knight, bucket great-helm with a cross slit, grey steel with tan leather straps. Standing T-pose, humanoid proportions with a slightly large head.",
+   "tris": 3200,
+   "class": "hero",
+   "rig": "R15-compatible: 15 separate limb meshes sharing one painted atlas, plus head gear and held-weapon attachment point",
+   "height_studs": 5.2
+  },
+  {
+   "name": "HeroFox",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: orange fox, tall blue wizard hat with a star, blue robe, white-tipped bushy tail, wooden staff. Standing T-pose, humanoid proportions with a slightly large head.",
+   "tris": 3200,
+   "class": "hero",
+   "rig": "R15-compatible: 15 separate limb meshes sharing one painted atlas, plus head gear and held-weapon attachment point",
+   "height_studs": 5.2
+  },
+  {
+   "name": "HeroFrostling",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: teal hooded mage with two long upright ears on the hood, belt, tall crystal-tipped staff, faint cyan glow. Standing T-pose, humanoid proportions with a slightly large head.",
+   "tris": 3200,
+   "class": "hero",
+   "rig": "R15-compatible: 15 separate limb meshes sharing one painted atlas, plus head gear and held-weapon attachment point",
+   "height_studs": 5.2
+  },
+  {
+   "name": "WeaponSword",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: Sword for a fantasy game, oversized and chunky. Slashes through multiple enemies.",
+   "tris": 500,
+   "class": "weapon",
+   "height_studs": 3.5
+  },
+  {
+   "name": "WeaponFireStaff",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: Fire Staff for a fantasy game, oversized and chunky. Lobs fireballs that explode on impact.",
+   "tris": 500,
+   "class": "weapon",
+   "height_studs": 3.5
+  },
+  {
+   "name": "WeaponLightningStaff",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: Lightning Staff for a fantasy game, oversized and chunky. Summons lightning to smite nearby enemies.",
+   "tris": 500,
+   "class": "weapon",
+   "height_studs": 3.5
+  },
+  {
+   "name": "WeaponBone",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: Bone for a fantasy game, oversized and chunky. Throws bones that bounce off enemies.",
+   "tris": 500,
+   "class": "weapon",
+   "height_studs": 3.5
+  },
+  {
+   "name": "WeaponBoomernana",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: Boomernana for a fantasy game, oversized and chunky. A banana that always comes back. Hits twice.",
+   "tris": 500,
+   "class": "weapon",
+   "height_studs": 3.5
+  },
+  {
+   "name": "WeaponAxe",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: Axe for a fantasy game, oversized and chunky. Hurls spinning axes that hang around and shred.",
+   "tris": 500,
+   "class": "weapon",
+   "height_studs": 3.5
+  },
+  {
+   "name": "WeaponRocket",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: Party Rocket for a fantasy game, oversized and chunky. Fires homing rockets. Fashionably late, very loud.",
+   "tris": 500,
+   "class": "weapon",
+   "height_studs": 3.5
+  },
+  {
+   "name": "EnemyGoblinRunt",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: small skinny bright-green goblin, big pointed ears, brown loincloth, hunched run.",
+   "tris": 1200,
+   "class": "enemy",
+   "parts": "body, head, left arm, right arm, left leg, right leg",
+   "height_studs": 3.2
+  },
+  {
+   "name": "EnemyGoblinBruiser",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: larger dark-green goblin, leather cap, round wooden shield with iron rim, short rusty sword.",
+   "tris": 1200,
+   "class": "enemy",
+   "parts": "body, head, left arm, right arm, left leg, right leg",
+   "height_studs": 4.6
+  },
+  {
+   "name": "EnemySlime",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: bright lime-green blob with a grumpy face, pointed top, squashes as it hops.",
+   "tris": 500,
+   "class": "enemy",
+   "parts": "body",
+   "height_studs": 2.4
+  },
+  {
+   "name": "EnemySkeleton",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: bone-white skeleton, slightly stooped, arms forward, dark eye sockets.",
+   "tris": 1200,
+   "class": "enemy",
+   "parts": "body, head, left arm, right arm, left leg, right leg",
+   "height_studs": 4.8
+  },
+  {
+   "name": "EnemyShieldSkeleton",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: skeleton with a dented iron helmet, a kite shield and a notched sword.",
+   "tris": 1200,
+   "class": "enemy",
+   "parts": "body, head, left arm, right arm, left leg, right leg",
+   "height_studs": 5.0
+  },
+  {
+   "name": "EnemyRockGolem",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: hunched grey rock creature made of boulders, long arms, glowing cyan eyes.",
+   "tris": 1200,
+   "class": "enemy",
+   "parts": "body, head, left arm, right arm, left leg, right leg",
+   "height_studs": 6.0
+  },
+  {
+   "name": "EnemyGhost",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: white sheet ghost, ragged trailing hem, two black eye holes, arms raised.",
+   "tris": 500,
+   "class": "enemy",
+   "parts": "body",
+   "height_studs": 3.6
+  },
+  {
+   "name": "EnemyTwiglet",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: angry little tree stump on root legs with two twig arms and glowing green eyes.",
+   "tris": 1200,
+   "class": "enemy",
+   "parts": "body, head, left arm, right arm, left leg, right leg",
+   "height_studs": 3.4
+  },
+  {
+   "name": "EnemyHogBrute",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: huge pale boar-man, tusks, bare belly, ragged shorts, small furious eyes.",
+   "tris": 2200,
+   "class": "miniboss",
+   "parts": "body, head, left arm, right arm, left leg, right leg",
+   "height_studs": 13
+  },
+  {
+   "name": "BossOldManTimber",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: towering walking tree: bark body, heavy fists, horn-like broken branches, moss shoulders, glowing teal eyes.",
+   "tris": 4500,
+   "class": "boss",
+   "parts": "torso, head, left arm, right arm, left leg, right leg",
+   "height_studs": 26
+  },
+  {
+   "name": "EliteCrown",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: small three-point gold crown.",
+   "tris": 150,
+   "class": "marker",
+   "height_studs": 0.8
+  },
+  {
+   "name": "Chest",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: wooden treasure chest with grey iron bands and a rounded lid; lid is a separate part so it can open.",
+   "tris": 600,
+   "class": "interactable"
+  },
+  {
+   "name": "ChargeShrine",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: waist-high square stone pedestal with a carved glowing rune tablet on top and a stepped base.",
+   "tris": 600,
+   "class": "interactable"
+  },
+  {
+   "name": "GreedShrine",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: stone pedestal holding a tilted bowl overflowing with gold coins.",
+   "tris": 600,
+   "class": "interactable"
+  },
+  {
+   "name": "ChallengeShrine",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: stone pedestal with a horned skull and two crossed swords.",
+   "tris": 600,
+   "class": "interactable"
+  },
+  {
+   "name": "VacuumShrine",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: stone pedestal with a large horseshoe magnet carved from blue crystal.",
+   "tris": 600,
+   "class": "interactable"
+  },
+  {
+   "name": "SmugStatue",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: tall stone head statue with a smug smile and heavy brow, mossy.",
+   "tris": 600,
+   "class": "interactable"
+  },
+  {
+   "name": "DodgyDan",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: hunched hooded merchant in a long patched coat held open, standing beside a small crate stall.",
+   "tris": 2000,
+   "class": "interactable"
+  },
+  {
+   "name": "BossPortal",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: round stone arch made of big dark blocks with a horned skull at the top, standing on a three-step octagonal stone dais.",
+   "tris": 1800,
+   "class": "interactable"
+  },
+  {
+   "name": "Pot",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: orange clay pot with a narrow neck.",
+   "tris": 600,
+   "class": "interactable"
+  },
+  {
+   "name": "Crate",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: wooden crate with cross-braced sides.",
+   "tris": 600,
+   "class": "interactable"
+  },
+  {
+   "name": "Tombstone",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: small rounded grey tombstone with a carved skull.",
+   "tris": 600,
+   "class": "interactable"
+  },
+  {
+   "name": "XPGem",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: blue elongated hexagonal crystal; three sizes as gems merge.",
+   "tris": 120,
+   "class": "pickup"
+  },
+  {
+   "name": "GoldCoin",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: chunky gold coin with a stamped G.",
+   "tris": 120,
+   "class": "pickup"
+  },
+  {
+   "name": "PowerupMagnet",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: red horseshoe magnet with silver tips; pulls all gems to the squad.",
+   "tris": 400,
+   "class": "pickup"
+  },
+  {
+   "name": "PowerupSnack",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: a burger; heals 25% of max HP.",
+   "tris": 400,
+   "class": "pickup"
+  },
+  {
+   "name": "PowerupFrenzy",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: red chilli; +50% Damage and Attack Speed for 10s.",
+   "tris": 400,
+   "class": "pickup"
+  },
+  {
+   "name": "TreeLeaning",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: tall tree, thick trunk leaning 15 degrees with one forked branch, four rounded puffy canopies.",
+   "tris": 1400,
+   "class": "prop"
+  },
+  {
+   "name": "TreeTwin",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: tree with two trunks from one base and five rounded puffy canopies at different heights.",
+   "tris": 1700,
+   "class": "prop"
+  },
+  {
+   "name": "TreeSapling",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: short young tree, straight trunk, two small puffy canopies.",
+   "tris": 700,
+   "class": "prop"
+  },
+  {
+   "name": "Bush",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: low round puffy bush with a few orange berries.",
+   "tris": 400,
+   "class": "prop"
+  },
+  {
+   "name": "BoulderLarge",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: large chunky grey boulder with soft bevelled planes and a slightly flat top.",
+   "tris": 300,
+   "class": "prop"
+  },
+  {
+   "name": "BoulderFlat",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: wide low slab of grey rock with rounded edges, jumpable.",
+   "tris": 200,
+   "class": "prop"
+  },
+  {
+   "name": "RockSmall",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: small rounded grey rock.",
+   "tris": 100,
+   "class": "prop"
+  },
+  {
+   "name": "RuinTower",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: round stone-brick tower three storeys high with chunky uneven bricks, broken top, ivy patches, doorway.",
+   "tris": 2200,
+   "class": "prop"
+  },
+  {
+   "name": "RuinWall",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: length of thick chunky stone-brick wall with a collapsed end and ivy.",
+   "tris": 700,
+   "class": "prop"
+  },
+  {
+   "name": "RuinArch",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: chunky stone-brick archway wide enough to run through.",
+   "tris": 800,
+   "class": "prop"
+  },
+  {
+   "name": "StoneSteps",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: broad flight of worn stone steps with rounded edges.",
+   "tris": 400,
+   "class": "prop"
+  },
+  {
+   "name": "FallenLog",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: fallen tree trunk with a broken end and bark rings.",
+   "tris": 350,
+   "class": "prop"
+  },
+  {
+   "name": "Stump",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: tree stump with visible rings.",
+   "tris": 250,
+   "class": "prop"
+  },
+  {
+   "name": "LanternPost",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: short stone post with a hanging iron lantern, warm glow.",
+   "tris": 500,
+   "class": "prop"
+  },
+  {
+   "name": "GrassTuft",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: cross-plane cartoon grass and fern tuft.",
+   "tris": 8,
+   "class": "prop"
+  },
+  {
+   "name": "EmberMote",
+   "prompt": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism: tiny quad used for drifting embers and fireflies.",
+   "tris": 2,
+   "class": "prop"
+  },
+  {
+   "name": "TerrainMossyWoods",
+   "prompt": "Smooth rolling heightfield terrain in chunks, generated from the map's height data; painted cartoon grass on top, dirt on steep faces, stone-tile patches at ruins.",
+   "tris": 30000,
+   "class": "terrain",
+   "route_note": "built from design/map.json height data, not from a prompt"
+  },
+  {
+   "name": "SkyForestNight",
+   "prompt": "Six-face painted cartoon skybox, 1024 px per face: teal-blue twilight gradient, soft puffy cloud shapes in darker blue, far mountain silhouettes at the horizon, a few stars.",
+   "tris": 12,
+   "class": "sky",
+   "route_note": "generated as images and uploaded; listed here so the asset plan can be reconciled"
+  }
+ ],
+ "style": "stylised cartoon game model: chunky exaggerated proportions, smooth rounded forms with clean bevels, bold saturated colours with soft hand-painted shading, friendly and a little goofy; no pixelation, no hard facets, no realism",
+ "texture_rule": "Hand-painted cartoon textures at 512 to 1024 px: flat base colours, soft gradient shading, a few bold painted details, no photo detail and no visible pixels.",
+ "routes": {
+  "exact": "Author in Blender and upload through Open Cloud (ROBLOX_API_KEY). Used where shape or rigging must be exact: hero limb sets, terrain chunks, chest with a separate lid, portal, weapons.",
+  "generated": "Studio generate_mesh with explicit part names, from a Forge concept image that was judged first; retexture with generate_texture using the concept as the style hint. Used for organic assets: enemies, bosses, head gear, statues, trees.",
+  "probed": "AssetService:CreateAssetAsync returned 'not available yet' on 2026-10-12, so script-built meshes cannot be published from inside Studio."
+ },
+ "judging": "Every mesh is rendered beside the matching reference still in design/refs and compared for silhouette, proportions, scale and colour role, and against the cartoon style sheet for style, before it is accepted.",
+ "note": "roblox-3d-model. Colour: PAINT it (paint_texture.py), never project it."
+}

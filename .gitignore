@@ -1,0 +1,16 @@
+Packages/
+ServerPackages/
+DevPackages/
+*.rbxlx.lock
+sourcemap.json
+
+# Frames and stills taken from third-party gameplay footage: reference only, kept on
+# the local machine and never pushed. design/refs/REFERENCE.md says how to regenerate them.
+design/refs/sheets/
+design/refs/frames/
+design/refs/*.png
+design/refs/*.webp
+design/refs/*.jpg
+
+# Roblox Studio local files
+*.rbxl.lock

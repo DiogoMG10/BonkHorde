@@ -1,0 +1,102 @@
+{
+ "rig": "R15",
+ "clips": [
+  {
+   "name": "Idle",
+   "intent": "relaxed ready stance with a slow breath; weapon hand low",
+   "reference": "frames a_charselect.jpg (knight standing)",
+   "priority": "Core",
+   "loop": true
+  },
+  {
+   "name": "Run",
+   "intent": "fast forward-leaning sprint, short quick strides, arms pumping, weapon trailing",
+   "reference": "sheets a_01 0:20 to 0:50 and image 5",
+   "priority": "Core",
+   "loop": true
+  },
+  {
+   "name": "Jump",
+   "intent": "knees tucked, arms up, launch pose",
+   "reference": "sheets a_04 8:00, b_02",
+   "priority": "Core",
+   "loop": false
+  },
+  {
+   "name": "Fall",
+   "intent": "legs loose, arms out for balance",
+   "reference": "sheets a_05 11:20",
+   "priority": "Core",
+   "loop": true
+  },
+  {
+   "name": "Land",
+   "intent": "short crouch absorbing the landing",
+   "reference": "video A 0:30 region",
+   "priority": "Core",
+   "loop": false
+  },
+  {
+   "name": "Slide",
+   "intent": "low feet-first slide, leaning back, one hand down",
+   "reference": "video A slope descents, sheets a_04 8:00",
+   "priority": "Movement",
+   "loop": true
+  },
+  {
+   "name": "AttackSwing",
+   "intent": "upper-body horizontal sword slash, right to left, torso twist",
+   "reference": "image 3 crescent slash, frames a_hud_early.jpg",
+   "priority": "Action",
+   "loop": false
+  },
+  {
+   "name": "AttackCast",
+   "intent": "upper-body staff thrust forward with the off hand open",
+   "reference": "image 4 fox with staff",
+   "priority": "Action",
+   "loop": false
+  },
+  {
+   "name": "AttackThrow",
+   "intent": "upper-body overhand throw",
+   "reference": "video B bone and banana throws",
+   "priority": "Action",
+   "loop": false
+  },
+  {
+   "name": "Downed",
+   "intent": "collapsed on one knee, head down, loop",
+   "reference": "frames a_death.jpg",
+   "priority": "Action",
+   "loop": true
+  },
+  {
+   "name": "Kneel",
+   "intent": "kneeling on one knee leaning on the weapon, the death-screen pose",
+   "reference": "frames a_death.jpg",
+   "priority": "Action",
+   "loop": true
+  },
+  {
+   "name": "Cheer",
+   "intent": "victory: weapon raised overhead, small hop",
+   "reference": "none in footage; original",
+   "priority": "Action",
+   "loop": false
+  },
+  {
+   "name": "PortalStep",
+   "intent": "step forward out of the portal and settle into Idle",
+   "reference": "sheets a_01 0:10",
+   "priority": "Action",
+   "loop": false
+  }
+ ],
+ "rules": [
+  "Locomotion clips play at Core priority so attack overlays (Action, upper body only) never freeze the legs.",
+  "Attack overlays pose the torso and arms only; legs are left out of the clip.",
+  "Each clip is rendered holding that hero's real weapon and judged against its reference frames."
+ ],
+ "note": "roblox-animation. Match a reference by ANGLE and fraction-of-reach, not distance."
+}

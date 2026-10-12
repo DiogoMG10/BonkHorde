@@ -1,0 +1,510 @@
+{
+ "name": "BonkHordeSounds",
+ "roles": [
+  {
+   "name": "ui_click",
+   "query": "ui click pop cartoon",
+   "kind": "SoundEffect",
+   "min_len": 0.03,
+   "max_len": 0.6,
+   "volume": 0.5
+  },
+  {
+   "name": "ui_hover",
+   "query": "ui hover blip",
+   "kind": "SoundEffect",
+   "min_len": 0.02,
+   "max_len": 0.4,
+   "volume": 0.3
+  },
+  {
+   "name": "ui_confirm",
+   "query": "ui confirm cartoon",
+   "kind": "SoundEffect",
+   "min_len": 0.1,
+   "max_len": 1.2,
+   "volume": 0.5
+  },
+  {
+   "name": "ui_back",
+   "query": "ui cancel",
+   "kind": "SoundEffect",
+   "min_len": 0.05,
+   "max_len": 0.8,
+   "volume": 0.5
+  },
+  {
+   "name": "level_up",
+   "query": "level up fanfare cartoon",
+   "kind": "SoundEffect",
+   "min_len": 0.4,
+   "max_len": 3.0,
+   "volume": 0.7
+  },
+  {
+   "name": "offer_pick",
+   "query": "upgrade select chime",
+   "kind": "SoundEffect",
+   "min_len": 0.1,
+   "max_len": 1.5,
+   "volume": 0.6
+  },
+  {
+   "name": "banish",
+   "query": "poof vanish",
+   "kind": "SoundEffect",
+   "min_len": 0.1,
+   "max_len": 1.5,
+   "volume": 0.5
+  },
+  {
+   "name": "refresh",
+   "query": "card shuffle",
+   "kind": "SoundEffect",
+   "min_len": 0.1,
+   "max_len": 1.5,
+   "volume": 0.5
+  },
+  {
+   "name": "chest_open",
+   "query": "wooden chest open creak",
+   "kind": "SoundEffect",
+   "min_len": 0.3,
+   "max_len": 2.5,
+   "volume": 0.6
+  },
+  {
+   "name": "chest_reveal",
+   "query": "item reveal sparkle",
+   "kind": "SoundEffect",
+   "min_len": 0.3,
+   "max_len": 2.5,
+   "volume": 0.6
+  },
+  {
+   "name": "chest_reveal_legendary",
+   "query": "legendary reward fanfare",
+   "kind": "SoundEffect",
+   "min_len": 0.6,
+   "max_len": 4.0,
+   "volume": 0.7
+  },
+  {
+   "name": "coin_pickup",
+   "query": "coin pickup",
+   "kind": "SoundEffect",
+   "min_len": 0.05,
+   "max_len": 0.8,
+   "volume": 0.35
+  },
+  {
+   "name": "xp_pickup",
+   "query": "gem pickup blip",
+   "kind": "SoundEffect",
+   "min_len": 0.03,
+   "max_len": 0.6,
+   "volume": 0.25
+  },
+  {
+   "name": "magnet",
+   "query": "magnet whoosh pull",
+   "kind": "SoundEffect",
+   "min_len": 0.3,
+   "max_len": 2.5,
+   "volume": 0.6
+  },
+  {
+   "name": "heal",
+   "query": "heal chime",
+   "kind": "SoundEffect",
+   "min_len": 0.2,
+   "max_len": 2.0,
+   "volume": 0.5
+  },
+  {
+   "name": "frenzy",
+   "query": "power up rage",
+   "kind": "SoundEffect",
+   "min_len": 0.3,
+   "max_len": 2.5,
+   "volume": 0.6
+  },
+  {
+   "name": "sword_swing",
+   "query": "sword swing whoosh",
+   "kind": "SoundEffect",
+   "min_len": 0.1,
+   "max_len": 1.0,
+   "volume": 0.45
+  },
+  {
+   "name": "fireball_cast",
+   "query": "fireball cast",
+   "kind": "SoundEffect",
+   "min_len": 0.1,
+   "max_len": 1.5,
+   "volume": 0.45
+  },
+  {
+   "name": "fireball_explode",
+   "query": "fire explosion small",
+   "kind": "SoundEffect",
+   "min_len": 0.2,
+   "max_len": 2.5,
+   "volume": 0.5
+  },
+  {
+   "name": "frost_pulse",
+   "query": "ice freeze pulse",
+   "kind": "SoundEffect",
+   "min_len": 0.1,
+   "max_len": 1.5,
+   "volume": 0.4
+  },
+  {
+   "name": "lightning_strike",
+   "query": "lightning zap strike",
+   "kind": "SoundEffect",
+   "min_len": 0.1,
+   "max_len": 1.5,
+   "volume": 0.5
+  },
+  {
+   "name": "bone_throw",
+   "query": "throw whoosh light",
+   "kind": "SoundEffect",
+   "min_len": 0.05,
+   "max_len": 0.8,
+   "volume": 0.4
+  },
+  {
+   "name": "boomerang_whoosh",
+   "query": "boomerang spin whoosh",
+   "kind": "SoundEffect",
+   "min_len": 0.2,
+   "max_len": 2.0,
+   "volume": 0.4
+  },
+  {
+   "name": "axe_throw",
+   "query": "axe throw spin",
+   "kind": "SoundEffect",
+   "min_len": 0.1,
+   "max_len": 1.5,
+   "volume": 0.45
+  },
+  {
+   "name": "rocket_launch",
+   "query": "rocket launch small",
+   "kind": "SoundEffect",
+   "min_len": 0.2,
+   "max_len": 2.0,
+   "volume": 0.45
+  },
+  {
+   "name": "rocket_explode",
+   "query": "explosion pop firework",
+   "kind": "SoundEffect",
+   "min_len": 0.2,
+   "max_len": 2.5,
+   "volume": 0.5
+  },
+  {
+   "name": "enemy_hit",
+   "query": "hit thud bonk",
+   "kind": "SoundEffect",
+   "min_len": 0.03,
+   "max_len": 0.5,
+   "volume": 0.3
+  },
+  {
+   "name": "enemy_crit",
+   "query": "critical hit crunch",
+   "kind": "SoundEffect",
+   "min_len": 0.05,
+   "max_len": 0.8,
+   "volume": 0.4
+  },
+  {
+   "name": "enemy_death",
+   "query": "pop squish death",
+   "kind": "SoundEffect",
+   "min_len": 0.05,
+   "max_len": 0.9,
+   "volume": 0.3
+  },
+  {
+   "name": "freeze",
+   "query": "ice freeze crack",
+   "kind": "SoundEffect",
+   "min_len": 0.1,
+   "max_len": 1.5,
+   "volume": 0.4
+  },
+  {
+   "name": "player_hurt",
+   "query": "hurt grunt hit",
+   "kind": "SoundEffect",
+   "min_len": 0.1,
+   "max_len": 1.0,
+   "volume": 0.6
+  },
+  {
+   "name": "shield_break",
+   "query": "glass shield break",
+   "kind": "SoundEffect",
+   "min_len": 0.2,
+   "max_len": 1.5,
+   "volume": 0.6
+  },
+  {
+   "name": "player_down",
+   "query": "defeat fall thud",
+   "kind": "SoundEffect",
+   "min_len": 0.3,
+   "max_len": 2.5,
+   "volume": 0.7
+  },
+  {
+   "name": "revive",
+   "query": "revive angelic",
+   "kind": "SoundEffect",
+   "min_len": 0.4,
+   "max_len": 3.0,
+   "volume": 0.6
+  },
+  {
+   "name": "jump",
+   "query": "jump whoosh",
+   "kind": "SoundEffect",
+   "min_len": 0.05,
+   "max_len": 0.6,
+   "volume": 0.3
+  },
+  {
+   "name": "land",
+   "query": "land thud grass",
+   "kind": "SoundEffect",
+   "min_len": 0.05,
+   "max_len": 0.6,
+   "volume": 0.3
+  },
+  {
+   "name": "slide",
+   "query": "slide grass loop",
+   "kind": "SoundEffect",
+   "min_len": 0.3,
+   "max_len": 4.0,
+   "volume": 0.35
+  },
+  {
+   "name": "footstep_grass",
+   "query": "footstep grass",
+   "kind": "SoundEffect",
+   "min_len": 0.05,
+   "max_len": 0.6,
+   "volume": 0.25
+  },
+  {
+   "name": "shrine_charge_loop",
+   "query": "magic charge hum loop",
+   "kind": "SoundEffect",
+   "min_len": 1.0,
+   "max_len": 8.0,
+   "volume": 0.4
+  },
+  {
+   "name": "shrine_complete",
+   "query": "shrine activated chime",
+   "kind": "SoundEffect",
+   "min_len": 0.4,
+   "max_len": 3.0,
+   "volume": 0.6
+  },
+  {
+   "name": "shrine_greed",
+   "query": "coins jingle ominous",
+   "kind": "SoundEffect",
+   "min_len": 0.3,
+   "max_len": 3.0,
+   "volume": 0.6
+  },
+  {
+   "name": "boss_spawn",
+   "query": "boss appear rumble",
+   "kind": "SoundEffect",
+   "min_len": 0.8,
+   "max_len": 5.0,
+   "volume": 0.8
+  },
+  {
+   "name": "boss_roar",
+   "query": "monster roar deep",
+   "kind": "SoundEffect",
+   "min_len": 0.6,
+   "max_len": 4.0,
+   "volume": 0.7
+  },
+  {
+   "name": "boss_slam",
+   "query": "ground slam impact",
+   "kind": "SoundEffect",
+   "min_len": 0.3,
+   "max_len": 2.5,
+   "volume": 0.7
+  },
+  {
+   "name": "boss_roots",
+   "query": "wood crack roots burst",
+   "kind": "SoundEffect",
+   "min_len": 0.3,
+   "max_len": 2.5,
+   "volume": 0.6
+  },
+  {
+   "name": "boss_death",
+   "query": "boss defeated explosion",
+   "kind": "SoundEffect",
+   "min_len": 0.8,
+   "max_len": 5.0,
+   "volume": 0.8
+  },
+  {
+   "name": "portal_open",
+   "query": "portal open magic",
+   "kind": "SoundEffect",
+   "min_len": 0.5,
+   "max_len": 4.0,
+   "volume": 0.6
+  },
+  {
+   "name": "portal_enter",
+   "query": "teleport whoosh",
+   "kind": "SoundEffect",
+   "min_len": 0.3,
+   "max_len": 3.0,
+   "volume": 0.6
+  },
+  {
+   "name": "final_swarm_alarm",
+   "query": "alarm horn warning",
+   "kind": "SoundEffect",
+   "min_len": 0.8,
+   "max_len": 5.0,
+   "volume": 0.8
+  },
+  {
+   "name": "ghost_wail",
+   "query": "ghost wail",
+   "kind": "SoundEffect",
+   "min_len": 0.4,
+   "max_len": 3.0,
+   "volume": 0.35
+  },
+  {
+   "name": "pot_break",
+   "query": "pottery break",
+   "kind": "SoundEffect",
+   "min_len": 0.1,
+   "max_len": 1.5,
+   "volume": 0.5
+  },
+  {
+   "name": "crate_break",
+   "query": "wood crate break",
+   "kind": "SoundEffect",
+   "min_len": 0.1,
+   "max_len": 1.5,
+   "volume": 0.5
+  },
+  {
+   "name": "shop_buy",
+   "query": "cash register buy",
+   "kind": "SoundEffect",
+   "min_len": 0.1,
+   "max_len": 1.5,
+   "volume": 0.5
+  },
+  {
+   "name": "shop_denied",
+   "query": "error denied buzz",
+   "kind": "SoundEffect",
+   "min_len": 0.1,
+   "max_len": 1.0,
+   "volume": 0.5
+  },
+  {
+   "name": "timer_tick",
+   "query": "clock tick",
+   "kind": "SoundEffect",
+   "min_len": 0.03,
+   "max_len": 0.5,
+   "volume": 0.4
+  },
+  {
+   "name": "victory_sting",
+   "query": "victory fanfare short",
+   "kind": "SoundEffect",
+   "min_len": 1.0,
+   "max_len": 8.0,
+   "volume": 0.7
+  },
+  {
+   "name": "death_sting",
+   "query": "game over sting sad",
+   "kind": "SoundEffect",
+   "min_len": 1.0,
+   "max_len": 8.0,
+   "volume": 0.7
+  },
+  {
+   "name": "ambience_forest",
+   "query": "forest night ambience crickets wind",
+   "kind": "SoundEffect",
+   "min_len": 15.0,
+   "max_len": 240.0,
+   "volume": 0.25
+  },
+  {
+   "name": "music_menu",
+   "query": "chill adventure menu",
+   "kind": "Music",
+   "min_len": 45.0,
+   "max_len": 400.0,
+   "volume": 0.35
+  },
+  {
+   "name": "music_forest",
+   "query": "upbeat adventure action",
+   "kind": "Music",
+   "min_len": 60.0,
+   "max_len": 400.0,
+   "volume": 0.35
+  },
+  {
+   "name": "music_boss",
+   "query": "boss battle intense",
+   "kind": "Music",
+   "min_len": 60.0,
+   "max_len": 400.0,
+   "volume": 0.4
+  },
+  {
+   "name": "music_overtime",
+   "query": "frantic fast chase",
+   "kind": "Music",
+   "min_len": 45.0,
+   "max_len": 400.0,
+   "volume": 0.4
+  },
+  {
+   "name": "music_results",
+   "query": "calm victory theme",
+   "kind": "Music",
+   "min_len": 30.0,
+   "max_len": 300.0,
+   "volume": 0.3
+  }
+ ],
+ "note": "roblox-sfx. One role per thing the game needs a sound FOR."
+}

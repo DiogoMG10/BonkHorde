@@ -1,0 +1,59 @@
+{
+ "name": "MossyWoods",
+ "theme": "forest_twilight",
+ "reference_images": [
+  "design/refs/5.webp",
+  "design/refs/3.webp",
+  "design/refs/frames/a_hud_early.jpg",
+  "design/refs/frames/a_hud_mid.jpg",
+  "design/refs/frames/a_hud_bosses.jpg",
+  "design/refs/sheets/a_01.jpg",
+  "design/refs/sheets/a_04.jpg"
+ ],
+ "size_studs": [
+  720,
+  720
+ ],
+ "height_range_studs": [
+  0,
+  60
+ ],
+ "height_cell_studs": 4,
+ "layout": "A bowl of rolling hills ringed by cliff walls 80 studs high. Centre: a broad grassy basin with the spawn clearing and a stone-tile ruin floor. North: a plateau 40 studs up reached by two dirt ramps, holding the largest ruin (a broken round tower and walls). East: a ridge with a long downhill slide run back into the basin. South: stepped terraces with scattered boulders. West: dense trees around a sunken dell. Dirt paths link the areas. Every area is reachable on foot and by jumping; no dead ends longer than 60 studs.",
+ "anchors": {
+  "spawn": 1,
+  "boss_portal": 5,
+  "chest": 28,
+  "charge_shrine": 12,
+  "special_shrine": 8,
+  "statue": 4,
+  "vendor": 3,
+  "pot_cluster": 14,
+  "crate_cluster": 8
+ },
+ "rules": [
+  "Boss portal anchors sit at least 220 studs from spawn so finding it takes exploration.",
+  "One chest anchor within 60 studs of spawn and one charge shrine anchor within 120 studs (the tutorial placements).",
+  "Slopes between 20 and 40 degrees are slide runs; anything above 50 degrees is a cliff and blocks enemies.",
+  "The heightfield and the blocked-cell grid are exported as data modules, because the server simulates enemies on them without physics.",
+  "Props are real meshes from design/meshes.json, never stacks of primitive parts."
+ ],
+ "lobby": {
+  "name": "LobbyGlade",
+  "size_studs": [
+   120,
+   120
+  ],
+  "layout": "A flat forest clearing with the spawn portal ring on a low stone dais, a lantern post, two trees and a boulder behind where the hero stands; the camera looks at the hero from the front with the scene softly out of focus, as in the reference menus."
+ },
+ "lighting": {
+  "profile": "twilight_forest",
+  "sky": "SkyForestNight",
+  "haze_colour": "#2A6A8C",
+  "haze_start": 160,
+  "haze_end": 620,
+  "ambient": "#5C82A6",
+  "key_light": "cool moonlight from the north-east with soft shadows, warm lantern point lights, light bloom, saturated colour grade"
+ },
+ "note": "roblox-map spec. Build from the reference images listed above, never from imagination. Section 2 builds the blockout from this; section 3 builds the full proven layout."
+}

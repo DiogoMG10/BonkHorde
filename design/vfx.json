@@ -1,0 +1,182 @@
+{
+ "effects": [
+  {
+   "name": "SwordSlash",
+   "look": "white-to-pale-blue tapered crescent swoosh with a bright leading edge, sweeps 140 degrees in front of the player, 0.18s",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "FireballTrail",
+   "look": "cartoon flame trail with round orange and yellow puffs behind the fireball",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "FireballExplosion",
+   "look": "orange-yellow cartoon burst with a starburst core and round smoke puffs",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "FrostRingGround",
+   "look": "two concentric cyan rings on the ground with frost sparkles, pulsing with the weapon",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "FreezeShatter",
+   "look": "pale blue shards popping off a frozen enemy",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "LightningBolt",
+   "look": "white jagged bolt from the sky to the target, 0.12s, target flashes white",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "LightningImpact",
+   "look": "small white-cyan spark burst at the strike point",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "ProjectileTrailPale",
+   "look": "short pale ribbon trail for thrown weapons",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "AxeSpin",
+   "look": "grey arc smear around a spinning axe",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "RocketTrail",
+   "look": "white smoke puffs and a pink spark tail",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "RocketExplosion",
+   "look": "pink and white cartoon burst with confetti",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "HitSpark",
+   "look": "tiny white cross flash on every hit",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "CritBurst",
+   "look": "yellow starburst on crits",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "EnemyDeathPoof",
+   "look": "enemy pops in a round white puff with a few stars",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "PickupGlint",
+   "look": "white twinkle on gems and coins",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "MagnetPull",
+   "look": "blue streaks converging on the player",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "HealPlus",
+   "look": "green plus signs rising",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "FrenzyAura",
+   "look": "red-orange flicker around the player",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "PoisonCloud",
+   "look": "sickly green bubbles and a small cloud on poisoned enemies",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "DustPuff",
+   "look": "small round dust puffs on run start, slide and landing",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "PortalSwirl",
+   "look": "blue-white rotating swirl with speckles, used by the spawn ring, the boss portal and the exit",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "BossPortalWind",
+   "look": "red wind streaks blowing across the portal site so it reads from far away",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "ShrineDome",
+   "look": "translucent hemisphere with a brighter rim; colour varies per shrine",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "ShrineChargedBurst",
+   "look": "ring pulse and upward sparkle when a shrine completes",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "ChestBeam",
+   "look": "fan of light beams behind the opened chest, coloured by rarity",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "BreakPuff",
+   "look": "shards and dust when a pot or crate breaks",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "BossTelegraphDome",
+   "look": "translucent red dome that grows on the ground before a boss attack lands",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "BossShockwave",
+   "look": "expanding ground ring",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "RootEruption",
+   "look": "brown roots bursting upward",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "ThornVolley",
+   "look": "dark green spikes with a thin trail",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "EliteCrownGlow",
+   "look": "soft gold glint around an elite's crown",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "GhostTrail",
+   "look": "fading white wisps behind ghosts",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "ReviveRing",
+   "look": "green ring filling clockwise around a tombstone",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "LevelUpBurst",
+   "look": "gold ring and upward sparkle around the player in the world",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  },
+  {
+   "name": "AmbientEmbers",
+   "look": "slow red ember streaks drifting across the forest",
+   "from": "harvested cartoon recipe from the user's own roblox-vfx library, tinted and scaled to this game's palette"
+  }
+ ],
+ "style": "Clean cartoon effects: bold readable shapes (swooshes, stars, rings, round puffs), bright saturated colour, soft glow allowed, short and punchy. Same placement, timing and colour role as the reference effects.",
+ "library_state": "empty on 2026-10-12: the first step of the VFX stage is harvesting a free Creator Store pack with roblox-vfx",
+ "note": "roblox-vfx. Harvest effects, never generate them from scratch."
+}
