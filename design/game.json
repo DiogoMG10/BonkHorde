@@ -64,12 +64,12 @@
   {
    "name": "RunDirectorService",
    "side": "server",
-   "owns": "the run state machine (Lobby, Intro, Playing, BossFight, Overtime, Victory, Wipe, Results), the stage timer, the pause flag and the difficulty value"
+   "owns": "the run state machine (Lobby, Intro, Playing, Overtime, Victory, Wipe, Results), the stage clock, the pause flag, the difficulty value and the one simulation tick"
   },
   {
    "name": "MapService",
    "side": "server",
-   "owns": "the loaded map, its heightfield and blocked-cell grid, and the anchor points interactables and spawns are placed on"
+   "owns": "the loaded map: its heightfield, the reachable-cell grid, the anchor points, and the terrain written from it"
   },
   {
    "name": "PlayerStateService",
@@ -79,12 +79,12 @@
   {
    "name": "XPService",
    "side": "server",
-   "owns": "the squad's shared XP and level, and the queue of level-ups each player still has to choose"
+   "owns": "the squad's shared XP and level"
   },
   {
    "name": "UpgradeService",
    "side": "server",
-   "owns": "the offers rolled for each pending choice and each player's banish, skip and refresh charges"
+   "owns": "the offers rolled for each pending level-up choice and each player's banish, skip and refresh charges"
   },
   {
    "name": "EnemyService",
@@ -94,12 +94,12 @@
   {
    "name": "CombatService",
    "side": "server",
-   "owns": "weapon cooldown timers, hit resolution and all damage dealt to enemies and to players"
+   "owns": "weapon cooldown timers, projectiles, lingering zones, item procs on hit, and all damage dealt to enemies"
   },
   {
    "name": "BossService",
    "side": "server",
-   "owns": "boss and miniboss entities, their attack timelines and telegraphs"
+   "owns": "boss and miniboss entities, their attack timelines, telegraphs and thorns"
   },
   {
    "name": "PickupService",
@@ -109,12 +109,7 @@
   {
    "name": "InteractableService",
    "side": "server",
-   "owns": "every chest, shrine, statue, vendor, pot, crate and portal placed this run, their state and per-player use counts and prices"
-  },
-  {
-   "name": "ItemService",
-   "side": "server",
-   "owns": "the item effect registry and each proc's cooldown and counters"
+   "owns": "every chest, shrine, statue, vendor, pot, crate, portal and tombstone placed this run, their state, per-player use and prices, and the panels they open"
   },
   {
    "name": "DataService",
@@ -122,64 +117,49 @@
    "owns": "the persistent profile: silver, unlocked heroes, run counts and best scores"
   },
   {
+   "name": "DevService",
+   "side": "server",
+   "owns": "Studio-only test hooks driven by the Workspace attribute BonkDev; inert in a live server"
+  },
+  {
+   "name": "StateController",
+   "side": "client",
+   "owns": "the client's mirror of server state: phase, clock, squad, the local hero's state, XP, profile, and the local copy of the heightfield"
+  },
+  {
    "name": "CameraController",
    "side": "client",
-   "owns": "the orbit camera and mouse lock"
+   "owns": "the orbit camera and the mouse lock"
   },
   {
    "name": "MovementController",
    "side": "client",
-   "owns": "local movement feel: slide, bunny hop, extra jumps (validated by the server's speed and position checks)"
+   "owns": "local movement feel: slide, bunny hop, extra jumps"
   },
   {
    "name": "EnemyRenderController",
    "side": "client",
-   "owns": "pooled enemy models driven by server snapshots: interpolation, limb animation, hit flash, level of detail"
-  },
-  {
-   "name": "WeaponFxController",
-   "side": "client",
-   "owns": "weapon and projectile visuals replayed from server fire events"
+   "owns": "pooled enemy models driven by server snapshots: interpolation, limb animation, hit flash, and damage numbers"
   },
   {
    "name": "PickupRenderController",
    "side": "client",
-   "owns": "gem, coin and powerup visuals and their fly-to-player animation"
+   "owns": "gem, coin and powerup visuals and their fly-to-hero animation"
   },
   {
-   "name": "WorldFxController",
+   "name": "WeaponFxController",
    "side": "client",
-   "owns": "damage numbers, VFX one-shots, shrine domes, telegraphs"
+   "owns": "weapon, projectile and telegraph visuals replayed from server events"
   },
   {
-   "name": "HudController",
+   "name": "WorldController",
    "side": "client",
-   "owns": "the HUD: bars, counters, timer, quest tracker, boss bars, item strip, teammate bars"
+   "owns": "interactable models, shrine domes, and which interactable the hero can use right now"
   },
   {
-   "name": "MinimapController",
+   "name": "DebugUiController",
    "side": "client",
-   "owns": "the round minimap and the Tab big map"
-  },
-  {
-   "name": "MenuController",
-   "side": "client",
-   "owns": "main menu, hero select, map select, results and the death screen"
-  },
-  {
-   "name": "ChoiceController",
-   "side": "client",
-   "owns": "every pause panel: upgrade offers, chest, shrine, shop, statue"
-  },
-  {
-   "name": "AudioController",
-   "side": "client",
-   "owns": "music state machine and pooled 2D / 3D sound playback"
-  },
-  {
-   "name": "InputController",
-   "side": "client",
-   "owns": "keyboard and mouse, gamepad and touch bindings"
+   "owns": "the plain always-wired interface: text HUD and one list panel for lobby, offers, chest, shrine, vendor, statue and results"
   }
  ],
  "config": {
@@ -204,9 +184,9 @@
   "BaseCritChance": 0.01,
   "BaseCritDamage": 2.0,
   "BasePickupRange": 10,
-  "XPBase": 6,
-  "XPLinear": 4,
-  "XPQuadratic": 0.35,
+  "XPBase": 4,
+  "XPLinear": 5.5,
+  "XPQuadratic": 0,
   "OfferCount": 3,
   "OfferChoiceSecondsCoop": 12,
   "BanishCharges": 1,
@@ -223,10 +203,10 @@
   },
   "RarityMultiplier": {
    "Common": 1.0,
-   "Uncommon": 1.5,
-   "Rare": 2.0,
-   "Epic": 2.75,
-   "Legendary": 4.0
+   "Uncommon": 1.2,
+   "Rare": 1.4,
+   "Epic": 1.6,
+   "Legendary": 2.0
   },
   "ChestPriceBase": 30,
   "ChestPriceLinear": 40,
@@ -261,7 +241,8 @@
   "UnlockFrostlingSilver": 150,
   "GemCap": 400,
   "MapSizeStuds": 720,
-  "HeightCellStuds": 4
+  "HeightCellStuds": 4,
+  "EnemyDamageScale": 0.7
  },
  "roster": {
   "heroes": [
@@ -2719,14 +2700,14 @@
   "tutorial": "No separate tutorial level. 0:00 the stage card names the place; the quest tracker says 'Find the Boss Portal'. First 10s: only Goblin Runts, slow, so the first kills happen without input beyond moving. First level-up (about 25s) teaches the offer panel by pausing on it. A chest is always placed within 60 studs of spawn with a visible price prompt, and a charge shrine with its '!' within 120 studs. One-time hint toasts on first run: 'Hold JUMP to bunny hop', 'SLIDE downhill to go fast', 'Stand in the dome to charge the shrine'. At 5:00 a toast points at the minimap's red portal mark if the portal has not been found.",
   "art_direction": "Stylised cartoon, at the user's direction (2026-10-12): the reference decides WHAT is on screen and where; the look is clean cartoon, not pixelated. Shapes: chunky and exaggerated (big heads, big hands, oversized weapons), smooth rounded forms with clean bevels. Meshes: props 100 to 2,200 triangles, enemies 500 to 1,200, heroes about 3,200, smooth shading. Textures: hand-painted cartoon at 512 to 1024 px with flat base colours, soft gradient shading and a few bold details; no visible pixels, no photo detail. Palette keeps the reference's colour roles, more saturated: grass #4C9A2E to #2F6B2A, dirt #8A5A30, stone #9AA0A6, bark #8A5230, canopy #3F8A2E with #7FC244 highlights, twilight sky #2A86B8 to #123E66, haze #2A6A8C. Lighting: cool moon key light with soft shadows, warm lantern lights, light bloom, a saturated colour grade and distance haze matched to the horizon. Skybox: painted twilight with soft puffy clouds, mountain silhouettes and a few stars. Readability: heroes get a thin cyan outline when shielded, enemies flash white on hit, elites wear a gold crown. UI: the reference's layout and colour roles (dark green panels, rarity-tinted cards, blue / green / red buttons) in a cartoon skin with rounded corners, thick dark outlines, a soft top gradient, chunky buttons with a darker lip, Luckiest Guy for titles and numbers, Fredoka One for body text, and sticker-style icons with thick outlines. A one-page style sheet (one hero, one enemy, one prop, one icon, one panel) is made first and judged against the reference before any batch work; every asset class is then compared side by side with both the reference still and the style sheet, and fidelity passes repeat until it holds.",
   "audio": "Music by state: menu (laid back), forest run (upbeat adventure action), boss fight, overtime (faster), results. Ambience: night forest bed. SFX roles (63) cover interface, level-up and offers, chest and shrine interactions, each weapon's fire and impact, enemy hit / crit / death, player hurt / shield break / down / revive, movement, boss arrival / attacks / death, portal, final-horde alarm, pots and crates, vendor, timer ticks and the win and loss stings. Hit and pickup sounds are pitch-randomised and voice-limited so two hundred kills a minute stay pleasant. All audio is sourced from the Roblox Creator Store by asset id.",
-  "technical_architecture": "Rojo project with Knit services (server) and controllers (client), plain RemoteEvents, all tunables in Config, rules written as pure Core modules with Lune specs (Stats, Damage, XPCurve, Offers, SpawnDirector, Economy, Grid, Steering, WeaponMath, RunState, Snapshot). The horde is server-authoritative data, not instances: EnemyService simulates up to 350 enemies at 20 Hz on a spatial grid over the map's heightfield and blocked-cell grid, and streams compact buffer snapshots at 10 Hz over an UnreliableRemoteEvent; each client renders pooled low-poly models with interpolation, procedural limb animation and distance level-of-detail, moved in one BulkMoveTo per frame. Only players use Humanoids. Weapons, hits, pickups, prices and offers are resolved on the server; clients replay visuals from events. Roblox services: Players, RunService, DataStoreService, UserInputService, ContextActionService, TweenService, SoundService, Lighting, CollectionService, AssetService (EditableImage for the minimap). Asset routes: textures, icons, portraits, the logo and the sky are generated locally with Forge (driven through its local API) and uploaded through Open Cloud or the Studio MCP's upload_image; meshes that must be exact (hero limb sets, terrain, chest, portal, weapons) are authored in Blender and uploaded through Open Cloud with the user's API key, and organic meshes (enemies, bosses, trees, statues) come from Studio's generate_mesh off an approved Forge concept; in-Studio CreateAssetAsync is not available in this Studio build (probed).",
+  "technical_architecture": "Rojo project with Knit services (server) and controllers (client), plain RemoteEvents, all tunables in Config, rules written as pure Core modules with Lune specs (Stats, Damage, XPCurve, Offers, SpawnDirector, Economy, Grid, Steering, WeaponMath, RunState, Snapshot). The horde is server-authoritative data, not instances: EnemyService simulates up to 350 enemies at 20 Hz on a spatial grid over the map's heightfield and blocked-cell grid, and streams compact buffer snapshots at 10 Hz over a RemoteEvent (6 bytes per enemy; an unreliable event would drop a full snapshot); each client renders pooled low-poly models with interpolation, procedural limb animation and distance level-of-detail, moved in one BulkMoveTo per frame. Only players use Humanoids. Weapons, hits, pickups, prices and offers are resolved on the server; clients replay visuals from events. Roblox services: Players, RunService, DataStoreService, UserInputService, ContextActionService, TweenService, SoundService, Lighting, CollectionService, AssetService (EditableImage for the minimap). Asset routes: textures, icons, portraits, the logo and the sky are generated locally with Forge (driven through its local API) and uploaded through Open Cloud or the Studio MCP's upload_image; meshes that must be exact (hero limb sets, terrain, chest, portal, weapons) are authored in Blender and uploaded through Open Cloud with the user's API key, and organic meshes (enemies, bosses, trees, statues) come from Studio's generate_mesh off an approved Forge concept; in-Studio CreateAssetAsync is not available in this Studio build (probed).",
   "data_saving": "One DataStore record per player: silver, unlocked heroes, runs per hero, best boss-kill time and best kill score per map. Loaded on join with three retries; saved at run end and on leave, with a 60s autosave. If the load fails the player still plays with defaults and saving is disabled for that session so a blank profile can never overwrite a real one; a toast says progress will not be saved this session. Run state itself is never saved: a run lives and dies with its server.",
   "security": "The client sends only intent: move input (through the character), interact requests, offer choices, hero and map picks. The server validates every one: offer choices must match the offers it rolled for that player; purchases check the player's gold and the server-side price; interactions check distance to the interactable; hero picks check the unlock; pickups are collected by server-side range checks, never by client claim; damage, kills, XP, gold and silver are computed only on the server. Movement is client-owned as on any Roblox character, so the server clamps speed against the player's Movement Speed stat with a tolerance and snaps back teleports. Remote calls are rate limited per player.",
   "multiplayer": "A server is one squad of up to 3; friends join through Roblox's own join. The first player is host and picks the map; everyone picks a hero and readies up; the run starts when all are ready. Joining mid-run: the newcomer picks a hero and drops in beside the squad with the starter weapon and queued level-ups worth 75% of the squad's level. Leaving mid-run: their gems and gold stay shared, enemy count and boss HP rescale down on the next spawn tick, and if the host leaves the next player becomes host. If the last living player leaves, the run ends for the downed. XP is shared; gold drops credit every player; chests, shrine rewards, statue picks and vendor stock are instanced per player so nobody can take another player's loot.",
   "monetisation": {
    "declined": "No Robux in this build. The loop has to be proven fun first; out_of_scope lists it. Natural later hooks are cosmetic hero skins and extra banish or refresh charges, noted here so the code leaves room."
   },
-  "economy": "Gold (run-only): enters from kills (1 to 3 per enemy, more from elites and bosses, scaled by Gold Gain), pots, Gilded Sneakers and greed shrines; leaves through chests (rising price per chest opened, per player) and the vendor; resets every run. Silver (persistent): enters at run end from kills (1 per 100), minibosses (3 each) and the boss (10), times Silver Gain and the overtime tier multiplier; leaves only by unlocking Mint for 150. XP (run-only, shared): enters from gems dropped by every kill; consumed by level thresholds 6 + 4L + 0.35L squared.",
+  "economy": "Gold (run-only): enters from kills (1 to 3 per enemy, more from elites and bosses, scaled by Gold Gain), pots, Gilded Sneakers and greed shrines; leaves through chests (rising price per chest opened, per player) and the vendor; resets every run. Silver (persistent): enters at run end from kills (1 per 100), minibosses (3 each) and the boss (10), times Silver Gain and the overtime tier multiplier; leaves only by unlocking Mint for 150. XP (run-only, shared): enters from gems dropped by every kill; consumed by level thresholds 4 + 5.5L.",
   "retention": "Short runs with a strong 'one more' pull: a different hero or build each time, a best boss-kill time and kill score per hero to beat, silver accumulating toward the third hero, and friends to bring. Daily rewards, quests and seasons are out of scope for this build.",
   "social": "Co-op for up to three with shared XP, revives and a results table comparing each player's kills and damage. Friends join through Roblox's join-friend flow. No trading, guilds or global leaderboards in this build."
  }

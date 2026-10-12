@@ -5,6 +5,7 @@
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
+local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 
 Knit.AddServices(script.Services)
 
@@ -14,6 +15,6 @@ Knit.Start()
 		-- running the code on disk. Check the Rojo plugin is actually CONNECTED
 		-- and syncing before debugging anything else - an established connection
 		-- is not the same as an accepted one.
-		print("[Bonk Horde] Server started - BUILD scaffold-1")
+		print(`[Bonk Horde] Server started - BUILD {GameConfig.BuildStamp}`)
 	end)
 	:catch(warn)

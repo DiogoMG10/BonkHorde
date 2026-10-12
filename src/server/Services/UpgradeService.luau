@@ -1,0 +1,213 @@
+--!nonstrict
+-- UpgradeService - owns the offers rolled for each pending level-up choice and
+-- each player's banish, skip and refresh charges.
+--
+-- The client is sent three offers and answers with an index. The server only
+-- ever applies an offer it rolled itself, so a forged choice is a no-op.
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Knit = require(ReplicatedStorage.Packages.Knit)
+local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
+local Net = require(ReplicatedStorage.Shared.Net)
+local Offers = require(ReplicatedStorage.Shared.Core.Offers)
+local Roster = require(ReplicatedStorage.Shared.Config.Roster)
+
+local UpgradeService = Knit.CreateService({ Name = "UpgradeService" })
+
+local rng = Random.new()
+local function rnd(): number
+	return rng:NextNumber()
+end
+
+function UpgradeService:KnitInit()
+	self._pending = {} -- rec -> count
+	self._open = {} -- rec -> { id, offers, deadline }
+	self._nextId = 1
+	self._offersEvent = Net.server("Offers")
+end
+
+function UpgradeService:KnitStart()
+	self._players = Knit.GetService("PlayerStateService")
+	self._director = Knit.GetService("RunDirectorService")
+
+	Net.server("ChooseOffer").OnServerEvent:Connect(function(player: Player, id: unknown, action: unknown, index: unknown)
+		if typeof(id) ~= "number" or typeof(action) ~= "string" then
+			return
+		end
+		local rec = self._players:Get(player)
+		local open = rec and self._open[rec]
+		if not open or open.id ~= id then
+			return
+		end
+		local i = if typeof(index) == "number" then math.floor(index) else 0
+		self:_choose(rec, open, action, i)
+	end)
+end
+
+function UpgradeService:Reset()
+	table.clear(self._pending)
+	table.clear(self._open)
+end
+
+function UpgradeService:HasOpen(): boolean
+	return next(self._open) ~= nil
+end
+
+--- One level-up for everyone in the run.
+function UpgradeService:QueueAll(levels: number)
+	for _, rec in self._players:All() do
+		self:QueueFor(rec, levels)
+	end
+end
+
+function UpgradeService:QueueFor(rec, levels: number)
+	self._pending[rec] = (self._pending[rec] or 0) + levels
+	self:_present(rec)
+end
+
+function UpgradeService:_roll(rec)
+	local offers = Offers.levelUp(
+		self._players:Loadout(rec),
+		Roster.WeaponOrder,
+		Roster.Weapons,
+		Roster.TomeOrder,
+		Roster.Tomes,
+		Roster.RarityOrder,
+		Roster.RarityWeights,
+		Roster.RarityLuckFactor,
+		Roster.RarityMultiplier,
+		GameConfig.OfferCount,
+		rnd
+	)
+	-- attach before/after values so the card can show "100% -> 120%"
+	for _, offer in offers do
+		for _, line in offer.lines do
+			local from = 0
+			if offer.kind == "weapon" then
+				local entry = rec.weaponIndex[offer.id]
+				from = if entry then (entry.s[line.stat] or 0) else 0
+			else
+				from = rec.stats[line.stat] or 0
+			end
+			line.from = from
+			line.to = from + line.amount
+		end
+	end
+	return offers
+end
+
+function UpgradeService:_present(rec)
+	if self._open[rec] or (self._pending[rec] or 0) <= 0 or not rec.active then
+		return
+	end
+	local offers = self:_roll(rec)
+	if #offers == 0 then
+		-- nothing left to offer: pay the level out in gold instead of an empty panel
+		self._players:AddGold(rec, GameConfig.SkipGold * 3 * self._pending[rec])
+		self._pending[rec] = 0
+		return
+	end
+	local solo = #self._players:All() <= 1
+	local open = {
+		id = self._nextId,
+		offers = offers,
+		deadline = if solo then math.huge else os.clock() + GameConfig.OfferChoiceSecondsCoop,
+	}
+	self._nextId += 1
+	self._open[rec] = open
+	self._director:SetPause("levelup", true)
+	self:_send(rec, open, solo)
+end
+
+function UpgradeService:_send(rec, open, solo: boolean)
+	self._offersEvent:FireClient(rec.player, {
+		id = open.id,
+		offers = open.offers,
+		seconds = if solo then 0 else math.max(0, open.deadline - os.clock()),
+		charges = rec.charges,
+		pending = self._pending[rec] or 0,
+	})
+end
+
+function UpgradeService:_apply(rec, offer)
+	if offer.kind == "weapon" then
+		if offer.isNew then
+			self._players:GrantWeapon(rec, offer.id)
+		else
+			self._players:UpgradeWeapon(rec, offer.id, offer.lines)
+		end
+	else
+		self._players:GrantTome(rec, offer.id, offer.lines)
+	end
+end
+
+function UpgradeService:_choose(rec, open, action: string, index: number)
+	local solo = #self._players:All() <= 1
+	if action == "pick" then
+		local offer = open.offers[index]
+		if not offer then
+			return
+		end
+		self:_apply(rec, offer)
+		self:_resolve(rec)
+	elseif action == "skip" then
+		if rec.charges.skip <= 0 then
+			return
+		end
+		rec.charges.skip -= 1
+		self._players:AddGold(rec, GameConfig.SkipGold)
+		self:_resolve(rec)
+	elseif action == "banish" then
+		local offer = open.offers[index]
+		if not offer or rec.charges.banish <= 0 then
+			return
+		end
+		rec.charges.banish -= 1
+		rec.banished[offer.kind .. ":" .. offer.id] = true
+		open.offers = self:_roll(rec)
+		rec.dirty = true
+		self:_send(rec, open, solo)
+	elseif action == "refresh" then
+		if rec.charges.refresh <= 0 then
+			return
+		end
+		rec.charges.refresh -= 1
+		open.offers = self:_roll(rec)
+		rec.dirty = true
+		self:_send(rec, open, solo)
+	end
+end
+
+function UpgradeService:_resolve(rec)
+	self._open[rec] = nil
+	self._pending[rec] = math.max((self._pending[rec] or 1) - 1, 0)
+	rec.dirty = true
+	self._offersEvent:FireClient(rec.player, nil) -- close the panel
+	if self._pending[rec] > 0 then
+		self:_present(rec)
+	end
+	if not self:HasOpen() then
+		self._director:SetPause("levelup", false)
+	end
+end
+
+--- Run every frame, even while paused: times out co-op choices and drops
+--- choices that belong to players who left.
+function UpgradeService:Step(now: number)
+	for rec, open in self._open do
+		if not rec.active then
+			self._open[rec] = nil
+			self._pending[rec] = nil
+		elseif now >= open.deadline then
+			-- out of time: take the first offer rather than waste the level
+			self:_apply(rec, open.offers[1])
+			self:_resolve(rec)
+		end
+	end
+	if not self:HasOpen() then
+		self._director:SetPause("levelup", false)
+	end
+end
+
+return UpgradeService

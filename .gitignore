@@ -14,3 +14,7 @@ design/refs/*.jpg
 
 # Roblox Studio local files
 *.rbxl.lock
+
+# built trees for the Studio push, and server logs
+work/push/
+build-runs/*.log

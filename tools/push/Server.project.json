@@ -1,0 +1,6 @@
+{
+  "name": "Server",
+  "tree": {
+    "$path": "../../src/server"
+  }
+}
