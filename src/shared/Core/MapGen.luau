@@ -19,7 +19,9 @@ export type Map = {
 	n: number, -- samples per side
 	heights: { number },
 	wall: number,
+	blocked: { boolean }?, -- samples a prop stands on; set by MapGen.block
 }
+export type Prop = { kind: string, x: number, z: number, yaw: number, scale: number, radius: number }
 export type Anchor = { x: number, z: number, d: number }
 
 local function smooth(t: number): number
@@ -136,6 +138,19 @@ function MapGen.canStep(map: Map, x: number, z: number, nx: number, nz: number, 
 	if run < 1e-3 then
 		return true
 	end
+	local blocked = map.blocked
+	if blocked then
+		local ix = math.floor((nx + map.half) / map.cell + 0.5)
+		local iz = math.floor((nz + map.half) / map.cell + 0.5)
+		if blocked[iz * map.n + ix + 1] then
+			-- stepping onto a prop is refused, but an enemy already inside one may walk out
+			local jx = math.floor((x + map.half) / map.cell + 0.5)
+			local jz = math.floor((z + map.half) / map.cell + 0.5)
+			if not blocked[jz * map.n + jx + 1] then
+				return false
+			end
+		end
+	end
 	local rise = math.abs(MapGen.heightAt(map, nx, nz) - MapGen.heightAt(map, x, z))
 	return rise / run <= cliffSlope
 end
@@ -163,6 +178,96 @@ function MapGen.anchors(map: Map, spacing: number, maxSlope: number): { Anchor }
 		end
 	end
 	return out
+end
+
+-- what the forest is dressed with: kind, how many per 10,000 square studs, the
+-- radius an enemy must walk round (0 = walk through), and the scale range
+local SCATTER = {
+	{ kind = "TreeLeaning", density = 2.4, radius = 2.5, min = 0.85, max = 1.25 },
+	{ kind = "TreeTwin", density = 1.8, radius = 3, min = 0.85, max = 1.2 },
+	{ kind = "TreeSapling", density = 1.6, radius = 1.5, min = 0.8, max = 1.3 },
+	{ kind = "Bush", density = 2.2, radius = 0, min = 0.8, max = 1.4 },
+	{ kind = "BoulderLarge", density = 0.7, radius = 5, min = 0.7, max = 1.3 },
+	{ kind = "BoulderFlat", density = 0.5, radius = 0, min = 0.8, max = 1.3 },
+	{ kind = "RockSmall", density = 1.4, radius = 0, min = 0.7, max = 1.5 },
+	{ kind = "FallenLog", density = 0.35, radius = 0, min = 0.9, max = 1.2 },
+	{ kind = "Stump", density = 0.5, radius = 0, min = 0.8, max = 1.2 },
+	{ kind = "LanternPost", density = 0.25, radius = 0, min = 1, max = 1 },
+	{ kind = "RuinWall", density = 0.12, radius = 0, min = 0.9, max = 1.1 },
+	{ kind = "RuinArch", density = 0.06, radius = 0, min = 1, max = 1 },
+	{ kind = "RuinTower", density = 0.05, radius = 9, min = 0.9, max = 1.1 },
+}
+
+--- Where the scenery goes. Deterministic. Keeps clear of the spawn clearing, of
+--- every anchor (so nothing grows through a chest) and of steep ground.
+function MapGen.props(map: Map, anchors: { Anchor }): { Prop }
+	local out: { Prop } = {}
+	local limit = map.half - 44
+	local area = (2 * limit) * (2 * limit) / 10000
+	for index, row in SCATTER do
+		local count = math.floor(row.density * area + 0.5)
+		local placed, tries = 0, 0
+		while placed < count and tries < count * 12 do
+			tries += 1
+			local x = (hash(tries, index, 11) * 2 - 1) * limit
+			local z = (hash(tries, index, 23) * 2 - 1) * limit
+			if x * x + z * z < 42 * 42 or MapGen.slopeAt(map, x, z) > 0.45 then
+				continue
+			end
+			local clear = true
+			for _, a in anchors do
+				if (a.x - x) ^ 2 + (a.z - z) ^ 2 < (9 + row.radius) ^ 2 then
+					clear = false
+					break
+				end
+			end
+			if clear and row.radius > 0 then
+				-- solid props keep their distance from each other so there is always a way through
+				for _, other in out do
+					if other.radius > 0 and (other.x - x) ^ 2 + (other.z - z) ^ 2 < (other.radius + row.radius + 7) ^ 2 then
+						clear = false
+						break
+					end
+				end
+			end
+			if clear then
+				placed += 1
+				table.insert(out, {
+					kind = row.kind,
+					x = x,
+					z = z,
+					yaw = hash(tries, index, 37) * math.pi * 2,
+					scale = row.min + hash(tries, index, 41) * (row.max - row.min),
+					radius = row.radius * (row.min + hash(tries, index, 41) * (row.max - row.min)),
+				})
+			end
+		end
+	end
+	return out
+end
+
+--- Mark the samples under solid props so `canStep` refuses them.
+function MapGen.block(map: Map, props: { Prop })
+	local n = map.n
+	local blocked: { boolean } = table.create(n * n, false)
+	for _, prop in props do
+		if prop.radius > 0 then
+			local r = prop.radius
+			local x0 = math.floor((prop.x - r + map.half) / map.cell + 0.5)
+			local x1 = math.floor((prop.x + r + map.half) / map.cell + 0.5)
+			local z0 = math.floor((prop.z - r + map.half) / map.cell + 0.5)
+			local z1 = math.floor((prop.z + r + map.half) / map.cell + 0.5)
+			for iz = math.max(z0, 0), math.min(z1, n - 1) do
+				for ix = math.max(x0, 0), math.min(x1, n - 1) do
+					local sx, sz = -map.half + ix * map.cell, -map.half + iz * map.cell
+					if (sx - prop.x) ^ 2 + (sz - prop.z) ^ 2 <= r * r then
+						blocked[iz * n + ix + 1] = true
+					end
+				end
+			end
+		end
+	end
+	map.blocked = blocked
 end
 
 --- Flood-fill from (fromX, fromZ) over the height grid using `canStep`.

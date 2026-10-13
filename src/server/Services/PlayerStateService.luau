@@ -175,6 +175,12 @@ function PlayerStateService:_spawnCharacter(rec, late: boolean)
 	if health then
 		health:Destroy() -- Roblox's regen script; HP lives in this service
 	end
+	local okDress, errDress = pcall(function()
+		self:_dress(rec, character, humanoid, root)
+	end)
+	if not okDress then
+		warn(`[PlayerStateService] hero dressing failed, playing as the avatar: {errDress}`)
+	end
 	local at = self._map:SpawnPoint(rec.index)
 	if late then
 		-- drop in beside whoever is still standing
@@ -188,6 +194,81 @@ function PlayerStateService:_spawnCharacter(rec, late: boolean)
 	character:PivotTo(CFrame.new(at))
 	rec.x, rec.y, rec.z = at.X, at.Y, at.Z
 	self:_applyMovement(rec)
+end
+
+-- which avatar limb each piece of a hero model rides on, so the avatar's own
+-- animations move the hero
+local HERO_LIMB = {
+	Body = "UpperTorso",
+	Head = "Head",
+	ArmL = "LeftUpperArm",
+	ArmR = "RightUpperArm",
+	LegL = "LeftUpperLeg",
+	LegR = "RightUpperLeg",
+}
+
+-- Turn the player's avatar into the chosen hero: hide the avatar, then weld each
+-- piece of ReplicatedStorage.Assets.Heroes.Hero<Id> to the matching limb, and
+-- the starting weapon to the right hand. Without a hero model the avatar stays.
+function PlayerStateService:_dress(rec, character: Model, humanoid: Humanoid, root: BasePart)
+	local assets = ReplicatedStorage:FindFirstChild("Assets")
+	local template = assets and assets:FindFirstChild("Heroes") and assets.Heroes:FindFirstChild("Hero" .. rec.hero)
+	if not template then
+		return
+	end
+	humanoid:RemoveAccessories()
+	for _, d in character:GetDescendants() do
+		if d:IsA("BasePart") then
+			d.Transparency = 1
+		elseif d:IsA("Decal") or d:IsA("Shirt") or d:IsA("Pants") or d:IsA("ShirtGraphic") or d:IsA("CharacterMesh") then
+			d:Destroy()
+		end
+	end
+
+	local hero = template:Clone()
+	local _, size = hero:GetBoundingBox()
+	hero:ScaleTo(5.4 / math.max(size.Y, 0.1))
+	local _, scaled = hero:GetBoundingBox()
+	-- stand the model where the avatar stands: feet on the floor under the root
+	local feet = root.Position.Y - humanoid.HipHeight - root.Size.Y / 2
+	hero:PivotTo(CFrame.new(root.Position.X, feet + scaled.Y / 2, root.Position.Z) * root.CFrame.Rotation)
+	for _, part in hero:GetChildren() do
+		if part:IsA("BasePart") and part.Name ~= "Root" then
+			local limb = character:FindFirstChild(HERO_LIMB[part.Name] or "UpperTorso") or root
+			part.Anchored = false
+			part.CanCollide = false
+			part.CanQuery = false
+			part.CanTouch = false
+			part.Massless = true
+			local weld = Instance.new("Weld")
+			weld.Part0 = limb
+			weld.Part1 = part
+			weld.C0 = limb.CFrame:ToObjectSpace(part.CFrame)
+			weld.Parent = part
+			part.Parent = character
+		end
+	end
+	hero:Destroy()
+
+	local weaponTemplate = assets:FindFirstChild("Weapons") and assets.Weapons:FindFirstChild("Weapon" .. rec.heroDef.weapon)
+	local hand = character:FindFirstChild("RightHand")
+	local mesh = weaponTemplate and weaponTemplate:FindFirstChild("Body")
+	if hand and mesh then
+		local weapon = mesh:Clone()
+		weapon.Name = "HeldWeapon"
+		weapon.Anchored = false
+		weapon.CanCollide = false
+		weapon.CanQuery = false
+		weapon.CanTouch = false
+		weapon.Massless = true
+		local weld = Instance.new("Weld")
+		weld.Part0 = hand
+		weld.Part1 = weapon
+		-- gripped a third of the way up, pointing forward and up out of the fist
+		weld.C0 = CFrame.new(0, -0.2, -weapon.Size.Y * 0.3) * CFrame.Angles(math.rad(-90), 0, 0)
+		weld.Parent = weapon
+		weapon.Parent = character
+	end
 end
 
 function PlayerStateService:EndRun()

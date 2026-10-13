@@ -61,6 +61,12 @@ function WorldController:List()
 	return self._items
 end
 
+--- The id of the interactable the prompt is offering right now, if any. Touch
+--- and on-screen buttons send it with the Interact remote, as the E key does.
+function WorldController:PromptId(): number?
+	return self._prompt and self._prompt.id
+end
+
 function WorldController:_label(part: BasePart, text: string): TextLabel
 	local gui = Instance.new("BillboardGui")
 	gui.Size = UDim2.fromOffset(200, 34)

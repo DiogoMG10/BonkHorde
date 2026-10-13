@@ -34,8 +34,10 @@ local function levelUp(loadout: any, rnd: () -> number)
 end
 
 local map = MapGen.build(GameConfig.MapSizeStuds, GameConfig.HeightCellStuds, GameConfig.WallHeight)
-local reach = MapGen.reachable(map, 0, 0, GameConfig.CliffSlope)
 local anchors = MapGen.anchors(map, 26, 0.35)
+local props = MapGen.props(map, anchors)
+MapGen.block(map, props)
+local reach = MapGen.reachable(map, 0, 0, GameConfig.CliffSlope)
 
 return {
 	["rarity rolls run from Common to Legendary"] = function()
@@ -177,6 +179,26 @@ return {
 		for _, a in anchors do
 			assert(MapGen.isReachable(map, reach, a.x, a.z), `anchor at {a.x}, {a.z} is cut off`)
 		end
+	end,
+
+	["the forest is dressed but the spawn clearing is left open"] = function()
+		assert(#props >= 400, "only " .. #props .. " props")
+		for _, prop in props do
+			assert(prop.x * prop.x + prop.z * prop.z >= 42 * 42, "a prop sits in the spawn clearing")
+		end
+	end,
+
+	["an enemy cannot walk into a tree but can still walk out of one"] = function()
+		local tree
+		for _, prop in props do
+			if prop.radius > 0 then
+				tree = prop
+				break
+			end
+		end
+		assert(tree, "no solid prop to test")
+		assert(not MapGen.canStep(map, tree.x + tree.radius + 6, tree.z, tree.x, tree.z, 99), "walked into a solid prop")
+		assert(MapGen.canStep(map, tree.x, tree.z, tree.x + 1, tree.z, 99), "stuck inside a solid prop")
 	end,
 
 	["there is somewhere far enough away to hide the boss portal"] = function()

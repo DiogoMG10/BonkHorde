@@ -154,7 +154,7 @@
        "name": "Stroke",
        "properties": {
         "Thickness": 3,
-        "ApplyStrokeMode": "Border",
+        "ApplyStrokeMode": "Contextual",
         "Color": {
          "Color3": [
           0.0627,
@@ -1269,7 +1269,7 @@
          "name": "Stroke",
          "properties": {
           "Thickness": 3,
-          "ApplyStrokeMode": "Border",
+          "ApplyStrokeMode": "Contextual",
           "Color": {
            "Color3": [
             0.0627,
@@ -1991,7 +1991,7 @@
        "name": "Stroke",
        "properties": {
         "Thickness": 3,
-        "ApplyStrokeMode": "Border",
+        "ApplyStrokeMode": "Contextual",
         "Color": {
          "Color3": [
           0.0627,
@@ -2290,7 +2290,7 @@
            "name": "Stroke",
            "properties": {
             "Thickness": 3,
-            "ApplyStrokeMode": "Border",
+            "ApplyStrokeMode": "Contextual",
             "Color": {
              "Color3": [
               0.0627,
@@ -2537,7 +2537,7 @@
            "name": "Stroke",
            "properties": {
             "Thickness": 3,
-            "ApplyStrokeMode": "Border",
+            "ApplyStrokeMode": "Contextual",
             "Color": {
              "Color3": [
               0.0627,
@@ -2784,7 +2784,7 @@
            "name": "Stroke",
            "properties": {
             "Thickness": 3,
-            "ApplyStrokeMode": "Border",
+            "ApplyStrokeMode": "Contextual",
             "Color": {
              "Color3": [
               0.0627,
@@ -3031,7 +3031,7 @@
            "name": "Stroke",
            "properties": {
             "Thickness": 3,
-            "ApplyStrokeMode": "Border",
+            "ApplyStrokeMode": "Contextual",
             "Color": {
              "Color3": [
               0.0627,
@@ -3672,7 +3672,7 @@
            "name": "Stroke",
            "properties": {
             "Thickness": 3,
-            "ApplyStrokeMode": "Border",
+            "ApplyStrokeMode": "Contextual",
             "Color": {
              "Color3": [
               0.0627,
@@ -3752,7 +3752,7 @@
            "name": "Stroke",
            "properties": {
             "Thickness": 3,
-            "ApplyStrokeMode": "Border",
+            "ApplyStrokeMode": "Contextual",
             "Color": {
              "Color3": [
               0.0627,
@@ -3832,7 +3832,7 @@
            "name": "Stroke",
            "properties": {
             "Thickness": 3,
-            "ApplyStrokeMode": "Border",
+            "ApplyStrokeMode": "Contextual",
             "Color": {
              "Color3": [
               0.0627,
@@ -4163,7 +4163,7 @@
            "name": "Stroke",
            "properties": {
             "Thickness": 3,
-            "ApplyStrokeMode": "Border",
+            "ApplyStrokeMode": "Contextual",
             "Color": {
              "Color3": [
               0.0627,
@@ -4243,7 +4243,7 @@
            "name": "Stroke",
            "properties": {
             "Thickness": 3,
-            "ApplyStrokeMode": "Border",
+            "ApplyStrokeMode": "Contextual",
             "Color": {
              "Color3": [
               0.0627,
@@ -4323,7 +4323,7 @@
            "name": "Stroke",
            "properties": {
             "Thickness": 3,
-            "ApplyStrokeMode": "Border",
+            "ApplyStrokeMode": "Contextual",
             "Color": {
              "Color3": [
               0.0627,
@@ -4654,7 +4654,7 @@
            "name": "Stroke",
            "properties": {
             "Thickness": 3,
-            "ApplyStrokeMode": "Border",
+            "ApplyStrokeMode": "Contextual",
             "Color": {
              "Color3": [
               0.0627,
@@ -4734,7 +4734,7 @@
            "name": "Stroke",
            "properties": {
             "Thickness": 3,
-            "ApplyStrokeMode": "Border",
+            "ApplyStrokeMode": "Contextual",
             "Color": {
              "Color3": [
               0.0627,
@@ -4814,7 +4814,7 @@
            "name": "Stroke",
            "properties": {
             "Thickness": 3,
-            "ApplyStrokeMode": "Border",
+            "ApplyStrokeMode": "Contextual",
             "Color": {
              "Color3": [
               0.0627,

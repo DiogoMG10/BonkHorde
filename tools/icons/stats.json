@@ -1,0 +1,137 @@
+{
+ "IconSkull": {
+  "bg": [
+   219,
+   98,
+   146
+  ],
+  "coverage": 0.42218589782714844,
+  "touches_edge": false,
+  "corner_alpha": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ "IconTomeDamage": {
+  "bg": [
+   61,
+   48,
+   46
+  ],
+  "coverage": 0.4679851531982422,
+  "touches_edge": false,
+  "corner_alpha": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ "IconItemStinkyCheese": {
+  "bg": [
+   239,
+   121,
+   168
+  ],
+  "coverage": 0.2950305938720703,
+  "touches_edge": false,
+  "corner_alpha": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ "PortraitFox": {
+  "bg": [
+   205,
+   48,
+   115
+  ],
+  "coverage": 0.4658660888671875,
+  "touches_edge": false,
+  "corner_alpha": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ "IconClock": {
+  "bg": [
+   226,
+   226,
+   226
+  ],
+  "coverage": 0.4198951721191406,
+  "touches_edge": false,
+  "corner_alpha": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ "IconPartyRocket": {
+  "bg": [
+   19,
+   36,
+   67
+  ],
+  "coverage": 0.11732769012451172,
+  "touches_edge": false,
+  "corner_alpha": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ "IconItemBandageBox": {
+  "bg": [
+   212,
+   207,
+   190
+  ],
+  "coverage": 0.2498483657836914,
+  "touches_edge": false,
+  "corner_alpha": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ "IconItemEchoGem": {
+  "bg": [
+   83,
+   128,
+   155
+  ],
+  "coverage": 0.3684215545654297,
+  "touches_edge": false,
+  "corner_alpha": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ "IconSilver": {
+  "bg": [
+   196,
+   52,
+   148
+  ],
+  "coverage": 0.252105712890625,
+  "touches_edge": false,
+  "corner_alpha": [
+   0,
+   0,
+   0,
+   0
+  ]
+ }
+}
