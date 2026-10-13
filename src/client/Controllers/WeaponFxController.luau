@@ -107,7 +107,15 @@ function WeaponFxController:KnitStart()
 		local sweep = math.clamp(arcDeg, 60, 200)
 		local at = Vector3.new(x, y + 0.6, z)
 		local turn = yaw + math.rad(45 + sweep / 2)
-		Vfx.ground(at, "crescent", Color3.fromRGB(215, 240, 255), range * 0.75, range * 1.08, 0.2, { yaw = turn, spin = sweep, hold = 0.5, alpha = 0.15 })
+		Vfx.ground(
+			at,
+			"crescent",
+			Color3.fromRGB(215, 240, 255),
+			range * 0.75,
+			range * 1.08,
+			0.2,
+			{ yaw = turn, spin = sweep, hold = 0.5, alpha = 0.15 }
+		)
 		Vfx.ground(
 			at - Vector3.new(0, 0.15, 0),
 			"crescent",
