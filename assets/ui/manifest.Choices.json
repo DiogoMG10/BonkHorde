@@ -1,0 +1,788 @@
+{
+ "screenGui": "Choices",
+ "displayOrder": 20,
+ "note": "Paths are instance names from the ScreenGui down. Sample children repeat under one path. Shadow/Face/Rivet decoration is left out. Icon keys listed are the sample values shipped; the game overwrites IconName on runtime-filled icons.",
+ "elements": [
+  {
+   "path": "LevelUpFx",
+   "class": "Frame",
+   "visible": false
+  },
+  {
+   "path": "LevelUpFx/RayBurst",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "LevelUpFx/RayBurst/Ray",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "LevelUpFx/Confetti",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "InventoryPanel",
+   "class": "Frame",
+   "visible": false
+  },
+  {
+   "path": "InventoryPanel/Header",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "InventoryPanel/Header/Title",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "InventoryPanel/Weapons",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "InventoryPanel/WeaponSlots",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "InventoryPanel/WeaponSlots/InvSlot",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "InventoryPanel/WeaponSlots/InvSlot/Icon",
+   "class": "ImageLabel",
+   "visible": true
+  },
+  {
+   "path": "InventoryPanel/WeaponSlots/InvSlot/Level",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "InventoryPanel/Tomes",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "InventoryPanel/TomeSlots",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "InventoryPanel/TomeSlots/InvSlot",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "InventoryPanel/TomeSlots/InvSlot/Icon",
+   "class": "ImageLabel",
+   "visible": true
+  },
+  {
+   "path": "InventoryPanel/TomeSlots/InvSlot/Level",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "InventoryPanel/Items",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "InventoryPanel/ItemGrid",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "InventoryPanel/ItemGrid/InvItem",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "InventoryPanel/ItemGrid/InvItem/Icon",
+   "class": "ImageLabel",
+   "visible": true
+  },
+  {
+   "path": "InventoryPanel/ItemGrid/InvItem/Count",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "StatsPanel",
+   "class": "Frame",
+   "visible": false
+  },
+  {
+   "path": "StatsPanel/Header",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "StatsPanel/Header/Title",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "StatsPanel/Rows",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "StatsPanel/Rows/StatRow",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "StatsPanel/Rows/StatRow/Name",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "StatsPanel/Rows/StatRow/Value",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "StatsPanel/Rows/StatGap",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers",
+   "class": "Frame",
+   "visible": false
+  },
+  {
+   "path": "UpgradeOffers/Header",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Header/Title",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Cards",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Cards/OfferCard",
+   "class": "TextButton",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Cards/OfferCard/RarityTag",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Cards/OfferCard/IconTile",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Cards/OfferCard/IconTile/Icon",
+   "class": "ImageLabel",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Cards/OfferCard/OfferName",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Cards/OfferCard/LevelTag",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Cards/OfferCard/Lines",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Cards/OfferCard/Lines/StatLine",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Cards/OfferCard/Lines/StatLine/Label",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Cards/OfferCard/Lines/StatLine/From",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Cards/OfferCard/Lines/StatLine/Arrow",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Cards/OfferCard/Lines/StatLine/To",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Cards/OfferCard/Description",
+   "class": "TextLabel",
+   "visible": false
+  },
+  {
+   "path": "UpgradeOffers/Cards/OfferCard/Focus",
+   "class": "Frame",
+   "visible": false
+  },
+  {
+   "path": "UpgradeOffers/Cards/OfferCard/Focus/TLH",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Cards/OfferCard/Focus/TLV",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Cards/OfferCard/Focus/TRH",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Cards/OfferCard/Focus/TRV",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Cards/OfferCard/Focus/BLH",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Cards/OfferCard/Focus/BLV",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Cards/OfferCard/Focus/BRH",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Cards/OfferCard/Focus/BRV",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Footer",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Footer/BanishButton",
+   "class": "TextButton",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Footer/BanishButton/Label",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Footer/BanishButton/Count",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Footer/SkipButton",
+   "class": "TextButton",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Footer/SkipButton/Label",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Footer/SkipButton/Count",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Footer/RefreshButton",
+   "class": "TextButton",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Footer/RefreshButton/Label",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Footer/RefreshButton/Count",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "UpgradeOffers/Footer/ChoiceTimer",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "ChestPanel",
+   "class": "Frame",
+   "visible": false
+  },
+  {
+   "path": "ChestPanel/RarityWord",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "ChestPanel/ItemName",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "ChestPanel/ItemText",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "ChestPanel/Stage",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "ChestPanel/Stage/LightRays",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "ChestPanel/Stage/LightRays/Ray",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "ChestPanel/Stage/ItemSprite",
+   "class": "ImageLabel",
+   "visible": true
+  },
+  {
+   "path": "ChestPanel/Stage/ChestIcon",
+   "class": "ImageLabel",
+   "visible": true
+  },
+  {
+   "path": "ChestPanel/Footer",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "ChestPanel/Footer/BanishButton",
+   "class": "TextButton",
+   "visible": true
+  },
+  {
+   "path": "ChestPanel/Footer/BanishButton/Label",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "ChestPanel/Footer/BanishButton/Count",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "ChestPanel/Footer/TakeButton",
+   "class": "TextButton",
+   "visible": true
+  },
+  {
+   "path": "ChestPanel/Footer/TakeButton/Label",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "ShrineOffers",
+   "class": "Frame",
+   "visible": false
+  },
+  {
+   "path": "ShrineOffers/Header",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "ShrineOffers/Header/Title",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "ShrineOffers/Intro",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "ShrineOffers/Rows",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "ShrineOffers/Rows/RewardRow",
+   "class": "TextButton",
+   "visible": true
+  },
+  {
+   "path": "ShrineOffers/Rows/RewardRow/RarityBox",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "ShrineOffers/Rows/RewardRow/RarityTag",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "ShrineOffers/Rows/RewardRow/Text",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "ShrineOffers/IgnoreRow",
+   "class": "TextButton",
+   "visible": true
+  },
+  {
+   "path": "ShrineOffers/IgnoreRow/Label",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "ShopPanel",
+   "class": "Frame",
+   "visible": false
+  },
+  {
+   "path": "ShopPanel/Header",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "ShopPanel/Header/Title",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "ShopPanel/FlavourLine",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "ShopPanel/Cards",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "ShopPanel/Cards/ShopCard",
+   "class": "TextButton",
+   "visible": true
+  },
+  {
+   "path": "ShopPanel/Cards/ShopCard/RarityTag",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "ShopPanel/Cards/ShopCard/IconTile",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "ShopPanel/Cards/ShopCard/IconTile/Icon",
+   "class": "ImageLabel",
+   "visible": true
+  },
+  {
+   "path": "ShopPanel/Cards/ShopCard/ItemName",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "ShopPanel/Cards/ShopCard/PriceTag",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "ShopPanel/Cards/ShopCard/PriceTag/IconGold",
+   "class": "ImageLabel",
+   "visible": true
+  },
+  {
+   "path": "ShopPanel/Cards/ShopCard/PriceTag/Price",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "ShopPanel/Cards/ShopCard/ItemText",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "ShopPanel/Cards/ShopCard/SoldTag",
+   "class": "TextLabel",
+   "visible": false
+  },
+  {
+   "path": "ShopPanel/Cards/ShopCard/Focus",
+   "class": "Frame",
+   "visible": false
+  },
+  {
+   "path": "ShopPanel/Cards/ShopCard/Focus/TLH",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "ShopPanel/Cards/ShopCard/Focus/TLV",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "ShopPanel/Cards/ShopCard/Focus/TRH",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "ShopPanel/Cards/ShopCard/Focus/TRV",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "ShopPanel/Cards/ShopCard/Focus/BLH",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "ShopPanel/Cards/ShopCard/Focus/BLV",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "ShopPanel/Cards/ShopCard/Focus/BRH",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "ShopPanel/Cards/ShopCard/Focus/BRV",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "ShopPanel/Footer",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "ShopPanel/Footer/GoldLabel",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "ShopPanel/Footer/LeaveButton",
+   "class": "TextButton",
+   "visible": true
+  },
+  {
+   "path": "ShopPanel/Footer/LeaveButton/Label",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "StatueOffers",
+   "class": "Frame",
+   "visible": false
+  },
+  {
+   "path": "StatueOffers/Header",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "StatueOffers/Header/Title",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "StatueOffers/FlavourLine",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "StatueOffers/Cards",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "StatueOffers/Cards/ItemCard",
+   "class": "TextButton",
+   "visible": true
+  },
+  {
+   "path": "StatueOffers/Cards/ItemCard/RarityTag",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "StatueOffers/Cards/ItemCard/IconTile",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "StatueOffers/Cards/ItemCard/IconTile/Icon",
+   "class": "ImageLabel",
+   "visible": true
+  },
+  {
+   "path": "StatueOffers/Cards/ItemCard/ItemName",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "StatueOffers/Cards/ItemCard/ItemText",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "StatueOffers/Cards/ItemCard/Focus",
+   "class": "Frame",
+   "visible": false
+  },
+  {
+   "path": "StatueOffers/Cards/ItemCard/Focus/TLH",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "StatueOffers/Cards/ItemCard/Focus/TLV",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "StatueOffers/Cards/ItemCard/Focus/TRH",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "StatueOffers/Cards/ItemCard/Focus/TRV",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "StatueOffers/Cards/ItemCard/Focus/BLH",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "StatueOffers/Cards/ItemCard/Focus/BLV",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "StatueOffers/Cards/ItemCard/Focus/BRH",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "StatueOffers/Cards/ItemCard/Focus/BRV",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "StatueOffers/Footer",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "StatueOffers/Footer/SkipButton",
+   "class": "TextButton",
+   "visible": true
+  },
+  {
+   "path": "StatueOffers/Footer/SkipButton/Label",
+   "class": "TextLabel",
+   "visible": true
+  }
+ ],
+ "icons": {
+  "IconBone": [
+   "InventoryPanel/WeaponSlots/InvSlot/Icon"
+  ],
+  "IconChest": [
+   "ChestPanel/Stage/ChestIcon"
+  ],
+  "IconFrostRing": [
+   "InventoryPanel/WeaponSlots/InvSlot/Icon"
+  ],
+  "IconGold": [
+   "ShopPanel/Cards/ShopCard/PriceTag/IconGold"
+  ],
+  "IconItemBigIceCube": [
+   "ShopPanel/Cards/ShopCard/IconTile/Icon"
+  ],
+  "IconItemColossalFork": [
+   "ShopPanel/Cards/ShopCard/IconTile/Icon"
+  ],
+  "IconItemLuckyClover": [
+   "InventoryPanel/ItemGrid/InvItem/Icon",
+   "StatueOffers/Cards/ItemCard/IconTile/Icon"
+  ],
+  "IconItemPanicMirror": [
+   "StatueOffers/Cards/ItemCard/IconTile/Icon"
+  ],
+  "IconItemSecondWindClock": [
+   "ChestPanel/Stage/ItemSprite"
+  ],
+  "IconItemTickingBracelet": [
+   "InventoryPanel/ItemGrid/InvItem/Icon"
+  ],
+  "IconItemVolatileMeatball": [
+   "ShopPanel/Cards/ShopCard/IconTile/Icon"
+  ],
+  "IconItemZoomSocks": [
+   "InventoryPanel/ItemGrid/InvItem/Icon",
+   "StatueOffers/Cards/ItemCard/IconTile/Icon"
+  ],
+  "IconLightningStaff": [
+   "InventoryPanel/WeaponSlots/InvSlot/Icon",
+   "UpgradeOffers/Cards/OfferCard/IconTile/Icon"
+  ],
+  "IconSword": [
+   "InventoryPanel/WeaponSlots/InvSlot/Icon",
+   "UpgradeOffers/Cards/OfferCard/IconTile/Icon"
+  ],
+  "IconTomeAgility": [
+   "InventoryPanel/TomeSlots/InvSlot/Icon"
+  ],
+  "IconTomeCooldown": [
+   "InventoryPanel/TomeSlots/InvSlot/Icon"
+  ],
+  "IconTomeDamage": [
+   "InventoryPanel/TomeSlots/InvSlot/Icon",
+   "UpgradeOffers/Cards/OfferCard/IconTile/Icon"
+  ],
+  "IconTomeLuck": [
+   "InventoryPanel/TomeSlots/InvSlot/Icon"
+  ]
+ }
+}

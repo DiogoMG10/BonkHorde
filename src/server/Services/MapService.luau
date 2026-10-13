@@ -103,7 +103,7 @@ function MapService:_writeTerrain()
 					local z = -half + (cz + iz - 1) * VOXEL + VOXEL / 2
 					local h = MapGen.heightAt(map, x, z)
 					local slope = MapGen.slopeAt(map, x, z)
-					local material = Enum.Material.Grass
+					local material = Enum.Material.LeafyGrass -- no tall decoration blades hiding gems and feet
 					if slope > 1.1 or h > GameConfig.WallHeight - 14 then
 						material = Enum.Material.Rock
 					elseif slope > 0.55 then

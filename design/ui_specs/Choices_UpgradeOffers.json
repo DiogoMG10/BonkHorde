@@ -1,0 +1,6610 @@
+{
+ "name": "Choices_UpgradeOffers",
+ "theme": "../ui_theme.json",
+ "resolution": [
+  1920,
+  1080
+ ],
+ "kind": "page",
+ "displayOrder": 20,
+ "ignoreGuiInset": true,
+ "enabled": true,
+ "children": [
+  {
+   "type": "frame",
+   "name": "LevelUpFx",
+   "transparent": true,
+   "size": [
+    1,
+    0,
+    1,
+    0
+   ],
+   "visible": false,
+   "z": 0,
+   "children": [
+    {
+     "type": "frame",
+     "name": "RayBurst",
+     "transparent": true,
+     "size": [
+      1,
+      0,
+      1,
+      0
+     ],
+     "children": [
+      {
+       "type": "frame",
+       "name": "Ray",
+       "colour": [
+        "#FFF9C4",
+        "#FFF3A0"
+       ],
+       "alpha": 0.5,
+       "outline": false,
+       "corner": 0,
+       "size": [
+        0,
+        2600,
+        0,
+        96
+       ],
+       "pos": [
+        0.5,
+        0,
+        0.5,
+        0
+       ],
+       "anchor": [
+        0.5,
+        0.5
+       ],
+       "rotation": 15,
+       "overhang": true
+      },
+      {
+       "type": "frame",
+       "name": "Ray",
+       "colour": [
+        "#FFF9C4",
+        "#FFF3A0"
+       ],
+       "alpha": 0.5,
+       "outline": false,
+       "corner": 0,
+       "size": [
+        0,
+        2600,
+        0,
+        96
+       ],
+       "pos": [
+        0.5,
+        0,
+        0.5,
+        0
+       ],
+       "anchor": [
+        0.5,
+        0.5
+       ],
+       "rotation": 45,
+       "overhang": true
+      },
+      {
+       "type": "frame",
+       "name": "Ray",
+       "colour": [
+        "#FFF9C4",
+        "#FFF3A0"
+       ],
+       "alpha": 0.5,
+       "outline": false,
+       "corner": 0,
+       "size": [
+        0,
+        2600,
+        0,
+        96
+       ],
+       "pos": [
+        0.5,
+        0,
+        0.5,
+        0
+       ],
+       "anchor": [
+        0.5,
+        0.5
+       ],
+       "rotation": 75,
+       "overhang": true
+      },
+      {
+       "type": "frame",
+       "name": "Ray",
+       "colour": [
+        "#FFF9C4",
+        "#FFF3A0"
+       ],
+       "alpha": 0.5,
+       "outline": false,
+       "corner": 0,
+       "size": [
+        0,
+        2600,
+        0,
+        96
+       ],
+       "pos": [
+        0.5,
+        0,
+        0.5,
+        0
+       ],
+       "anchor": [
+        0.5,
+        0.5
+       ],
+       "rotation": 105,
+       "overhang": true
+      },
+      {
+       "type": "frame",
+       "name": "Ray",
+       "colour": [
+        "#FFF9C4",
+        "#FFF3A0"
+       ],
+       "alpha": 0.5,
+       "outline": false,
+       "corner": 0,
+       "size": [
+        0,
+        2600,
+        0,
+        96
+       ],
+       "pos": [
+        0.5,
+        0,
+        0.5,
+        0
+       ],
+       "anchor": [
+        0.5,
+        0.5
+       ],
+       "rotation": 135,
+       "overhang": true
+      },
+      {
+       "type": "frame",
+       "name": "Ray",
+       "colour": [
+        "#FFF9C4",
+        "#FFF3A0"
+       ],
+       "alpha": 0.5,
+       "outline": false,
+       "corner": 0,
+       "size": [
+        0,
+        2600,
+        0,
+        96
+       ],
+       "pos": [
+        0.5,
+        0,
+        0.5,
+        0
+       ],
+       "anchor": [
+        0.5,
+        0.5
+       ],
+       "rotation": 165,
+       "overhang": true
+      }
+     ]
+    },
+    {
+     "type": "frame",
+     "name": "Confetti",
+     "transparent": true,
+     "size": [
+      1,
+      0,
+      1,
+      0
+     ],
+     "overhang": true
+    }
+   ]
+  },
+  {
+   "type": "panel",
+   "name": "InventoryPanel",
+   "colour": [
+    "#343B36",
+    "#222A25"
+   ],
+   "corner": 12,
+   "size": [
+    0,
+    504,
+    0,
+    668
+   ],
+   "pos": [
+    0,
+    22,
+    0.5,
+    0
+   ],
+   "anchor": [
+    0,
+    0.5
+   ],
+   "visible": false,
+   "modal": true,
+   "z": 1,
+   "children": [
+    {
+     "type": "frame",
+     "name": "Header",
+     "size": [
+      0,
+      488,
+      0,
+      56
+     ],
+     "pos": [
+      0,
+      8,
+      0,
+      8
+     ],
+     "colour": [
+      "#3F5547",
+      "#2E4637"
+     ],
+     "children": [
+      {
+       "type": "label",
+       "name": "Title",
+       "text": "Inventory",
+       "size": [
+        1,
+        -56,
+        1,
+        0
+       ],
+       "pos": [
+        0,
+        28,
+        0,
+        0
+       ],
+       "textColour": "ink",
+       "align": "left",
+       "textScale": 0.62,
+       "textStroke": 3,
+       "font": "LuckiestGuy",
+       "samples": [
+        "INVENTORY"
+       ]
+      }
+     ],
+     "corner": 8
+    },
+    {
+     "type": "label",
+     "name": "Weapons",
+     "text": "Weapons",
+     "size": [
+      0,
+      300,
+      0,
+      32
+     ],
+     "pos": [
+      0,
+      28,
+      0,
+      76
+     ],
+     "textColour": "ink",
+     "align": "left",
+     "textScale": 0.85,
+     "textStroke": 2,
+     "font": "LuckiestGuy",
+     "samples": [
+      "WEAPONS"
+     ]
+    },
+    {
+     "type": "frame",
+     "name": "WeaponSlots",
+     "transparent": true,
+     "size": [
+      0,
+      448,
+      0,
+      92
+     ],
+     "pos": [
+      0,
+      28,
+      0,
+      116
+     ],
+     "layout": {
+      "type": "list",
+      "dir": "x",
+      "gap": 8,
+      "align": "start"
+     },
+     "children": [
+      {
+       "type": "frame",
+       "name": "InvSlot",
+       "size": [
+        0,
+        72,
+        0,
+        92
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "colour": [
+        "#2A322D",
+        "#18201B"
+       ],
+       "children": [
+        {
+         "type": "icon",
+         "name": "Icon",
+         "icon": "IconSword",
+         "size": [
+          0,
+          54,
+          0,
+          54
+         ],
+         "pos": [
+          0.5,
+          0,
+          0,
+          6
+         ],
+         "anchor": [
+          0.5,
+          0
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Level",
+         "text": "LVL 3",
+         "size": [
+          0,
+          64,
+          0,
+          20
+         ],
+         "pos": [
+          0.5,
+          0,
+          0,
+          68
+         ],
+         "textColour": "ink",
+         "align": "center",
+         "textScale": 0.95,
+         "textStroke": 2,
+         "font": "LuckiestGuy",
+         "samples": [
+          "LVL 28",
+          "LVL 3"
+         ],
+         "anchor": [
+          0.5,
+          0
+         ]
+        }
+       ],
+       "corner": 8
+      },
+      {
+       "type": "frame",
+       "name": "InvSlot",
+       "size": [
+        0,
+        72,
+        0,
+        92
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "colour": [
+        "#2A322D",
+        "#18201B"
+       ],
+       "children": [
+        {
+         "type": "icon",
+         "name": "Icon",
+         "icon": "IconLightningStaff",
+         "size": [
+          0,
+          54,
+          0,
+          54
+         ],
+         "pos": [
+          0.5,
+          0,
+          0,
+          6
+         ],
+         "anchor": [
+          0.5,
+          0
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Level",
+         "text": "LVL 2",
+         "size": [
+          0,
+          64,
+          0,
+          20
+         ],
+         "pos": [
+          0.5,
+          0,
+          0,
+          68
+         ],
+         "textColour": "ink",
+         "align": "center",
+         "textScale": 0.95,
+         "textStroke": 2,
+         "font": "LuckiestGuy",
+         "samples": [
+          "LVL 28",
+          "LVL 2"
+         ],
+         "anchor": [
+          0.5,
+          0
+         ]
+        }
+       ],
+       "corner": 8
+      },
+      {
+       "type": "frame",
+       "name": "InvSlot",
+       "size": [
+        0,
+        72,
+        0,
+        92
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "colour": [
+        "#2A322D",
+        "#18201B"
+       ],
+       "children": [
+        {
+         "type": "icon",
+         "name": "Icon",
+         "icon": "IconFrostRing",
+         "size": [
+          0,
+          54,
+          0,
+          54
+         ],
+         "pos": [
+          0.5,
+          0,
+          0,
+          6
+         ],
+         "anchor": [
+          0.5,
+          0
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Level",
+         "text": "LVL 1",
+         "size": [
+          0,
+          64,
+          0,
+          20
+         ],
+         "pos": [
+          0.5,
+          0,
+          0,
+          68
+         ],
+         "textColour": "ink",
+         "align": "center",
+         "textScale": 0.95,
+         "textStroke": 2,
+         "font": "LuckiestGuy",
+         "samples": [
+          "LVL 28",
+          "LVL 1"
+         ],
+         "anchor": [
+          0.5,
+          0
+         ]
+        }
+       ],
+       "corner": 8
+      },
+      {
+       "type": "frame",
+       "name": "InvSlot",
+       "size": [
+        0,
+        72,
+        0,
+        92
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "colour": [
+        "#2A322D",
+        "#18201B"
+       ],
+       "children": [
+        {
+         "type": "icon",
+         "name": "Icon",
+         "icon": "IconBone",
+         "size": [
+          0,
+          54,
+          0,
+          54
+         ],
+         "pos": [
+          0.5,
+          0,
+          0,
+          6
+         ],
+         "anchor": [
+          0.5,
+          0
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Level",
+         "text": "LVL 1",
+         "size": [
+          0,
+          64,
+          0,
+          20
+         ],
+         "pos": [
+          0.5,
+          0,
+          0,
+          68
+         ],
+         "textColour": "ink",
+         "align": "center",
+         "textScale": 0.95,
+         "textStroke": 2,
+         "font": "LuckiestGuy",
+         "samples": [
+          "LVL 28",
+          "LVL 1"
+         ],
+         "anchor": [
+          0.5,
+          0
+         ]
+        }
+       ],
+       "corner": 8
+      }
+     ]
+    },
+    {
+     "type": "label",
+     "name": "Tomes",
+     "text": "Tomes",
+     "size": [
+      0,
+      300,
+      0,
+      32
+     ],
+     "pos": [
+      0,
+      28,
+      0,
+      220
+     ],
+     "textColour": "ink",
+     "align": "left",
+     "textScale": 0.85,
+     "textStroke": 2,
+     "font": "LuckiestGuy",
+     "samples": [
+      "TOMES"
+     ]
+    },
+    {
+     "type": "frame",
+     "name": "TomeSlots",
+     "transparent": true,
+     "size": [
+      0,
+      448,
+      0,
+      92
+     ],
+     "pos": [
+      0,
+      28,
+      0,
+      260
+     ],
+     "layout": {
+      "type": "list",
+      "dir": "x",
+      "gap": 8,
+      "align": "start"
+     },
+     "children": [
+      {
+       "type": "frame",
+       "name": "InvSlot",
+       "size": [
+        0,
+        72,
+        0,
+        92
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "colour": [
+        "#2A322D",
+        "#18201B"
+       ],
+       "children": [
+        {
+         "type": "icon",
+         "name": "Icon",
+         "icon": "IconTomeDamage",
+         "size": [
+          0,
+          54,
+          0,
+          54
+         ],
+         "pos": [
+          0.5,
+          0,
+          0,
+          6
+         ],
+         "anchor": [
+          0.5,
+          0
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Level",
+         "text": "LVL 2",
+         "size": [
+          0,
+          64,
+          0,
+          20
+         ],
+         "pos": [
+          0.5,
+          0,
+          0,
+          68
+         ],
+         "textColour": "ink",
+         "align": "center",
+         "textScale": 0.95,
+         "textStroke": 2,
+         "font": "LuckiestGuy",
+         "samples": [
+          "LVL 28",
+          "LVL 2"
+         ],
+         "anchor": [
+          0.5,
+          0
+         ]
+        }
+       ],
+       "corner": 8
+      },
+      {
+       "type": "frame",
+       "name": "InvSlot",
+       "size": [
+        0,
+        72,
+        0,
+        92
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "colour": [
+        "#2A322D",
+        "#18201B"
+       ],
+       "children": [
+        {
+         "type": "icon",
+         "name": "Icon",
+         "icon": "IconTomeAgility",
+         "size": [
+          0,
+          54,
+          0,
+          54
+         ],
+         "pos": [
+          0.5,
+          0,
+          0,
+          6
+         ],
+         "anchor": [
+          0.5,
+          0
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Level",
+         "text": "LVL 1",
+         "size": [
+          0,
+          64,
+          0,
+          20
+         ],
+         "pos": [
+          0.5,
+          0,
+          0,
+          68
+         ],
+         "textColour": "ink",
+         "align": "center",
+         "textScale": 0.95,
+         "textStroke": 2,
+         "font": "LuckiestGuy",
+         "samples": [
+          "LVL 28",
+          "LVL 1"
+         ],
+         "anchor": [
+          0.5,
+          0
+         ]
+        }
+       ],
+       "corner": 8
+      },
+      {
+       "type": "frame",
+       "name": "InvSlot",
+       "size": [
+        0,
+        72,
+        0,
+        92
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "colour": [
+        "#2A322D",
+        "#18201B"
+       ],
+       "children": [
+        {
+         "type": "icon",
+         "name": "Icon",
+         "icon": "IconTomeCooldown",
+         "size": [
+          0,
+          54,
+          0,
+          54
+         ],
+         "pos": [
+          0.5,
+          0,
+          0,
+          6
+         ],
+         "anchor": [
+          0.5,
+          0
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Level",
+         "text": "LVL 1",
+         "size": [
+          0,
+          64,
+          0,
+          20
+         ],
+         "pos": [
+          0.5,
+          0,
+          0,
+          68
+         ],
+         "textColour": "ink",
+         "align": "center",
+         "textScale": 0.95,
+         "textStroke": 2,
+         "font": "LuckiestGuy",
+         "samples": [
+          "LVL 28",
+          "LVL 1"
+         ],
+         "anchor": [
+          0.5,
+          0
+         ]
+        }
+       ],
+       "corner": 8
+      },
+      {
+       "type": "frame",
+       "name": "InvSlot",
+       "size": [
+        0,
+        72,
+        0,
+        92
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "colour": [
+        "#2A322D",
+        "#18201B"
+       ],
+       "children": [
+        {
+         "type": "icon",
+         "name": "Icon",
+         "icon": "IconTomeLuck",
+         "size": [
+          0,
+          54,
+          0,
+          54
+         ],
+         "pos": [
+          0.5,
+          0,
+          0,
+          6
+         ],
+         "anchor": [
+          0.5,
+          0
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Level",
+         "text": "LVL 1",
+         "size": [
+          0,
+          64,
+          0,
+          20
+         ],
+         "pos": [
+          0.5,
+          0,
+          0,
+          68
+         ],
+         "textColour": "ink",
+         "align": "center",
+         "textScale": 0.95,
+         "textStroke": 2,
+         "font": "LuckiestGuy",
+         "samples": [
+          "LVL 28",
+          "LVL 1"
+         ],
+         "anchor": [
+          0.5,
+          0
+         ]
+        }
+       ],
+       "corner": 8
+      }
+     ]
+    },
+    {
+     "type": "label",
+     "name": "Items",
+     "text": "Items",
+     "size": [
+      0,
+      300,
+      0,
+      32
+     ],
+     "pos": [
+      0,
+      28,
+      0,
+      364
+     ],
+     "textColour": "ink",
+     "align": "left",
+     "textScale": 0.85,
+     "textStroke": 2,
+     "font": "LuckiestGuy",
+     "samples": [
+      "ITEMS"
+     ]
+    },
+    {
+     "type": "frame",
+     "name": "ItemGrid",
+     "transparent": true,
+     "size": [
+      0,
+      448,
+      0,
+      248
+     ],
+     "pos": [
+      0,
+      28,
+      0,
+      404
+     ],
+     "layout": {
+      "type": "grid",
+      "cell": [
+       56,
+       56
+      ],
+      "gap": 8
+     },
+     "children": [
+      {
+       "type": "frame",
+       "name": "InvItem",
+       "colour": [
+        "#2A322D",
+        "#18201B"
+       ],
+       "corner": 8,
+       "size": [
+        0,
+        56,
+        0,
+        56
+       ],
+       "aspect": 1.0,
+       "children": [
+        {
+         "type": "icon",
+         "name": "Icon",
+         "icon": "IconItemLuckyClover",
+         "size": [
+          0,
+          44,
+          0,
+          44
+         ],
+         "pos": [
+          0.5,
+          0,
+          0.5,
+          0
+         ],
+         "anchor": [
+          0.5,
+          0.5
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Count",
+         "text": "x1",
+         "size": [
+          0,
+          46,
+          0,
+          18
+         ],
+         "pos": [
+          1,
+          -3,
+          1,
+          -3
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 1.0,
+         "textStroke": 2,
+         "font": "LuckiestGuy",
+         "samples": [
+          "X12",
+          "X1"
+         ],
+         "anchor": [
+          1,
+          1
+         ],
+         "overhang": true
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "InvItem",
+       "colour": [
+        "#2A322D",
+        "#18201B"
+       ],
+       "corner": 8,
+       "size": [
+        0,
+        56,
+        0,
+        56
+       ],
+       "aspect": 1.0,
+       "children": [
+        {
+         "type": "icon",
+         "name": "Icon",
+         "icon": "IconItemTickingBracelet",
+         "size": [
+          0,
+          44,
+          0,
+          44
+         ],
+         "pos": [
+          0.5,
+          0,
+          0.5,
+          0
+         ],
+         "anchor": [
+          0.5,
+          0.5
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Count",
+         "text": "x2",
+         "size": [
+          0,
+          46,
+          0,
+          18
+         ],
+         "pos": [
+          1,
+          -3,
+          1,
+          -3
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 1.0,
+         "textStroke": 2,
+         "font": "LuckiestGuy",
+         "samples": [
+          "X12",
+          "X2"
+         ],
+         "anchor": [
+          1,
+          1
+         ],
+         "overhang": true
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "InvItem",
+       "colour": [
+        "#2A322D",
+        "#18201B"
+       ],
+       "corner": 8,
+       "size": [
+        0,
+        56,
+        0,
+        56
+       ],
+       "aspect": 1.0,
+       "children": [
+        {
+         "type": "icon",
+         "name": "Icon",
+         "icon": "IconItemZoomSocks",
+         "size": [
+          0,
+          44,
+          0,
+          44
+         ],
+         "pos": [
+          0.5,
+          0,
+          0.5,
+          0
+         ],
+         "anchor": [
+          0.5,
+          0.5
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Count",
+         "text": "x3",
+         "size": [
+          0,
+          46,
+          0,
+          18
+         ],
+         "pos": [
+          1,
+          -3,
+          1,
+          -3
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 1.0,
+         "textStroke": 2,
+         "font": "LuckiestGuy",
+         "samples": [
+          "X12",
+          "X3"
+         ],
+         "anchor": [
+          1,
+          1
+         ],
+         "overhang": true
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "InvItem",
+       "colour": [
+        "#2A322D",
+        "#18201B"
+       ],
+       "corner": 8,
+       "size": [
+        0,
+        56,
+        0,
+        56
+       ],
+       "aspect": 1.0,
+       "children": [
+        {
+         "type": "icon",
+         "name": "Icon",
+         "icon": "IconItemProteinGoop",
+         "size": [
+          0,
+          44,
+          0,
+          44
+         ],
+         "pos": [
+          0.5,
+          0,
+          0.5,
+          0
+         ],
+         "anchor": [
+          0.5,
+          0.5
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Count",
+         "text": "x1",
+         "size": [
+          0,
+          46,
+          0,
+          18
+         ],
+         "pos": [
+          1,
+          -3,
+          1,
+          -3
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 1.0,
+         "textStroke": 2,
+         "font": "LuckiestGuy",
+         "samples": [
+          "X12",
+          "X1"
+         ],
+         "anchor": [
+          1,
+          1
+         ],
+         "overhang": true
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "InvItem",
+       "colour": [
+        "#2A322D",
+        "#18201B"
+       ],
+       "corner": 8,
+       "size": [
+        0,
+        56,
+        0,
+        56
+       ],
+       "aspect": 1.0,
+       "children": [
+        {
+         "type": "icon",
+         "name": "Icon",
+         "icon": "IconItemSusJuice",
+         "size": [
+          0,
+          44,
+          0,
+          44
+         ],
+         "pos": [
+          0.5,
+          0,
+          0.5,
+          0
+         ],
+         "anchor": [
+          0.5,
+          0.5
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Count",
+         "text": "x2",
+         "size": [
+          0,
+          46,
+          0,
+          18
+         ],
+         "pos": [
+          1,
+          -3,
+          1,
+          -3
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 1.0,
+         "textStroke": 2,
+         "font": "LuckiestGuy",
+         "samples": [
+          "X12",
+          "X2"
+         ],
+         "anchor": [
+          1,
+          1
+         ],
+         "overhang": true
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "InvItem",
+       "colour": [
+        "#2A322D",
+        "#18201B"
+       ],
+       "corner": 8,
+       "size": [
+        0,
+        56,
+        0,
+        56
+       ],
+       "aspect": 1.0,
+       "children": [
+        {
+         "type": "icon",
+         "name": "Icon",
+         "icon": "IconItemDodgyBattery",
+         "size": [
+          0,
+          44,
+          0,
+          44
+         ],
+         "pos": [
+          0.5,
+          0,
+          0.5,
+          0
+         ],
+         "anchor": [
+          0.5,
+          0.5
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Count",
+         "text": "x3",
+         "size": [
+          0,
+          46,
+          0,
+          18
+         ],
+         "pos": [
+          1,
+          -3,
+          1,
+          -3
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 1.0,
+         "textStroke": 2,
+         "font": "LuckiestGuy",
+         "samples": [
+          "X12",
+          "X3"
+         ],
+         "anchor": [
+          1,
+          1
+         ],
+         "overhang": true
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "InvItem",
+       "colour": [
+        "#2A322D",
+        "#18201B"
+       ],
+       "corner": 8,
+       "size": [
+        0,
+        56,
+        0,
+        56
+       ],
+       "aspect": 1.0,
+       "children": [
+        {
+         "type": "icon",
+         "name": "Icon",
+         "icon": "IconItemBandageBox",
+         "size": [
+          0,
+          44,
+          0,
+          44
+         ],
+         "pos": [
+          0.5,
+          0,
+          0.5,
+          0
+         ],
+         "anchor": [
+          0.5,
+          0.5
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Count",
+         "text": "x1",
+         "size": [
+          0,
+          46,
+          0,
+          18
+         ],
+         "pos": [
+          1,
+          -3,
+          1,
+          -3
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 1.0,
+         "textStroke": 2,
+         "font": "LuckiestGuy",
+         "samples": [
+          "X12",
+          "X1"
+         ],
+         "anchor": [
+          1,
+          1
+         ],
+         "overhang": true
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "InvItem",
+       "colour": [
+        "#2A322D",
+        "#18201B"
+       ],
+       "corner": 8,
+       "size": [
+        0,
+        56,
+        0,
+        56
+       ],
+       "aspect": 1.0,
+       "children": [
+        {
+         "type": "icon",
+         "name": "Icon",
+         "icon": "IconItemStinkyCheese",
+         "size": [
+          0,
+          44,
+          0,
+          44
+         ],
+         "pos": [
+          0.5,
+          0,
+          0.5,
+          0
+         ],
+         "anchor": [
+          0.5,
+          0.5
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Count",
+         "text": "x2",
+         "size": [
+          0,
+          46,
+          0,
+          18
+         ],
+         "pos": [
+          1,
+          -3,
+          1,
+          -3
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 1.0,
+         "textStroke": 2,
+         "font": "LuckiestGuy",
+         "samples": [
+          "X12",
+          "X2"
+         ],
+         "anchor": [
+          1,
+          1
+         ],
+         "overhang": true
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "InvItem",
+       "colour": [
+        "#2A322D",
+        "#18201B"
+       ],
+       "corner": 8,
+       "size": [
+        0,
+        56,
+        0,
+        56
+       ],
+       "aspect": 1.0,
+       "children": [
+        {
+         "type": "icon",
+         "name": "Icon",
+         "icon": "IconItemFrostShard",
+         "size": [
+          0,
+          44,
+          0,
+          44
+         ],
+         "pos": [
+          0.5,
+          0,
+          0.5,
+          0
+         ],
+         "anchor": [
+          0.5,
+          0.5
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Count",
+         "text": "x3",
+         "size": [
+          0,
+          46,
+          0,
+          18
+         ],
+         "pos": [
+          1,
+          -3,
+          1,
+          -3
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 1.0,
+         "textStroke": 2,
+         "font": "LuckiestGuy",
+         "samples": [
+          "X12",
+          "X3"
+         ],
+         "anchor": [
+          1,
+          1
+         ],
+         "overhang": true
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "InvItem",
+       "colour": [
+        "#2A322D",
+        "#18201B"
+       ],
+       "corner": 8,
+       "size": [
+        0,
+        56,
+        0,
+        56
+       ],
+       "aspect": 1.0,
+       "children": [
+        {
+         "type": "icon",
+         "name": "Icon",
+         "icon": "IconItemGiantSlayerPin",
+         "size": [
+          0,
+          44,
+          0,
+          44
+         ],
+         "pos": [
+          0.5,
+          0,
+          0.5,
+          0
+         ],
+         "anchor": [
+          0.5,
+          0.5
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Count",
+         "text": "x1",
+         "size": [
+          0,
+          46,
+          0,
+          18
+         ],
+         "pos": [
+          1,
+          -3,
+          1,
+          -3
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 1.0,
+         "textStroke": 2,
+         "font": "LuckiestGuy",
+         "samples": [
+          "X12",
+          "X1"
+         ],
+         "anchor": [
+          1,
+          1
+         ],
+         "overhang": true
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "InvItem",
+       "colour": [
+        "#2A322D",
+        "#18201B"
+       ],
+       "corner": 8,
+       "size": [
+        0,
+        56,
+        0,
+        56
+       ],
+       "aspect": 1.0,
+       "children": [
+        {
+         "type": "icon",
+         "name": "Icon",
+         "icon": "IconItemShrineWrench",
+         "size": [
+          0,
+          44,
+          0,
+          44
+         ],
+         "pos": [
+          0.5,
+          0,
+          0.5,
+          0
+         ],
+         "anchor": [
+          0.5,
+          0.5
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Count",
+         "text": "x2",
+         "size": [
+          0,
+          46,
+          0,
+          18
+         ],
+         "pos": [
+          1,
+          -3,
+          1,
+          -3
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 1.0,
+         "textStroke": 2,
+         "font": "LuckiestGuy",
+         "samples": [
+          "X12",
+          "X2"
+         ],
+         "anchor": [
+          1,
+          1
+         ],
+         "overhang": true
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "InvItem",
+       "colour": [
+        "#2A322D",
+        "#18201B"
+       ],
+       "corner": 8,
+       "size": [
+        0,
+        56,
+        0,
+        56
+       ],
+       "aspect": 1.0,
+       "children": [
+        {
+         "type": "icon",
+         "name": "Icon",
+         "icon": "IconItemGildedSneakers",
+         "size": [
+          0,
+          44,
+          0,
+          44
+         ],
+         "pos": [
+          0.5,
+          0,
+          0.5,
+          0
+         ],
+         "anchor": [
+          0.5,
+          0.5
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Count",
+         "text": "x3",
+         "size": [
+          0,
+          46,
+          0,
+          18
+         ],
+         "pos": [
+          1,
+          -3,
+          1,
+          -3
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 1.0,
+         "textStroke": 2,
+         "font": "LuckiestGuy",
+         "samples": [
+          "X12",
+          "X3"
+         ],
+         "anchor": [
+          1,
+          1
+         ],
+         "overhang": true
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "type": "frame",
+     "name": "Rivet",
+     "size": [
+      0,
+      8,
+      0,
+      8
+     ],
+     "pos": [
+      0,
+      14,
+      0,
+      14
+     ],
+     "colour": [
+      "#AAADA7",
+      "#A3A69F"
+     ],
+     "corner": 0.5,
+     "outline": false,
+     "overhang": true
+    },
+    {
+     "type": "frame",
+     "name": "Rivet",
+     "size": [
+      0,
+      8,
+      0,
+      8
+     ],
+     "pos": [
+      0,
+      482,
+      0,
+      14
+     ],
+     "colour": [
+      "#AAADA7",
+      "#A3A69F"
+     ],
+     "corner": 0.5,
+     "outline": false,
+     "overhang": true
+    },
+    {
+     "type": "frame",
+     "name": "Rivet",
+     "size": [
+      0,
+      8,
+      0,
+      8
+     ],
+     "pos": [
+      0,
+      14,
+      0,
+      646
+     ],
+     "colour": [
+      "#AAADA7",
+      "#A3A69F"
+     ],
+     "corner": 0.5,
+     "outline": false,
+     "overhang": true
+    },
+    {
+     "type": "frame",
+     "name": "Rivet",
+     "size": [
+      0,
+      8,
+      0,
+      8
+     ],
+     "pos": [
+      0,
+      482,
+      0,
+      646
+     ],
+     "colour": [
+      "#AAADA7",
+      "#A3A69F"
+     ],
+     "corner": 0.5,
+     "outline": false,
+     "overhang": true
+    }
+   ]
+  },
+  {
+   "type": "panel",
+   "name": "StatsPanel",
+   "colour": [
+    "#343B36",
+    "#222A25"
+   ],
+   "corner": 12,
+   "size": [
+    0,
+    368,
+    0,
+    808
+   ],
+   "pos": [
+    1,
+    -22,
+    0.5,
+    0
+   ],
+   "anchor": [
+    1,
+    0.5
+   ],
+   "visible": false,
+   "modal": true,
+   "z": 1,
+   "children": [
+    {
+     "type": "frame",
+     "name": "Header",
+     "size": [
+      0,
+      352,
+      0,
+      56
+     ],
+     "pos": [
+      0,
+      8,
+      0,
+      8
+     ],
+     "colour": [
+      "#3F5547",
+      "#2E4637"
+     ],
+     "children": [
+      {
+       "type": "label",
+       "name": "Title",
+       "text": "Stats",
+       "size": [
+        1,
+        -56,
+        1,
+        0
+       ],
+       "pos": [
+        0,
+        28,
+        0,
+        0
+       ],
+       "textColour": "ink",
+       "align": "left",
+       "textScale": 0.62,
+       "textStroke": 3,
+       "font": "LuckiestGuy",
+       "samples": [
+        "STATS"
+       ]
+      }
+     ],
+     "corner": 8
+    },
+    {
+     "type": "frame",
+     "name": "Rows",
+     "transparent": true,
+     "size": [
+      0,
+      336,
+      0,
+      720
+     ],
+     "pos": [
+      0,
+      16,
+      0,
+      76
+     ],
+     "layout": {
+      "type": "list",
+      "dir": "y",
+      "gap": 1,
+      "align": "start"
+     },
+     "children": [
+      {
+       "type": "frame",
+       "name": "StatRow",
+       "size": [
+        0,
+        336,
+        0,
+        20
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "label",
+         "name": "Name",
+         "text": "Max HP",
+         "size": [
+          0,
+          240,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          0,
+          0,
+          0
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "samples": [
+          "Elite Spawn Increase"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Value",
+         "text": "150",
+         "size": [
+          0,
+          84,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          252,
+          0,
+          0
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "font": "LuckiestGuy",
+         "samples": [
+          "1.25X",
+          "9,999",
+          "150"
+         ]
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "StatRow",
+       "size": [
+        0,
+        336,
+        0,
+        20
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "label",
+         "name": "Name",
+         "text": "HP Regen",
+         "size": [
+          0,
+          240,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          0,
+          0,
+          0
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "samples": [
+          "Elite Spawn Increase"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Value",
+         "text": "10",
+         "size": [
+          0,
+          84,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          252,
+          0,
+          0
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "font": "LuckiestGuy",
+         "samples": [
+          "1.25X",
+          "9,999",
+          "10"
+         ]
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "StatRow",
+       "size": [
+        0,
+        336,
+        0,
+        20
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "label",
+         "name": "Name",
+         "text": "Overheal",
+         "size": [
+          0,
+          240,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          0,
+          0,
+          0
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "samples": [
+          "Elite Spawn Increase"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Value",
+         "text": "0",
+         "size": [
+          0,
+          84,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          252,
+          0,
+          0
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "font": "LuckiestGuy",
+         "samples": [
+          "1.25X",
+          "9,999",
+          "0"
+         ]
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "StatRow",
+       "size": [
+        0,
+        336,
+        0,
+        20
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "label",
+         "name": "Name",
+         "text": "Shield",
+         "size": [
+          0,
+          240,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          0,
+          0,
+          0
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "samples": [
+          "Elite Spawn Increase"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Value",
+         "text": "25",
+         "size": [
+          0,
+          84,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          252,
+          0,
+          0
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "font": "LuckiestGuy",
+         "samples": [
+          "1.25X",
+          "9,999",
+          "25"
+         ]
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "StatRow",
+       "size": [
+        0,
+        336,
+        0,
+        20
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "label",
+         "name": "Name",
+         "text": "Armor",
+         "size": [
+          0,
+          240,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          0,
+          0,
+          0
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "samples": [
+          "Elite Spawn Increase"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Value",
+         "text": "22%",
+         "size": [
+          0,
+          84,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          252,
+          0,
+          0
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "font": "LuckiestGuy",
+         "samples": [
+          "1.25X",
+          "9,999",
+          "22%"
+         ]
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "StatRow",
+       "size": [
+        0,
+        336,
+        0,
+        20
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "label",
+         "name": "Name",
+         "text": "Evasion",
+         "size": [
+          0,
+          240,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          0,
+          0,
+          0
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "samples": [
+          "Elite Spawn Increase"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Value",
+         "text": "1%",
+         "size": [
+          0,
+          84,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          252,
+          0,
+          0
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "font": "LuckiestGuy",
+         "samples": [
+          "1.25X",
+          "9,999",
+          "1%"
+         ]
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "StatRow",
+       "size": [
+        0,
+        336,
+        0,
+        20
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "label",
+         "name": "Name",
+         "text": "Lifesteal",
+         "size": [
+          0,
+          240,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          0,
+          0,
+          0
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "samples": [
+          "Elite Spawn Increase"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Value",
+         "text": "0%",
+         "size": [
+          0,
+          84,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          252,
+          0,
+          0
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "font": "LuckiestGuy",
+         "samples": [
+          "1.25X",
+          "9,999",
+          "0%"
+         ]
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "StatRow",
+       "size": [
+        0,
+        336,
+        0,
+        20
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "label",
+         "name": "Name",
+         "text": "Thorns",
+         "size": [
+          0,
+          240,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          0,
+          0,
+          0
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "samples": [
+          "Elite Spawn Increase"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Value",
+         "text": "0",
+         "size": [
+          0,
+          84,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          252,
+          0,
+          0
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "font": "LuckiestGuy",
+         "samples": [
+          "1.25X",
+          "9,999",
+          "0"
+         ]
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "StatGap",
+       "size": [
+        0,
+        336,
+        0,
+        12
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true
+      },
+      {
+       "type": "frame",
+       "name": "StatRow",
+       "size": [
+        0,
+        336,
+        0,
+        20
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "label",
+         "name": "Name",
+         "text": "Damage",
+         "size": [
+          0,
+          240,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          0,
+          0,
+          0
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "samples": [
+          "Elite Spawn Increase"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Value",
+         "text": "1.0x",
+         "size": [
+          0,
+          84,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          252,
+          0,
+          0
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "font": "LuckiestGuy",
+         "samples": [
+          "1.25X",
+          "9,999",
+          "1.0X"
+         ]
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "StatRow",
+       "size": [
+        0,
+        336,
+        0,
+        20
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "label",
+         "name": "Name",
+         "text": "Crit Chance",
+         "size": [
+          0,
+          240,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          0,
+          0,
+          0
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "samples": [
+          "Elite Spawn Increase"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Value",
+         "text": "1%",
+         "size": [
+          0,
+          84,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          252,
+          0,
+          0
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "font": "LuckiestGuy",
+         "samples": [
+          "1.25X",
+          "9,999",
+          "1%"
+         ]
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "StatRow",
+       "size": [
+        0,
+        336,
+        0,
+        20
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "label",
+         "name": "Name",
+         "text": "Crit Damage",
+         "size": [
+          0,
+          240,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          0,
+          0,
+          0
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "samples": [
+          "Elite Spawn Increase"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Value",
+         "text": "1.1x",
+         "size": [
+          0,
+          84,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          252,
+          0,
+          0
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "font": "LuckiestGuy",
+         "samples": [
+          "1.25X",
+          "9,999",
+          "1.1X"
+         ]
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "StatRow",
+       "size": [
+        0,
+        336,
+        0,
+        20
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "label",
+         "name": "Name",
+         "text": "Attack Speed",
+         "size": [
+          0,
+          240,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          0,
+          0,
+          0
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "samples": [
+          "Elite Spawn Increase"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Value",
+         "text": "100%",
+         "size": [
+          0,
+          84,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          252,
+          0,
+          0
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "font": "LuckiestGuy",
+         "samples": [
+          "1.25X",
+          "9,999",
+          "100%"
+         ]
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "StatRow",
+       "size": [
+        0,
+        336,
+        0,
+        20
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "label",
+         "name": "Name",
+         "text": "Projectile Count",
+         "size": [
+          0,
+          240,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          0,
+          0,
+          0
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "samples": [
+          "Elite Spawn Increase"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Value",
+         "text": "0",
+         "size": [
+          0,
+          84,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          252,
+          0,
+          0
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "font": "LuckiestGuy",
+         "samples": [
+          "1.25X",
+          "9,999",
+          "0"
+         ]
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "StatRow",
+       "size": [
+        0,
+        336,
+        0,
+        20
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "label",
+         "name": "Name",
+         "text": "Projectile Bounces",
+         "size": [
+          0,
+          240,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          0,
+          0,
+          0
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "samples": [
+          "Elite Spawn Increase"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Value",
+         "text": "0",
+         "size": [
+          0,
+          84,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          252,
+          0,
+          0
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "font": "LuckiestGuy",
+         "samples": [
+          "1.25X",
+          "9,999",
+          "0"
+         ]
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "StatGap",
+       "size": [
+        0,
+        336,
+        0,
+        12
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true
+      },
+      {
+       "type": "frame",
+       "name": "StatRow",
+       "size": [
+        0,
+        336,
+        0,
+        20
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "label",
+         "name": "Name",
+         "text": "Size",
+         "size": [
+          0,
+          240,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          0,
+          0,
+          0
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "samples": [
+          "Elite Spawn Increase"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Value",
+         "text": "1.0x",
+         "size": [
+          0,
+          84,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          252,
+          0,
+          0
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "font": "LuckiestGuy",
+         "samples": [
+          "1.25X",
+          "9,999",
+          "1.0X"
+         ]
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "StatRow",
+       "size": [
+        0,
+        336,
+        0,
+        20
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "label",
+         "name": "Name",
+         "text": "Projectile Speed",
+         "size": [
+          0,
+          240,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          0,
+          0,
+          0
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "samples": [
+          "Elite Spawn Increase"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Value",
+         "text": "1.0x",
+         "size": [
+          0,
+          84,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          252,
+          0,
+          0
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "font": "LuckiestGuy",
+         "samples": [
+          "1.25X",
+          "9,999",
+          "1.0X"
+         ]
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "StatRow",
+       "size": [
+        0,
+        336,
+        0,
+        20
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "label",
+         "name": "Name",
+         "text": "Duration",
+         "size": [
+          0,
+          240,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          0,
+          0,
+          0
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "samples": [
+          "Elite Spawn Increase"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Value",
+         "text": "1.0x",
+         "size": [
+          0,
+          84,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          252,
+          0,
+          0
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "font": "LuckiestGuy",
+         "samples": [
+          "1.25X",
+          "9,999",
+          "1.0X"
+         ]
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "StatRow",
+       "size": [
+        0,
+        336,
+        0,
+        20
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "label",
+         "name": "Name",
+         "text": "Damage to Elites",
+         "size": [
+          0,
+          240,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          0,
+          0,
+          0
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "samples": [
+          "Elite Spawn Increase"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Value",
+         "text": "1.0x",
+         "size": [
+          0,
+          84,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          252,
+          0,
+          0
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "font": "LuckiestGuy",
+         "samples": [
+          "1.25X",
+          "9,999",
+          "1.0X"
+         ]
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "StatRow",
+       "size": [
+        0,
+        336,
+        0,
+        20
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "label",
+         "name": "Name",
+         "text": "Knockback",
+         "size": [
+          0,
+          240,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          0,
+          0,
+          0
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "samples": [
+          "Elite Spawn Increase"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Value",
+         "text": "1.0x",
+         "size": [
+          0,
+          84,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          252,
+          0,
+          0
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "font": "LuckiestGuy",
+         "samples": [
+          "1.25X",
+          "9,999",
+          "1.0X"
+         ]
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "StatRow",
+       "size": [
+        0,
+        336,
+        0,
+        20
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "label",
+         "name": "Name",
+         "text": "Movement Speed",
+         "size": [
+          0,
+          240,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          0,
+          0,
+          0
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "samples": [
+          "Elite Spawn Increase"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Value",
+         "text": "1.1x",
+         "size": [
+          0,
+          84,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          252,
+          0,
+          0
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "font": "LuckiestGuy",
+         "samples": [
+          "1.25X",
+          "9,999",
+          "1.1X"
+         ]
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "StatGap",
+       "size": [
+        0,
+        336,
+        0,
+        12
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true
+      },
+      {
+       "type": "frame",
+       "name": "StatRow",
+       "size": [
+        0,
+        336,
+        0,
+        20
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "label",
+         "name": "Name",
+         "text": "Extra Jumps",
+         "size": [
+          0,
+          240,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          0,
+          0,
+          0
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "samples": [
+          "Elite Spawn Increase"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Value",
+         "text": "0",
+         "size": [
+          0,
+          84,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          252,
+          0,
+          0
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "font": "LuckiestGuy",
+         "samples": [
+          "1.25X",
+          "9,999",
+          "0"
+         ]
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "StatRow",
+       "size": [
+        0,
+        336,
+        0,
+        20
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "label",
+         "name": "Name",
+         "text": "Jump Height",
+         "size": [
+          0,
+          240,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          0,
+          0,
+          0
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "samples": [
+          "Elite Spawn Increase"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Value",
+         "text": "7",
+         "size": [
+          0,
+          84,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          252,
+          0,
+          0
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "font": "LuckiestGuy",
+         "samples": [
+          "1.25X",
+          "9,999",
+          "7"
+         ]
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "StatRow",
+       "size": [
+        0,
+        336,
+        0,
+        20
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "label",
+         "name": "Name",
+         "text": "Luck",
+         "size": [
+          0,
+          240,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          0,
+          0,
+          0
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "samples": [
+          "Elite Spawn Increase"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Value",
+         "text": "0%",
+         "size": [
+          0,
+          84,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          252,
+          0,
+          0
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "font": "LuckiestGuy",
+         "samples": [
+          "1.25X",
+          "9,999",
+          "0%"
+         ]
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "StatRow",
+       "size": [
+        0,
+        336,
+        0,
+        20
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "label",
+         "name": "Name",
+         "text": "Difficulty",
+         "size": [
+          0,
+          240,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          0,
+          0,
+          0
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "samples": [
+          "Elite Spawn Increase"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Value",
+         "text": "5%",
+         "size": [
+          0,
+          84,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          252,
+          0,
+          0
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "font": "LuckiestGuy",
+         "samples": [
+          "1.25X",
+          "9,999",
+          "5%"
+         ]
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "StatGap",
+       "size": [
+        0,
+        336,
+        0,
+        12
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true
+      },
+      {
+       "type": "frame",
+       "name": "StatRow",
+       "size": [
+        0,
+        336,
+        0,
+        20
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "label",
+         "name": "Name",
+         "text": "Pickup Range",
+         "size": [
+          0,
+          240,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          0,
+          0,
+          0
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "samples": [
+          "Elite Spawn Increase"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Value",
+         "text": "5",
+         "size": [
+          0,
+          84,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          252,
+          0,
+          0
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "font": "LuckiestGuy",
+         "samples": [
+          "1.25X",
+          "9,999",
+          "5"
+         ]
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "StatRow",
+       "size": [
+        0,
+        336,
+        0,
+        20
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "label",
+         "name": "Name",
+         "text": "XP Gain",
+         "size": [
+          0,
+          240,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          0,
+          0,
+          0
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "samples": [
+          "Elite Spawn Increase"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Value",
+         "text": "1.0x",
+         "size": [
+          0,
+          84,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          252,
+          0,
+          0
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "font": "LuckiestGuy",
+         "samples": [
+          "1.25X",
+          "9,999",
+          "1.0X"
+         ]
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "StatRow",
+       "size": [
+        0,
+        336,
+        0,
+        20
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "label",
+         "name": "Name",
+         "text": "Gold Gain",
+         "size": [
+          0,
+          240,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          0,
+          0,
+          0
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "samples": [
+          "Elite Spawn Increase"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Value",
+         "text": "1.0x",
+         "size": [
+          0,
+          84,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          252,
+          0,
+          0
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "font": "LuckiestGuy",
+         "samples": [
+          "1.25X",
+          "9,999",
+          "1.0X"
+         ]
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "StatRow",
+       "size": [
+        0,
+        336,
+        0,
+        20
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "label",
+         "name": "Name",
+         "text": "Silver Gain",
+         "size": [
+          0,
+          240,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          0,
+          0,
+          0
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "samples": [
+          "Elite Spawn Increase"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Value",
+         "text": "1.2x",
+         "size": [
+          0,
+          84,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          252,
+          0,
+          0
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "font": "LuckiestGuy",
+         "samples": [
+          "1.25X",
+          "9,999",
+          "1.2X"
+         ]
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "StatRow",
+       "size": [
+        0,
+        336,
+        0,
+        20
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "label",
+         "name": "Name",
+         "text": "Elite Spawn Increase",
+         "size": [
+          0,
+          240,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          0,
+          0,
+          0
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "samples": [
+          "Elite Spawn Increase"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Value",
+         "text": "1.25x",
+         "size": [
+          0,
+          84,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          252,
+          0,
+          0
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "font": "LuckiestGuy",
+         "samples": [
+          "1.25X",
+          "9,999",
+          "1.25X"
+         ]
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "StatRow",
+       "size": [
+        0,
+        336,
+        0,
+        20
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "label",
+         "name": "Name",
+         "text": "Powerup Multiplier",
+         "size": [
+          0,
+          240,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          0,
+          0,
+          0
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "samples": [
+          "Elite Spawn Increase"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Value",
+         "text": "1.0x",
+         "size": [
+          0,
+          84,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          252,
+          0,
+          0
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "font": "LuckiestGuy",
+         "samples": [
+          "1.25X",
+          "9,999",
+          "1.0X"
+         ]
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "StatRow",
+       "size": [
+        0,
+        336,
+        0,
+        20
+       ],
+       "pos": [
+        0,
+        0,
+        0,
+        0
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "label",
+         "name": "Name",
+         "text": "Powerup Drop Chance",
+         "size": [
+          0,
+          240,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          0,
+          0,
+          0
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "samples": [
+          "Elite Spawn Increase"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Value",
+         "text": "1.0x",
+         "size": [
+          0,
+          84,
+          0,
+          20
+         ],
+         "pos": [
+          0,
+          252,
+          0,
+          0
+         ],
+         "textColour": "ink",
+         "align": "right",
+         "textScale": 0.9,
+         "textStroke": 0,
+         "font": "LuckiestGuy",
+         "samples": [
+          "1.25X",
+          "9,999",
+          "1.0X"
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "type": "frame",
+     "name": "Rivet",
+     "size": [
+      0,
+      8,
+      0,
+      8
+     ],
+     "pos": [
+      0,
+      14,
+      0,
+      14
+     ],
+     "colour": [
+      "#AAADA7",
+      "#A3A69F"
+     ],
+     "corner": 0.5,
+     "outline": false,
+     "overhang": true
+    },
+    {
+     "type": "frame",
+     "name": "Rivet",
+     "size": [
+      0,
+      8,
+      0,
+      8
+     ],
+     "pos": [
+      0,
+      346,
+      0,
+      14
+     ],
+     "colour": [
+      "#AAADA7",
+      "#A3A69F"
+     ],
+     "corner": 0.5,
+     "outline": false,
+     "overhang": true
+    },
+    {
+     "type": "frame",
+     "name": "Rivet",
+     "size": [
+      0,
+      8,
+      0,
+      8
+     ],
+     "pos": [
+      0,
+      14,
+      0,
+      786
+     ],
+     "colour": [
+      "#AAADA7",
+      "#A3A69F"
+     ],
+     "corner": 0.5,
+     "outline": false,
+     "overhang": true
+    },
+    {
+     "type": "frame",
+     "name": "Rivet",
+     "size": [
+      0,
+      8,
+      0,
+      8
+     ],
+     "pos": [
+      0,
+      346,
+      0,
+      786
+     ],
+     "colour": [
+      "#AAADA7",
+      "#A3A69F"
+     ],
+     "corner": 0.5,
+     "outline": false,
+     "overhang": true
+    }
+   ]
+  },
+  {
+   "type": "panel",
+   "name": "UpgradeOffers",
+   "colour": [
+    "#343B36",
+    "#222A25"
+   ],
+   "corner": 12,
+   "size": [
+    0,
+    744,
+    0,
+    752
+   ],
+   "pos": [
+    0.5,
+    0,
+    0.5,
+    0
+   ],
+   "anchor": [
+    0.5,
+    0.5
+   ],
+   "visible": false,
+   "modal": true,
+   "z": 1,
+   "children": [
+    {
+     "type": "frame",
+     "name": "Header",
+     "size": [
+      0,
+      728,
+      0,
+      56
+     ],
+     "pos": [
+      0,
+      8,
+      0,
+      8
+     ],
+     "colour": [
+      "#3F5547",
+      "#2E4637"
+     ],
+     "children": [
+      {
+       "type": "label",
+       "name": "Title",
+       "text": "UPGRADE OFFERS",
+       "size": [
+        1,
+        -56,
+        1,
+        0
+       ],
+       "pos": [
+        0,
+        28,
+        0,
+        0
+       ],
+       "textColour": "ink",
+       "align": "left",
+       "textScale": 0.62,
+       "textStroke": 3,
+       "font": "LuckiestGuy",
+       "samples": [
+        "UPGRADE OFFERS"
+       ]
+      }
+     ],
+     "corner": 8
+    },
+    {
+     "type": "frame",
+     "name": "Cards",
+     "transparent": true,
+     "size": [
+      0,
+      630,
+      0,
+      475
+     ],
+     "pos": [
+      0.5,
+      0,
+      0,
+      104
+     ],
+     "anchor": [
+      0.5,
+      0
+     ],
+     "layout": {
+      "type": "list",
+      "dir": "y",
+      "gap": 20,
+      "align": "start"
+     },
+     "children": [
+      {
+       "type": "frame",
+       "name": "OfferCard",
+       "as": "TextButton",
+       "colour": [
+        "#0F3B24",
+        "#0E3520"
+       ],
+       "paint": "#0F3B24",
+       "corner": 8,
+       "size": [
+        0,
+        630,
+        0,
+        145
+       ],
+       "children": [
+        {
+         "type": "label",
+         "name": "RarityTag",
+         "text": "Common",
+         "size": [
+          0,
+          120,
+          0,
+          22
+         ],
+         "pos": [
+          0,
+          12,
+          0,
+          6
+         ],
+         "textColour": "rarityCommon",
+         "align": "center",
+         "textScale": 0.95,
+         "textStroke": 2,
+         "samples": [
+          "Legendary",
+          "Uncommon"
+         ]
+        },
+        {
+         "type": "frame",
+         "name": "IconTile",
+         "size": [
+          0,
+          100,
+          0,
+          100
+         ],
+         "pos": [
+          0,
+          22,
+          0,
+          36
+         ],
+         "colour": [
+          "#35D07A",
+          "#30BB6E"
+         ],
+         "paint": "#35D07A",
+         "children": [
+          {
+           "type": "icon",
+           "name": "Icon",
+           "icon": "IconSword",
+           "size": [
+            0,
+            84,
+            0,
+            84
+           ],
+           "pos": [
+            0.5,
+            0,
+            0.5,
+            0
+           ],
+           "anchor": [
+            0.5,
+            0.5
+           ]
+          }
+         ],
+         "corner": 8
+        },
+        {
+         "type": "label",
+         "name": "OfferName",
+         "text": "Sword",
+         "size": [
+          0,
+          340,
+          0,
+          44
+         ],
+         "pos": [
+          0,
+          150,
+          0,
+          22
+         ],
+         "textColour": "ink",
+         "align": "left",
+         "textScale": 0.8,
+         "textStroke": 2,
+         "font": "LuckiestGuy",
+         "samples": [
+          "LIGHTNING STAFF",
+          "SWORD"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "LevelTag",
+         "text": "LVL 2",
+         "size": [
+          0,
+          110,
+          0,
+          36
+         ],
+         "pos": [
+          0,
+          498,
+          0,
+          24
+         ],
+         "textColour": "gold",
+         "align": "right",
+         "textScale": 0.8,
+         "textStroke": 2,
+         "font": "LuckiestGuy",
+         "samples": [
+          "LVL 28",
+          "NEW",
+          "LVL 2"
+         ]
+        },
+        {
+         "type": "frame",
+         "name": "Lines",
+         "transparent": true,
+         "size": [
+          0,
+          458,
+          0,
+          60
+         ],
+         "pos": [
+          0,
+          150,
+          0,
+          74
+         ],
+         "layout": {
+          "type": "list",
+          "dir": "y",
+          "gap": 8,
+          "align": "start"
+         },
+         "children": [
+          {
+           "type": "frame",
+           "name": "StatLine",
+           "transparent": true,
+           "size": [
+            0,
+            458,
+            0,
+            26
+           ],
+           "layout": {
+            "type": "list",
+            "dir": "x",
+            "gap": 8,
+            "align": "start"
+           },
+           "children": [
+            {
+             "type": "label",
+             "name": "Label",
+             "text": "Size:",
+             "size": [
+              0,
+              54,
+              0,
+              26
+             ],
+             "pos": [
+              0,
+              0,
+              0,
+              0
+             ],
+             "textColour": "tan",
+             "align": "left",
+             "textScale": 0.85,
+             "textStroke": 0,
+             "autoX": true
+            },
+            {
+             "type": "label",
+             "name": "From",
+             "text": "100%",
+             "size": [
+              0,
+              57,
+              0,
+              26
+             ],
+             "pos": [
+              0,
+              0,
+              0,
+              0
+             ],
+             "textColour": "ink",
+             "align": "left",
+             "textScale": 0.85,
+             "textStroke": 0,
+             "font": "LuckiestGuy",
+             "autoX": true
+            },
+            {
+             "type": "label",
+             "name": "Arrow",
+             "text": "->",
+             "size": [
+              0,
+              28,
+              0,
+              26
+             ],
+             "pos": [
+              0,
+              0,
+              0,
+              0
+             ],
+             "textColour": "ink",
+             "align": "left",
+             "textScale": 0.85,
+             "textStroke": 0,
+             "font": "LuckiestGuy",
+             "autoX": true
+            },
+            {
+             "type": "label",
+             "name": "To",
+             "text": "120%",
+             "size": [
+              0,
+              57,
+              0,
+              26
+             ],
+             "pos": [
+              0,
+              0,
+              0,
+              0
+             ],
+             "textColour": "green",
+             "align": "left",
+             "textScale": 0.85,
+             "textStroke": 0,
+             "font": "LuckiestGuy",
+             "autoX": true
+            }
+           ]
+          },
+          {
+           "type": "frame",
+           "name": "StatLine",
+           "transparent": true,
+           "size": [
+            0,
+            458,
+            0,
+            26
+           ],
+           "layout": {
+            "type": "list",
+            "dir": "x",
+            "gap": 8,
+            "align": "start"
+           },
+           "children": [
+            {
+             "type": "label",
+             "name": "Label",
+             "text": "Projectile Count:",
+             "size": [
+              0,
+              182,
+              0,
+              26
+             ],
+             "pos": [
+              0,
+              0,
+              0,
+              0
+             ],
+             "textColour": "tan",
+             "align": "left",
+             "textScale": 0.85,
+             "textStroke": 0,
+             "autoX": true
+            },
+            {
+             "type": "label",
+             "name": "From",
+             "text": "3.6",
+             "size": [
+              0,
+              34,
+              0,
+              26
+             ],
+             "pos": [
+              0,
+              0,
+              0,
+              0
+             ],
+             "textColour": "ink",
+             "align": "left",
+             "textScale": 0.85,
+             "textStroke": 0,
+             "font": "LuckiestGuy",
+             "autoX": true
+            },
+            {
+             "type": "label",
+             "name": "Arrow",
+             "text": "->",
+             "size": [
+              0,
+              28,
+              0,
+              26
+             ],
+             "pos": [
+              0,
+              0,
+              0,
+              0
+             ],
+             "textColour": "ink",
+             "align": "left",
+             "textScale": 0.85,
+             "textStroke": 0,
+             "font": "LuckiestGuy",
+             "autoX": true
+            },
+            {
+             "type": "label",
+             "name": "To",
+             "text": "4.6",
+             "size": [
+              0,
+              34,
+              0,
+              26
+             ],
+             "pos": [
+              0,
+              0,
+              0,
+              0
+             ],
+             "textColour": "green",
+             "align": "left",
+             "textScale": 0.85,
+             "textStroke": 0,
+             "font": "LuckiestGuy",
+             "autoX": true
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Description",
+         "text": "Summons lightning to smite nearby enemies",
+         "size": [
+          0,
+          458,
+          0,
+          64
+         ],
+         "pos": [
+          0,
+          150,
+          0,
+          70
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.36,
+         "textStroke": 0,
+         "samples": [
+          "Throws a spinning banana that comes back and bonks all it meets"
+         ],
+         "wrap": true,
+         "overhang": true,
+         "visible": false,
+         "mockHide": true
+        },
+        {
+         "type": "frame",
+         "name": "Focus",
+         "transparent": true,
+         "size": [
+          0,
+          646,
+          0,
+          161
+         ],
+         "pos": [
+          0.5,
+          0,
+          0.5,
+          0
+         ],
+         "anchor": [
+          0.5,
+          0.5
+         ],
+         "overhang": true,
+         "visible": false,
+         "children": [
+          {
+           "type": "frame",
+           "name": "TLH",
+           "size": [
+            0,
+            24,
+            0,
+            5
+           ],
+           "pos": [
+            0,
+            0,
+            0,
+            0
+           ],
+           "colour": [
+            "#FFFFFF",
+            "#FFFFFF"
+           ],
+           "corner": 0,
+           "outline": false,
+           "overhang": true
+          },
+          {
+           "type": "frame",
+           "name": "TLV",
+           "size": [
+            0,
+            5,
+            0,
+            24
+           ],
+           "pos": [
+            0,
+            0,
+            0,
+            0
+           ],
+           "colour": [
+            "#FFFFFF",
+            "#FFFFFF"
+           ],
+           "corner": 0,
+           "outline": false,
+           "overhang": true
+          },
+          {
+           "type": "frame",
+           "name": "TRH",
+           "size": [
+            0,
+            24,
+            0,
+            5
+           ],
+           "pos": [
+            0,
+            622,
+            0,
+            0
+           ],
+           "colour": [
+            "#FFFFFF",
+            "#FFFFFF"
+           ],
+           "corner": 0,
+           "outline": false,
+           "overhang": true
+          },
+          {
+           "type": "frame",
+           "name": "TRV",
+           "size": [
+            0,
+            5,
+            0,
+            24
+           ],
+           "pos": [
+            0,
+            641,
+            0,
+            0
+           ],
+           "colour": [
+            "#FFFFFF",
+            "#FFFFFF"
+           ],
+           "corner": 0,
+           "outline": false,
+           "overhang": true
+          },
+          {
+           "type": "frame",
+           "name": "BLH",
+           "size": [
+            0,
+            24,
+            0,
+            5
+           ],
+           "pos": [
+            0,
+            0,
+            0,
+            156
+           ],
+           "colour": [
+            "#FFFFFF",
+            "#FFFFFF"
+           ],
+           "corner": 0,
+           "outline": false,
+           "overhang": true
+          },
+          {
+           "type": "frame",
+           "name": "BLV",
+           "size": [
+            0,
+            5,
+            0,
+            24
+           ],
+           "pos": [
+            0,
+            0,
+            0,
+            137
+           ],
+           "colour": [
+            "#FFFFFF",
+            "#FFFFFF"
+           ],
+           "corner": 0,
+           "outline": false,
+           "overhang": true
+          },
+          {
+           "type": "frame",
+           "name": "BRH",
+           "size": [
+            0,
+            24,
+            0,
+            5
+           ],
+           "pos": [
+            0,
+            622,
+            0,
+            156
+           ],
+           "colour": [
+            "#FFFFFF",
+            "#FFFFFF"
+           ],
+           "corner": 0,
+           "outline": false,
+           "overhang": true
+          },
+          {
+           "type": "frame",
+           "name": "BRV",
+           "size": [
+            0,
+            5,
+            0,
+            24
+           ],
+           "pos": [
+            0,
+            641,
+            0,
+            137
+           ],
+           "colour": [
+            "#FFFFFF",
+            "#FFFFFF"
+           ],
+           "corner": 0,
+           "outline": false,
+           "overhang": true
+          }
+         ],
+         "mockHide": true
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "OfferCard",
+       "as": "TextButton",
+       "colour": [
+        "#2B2B2B",
+        "#272727"
+       ],
+       "paint": "#2B2B2B",
+       "corner": 8,
+       "size": [
+        0,
+        630,
+        0,
+        145
+       ],
+       "children": [
+        {
+         "type": "label",
+         "name": "RarityTag",
+         "text": "New",
+         "size": [
+          0,
+          120,
+          0,
+          22
+         ],
+         "pos": [
+          0,
+          12,
+          0,
+          6
+         ],
+         "textColour": "inkSoft",
+         "align": "center",
+         "textScale": 0.95,
+         "textStroke": 2,
+         "samples": [
+          "Legendary",
+          "Uncommon"
+         ]
+        },
+        {
+         "type": "frame",
+         "name": "IconTile",
+         "size": [
+          0,
+          100,
+          0,
+          100
+         ],
+         "pos": [
+          0,
+          22,
+          0,
+          36
+         ],
+         "colour": [
+          "#C9D2CB",
+          "#B5BDB7"
+         ],
+         "paint": "#C9D2CB",
+         "children": [
+          {
+           "type": "icon",
+           "name": "Icon",
+           "icon": "IconLightningStaff",
+           "size": [
+            0,
+            84,
+            0,
+            84
+           ],
+           "pos": [
+            0.5,
+            0,
+            0.5,
+            0
+           ],
+           "anchor": [
+            0.5,
+            0.5
+           ]
+          }
+         ],
+         "corner": 8
+        },
+        {
+         "type": "label",
+         "name": "OfferName",
+         "text": "Lightning Staff",
+         "size": [
+          0,
+          340,
+          0,
+          44
+         ],
+         "pos": [
+          0,
+          150,
+          0,
+          22
+         ],
+         "textColour": "ink",
+         "align": "left",
+         "textScale": 0.8,
+         "textStroke": 2,
+         "font": "LuckiestGuy",
+         "samples": [
+          "LIGHTNING STAFF",
+          "LIGHTNING STAFF"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "LevelTag",
+         "text": "NEW",
+         "size": [
+          0,
+          110,
+          0,
+          36
+         ],
+         "pos": [
+          0,
+          498,
+          0,
+          24
+         ],
+         "textColour": "gold",
+         "align": "right",
+         "textScale": 0.8,
+         "textStroke": 2,
+         "font": "LuckiestGuy",
+         "samples": [
+          "LVL 28",
+          "NEW",
+          "NEW"
+         ]
+        },
+        {
+         "type": "frame",
+         "name": "Lines",
+         "transparent": true,
+         "size": [
+          0,
+          458,
+          0,
+          60
+         ],
+         "pos": [
+          0,
+          150,
+          0,
+          74
+         ],
+         "layout": {
+          "type": "list",
+          "dir": "y",
+          "gap": 8,
+          "align": "start"
+         },
+         "children": [
+          {
+           "type": "frame",
+           "name": "StatLine",
+           "transparent": true,
+           "size": [
+            0,
+            458,
+            0,
+            26
+           ],
+           "layout": {
+            "type": "list",
+            "dir": "x",
+            "gap": 8,
+            "align": "start"
+           },
+           "children": [
+            {
+             "type": "label",
+             "name": "Label",
+             "text": "Damage:",
+             "size": [
+              0,
+              95,
+              0,
+              26
+             ],
+             "pos": [
+              0,
+              0,
+              0,
+              0
+             ],
+             "textColour": "tan",
+             "align": "left",
+             "textScale": 0.85,
+             "textStroke": 0,
+             "autoX": true
+            },
+            {
+             "type": "label",
+             "name": "From",
+             "text": "1x",
+             "size": [
+              0,
+              29,
+              0,
+              26
+             ],
+             "pos": [
+              0,
+              0,
+              0,
+              0
+             ],
+             "textColour": "ink",
+             "align": "left",
+             "textScale": 0.85,
+             "textStroke": 0,
+             "font": "LuckiestGuy",
+             "autoX": true
+            },
+            {
+             "type": "label",
+             "name": "Arrow",
+             "text": "->",
+             "size": [
+              0,
+              28,
+              0,
+              26
+             ],
+             "pos": [
+              0,
+              0,
+              0,
+              0
+             ],
+             "textColour": "ink",
+             "align": "left",
+             "textScale": 0.85,
+             "textStroke": 0,
+             "font": "LuckiestGuy",
+             "autoX": true
+            },
+            {
+             "type": "label",
+             "name": "To",
+             "text": "1.08x",
+             "size": [
+              0,
+              60,
+              0,
+              26
+             ],
+             "pos": [
+              0,
+              0,
+              0,
+              0
+             ],
+             "textColour": "green",
+             "align": "left",
+             "textScale": 0.85,
+             "textStroke": 0,
+             "font": "LuckiestGuy",
+             "autoX": true
+            }
+           ]
+          },
+          {
+           "type": "frame",
+           "name": "StatLine",
+           "transparent": true,
+           "size": [
+            0,
+            458,
+            0,
+            26
+           ],
+           "layout": {
+            "type": "list",
+            "dir": "x",
+            "gap": 8,
+            "align": "start"
+           },
+           "children": [
+            {
+             "type": "label",
+             "name": "Label",
+             "text": "Projectile Count:",
+             "size": [
+              0,
+              182,
+              0,
+              26
+             ],
+             "pos": [
+              0,
+              0,
+              0,
+              0
+             ],
+             "textColour": "tan",
+             "align": "left",
+             "textScale": 0.85,
+             "textStroke": 0,
+             "autoX": true
+            },
+            {
+             "type": "label",
+             "name": "From",
+             "text": "3.6",
+             "size": [
+              0,
+              34,
+              0,
+              26
+             ],
+             "pos": [
+              0,
+              0,
+              0,
+              0
+             ],
+             "textColour": "ink",
+             "align": "left",
+             "textScale": 0.85,
+             "textStroke": 0,
+             "font": "LuckiestGuy",
+             "autoX": true
+            },
+            {
+             "type": "label",
+             "name": "Arrow",
+             "text": "->",
+             "size": [
+              0,
+              28,
+              0,
+              26
+             ],
+             "pos": [
+              0,
+              0,
+              0,
+              0
+             ],
+             "textColour": "ink",
+             "align": "left",
+             "textScale": 0.85,
+             "textStroke": 0,
+             "font": "LuckiestGuy",
+             "autoX": true
+            },
+            {
+             "type": "label",
+             "name": "To",
+             "text": "4.6",
+             "size": [
+              0,
+              34,
+              0,
+              26
+             ],
+             "pos": [
+              0,
+              0,
+              0,
+              0
+             ],
+             "textColour": "green",
+             "align": "left",
+             "textScale": 0.85,
+             "textStroke": 0,
+             "font": "LuckiestGuy",
+             "autoX": true
+            }
+           ]
+          }
+         ],
+         "visible": false,
+         "mockHide": true
+        },
+        {
+         "type": "label",
+         "name": "Description",
+         "text": "Summons lightning to smite nearby enemies",
+         "size": [
+          0,
+          458,
+          0,
+          64
+         ],
+         "pos": [
+          0,
+          150,
+          0,
+          70
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.36,
+         "textStroke": 0,
+         "samples": [
+          "Throws a spinning banana that comes back and bonks all it meets"
+         ],
+         "wrap": true,
+         "overhang": true
+        },
+        {
+         "type": "frame",
+         "name": "Focus",
+         "transparent": true,
+         "size": [
+          0,
+          646,
+          0,
+          161
+         ],
+         "pos": [
+          0.5,
+          0,
+          0.5,
+          0
+         ],
+         "anchor": [
+          0.5,
+          0.5
+         ],
+         "overhang": true,
+         "visible": false,
+         "children": [
+          {
+           "type": "frame",
+           "name": "TLH",
+           "size": [
+            0,
+            24,
+            0,
+            5
+           ],
+           "pos": [
+            0,
+            0,
+            0,
+            0
+           ],
+           "colour": [
+            "#FFFFFF",
+            "#FFFFFF"
+           ],
+           "corner": 0,
+           "outline": false,
+           "overhang": true
+          },
+          {
+           "type": "frame",
+           "name": "TLV",
+           "size": [
+            0,
+            5,
+            0,
+            24
+           ],
+           "pos": [
+            0,
+            0,
+            0,
+            0
+           ],
+           "colour": [
+            "#FFFFFF",
+            "#FFFFFF"
+           ],
+           "corner": 0,
+           "outline": false,
+           "overhang": true
+          },
+          {
+           "type": "frame",
+           "name": "TRH",
+           "size": [
+            0,
+            24,
+            0,
+            5
+           ],
+           "pos": [
+            0,
+            622,
+            0,
+            0
+           ],
+           "colour": [
+            "#FFFFFF",
+            "#FFFFFF"
+           ],
+           "corner": 0,
+           "outline": false,
+           "overhang": true
+          },
+          {
+           "type": "frame",
+           "name": "TRV",
+           "size": [
+            0,
+            5,
+            0,
+            24
+           ],
+           "pos": [
+            0,
+            641,
+            0,
+            0
+           ],
+           "colour": [
+            "#FFFFFF",
+            "#FFFFFF"
+           ],
+           "corner": 0,
+           "outline": false,
+           "overhang": true
+          },
+          {
+           "type": "frame",
+           "name": "BLH",
+           "size": [
+            0,
+            24,
+            0,
+            5
+           ],
+           "pos": [
+            0,
+            0,
+            0,
+            156
+           ],
+           "colour": [
+            "#FFFFFF",
+            "#FFFFFF"
+           ],
+           "corner": 0,
+           "outline": false,
+           "overhang": true
+          },
+          {
+           "type": "frame",
+           "name": "BLV",
+           "size": [
+            0,
+            5,
+            0,
+            24
+           ],
+           "pos": [
+            0,
+            0,
+            0,
+            137
+           ],
+           "colour": [
+            "#FFFFFF",
+            "#FFFFFF"
+           ],
+           "corner": 0,
+           "outline": false,
+           "overhang": true
+          },
+          {
+           "type": "frame",
+           "name": "BRH",
+           "size": [
+            0,
+            24,
+            0,
+            5
+           ],
+           "pos": [
+            0,
+            622,
+            0,
+            156
+           ],
+           "colour": [
+            "#FFFFFF",
+            "#FFFFFF"
+           ],
+           "corner": 0,
+           "outline": false,
+           "overhang": true
+          },
+          {
+           "type": "frame",
+           "name": "BRV",
+           "size": [
+            0,
+            5,
+            0,
+            24
+           ],
+           "pos": [
+            0,
+            641,
+            0,
+            137
+           ],
+           "colour": [
+            "#FFFFFF",
+            "#FFFFFF"
+           ],
+           "corner": 0,
+           "outline": false,
+           "overhang": true
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "OfferCard",
+       "as": "TextButton",
+       "colour": [
+        "#4A4309",
+        "#433C08"
+       ],
+       "paint": "#4A4309",
+       "corner": 8,
+       "size": [
+        0,
+        630,
+        0,
+        145
+       ],
+       "children": [
+        {
+         "type": "label",
+         "name": "RarityTag",
+         "text": "Legendary",
+         "size": [
+          0,
+          120,
+          0,
+          22
+         ],
+         "pos": [
+          0,
+          12,
+          0,
+          6
+         ],
+         "textColour": "rarityLegendary",
+         "align": "center",
+         "textScale": 0.95,
+         "textStroke": 2,
+         "samples": [
+          "Legendary",
+          "Uncommon"
+         ]
+        },
+        {
+         "type": "frame",
+         "name": "IconTile",
+         "size": [
+          0,
+          100,
+          0,
+          100
+         ],
+         "pos": [
+          0,
+          22,
+          0,
+          36
+         ],
+         "colour": [
+          "#FFD23A",
+          "#E6BD34"
+         ],
+         "paint": "#FFD23A",
+         "children": [
+          {
+           "type": "icon",
+           "name": "Icon",
+           "icon": "IconTomeDamage",
+           "size": [
+            0,
+            84,
+            0,
+            84
+           ],
+           "pos": [
+            0.5,
+            0,
+            0.5,
+            0
+           ],
+           "anchor": [
+            0.5,
+            0.5
+           ]
+          }
+         ],
+         "corner": 8
+        },
+        {
+         "type": "label",
+         "name": "OfferName",
+         "text": "Damage Tome",
+         "size": [
+          0,
+          340,
+          0,
+          44
+         ],
+         "pos": [
+          0,
+          150,
+          0,
+          22
+         ],
+         "textColour": "ink",
+         "align": "left",
+         "textScale": 0.8,
+         "textStroke": 2,
+         "font": "LuckiestGuy",
+         "samples": [
+          "LIGHTNING STAFF",
+          "DAMAGE TOME"
+         ]
+        },
+        {
+         "type": "label",
+         "name": "LevelTag",
+         "text": "LVL 28",
+         "size": [
+          0,
+          110,
+          0,
+          36
+         ],
+         "pos": [
+          0,
+          498,
+          0,
+          24
+         ],
+         "textColour": "gold",
+         "align": "right",
+         "textScale": 0.8,
+         "textStroke": 2,
+         "font": "LuckiestGuy",
+         "samples": [
+          "LVL 28",
+          "NEW",
+          "LVL 28"
+         ]
+        },
+        {
+         "type": "frame",
+         "name": "Lines",
+         "transparent": true,
+         "size": [
+          0,
+          458,
+          0,
+          60
+         ],
+         "pos": [
+          0,
+          150,
+          0,
+          74
+         ],
+         "layout": {
+          "type": "list",
+          "dir": "y",
+          "gap": 8,
+          "align": "start"
+         },
+         "children": [
+          {
+           "type": "frame",
+           "name": "StatLine",
+           "transparent": true,
+           "size": [
+            0,
+            458,
+            0,
+            26
+           ],
+           "layout": {
+            "type": "list",
+            "dir": "x",
+            "gap": 8,
+            "align": "start"
+           },
+           "children": [
+            {
+             "type": "label",
+             "name": "Label",
+             "text": "Damage:",
+             "size": [
+              0,
+              95,
+              0,
+              26
+             ],
+             "pos": [
+              0,
+              0,
+              0,
+              0
+             ],
+             "textColour": "tan",
+             "align": "left",
+             "textScale": 0.85,
+             "textStroke": 0,
+             "autoX": true
+            },
+            {
+             "type": "label",
+             "name": "From",
+             "text": "1x",
+             "size": [
+              0,
+              29,
+              0,
+              26
+             ],
+             "pos": [
+              0,
+              0,
+              0,
+              0
+             ],
+             "textColour": "ink",
+             "align": "left",
+             "textScale": 0.85,
+             "textStroke": 0,
+             "font": "LuckiestGuy",
+             "autoX": true
+            },
+            {
+             "type": "label",
+             "name": "Arrow",
+             "text": "->",
+             "size": [
+              0,
+              28,
+              0,
+              26
+             ],
+             "pos": [
+              0,
+              0,
+              0,
+              0
+             ],
+             "textColour": "ink",
+             "align": "left",
+             "textScale": 0.85,
+             "textStroke": 0,
+             "font": "LuckiestGuy",
+             "autoX": true
+            },
+            {
+             "type": "label",
+             "name": "To",
+             "text": "1.08x",
+             "size": [
+              0,
+              60,
+              0,
+              26
+             ],
+             "pos": [
+              0,
+              0,
+              0,
+              0
+             ],
+             "textColour": "green",
+             "align": "left",
+             "textScale": 0.85,
+             "textStroke": 0,
+             "font": "LuckiestGuy",
+             "autoX": true
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Description",
+         "text": "Summons lightning to smite nearby enemies",
+         "size": [
+          0,
+          458,
+          0,
+          64
+         ],
+         "pos": [
+          0,
+          150,
+          0,
+          70
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.36,
+         "textStroke": 0,
+         "samples": [
+          "Throws a spinning banana that comes back and bonks all it meets"
+         ],
+         "wrap": true,
+         "overhang": true,
+         "visible": false,
+         "mockHide": true
+        },
+        {
+         "type": "frame",
+         "name": "Focus",
+         "transparent": true,
+         "size": [
+          0,
+          646,
+          0,
+          161
+         ],
+         "pos": [
+          0.5,
+          0,
+          0.5,
+          0
+         ],
+         "anchor": [
+          0.5,
+          0.5
+         ],
+         "overhang": true,
+         "visible": false,
+         "children": [
+          {
+           "type": "frame",
+           "name": "TLH",
+           "size": [
+            0,
+            24,
+            0,
+            5
+           ],
+           "pos": [
+            0,
+            0,
+            0,
+            0
+           ],
+           "colour": [
+            "#FFFFFF",
+            "#FFFFFF"
+           ],
+           "corner": 0,
+           "outline": false,
+           "overhang": true
+          },
+          {
+           "type": "frame",
+           "name": "TLV",
+           "size": [
+            0,
+            5,
+            0,
+            24
+           ],
+           "pos": [
+            0,
+            0,
+            0,
+            0
+           ],
+           "colour": [
+            "#FFFFFF",
+            "#FFFFFF"
+           ],
+           "corner": 0,
+           "outline": false,
+           "overhang": true
+          },
+          {
+           "type": "frame",
+           "name": "TRH",
+           "size": [
+            0,
+            24,
+            0,
+            5
+           ],
+           "pos": [
+            0,
+            622,
+            0,
+            0
+           ],
+           "colour": [
+            "#FFFFFF",
+            "#FFFFFF"
+           ],
+           "corner": 0,
+           "outline": false,
+           "overhang": true
+          },
+          {
+           "type": "frame",
+           "name": "TRV",
+           "size": [
+            0,
+            5,
+            0,
+            24
+           ],
+           "pos": [
+            0,
+            641,
+            0,
+            0
+           ],
+           "colour": [
+            "#FFFFFF",
+            "#FFFFFF"
+           ],
+           "corner": 0,
+           "outline": false,
+           "overhang": true
+          },
+          {
+           "type": "frame",
+           "name": "BLH",
+           "size": [
+            0,
+            24,
+            0,
+            5
+           ],
+           "pos": [
+            0,
+            0,
+            0,
+            156
+           ],
+           "colour": [
+            "#FFFFFF",
+            "#FFFFFF"
+           ],
+           "corner": 0,
+           "outline": false,
+           "overhang": true
+          },
+          {
+           "type": "frame",
+           "name": "BLV",
+           "size": [
+            0,
+            5,
+            0,
+            24
+           ],
+           "pos": [
+            0,
+            0,
+            0,
+            137
+           ],
+           "colour": [
+            "#FFFFFF",
+            "#FFFFFF"
+           ],
+           "corner": 0,
+           "outline": false,
+           "overhang": true
+          },
+          {
+           "type": "frame",
+           "name": "BRH",
+           "size": [
+            0,
+            24,
+            0,
+            5
+           ],
+           "pos": [
+            0,
+            622,
+            0,
+            156
+           ],
+           "colour": [
+            "#FFFFFF",
+            "#FFFFFF"
+           ],
+           "corner": 0,
+           "outline": false,
+           "overhang": true
+          },
+          {
+           "type": "frame",
+           "name": "BRV",
+           "size": [
+            0,
+            5,
+            0,
+            24
+           ],
+           "pos": [
+            0,
+            641,
+            0,
+            137
+           ],
+           "colour": [
+            "#FFFFFF",
+            "#FFFFFF"
+           ],
+           "corner": 0,
+           "outline": false,
+           "overhang": true
+          }
+         ],
+         "mockHide": true
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "type": "frame",
+     "name": "Footer",
+     "size": [
+      0,
+      728,
+      0,
+      96
+     ],
+     "pos": [
+      0,
+      8,
+      0,
+      648
+     ],
+     "colour": [
+      "#2A322D",
+      "#18201B"
+     ],
+     "children": [
+      {
+       "type": "button",
+       "name": "BanishButton",
+       "colour": [
+        "#B9374A",
+        "#B3263A"
+       ],
+       "corner": 8,
+       "size": [
+        0,
+        160,
+        0,
+        56
+       ],
+       "pos": [
+        0,
+        100,
+        0,
+        32
+       ],
+       "text": "BANISH",
+       "font": "LuckiestGuy",
+       "textScale": 0.56,
+       "textStroke": 2,
+       "textColour": "onDark",
+       "samples": [
+        "BANISH"
+       ],
+       "children": [
+        {
+         "type": "label",
+         "name": "Count",
+         "text": "1",
+         "size": [
+          0,
+          60,
+          0,
+          20
+         ],
+         "pos": [
+          0.5,
+          0,
+          0,
+          -26
+         ],
+         "textColour": "ink",
+         "align": "center",
+         "textScale": 0.95,
+         "textStroke": 2,
+         "font": "LuckiestGuy",
+         "samples": [
+          "1"
+         ],
+         "anchor": [
+          0.5,
+          0
+         ],
+         "overhang": true
+        }
+       ]
+      },
+      {
+       "type": "button",
+       "name": "SkipButton",
+       "colour": [
+        "#3FA65A",
+        "#2E9E4C"
+       ],
+       "corner": 8,
+       "size": [
+        0,
+        160,
+        0,
+        56
+       ],
+       "pos": [
+        0,
+        284,
+        0,
+        32
+       ],
+       "text": "SKIP",
+       "font": "LuckiestGuy",
+       "textScale": 0.56,
+       "textStroke": 2,
+       "textColour": "onDark",
+       "samples": [
+        "SKIP"
+       ],
+       "children": [
+        {
+         "type": "label",
+         "name": "Count",
+         "text": "5",
+         "size": [
+          0,
+          60,
+          0,
+          20
+         ],
+         "pos": [
+          0.5,
+          0,
+          0,
+          -26
+         ],
+         "textColour": "ink",
+         "align": "center",
+         "textScale": 0.95,
+         "textStroke": 2,
+         "font": "LuckiestGuy",
+         "samples": [
+          "5"
+         ],
+         "anchor": [
+          0.5,
+          0
+         ],
+         "overhang": true
+        }
+       ]
+      },
+      {
+       "type": "button",
+       "name": "RefreshButton",
+       "colour": [
+        "#3F89D5",
+        "#2E7FD1"
+       ],
+       "corner": 8,
+       "size": [
+        0,
+        160,
+        0,
+        56
+       ],
+       "pos": [
+        0,
+        468,
+        0,
+        32
+       ],
+       "text": "REFRESH",
+       "font": "LuckiestGuy",
+       "textScale": 0.56,
+       "textStroke": 2,
+       "textColour": "onDark",
+       "samples": [
+        "REFRESH"
+       ],
+       "children": [
+        {
+         "type": "label",
+         "name": "Count",
+         "text": "3",
+         "size": [
+          0,
+          60,
+          0,
+          20
+         ],
+         "pos": [
+          0.5,
+          0,
+          0,
+          -26
+         ],
+         "textColour": "ink",
+         "align": "center",
+         "textScale": 0.95,
+         "textStroke": 2,
+         "font": "LuckiestGuy",
+         "samples": [
+          "3"
+         ],
+         "anchor": [
+          0.5,
+          0
+         ],
+         "overhang": true
+        }
+       ]
+      },
+      {
+       "type": "label",
+       "name": "ChoiceTimer",
+       "text": "12",
+       "size": [
+        0,
+        60,
+        0,
+        56
+       ],
+       "pos": [
+        0,
+        648,
+        0,
+        32
+       ],
+       "textColour": "gold",
+       "align": "center",
+       "textScale": 0.8,
+       "textStroke": 3,
+       "font": "LuckiestGuy",
+       "samples": [
+        "30",
+        "12"
+       ]
+      }
+     ],
+     "corner": 8
+    },
+    {
+     "type": "frame",
+     "name": "Rivet",
+     "size": [
+      0,
+      8,
+      0,
+      8
+     ],
+     "pos": [
+      0,
+      14,
+      0,
+      14
+     ],
+     "colour": [
+      "#AAADA7",
+      "#A3A69F"
+     ],
+     "corner": 0.5,
+     "outline": false,
+     "overhang": true
+    },
+    {
+     "type": "frame",
+     "name": "Rivet",
+     "size": [
+      0,
+      8,
+      0,
+      8
+     ],
+     "pos": [
+      0,
+      722,
+      0,
+      14
+     ],
+     "colour": [
+      "#AAADA7",
+      "#A3A69F"
+     ],
+     "corner": 0.5,
+     "outline": false,
+     "overhang": true
+    },
+    {
+     "type": "frame",
+     "name": "Rivet",
+     "size": [
+      0,
+      8,
+      0,
+      8
+     ],
+     "pos": [
+      0,
+      14,
+      0,
+      730
+     ],
+     "colour": [
+      "#AAADA7",
+      "#A3A69F"
+     ],
+     "corner": 0.5,
+     "outline": false,
+     "overhang": true
+    },
+    {
+     "type": "frame",
+     "name": "Rivet",
+     "size": [
+      0,
+      8,
+      0,
+      8
+     ],
+     "pos": [
+      0,
+      722,
+      0,
+      730
+     ],
+     "colour": [
+      "#AAADA7",
+      "#A3A69F"
+     ],
+     "corner": 0.5,
+     "outline": false,
+     "overhang": true
+    }
+   ]
+  }
+ ]
+}

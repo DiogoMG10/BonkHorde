@@ -21,12 +21,12 @@ if (-not $NoGates) {
 }
 
 New-Item -ItemType Directory -Force (Join-Path $root 'work\push') | Out-Null
-foreach ($name in 'Packages', 'Shared', 'Server', 'Client') {
+foreach ($name in 'Packages', 'Shared', 'Server', 'Client', 'Ui', 'Assets') {
     $o = rojo build "tools\push\$name.project.json" -o "work\push\$name.rbxmx" 2>&1
     if ($LASTEXITCODE -ne 0) { Write-Output "BUILD FAILED $name"; $o; exit 1 }
 }
 $stamp = Get-Date -Format 'HH:mm:ss'
-Write-Output "built 4 trees at $stamp - gates green"
+Write-Output "built 6 trees at $stamp - gates green"
 
 # make sure the local file server Studio pulls from is up
 try {

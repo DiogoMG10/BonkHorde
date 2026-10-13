@@ -8,6 +8,9 @@
       },
       "Shared": {
         "$path": "src/shared"
+      },
+      "Assets": {
+        "$path": "assets/models/Assets.rbxmx"
       }
     },
     "ServerScriptService": {
@@ -31,6 +34,9 @@
       "$properties": {
         "Technology": "Future"
       }
+    },
+    "StarterGui": {
+      "$path": "src/ui"
     }
   }
 }

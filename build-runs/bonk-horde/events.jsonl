@@ -11,3 +11,5 @@
 {"kind": "fallback", "stage": "code", "note": "Rojo live sync needs a manual Connect click in the Studio plugin that no tool here can make. Fell back to a one-way push: rojo build of four sub-trees to rbxmx, served on 127.0.0.1:34880, pulled into the open place with SerializationService via execute_luau (tools/push). Disk stays the only source of truth. HttpService.HttpEnabled was switched on in the place for this.", "ts": "2026-10-13T00:24:38+01:00"}
 {"kind": "end", "stage": "code", "status": "ok", "ts": "2026-10-13T00:24:38+01:00"}
 {"kind": "note", "stage": null, "note": "Section 2 closed and continued without a stop: the user asked on 2026-10-12 for the whole game in one continuous run.", "ts": "2026-10-13T00:26:04+01:00"}
+{"kind": "start", "stage": "ui", "ts": "2026-10-13T00:27:58+01:00"}
+{"kind": "start", "stage": "3d-meshes", "ts": "2026-10-13T00:27:58+01:00"}

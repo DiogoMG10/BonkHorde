@@ -1,0 +1,797 @@
+{
+ "_note": "Menu, EndScreens and Overlay. Paths are instance paths inside the ScreenGui. Builder internals (Shadow, Face, Rivet, Bracket) and UI modifiers are left out.",
+ "screenGuis": {
+  "Menu": {
+   "displayOrder": 30,
+   "file": "src/ui/Menu.model.json",
+   "elements": [
+    {
+     "path": "MainMenu",
+     "class": "Frame"
+    },
+    {
+     "path": "MainMenu/LogoBanner",
+     "class": "Frame"
+    },
+    {
+     "path": "MainMenu/LogoBanner/Lip",
+     "class": "Frame"
+    },
+    {
+     "path": "MainMenu/LogoBanner/Strip",
+     "class": "Frame"
+    },
+    {
+     "path": "MainMenu/LogoBanner/Strip/Wordmark",
+     "class": "TextLabel"
+    },
+    {
+     "path": "MainMenu/PlayButton",
+     "class": "TextButton"
+    },
+    {
+     "path": "MainMenu/PlayButton/Label",
+     "class": "TextLabel"
+    },
+    {
+     "path": "MainMenu/SquadTitle",
+     "class": "TextLabel"
+    },
+    {
+     "path": "MainMenu/SquadList",
+     "class": "Frame"
+    },
+    {
+     "path": "MainMenu/SquadList/SquadRow",
+     "class": "Frame"
+    },
+    {
+     "path": "MainMenu/SquadList/SquadRow/Portrait",
+     "class": "ImageLabel",
+     "icon": "PortraitKnight"
+    },
+    {
+     "path": "MainMenu/SquadList/SquadRow/Name",
+     "class": "TextLabel"
+    },
+    {
+     "path": "MainMenu/SquadList/SquadRow/Hero",
+     "class": "TextLabel"
+    },
+    {
+     "path": "MainMenu/SquadList/SquadRow/ReadyTag",
+     "class": "Frame"
+    },
+    {
+     "path": "MainMenu/SquadList/SquadRow/ReadyTag/Text",
+     "class": "TextLabel"
+    },
+    {
+     "path": "MainMenu/SquadList/SquadRow/HostTag",
+     "class": "Frame"
+    },
+    {
+     "path": "MainMenu/SquadList/SquadRow/HostTag/Text",
+     "class": "TextLabel"
+    },
+    {
+     "path": "MainMenu/SilverTotal",
+     "class": "TextLabel"
+    },
+    {
+     "path": "MainMenu/SilverTotal/Icon",
+     "class": "ImageLabel",
+     "icon": "IconSilver"
+    },
+    {
+     "path": "MainMenu/VersionLabel",
+     "class": "TextLabel"
+    },
+    {
+     "path": "CharacterSelect",
+     "class": "Frame",
+     "visible": false
+    },
+    {
+     "path": "CharacterSelect/ListPanel",
+     "class": "Frame"
+    },
+    {
+     "path": "CharacterSelect/ListPanel/Header",
+     "class": "Frame"
+    },
+    {
+     "path": "CharacterSelect/ListPanel/Header/Title",
+     "class": "TextLabel"
+    },
+    {
+     "path": "CharacterSelect/CloseButton",
+     "class": "TextButton"
+    },
+    {
+     "path": "CharacterSelect/CloseButton/Label",
+     "class": "TextLabel"
+    },
+    {
+     "path": "CharacterSelect/CharacterGrid",
+     "class": "Frame"
+    },
+    {
+     "path": "CharacterSelect/CharacterGrid/PortraitTile",
+     "class": "TextButton"
+    },
+    {
+     "path": "CharacterSelect/CharacterGrid/PortraitTile/Portrait",
+     "class": "ImageLabel",
+     "icon": "PortraitKnight"
+    },
+    {
+     "path": "CharacterSelect/CharacterGrid/PortraitTile/Name",
+     "class": "TextLabel"
+    },
+    {
+     "path": "CharacterSelect/CharacterGrid/PortraitTile/Focus",
+     "class": "Frame",
+     "visible": false
+    },
+    {
+     "path": "CharacterSelect/CharacterGrid/LockedTile",
+     "class": "TextButton"
+    },
+    {
+     "path": "CharacterSelect/CharacterGrid/LockedTile/Silhouette",
+     "class": "Frame"
+    },
+    {
+     "path": "CharacterSelect/CharacterGrid/LockedTile/Silhouette/Head",
+     "class": "Frame"
+    },
+    {
+     "path": "CharacterSelect/CharacterGrid/LockedTile/Silhouette/Shoulders",
+     "class": "Frame"
+    },
+    {
+     "path": "CharacterSelect/CharacterGrid/LockedTile/Name",
+     "class": "TextLabel"
+    },
+    {
+     "path": "CharacterSelect/CharacterGrid/LockedTile/Padlock",
+     "class": "ImageLabel",
+     "icon": "IconPadlock"
+    },
+    {
+     "path": "CharacterSelect/DetailCard",
+     "class": "Frame"
+    },
+    {
+     "path": "CharacterSelect/DetailCard/PortraitWell",
+     "class": "Frame"
+    },
+    {
+     "path": "CharacterSelect/DetailCard/Portrait",
+     "class": "ImageLabel",
+     "icon": "PortraitKnight"
+    },
+    {
+     "path": "CharacterSelect/DetailCard/CharacterName",
+     "class": "TextLabel"
+    },
+    {
+     "path": "CharacterSelect/DetailCard/RunCount",
+     "class": "TextLabel"
+    },
+    {
+     "path": "CharacterSelect/DetailCard/RunCount/Icon",
+     "class": "ImageLabel",
+     "icon": "IconRun"
+    },
+    {
+     "path": "CharacterSelect/DetailCard/Blurb",
+     "class": "TextLabel"
+    },
+    {
+     "path": "CharacterSelect/DetailCard/StartWeaponRow",
+     "class": "Frame"
+    },
+    {
+     "path": "CharacterSelect/DetailCard/StartWeaponRow/Well",
+     "class": "Frame"
+    },
+    {
+     "path": "CharacterSelect/DetailCard/StartWeaponRow/Icon",
+     "class": "ImageLabel",
+     "icon": "IconSword"
+    },
+    {
+     "path": "CharacterSelect/DetailCard/StartWeaponRow/Name",
+     "class": "TextLabel"
+    },
+    {
+     "path": "CharacterSelect/DetailCard/StartWeaponRow/Text",
+     "class": "TextLabel"
+    },
+    {
+     "path": "CharacterSelect/DetailCard/PassiveRow",
+     "class": "Frame"
+    },
+    {
+     "path": "CharacterSelect/DetailCard/PassiveRow/Well",
+     "class": "Frame"
+    },
+    {
+     "path": "CharacterSelect/DetailCard/PassiveRow/Icon",
+     "class": "ImageLabel",
+     "icon": "IconPassive"
+    },
+    {
+     "path": "CharacterSelect/DetailCard/PassiveRow/Name",
+     "class": "TextLabel"
+    },
+    {
+     "path": "CharacterSelect/DetailCard/PassiveRow/Text",
+     "class": "TextLabel"
+    },
+    {
+     "path": "CharacterSelect/DetailCard/UnlockButton",
+     "class": "TextButton",
+     "visible": false
+    },
+    {
+     "path": "CharacterSelect/DetailCard/UnlockButton/Icon",
+     "class": "ImageLabel",
+     "icon": "IconSilver"
+    },
+    {
+     "path": "CharacterSelect/DetailCard/UnlockButton/Label",
+     "class": "TextLabel"
+    },
+    {
+     "path": "CharacterSelect/DetailCard/ConfirmButton",
+     "class": "TextButton"
+    },
+    {
+     "path": "CharacterSelect/DetailCard/ConfirmButton/Label",
+     "class": "TextLabel"
+    },
+    {
+     "path": "MapSelect",
+     "class": "Frame",
+     "visible": false
+    },
+    {
+     "path": "MapSelect/ListPanel",
+     "class": "Frame"
+    },
+    {
+     "path": "MapSelect/ListPanel/Header",
+     "class": "Frame"
+    },
+    {
+     "path": "MapSelect/ListPanel/Header/Title",
+     "class": "TextLabel"
+    },
+    {
+     "path": "MapSelect/CloseButton",
+     "class": "TextButton"
+    },
+    {
+     "path": "MapSelect/CloseButton/Label",
+     "class": "TextLabel"
+    },
+    {
+     "path": "MapSelect/MapList",
+     "class": "Frame"
+    },
+    {
+     "path": "MapSelect/MapList/MapRow",
+     "class": "TextButton"
+    },
+    {
+     "path": "MapSelect/MapList/MapRow/Thumb",
+     "class": "ImageLabel",
+     "icon": "ThumbMossyWoods"
+    },
+    {
+     "path": "MapSelect/MapList/MapRow/Name",
+     "class": "TextLabel"
+    },
+    {
+     "path": "MapSelect/MapList/MapRow/Blurb",
+     "class": "TextLabel"
+    },
+    {
+     "path": "MapSelect/MapList/MapRow/LockTag",
+     "class": "Frame",
+     "visible": false
+    },
+    {
+     "path": "MapSelect/MapList/MapRow/LockTag/Text",
+     "class": "TextLabel"
+    },
+    {
+     "path": "MapSelect/DetailCard",
+     "class": "Frame"
+    },
+    {
+     "path": "MapSelect/DetailCard/MapName",
+     "class": "TextLabel"
+    },
+    {
+     "path": "MapSelect/DetailCard/TierLabel",
+     "class": "TextLabel"
+    },
+    {
+     "path": "MapSelect/DetailCard/ScoreBox",
+     "class": "Frame"
+    },
+    {
+     "path": "MapSelect/DetailCard/HighscoreCaption",
+     "class": "TextLabel"
+    },
+    {
+     "path": "MapSelect/DetailCard/BestTimeCaption",
+     "class": "TextLabel"
+    },
+    {
+     "path": "MapSelect/DetailCard/Highscore",
+     "class": "TextLabel"
+    },
+    {
+     "path": "MapSelect/DetailCard/Highscore/Icon",
+     "class": "ImageLabel",
+     "icon": "IconSkull"
+    },
+    {
+     "path": "MapSelect/DetailCard/BestTime",
+     "class": "TextLabel"
+    },
+    {
+     "path": "MapSelect/DetailCard/StageCount",
+     "class": "TextLabel"
+    },
+    {
+     "path": "MapSelect/DetailCard/ReadyTitle",
+     "class": "TextLabel"
+    },
+    {
+     "path": "MapSelect/DetailCard/ReadyList",
+     "class": "Frame"
+    },
+    {
+     "path": "MapSelect/DetailCard/ReadyList/ReadyRow",
+     "class": "Frame"
+    },
+    {
+     "path": "MapSelect/DetailCard/ReadyList/ReadyRow/Name",
+     "class": "TextLabel"
+    },
+    {
+     "path": "MapSelect/DetailCard/ReadyList/ReadyRow/State",
+     "class": "TextLabel"
+    },
+    {
+     "path": "MapSelect/DetailCard/ConfirmButton",
+     "class": "TextButton"
+    },
+    {
+     "path": "MapSelect/DetailCard/ConfirmButton/Label",
+     "class": "TextLabel"
+    }
+   ]
+  },
+  "EndScreens": {
+   "displayOrder": 40,
+   "file": "src/ui/EndScreens.model.json",
+   "elements": [
+    {
+     "path": "DeathScreen",
+     "class": "Frame",
+     "visible": false
+    },
+    {
+     "path": "DeathScreen/DeathTitle",
+     "class": "TextLabel"
+    },
+    {
+     "path": "DeathScreen/DeathJoke",
+     "class": "TextLabel"
+    },
+    {
+     "path": "DeathScreen/HeroViewport",
+     "class": "ViewportFrame"
+    },
+    {
+     "path": "DeathScreen/ConfirmButton",
+     "class": "TextButton"
+    },
+    {
+     "path": "DeathScreen/ConfirmButton/Focus",
+     "class": "Frame"
+    },
+    {
+     "path": "DeathScreen/ConfirmButton/Label",
+     "class": "TextLabel"
+    },
+    {
+     "path": "Results",
+     "class": "Frame",
+     "visible": false
+    },
+    {
+     "path": "Results/Panel",
+     "class": "Frame"
+    },
+    {
+     "path": "Results/ResultTitle",
+     "class": "TextLabel"
+    },
+    {
+     "path": "Results/StatTable",
+     "class": "Frame"
+    },
+    {
+     "path": "Results/StatTable/Kills",
+     "class": "Frame"
+    },
+    {
+     "path": "Results/StatTable/Kills/Label",
+     "class": "TextLabel"
+    },
+    {
+     "path": "Results/StatTable/Kills/Value",
+     "class": "TextLabel"
+    },
+    {
+     "path": "Results/StatTable/Level",
+     "class": "Frame"
+    },
+    {
+     "path": "Results/StatTable/Level/Label",
+     "class": "TextLabel"
+    },
+    {
+     "path": "Results/StatTable/Level/Value",
+     "class": "TextLabel"
+    },
+    {
+     "path": "Results/StatTable/Time",
+     "class": "Frame"
+    },
+    {
+     "path": "Results/StatTable/Time/Label",
+     "class": "TextLabel"
+    },
+    {
+     "path": "Results/StatTable/Time/Value",
+     "class": "TextLabel"
+    },
+    {
+     "path": "Results/StatTable/BossTime",
+     "class": "Frame"
+    },
+    {
+     "path": "Results/StatTable/BossTime/Label",
+     "class": "TextLabel"
+    },
+    {
+     "path": "Results/StatTable/BossTime/Value",
+     "class": "TextLabel"
+    },
+    {
+     "path": "Results/ColumnHeads",
+     "class": "Frame"
+    },
+    {
+     "path": "Results/ColumnHeads/HeadPlayer",
+     "class": "TextLabel"
+    },
+    {
+     "path": "Results/ColumnHeads/HeadKills",
+     "class": "TextLabel"
+    },
+    {
+     "path": "Results/ColumnHeads/HeadDamage",
+     "class": "TextLabel"
+    },
+    {
+     "path": "Results/ColumnHeads/HeadSilver",
+     "class": "TextLabel"
+    },
+    {
+     "path": "Results/PlayerRows",
+     "class": "Frame"
+    },
+    {
+     "path": "Results/PlayerRows/PlayerRow",
+     "class": "Frame"
+    },
+    {
+     "path": "Results/PlayerRows/PlayerRow/Portrait",
+     "class": "ImageLabel",
+     "icon": "PortraitKnight"
+    },
+    {
+     "path": "Results/PlayerRows/PlayerRow/Name",
+     "class": "TextLabel"
+    },
+    {
+     "path": "Results/PlayerRows/PlayerRow/Kills",
+     "class": "TextLabel"
+    },
+    {
+     "path": "Results/PlayerRows/PlayerRow/Damage",
+     "class": "TextLabel"
+    },
+    {
+     "path": "Results/PlayerRows/PlayerRow/Silver",
+     "class": "TextLabel"
+    },
+    {
+     "path": "Results/PlayerRows/PlayerRow/Silver/Icon",
+     "class": "ImageLabel",
+     "icon": "IconSilver"
+    },
+    {
+     "path": "Results/ContinueLabel",
+     "class": "TextLabel"
+    }
+   ]
+  },
+  "Overlay": {
+   "displayOrder": 50,
+   "file": "src/ui/Overlay.model.json",
+   "elements": [
+    {
+     "path": "BigMap",
+     "class": "Frame",
+     "visible": false
+    },
+    {
+     "path": "BigMap/Dots",
+     "class": "Frame"
+    },
+    {
+     "path": "BigMap/PlayerArrow",
+     "class": "ImageLabel",
+     "icon": "IconArrowPlayer"
+    },
+    {
+     "path": "BigMap/N",
+     "class": "TextLabel"
+    },
+    {
+     "path": "BigMap/E",
+     "class": "TextLabel"
+    },
+    {
+     "path": "BigMap/S",
+     "class": "TextLabel"
+    },
+    {
+     "path": "BigMap/W",
+     "class": "TextLabel"
+    },
+    {
+     "path": "BigMap/Legend",
+     "class": "Frame"
+    },
+    {
+     "path": "BigMap/Legend/LegendItem",
+     "class": "Frame"
+    },
+    {
+     "path": "BigMap/Legend/LegendItem/Icon",
+     "class": "ImageLabel",
+     "icon": "IconMapChest"
+    },
+    {
+     "path": "BigMap/Legend/LegendItem/Text",
+     "class": "TextLabel"
+    },
+    {
+     "path": "PauseMenu",
+     "class": "Frame",
+     "visible": false
+    },
+    {
+     "path": "PauseMenu/Panel",
+     "class": "Frame"
+    },
+    {
+     "path": "PauseMenu/Panel/Header",
+     "class": "Frame"
+    },
+    {
+     "path": "PauseMenu/Panel/Header/Title",
+     "class": "TextLabel"
+    },
+    {
+     "path": "PauseMenu/ResumeButton",
+     "class": "TextButton"
+    },
+    {
+     "path": "PauseMenu/ResumeButton/Label",
+     "class": "TextLabel"
+    },
+    {
+     "path": "PauseMenu/MusicLabel",
+     "class": "TextLabel"
+    },
+    {
+     "path": "PauseMenu/MusicSlider",
+     "class": "Frame"
+    },
+    {
+     "path": "PauseMenu/MusicSlider/Fill",
+     "class": "Frame"
+    },
+    {
+     "path": "PauseMenu/MusicSlider/Knob",
+     "class": "Frame"
+    },
+    {
+     "path": "PauseMenu/SfxLabel",
+     "class": "TextLabel"
+    },
+    {
+     "path": "PauseMenu/SfxSlider",
+     "class": "Frame"
+    },
+    {
+     "path": "PauseMenu/SfxSlider/Fill",
+     "class": "Frame"
+    },
+    {
+     "path": "PauseMenu/SfxSlider/Knob",
+     "class": "Frame"
+    },
+    {
+     "path": "PauseMenu/SensitivityLabel",
+     "class": "TextLabel"
+    },
+    {
+     "path": "PauseMenu/SensitivitySlider",
+     "class": "Frame"
+    },
+    {
+     "path": "PauseMenu/SensitivitySlider/Fill",
+     "class": "Frame"
+    },
+    {
+     "path": "PauseMenu/SensitivitySlider/Knob",
+     "class": "Frame"
+    },
+    {
+     "path": "PauseMenu/DamageNumbersToggle",
+     "class": "TextButton"
+    },
+    {
+     "path": "PauseMenu/DamageNumbersToggle/Box",
+     "class": "Frame"
+    },
+    {
+     "path": "PauseMenu/DamageNumbersToggle/Check",
+     "class": "ImageLabel",
+     "icon": "IconCheck"
+    },
+    {
+     "path": "PauseMenu/DamageNumbersToggle/Label",
+     "class": "TextLabel"
+    },
+    {
+     "path": "PauseMenu/LeaveButton",
+     "class": "TextButton"
+    },
+    {
+     "path": "PauseMenu/LeaveButton/Label",
+     "class": "TextLabel"
+    },
+    {
+     "path": "TouchControls",
+     "class": "Frame",
+     "visible": false
+    },
+    {
+     "path": "TouchControls/JumpButton",
+     "class": "TextButton"
+    },
+    {
+     "path": "TouchControls/JumpButton/Label",
+     "class": "TextLabel"
+    },
+    {
+     "path": "TouchControls/SlideButton",
+     "class": "TextButton"
+    },
+    {
+     "path": "TouchControls/SlideButton/Label",
+     "class": "TextLabel"
+    },
+    {
+     "path": "TouchControls/InteractButton",
+     "class": "TextButton"
+    },
+    {
+     "path": "TouchControls/InteractButton/Label",
+     "class": "TextLabel"
+    },
+    {
+     "path": "TouchControls/TabButton",
+     "class": "TextButton"
+    },
+    {
+     "path": "TouchControls/TabButton/Label",
+     "class": "TextLabel"
+    }
+   ]
+  }
+ },
+ "icons": {
+  "PortraitKnight": [
+   "Menu/MainMenu/SquadList/SquadRow/Portrait",
+   "Menu/CharacterSelect/CharacterGrid/PortraitTile/Portrait",
+   "Menu/CharacterSelect/DetailCard/Portrait",
+   "EndScreens/Results/PlayerRows/PlayerRow/Portrait"
+  ],
+  "PortraitFox": [
+   "Menu/MainMenu/SquadList/SquadRow/Portrait",
+   "Menu/CharacterSelect/CharacterGrid/PortraitTile/Portrait",
+   "EndScreens/Results/PlayerRows/PlayerRow/Portrait"
+  ],
+  "PortraitFrostling": [
+   "Menu/MainMenu/SquadList/SquadRow/Portrait",
+   "Menu/CharacterSelect/CharacterGrid/PortraitTile/Portrait",
+   "EndScreens/Results/PlayerRows/PlayerRow/Portrait"
+  ],
+  "IconSilver": [
+   "Menu/MainMenu/SilverTotal/Icon",
+   "Menu/CharacterSelect/DetailCard/UnlockButton/Icon",
+   "EndScreens/Results/PlayerRows/PlayerRow/Silver/Icon"
+  ],
+  "IconPadlock": [
+   "Menu/CharacterSelect/CharacterGrid/LockedTile/Padlock"
+  ],
+  "IconRun": [
+   "Menu/CharacterSelect/DetailCard/RunCount/Icon"
+  ],
+  "IconSword": [
+   "Menu/CharacterSelect/DetailCard/StartWeaponRow/Icon"
+  ],
+  "IconPassive": [
+   "Menu/CharacterSelect/DetailCard/PassiveRow/Icon"
+  ],
+  "ThumbMossyWoods": [
+   "Menu/MapSelect/MapList/MapRow/Thumb"
+  ],
+  "ThumbDesert": [
+   "Menu/MapSelect/MapList/MapRow/Thumb"
+  ],
+  "ThumbGraveyard": [
+   "Menu/MapSelect/MapList/MapRow/Thumb"
+  ],
+  "IconSkull": [
+   "Menu/MapSelect/DetailCard/Highscore/Icon"
+  ],
+  "IconArrowPlayer": [
+   "Overlay/BigMap/PlayerArrow"
+  ],
+  "IconMapChest": [
+   "Overlay/BigMap/Legend/LegendItem/Icon"
+  ],
+  "IconMapShrine": [
+   "Overlay/BigMap/Legend/LegendItem/Icon"
+  ],
+  "IconMapBoss": [
+   "Overlay/BigMap/Legend/LegendItem/Icon"
+  ],
+  "IconMapVendor": [
+   "Overlay/BigMap/Legend/LegendItem/Icon"
+  ],
+  "IconMapTeammate": [
+   "Overlay/BigMap/Legend/LegendItem/Icon"
+  ],
+  "IconCheck": [
+   "Overlay/PauseMenu/DamageNumbersToggle/Check"
+  ]
+ }
+}

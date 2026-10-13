@@ -53,8 +53,9 @@ function PickupRenderController:_make(kind: string): BasePart
 	end
 	local assets = ReplicatedStorage:FindFirstChild("Assets")
 	local source = assets and assets:FindFirstChild("Pickups") and assets.Pickups:FindFirstChild(kind)
-	if source and source:IsA("BasePart") then
-		part = source:Clone()
+	local mesh = source and (if source:IsA("BasePart") then source else source:FindFirstChild("Body"))
+	if mesh and mesh:IsA("BasePart") then
+		part = mesh:Clone()
 	else
 		local look = LOOK[kind]
 		part = Instance.new("Part")

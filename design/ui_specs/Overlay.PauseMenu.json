@@ -1,0 +1,627 @@
+{
+ "name": "Overlay.PauseMenu",
+ "theme": "../ui_theme.json",
+ "resolution": [
+  1920,
+  1080
+ ],
+ "kind": "page",
+ "screenGui": "Overlay",
+ "displayOrder": 50,
+ "children": [
+  {
+   "type": "frame",
+   "name": "PauseMenu",
+   "size": [
+    1,
+    0,
+    1,
+    0
+   ],
+   "colour": [
+    "#000000",
+    "#000000"
+   ],
+   "children": [
+    {
+     "type": "panel",
+     "name": "Panel",
+     "colour": "panel",
+     "corner": 12,
+     "size": [
+      0,
+      620,
+      0,
+      840
+     ],
+     "pos": [
+      0.5,
+      0,
+      0.5,
+      0
+     ],
+     "anchor": [
+      0.5,
+      0.5
+     ],
+     "children": [
+      {
+       "type": "frame",
+       "name": "Header",
+       "size": [
+        1,
+        -20,
+        0,
+        64
+       ],
+       "pos": [
+        0,
+        10,
+        0,
+        10
+       ],
+       "colour": "header",
+       "children": [
+        {
+         "type": "label",
+         "name": "Title",
+         "text": "PAUSED",
+         "size": [
+          1,
+          -150,
+          1,
+          0
+         ],
+         "textColour": "ink",
+         "align": "left",
+         "textScale": 0.5625,
+         "pos": [
+          0,
+          24,
+          0,
+          0
+         ],
+         "font": "LuckiestGuy",
+         "textStroke": 3
+        }
+       ],
+       "corner": 8
+      },
+      {
+       "type": "frame",
+       "name": "Rivet",
+       "size": [
+        0,
+        10,
+        0,
+        10
+       ],
+       "pos": [
+        0,
+        14,
+        0,
+        14
+       ],
+       "anchor": [
+        0,
+        0
+       ],
+       "colour": [
+        "#B9BCB5",
+        "#7C7F79"
+       ],
+       "corner": 0.5,
+       "outline": false,
+       "overhang": true
+      },
+      {
+       "type": "frame",
+       "name": "Rivet",
+       "size": [
+        0,
+        10,
+        0,
+        10
+       ],
+       "pos": [
+        1,
+        -14,
+        0,
+        14
+       ],
+       "anchor": [
+        1,
+        0
+       ],
+       "colour": [
+        "#B9BCB5",
+        "#7C7F79"
+       ],
+       "corner": 0.5,
+       "outline": false,
+       "overhang": true
+      },
+      {
+       "type": "frame",
+       "name": "Rivet",
+       "size": [
+        0,
+        10,
+        0,
+        10
+       ],
+       "pos": [
+        0,
+        14,
+        1,
+        -14
+       ],
+       "anchor": [
+        0,
+        1
+       ],
+       "colour": [
+        "#B9BCB5",
+        "#7C7F79"
+       ],
+       "corner": 0.5,
+       "outline": false,
+       "overhang": true
+      },
+      {
+       "type": "frame",
+       "name": "Rivet",
+       "size": [
+        0,
+        10,
+        0,
+        10
+       ],
+       "pos": [
+        1,
+        -14,
+        1,
+        -14
+       ],
+       "anchor": [
+        1,
+        1
+       ],
+       "colour": [
+        "#B9BCB5",
+        "#7C7F79"
+       ],
+       "corner": 0.5,
+       "outline": false,
+       "overhang": true
+      }
+     ],
+     "overhang": true
+    },
+    {
+     "type": "button",
+     "name": "ResumeButton",
+     "colour": "blue",
+     "size": [
+      0,
+      480,
+      0,
+      116
+     ],
+     "corner": 8,
+     "font": "LuckiestGuy",
+     "textStroke": 3,
+     "textScale": 0.3966,
+     "text": "RESUME",
+     "pos": [
+      0.5,
+      0,
+      0.5,
+      -268
+     ],
+     "anchor": [
+      0.5,
+      0.5
+     ],
+     "centre": false
+    },
+    {
+     "type": "label",
+     "name": "MusicLabel",
+     "text": "Music",
+     "size": [
+      0,
+      480,
+      0,
+      36
+     ],
+     "textColour": "tan",
+     "align": "left",
+     "textScale": 0.8333,
+     "pos": [
+      0.5,
+      0,
+      0.5,
+      -172
+     ],
+     "anchor": [
+      0.5,
+      0.5
+     ],
+     "textStroke": 0,
+     "centre": false
+    },
+    {
+     "type": "frame",
+     "name": "MusicSlider",
+     "size": [
+      0,
+      480,
+      0,
+      36
+     ],
+     "pos": [
+      0.5,
+      0,
+      0.5,
+      -128
+     ],
+     "anchor": [
+      0.5,
+      0.5
+     ],
+     "colour": "slot",
+     "children": [
+      {
+       "type": "frame",
+       "name": "Fill",
+       "size": [
+        0.7,
+        0,
+        1,
+        0
+       ],
+       "colour": "blue",
+       "corner": 0.5,
+       "outline": false
+      },
+      {
+       "type": "frame",
+       "name": "Knob",
+       "size": [
+        0,
+        52,
+        0,
+        52
+       ],
+       "pos": [
+        0.7,
+        0,
+        0.5,
+        0
+       ],
+       "anchor": [
+        0.5,
+        0.5
+       ],
+       "colour": [
+        "#FFFFFF",
+        "#D4DAD4"
+       ],
+       "corner": 0.5,
+       "overhang": true
+      }
+     ],
+     "corner": 0.5,
+     "centre": false
+    },
+    {
+     "type": "label",
+     "name": "SfxLabel",
+     "text": "Sound effects",
+     "size": [
+      0,
+      480,
+      0,
+      36
+     ],
+     "textColour": "tan",
+     "align": "left",
+     "textScale": 0.8333,
+     "pos": [
+      0.5,
+      0,
+      0.5,
+      -68
+     ],
+     "anchor": [
+      0.5,
+      0.5
+     ],
+     "textStroke": 0,
+     "centre": false
+    },
+    {
+     "type": "frame",
+     "name": "SfxSlider",
+     "size": [
+      0,
+      480,
+      0,
+      36
+     ],
+     "pos": [
+      0.5,
+      0,
+      0.5,
+      -24
+     ],
+     "anchor": [
+      0.5,
+      0.5
+     ],
+     "colour": "slot",
+     "children": [
+      {
+       "type": "frame",
+       "name": "Fill",
+       "size": [
+        0.8,
+        0,
+        1,
+        0
+       ],
+       "colour": "blue",
+       "corner": 0.5,
+       "outline": false
+      },
+      {
+       "type": "frame",
+       "name": "Knob",
+       "size": [
+        0,
+        52,
+        0,
+        52
+       ],
+       "pos": [
+        0.8,
+        0,
+        0.5,
+        0
+       ],
+       "anchor": [
+        0.5,
+        0.5
+       ],
+       "colour": [
+        "#FFFFFF",
+        "#D4DAD4"
+       ],
+       "corner": 0.5,
+       "overhang": true
+      }
+     ],
+     "corner": 0.5,
+     "centre": false
+    },
+    {
+     "type": "label",
+     "name": "SensitivityLabel",
+     "text": "Camera sensitivity",
+     "size": [
+      0,
+      480,
+      0,
+      36
+     ],
+     "textColour": "tan",
+     "align": "left",
+     "textScale": 0.8333,
+     "pos": [
+      0.5,
+      0,
+      0.5,
+      36
+     ],
+     "anchor": [
+      0.5,
+      0.5
+     ],
+     "textStroke": 0,
+     "centre": false
+    },
+    {
+     "type": "frame",
+     "name": "SensitivitySlider",
+     "size": [
+      0,
+      480,
+      0,
+      36
+     ],
+     "pos": [
+      0.5,
+      0,
+      0.5,
+      80
+     ],
+     "anchor": [
+      0.5,
+      0.5
+     ],
+     "colour": "slot",
+     "children": [
+      {
+       "type": "frame",
+       "name": "Fill",
+       "size": [
+        0.5,
+        0,
+        1,
+        0
+       ],
+       "colour": "blue",
+       "corner": 0.5,
+       "outline": false
+      },
+      {
+       "type": "frame",
+       "name": "Knob",
+       "size": [
+        0,
+        52,
+        0,
+        52
+       ],
+       "pos": [
+        0.5,
+        0,
+        0.5,
+        0
+       ],
+       "anchor": [
+        0.5,
+        0.5
+       ],
+       "colour": [
+        "#FFFFFF",
+        "#D4DAD4"
+       ],
+       "corner": 0.5,
+       "overhang": true
+      }
+     ],
+     "corner": 0.5,
+     "centre": false
+    },
+    {
+     "type": "button",
+     "name": "DamageNumbersToggle",
+     "colour": "slot",
+     "size": [
+      0,
+      480,
+      0,
+      116
+     ],
+     "corner": 8,
+     "font": "LuckiestGuy",
+     "textStroke": 3,
+     "textScale": 0.3793,
+     "pos": [
+      0.5,
+      0,
+      0.5,
+      184
+     ],
+     "anchor": [
+      0.5,
+      0.5
+     ],
+     "children": [
+      {
+       "type": "frame",
+       "name": "Box",
+       "size": [
+        0,
+        56,
+        0,
+        56
+       ],
+       "pos": [
+        0,
+        20,
+        0.5,
+        0
+       ],
+       "anchor": [
+        0,
+        0.5
+       ],
+       "colour": "dark",
+       "corner": 8
+      },
+      {
+       "type": "icon",
+       "name": "Check",
+       "icon": "IconCheck",
+       "size": [
+        0,
+        44,
+        0,
+        44
+       ],
+       "pos": [
+        0,
+        26,
+        0.5,
+        0
+       ],
+       "anchor": [
+        0,
+        0.5
+       ],
+       "overhang": true
+      },
+      {
+       "type": "label",
+       "name": "Label",
+       "text": "Damage numbers",
+       "size": [
+        0,
+        360,
+        0,
+        116
+       ],
+       "textColour": "ink",
+       "align": "left",
+       "textScale": 0.2759,
+       "pos": [
+        0,
+        96,
+        0,
+        0
+       ],
+       "textStroke": 0
+      }
+     ],
+     "centre": false
+    },
+    {
+     "type": "button",
+     "name": "LeaveButton",
+     "colour": "banish",
+     "size": [
+      0,
+      480,
+      0,
+      116
+     ],
+     "corner": 8,
+     "font": "LuckiestGuy",
+     "textStroke": 3,
+     "textScale": 0.3966,
+     "text": "LEAVE RUN",
+     "pos": [
+      0.5,
+      0,
+      0.5,
+      328
+     ],
+     "anchor": [
+      0.5,
+      0.5
+     ],
+     "centre": false
+    }
+   ],
+   "modal": true,
+   "alpha": 0.5,
+   "corner": 0,
+   "outline": false,
+   "visible": false,
+   "mockShow": true
+  }
+ ]
+}

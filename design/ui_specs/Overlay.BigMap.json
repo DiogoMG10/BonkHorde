@@ -1,0 +1,503 @@
+{
+ "name": "Overlay.BigMap",
+ "theme": "../ui_theme.json",
+ "resolution": [
+  1920,
+  1080
+ ],
+ "kind": "page",
+ "screenGui": "Overlay",
+ "displayOrder": 50,
+ "children": [
+  {
+   "type": "frame",
+   "name": "BigMap",
+   "size": [
+    0,
+    760,
+    0,
+    760
+   ],
+   "pos": [
+    0,
+    20,
+    0.5,
+    50
+   ],
+   "anchor": [
+    0,
+    0.5
+   ],
+   "colour": [
+    "#101815",
+    "#0A0F0D"
+   ],
+   "children": [
+    {
+     "type": "frame",
+     "name": "Dots",
+     "size": [
+      1,
+      -12,
+      1,
+      -12
+     ],
+     "pos": [
+      0.5,
+      0,
+      0.5,
+      0
+     ],
+     "anchor": [
+      0.5,
+      0.5
+     ],
+     "transparent": true,
+     "clips": true
+    },
+    {
+     "type": "icon",
+     "name": "PlayerArrow",
+     "icon": "IconArrowPlayer",
+     "size": [
+      0,
+      36,
+      0,
+      36
+     ],
+     "pos": [
+      0.5,
+      0,
+      0.5,
+      0
+     ],
+     "anchor": [
+      0.5,
+      0.5
+     ],
+     "overhang": true
+    },
+    {
+     "type": "label",
+     "name": "N",
+     "text": "N",
+     "size": [
+      0,
+      44,
+      0,
+      44
+     ],
+     "textColour": "ink",
+     "align": "center",
+     "textScale": 0.8182,
+     "pos": [
+      0.5,
+      0,
+      0,
+      0
+     ],
+     "anchor": [
+      0.5,
+      0.5
+     ],
+     "font": "LuckiestGuy",
+     "textStroke": 3,
+     "overhang": true
+    },
+    {
+     "type": "label",
+     "name": "E",
+     "text": "E",
+     "size": [
+      0,
+      44,
+      0,
+      44
+     ],
+     "textColour": "ink",
+     "align": "center",
+     "textScale": 0.8182,
+     "pos": [
+      1,
+      0,
+      0.5,
+      0
+     ],
+     "anchor": [
+      0.5,
+      0.5
+     ],
+     "font": "LuckiestGuy",
+     "textStroke": 3,
+     "overhang": true
+    },
+    {
+     "type": "label",
+     "name": "S",
+     "text": "S",
+     "size": [
+      0,
+      44,
+      0,
+      44
+     ],
+     "textColour": "ink",
+     "align": "center",
+     "textScale": 0.8182,
+     "pos": [
+      0.5,
+      0,
+      1,
+      0
+     ],
+     "anchor": [
+      0.5,
+      0.5
+     ],
+     "font": "LuckiestGuy",
+     "textStroke": 3,
+     "overhang": true
+    },
+    {
+     "type": "label",
+     "name": "W",
+     "text": "W",
+     "size": [
+      0,
+      44,
+      0,
+      44
+     ],
+     "textColour": "ink",
+     "align": "center",
+     "textScale": 0.8182,
+     "pos": [
+      0,
+      0,
+      0.5,
+      0
+     ],
+     "anchor": [
+      0.5,
+      0.5
+     ],
+     "font": "LuckiestGuy",
+     "textStroke": 3,
+     "overhang": true
+    },
+    {
+     "type": "frame",
+     "name": "Legend",
+     "size": [
+      0,
+      188,
+      0,
+      236
+     ],
+     "pos": [
+      0,
+      24,
+      1,
+      -34
+     ],
+     "anchor": [
+      0,
+      1
+     ],
+     "colour": "panel",
+     "children": [
+      {
+       "type": "frame",
+       "name": "LegendItem",
+       "size": [
+        0,
+        164,
+        0,
+        36
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "icon",
+         "name": "Icon",
+         "icon": "IconMapChest",
+         "size": [
+          0,
+          28,
+          0,
+          28
+         ],
+         "pos": [
+          0,
+          0,
+          0.5,
+          0
+         ],
+         "anchor": [
+          0,
+          0.5
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Text",
+         "text": "Chest",
+         "size": [
+          0,
+          128,
+          0,
+          36
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.8333,
+         "pos": [
+          0,
+          36,
+          0,
+          0
+         ],
+         "textStroke": 0
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "LegendItem",
+       "size": [
+        0,
+        164,
+        0,
+        36
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "icon",
+         "name": "Icon",
+         "icon": "IconMapShrine",
+         "size": [
+          0,
+          28,
+          0,
+          28
+         ],
+         "pos": [
+          0,
+          0,
+          0.5,
+          0
+         ],
+         "anchor": [
+          0,
+          0.5
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Text",
+         "text": "Shrine",
+         "size": [
+          0,
+          128,
+          0,
+          36
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.8333,
+         "pos": [
+          0,
+          36,
+          0,
+          0
+         ],
+         "textStroke": 0
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "LegendItem",
+       "size": [
+        0,
+        164,
+        0,
+        36
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "icon",
+         "name": "Icon",
+         "icon": "IconMapBoss",
+         "size": [
+          0,
+          28,
+          0,
+          28
+         ],
+         "pos": [
+          0,
+          0,
+          0.5,
+          0
+         ],
+         "anchor": [
+          0,
+          0.5
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Text",
+         "text": "Boss",
+         "size": [
+          0,
+          128,
+          0,
+          36
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.8333,
+         "pos": [
+          0,
+          36,
+          0,
+          0
+         ],
+         "textStroke": 0
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "LegendItem",
+       "size": [
+        0,
+        164,
+        0,
+        36
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "icon",
+         "name": "Icon",
+         "icon": "IconMapVendor",
+         "size": [
+          0,
+          28,
+          0,
+          28
+         ],
+         "pos": [
+          0,
+          0,
+          0.5,
+          0
+         ],
+         "anchor": [
+          0,
+          0.5
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Text",
+         "text": "Vendor",
+         "size": [
+          0,
+          128,
+          0,
+          36
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.8333,
+         "pos": [
+          0,
+          36,
+          0,
+          0
+         ],
+         "textStroke": 0
+        }
+       ]
+      },
+      {
+       "type": "frame",
+       "name": "LegendItem",
+       "size": [
+        0,
+        164,
+        0,
+        36
+       ],
+       "transparent": true,
+       "children": [
+        {
+         "type": "icon",
+         "name": "Icon",
+         "icon": "IconMapTeammate",
+         "size": [
+          0,
+          28,
+          0,
+          28
+         ],
+         "pos": [
+          0,
+          0,
+          0.5,
+          0
+         ],
+         "anchor": [
+          0,
+          0.5
+         ]
+        },
+        {
+         "type": "label",
+         "name": "Text",
+         "text": "Squad",
+         "size": [
+          0,
+          128,
+          0,
+          36
+         ],
+         "textColour": "inkSoft",
+         "align": "left",
+         "textScale": 0.8333,
+         "pos": [
+          0,
+          36,
+          0,
+          0
+         ],
+         "textStroke": 0
+        }
+       ]
+      }
+     ],
+     "corner": 8,
+     "alpha": 0.15,
+     "overhang": true,
+     "padding": 12,
+     "layout": {
+      "type": "list",
+      "dir": "y",
+      "gap": 8,
+      "align": "start"
+     }
+    }
+   ],
+   "corner": 12,
+   "visible": false,
+   "mockShow": true,
+   "centre": false
+  }
+ ]
+}

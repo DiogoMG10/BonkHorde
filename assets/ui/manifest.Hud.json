@@ -1,0 +1,978 @@
+{
+ "screenGui": "Hud",
+ "displayOrder": 10,
+ "model": "src/ui/Hud.model.json",
+ "note": "Sample children (LoadoutSlot, QuestLine, Teammate, MapDot, ItemSlot, MiniBar) repeat; the code clones the first. Icon keys on samples are placeholders the code overwrites.",
+ "elements": [
+  {
+   "path": "Hud.XPBar",
+   "name": "XPBar",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.XPBar.Fill",
+   "name": "Fill",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.XPBar.Rainbow",
+   "name": "Rainbow",
+   "class": "Frame",
+   "visible": false
+  },
+  {
+   "path": "Hud.RunClock",
+   "name": "RunClock",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.RunClock.Icon",
+   "name": "Icon",
+   "class": "ImageLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.SilverCount",
+   "name": "SilverCount",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.SilverCount.Icon",
+   "name": "Icon",
+   "class": "ImageLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.GoldCount",
+   "name": "GoldCount",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.GoldCount.Icon",
+   "name": "Icon",
+   "class": "ImageLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.KillCount",
+   "name": "KillCount",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.KillCount.Icon",
+   "name": "Icon",
+   "class": "ImageLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.StageTimer",
+   "name": "StageTimer",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.DifficultyPill",
+   "name": "DifficultyPill",
+   "class": "Frame",
+   "visible": false
+  },
+  {
+   "path": "Hud.DifficultyPill.TierName",
+   "name": "TierName",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.DifficultyPill.TierMult",
+   "name": "TierMult",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.DifficultyPill.TierMult.Icon",
+   "name": "Icon",
+   "class": "ImageLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.NextChest",
+   "name": "NextChest",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.NextChest.Icon",
+   "name": "Icon",
+   "class": "ImageLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.NextChest.Price",
+   "name": "Price",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.LevelLabel",
+   "name": "LevelLabel",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.ShieldBar",
+   "name": "ShieldBar",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.ShieldBar.Fill",
+   "name": "Fill",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.ShieldBar.Text",
+   "name": "Text",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.HPBar",
+   "name": "HPBar",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.HPBar.Fill",
+   "name": "Fill",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.HPBar.Text",
+   "name": "Text",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.WeaponRow",
+   "name": "WeaponRow",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.WeaponRow.LoadoutSlot",
+   "name": "LoadoutSlot",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.WeaponRow.LoadoutSlot.Tile",
+   "name": "Tile",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.WeaponRow.LoadoutSlot.Icon",
+   "name": "Icon",
+   "class": "ImageLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.WeaponRow.LoadoutSlot.Level",
+   "name": "Level",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.WeaponRow.LoadoutSlot",
+   "name": "LoadoutSlot",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.WeaponRow.LoadoutSlot.Tile",
+   "name": "Tile",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.WeaponRow.LoadoutSlot.Icon",
+   "name": "Icon",
+   "class": "ImageLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.WeaponRow.LoadoutSlot.Level",
+   "name": "Level",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.WeaponRow.LoadoutSlot",
+   "name": "LoadoutSlot",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.WeaponRow.LoadoutSlot.Tile",
+   "name": "Tile",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.WeaponRow.LoadoutSlot.Icon",
+   "name": "Icon",
+   "class": "ImageLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.WeaponRow.LoadoutSlot.Level",
+   "name": "Level",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.TomeRow",
+   "name": "TomeRow",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.TomeRow.LoadoutSlot",
+   "name": "LoadoutSlot",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.TomeRow.LoadoutSlot.Tile",
+   "name": "Tile",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.TomeRow.LoadoutSlot.Icon",
+   "name": "Icon",
+   "class": "ImageLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.TomeRow.LoadoutSlot.Level",
+   "name": "Level",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.TomeRow.LoadoutSlot",
+   "name": "LoadoutSlot",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.TomeRow.LoadoutSlot.Tile",
+   "name": "Tile",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.TomeRow.LoadoutSlot.Icon",
+   "name": "Icon",
+   "class": "ImageLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.TomeRow.LoadoutSlot.Level",
+   "name": "Level",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.QuestTracker",
+   "name": "QuestTracker",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.QuestTracker.QuestLine",
+   "name": "QuestLine",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.QuestTracker.QuestLine.Box",
+   "name": "Box",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.QuestTracker.QuestLine.Check",
+   "name": "Check",
+   "class": "ImageLabel",
+   "visible": false
+  },
+  {
+   "path": "Hud.QuestTracker.QuestLine.Text",
+   "name": "Text",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.QuestTracker.QuestLine",
+   "name": "QuestLine",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.QuestTracker.QuestLine.Box",
+   "name": "Box",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.QuestTracker.QuestLine.Check",
+   "name": "Check",
+   "class": "ImageLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.QuestTracker.QuestLine.Text",
+   "name": "Text",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.TeammateBars",
+   "name": "TeammateBars",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.TeammateBars.Teammate",
+   "name": "Teammate",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.TeammateBars.Teammate.Portrait",
+   "name": "Portrait",
+   "class": "ImageLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.TeammateBars.Teammate.Name",
+   "name": "Name",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.TeammateBars.Teammate.HPBack",
+   "name": "HPBack",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.TeammateBars.Teammate.HPBack.HPFill",
+   "name": "HPFill",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.TeammateBars.Teammate.DownedTag",
+   "name": "DownedTag",
+   "class": "TextLabel",
+   "visible": false
+  },
+  {
+   "path": "Hud.TeammateBars.Teammate",
+   "name": "Teammate",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.TeammateBars.Teammate.Portrait",
+   "name": "Portrait",
+   "class": "ImageLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.TeammateBars.Teammate.Name",
+   "name": "Name",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.TeammateBars.Teammate.HPBack",
+   "name": "HPBack",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.TeammateBars.Teammate.HPBack.HPFill",
+   "name": "HPFill",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.TeammateBars.Teammate.DownedTag",
+   "name": "DownedTag",
+   "class": "TextLabel",
+   "visible": false
+  },
+  {
+   "path": "Hud.TeammateBars.Teammate",
+   "name": "Teammate",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.TeammateBars.Teammate.Portrait",
+   "name": "Portrait",
+   "class": "ImageLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.TeammateBars.Teammate.Name",
+   "name": "Name",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.TeammateBars.Teammate.HPBack",
+   "name": "HPBack",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.TeammateBars.Teammate.HPBack.HPFill",
+   "name": "HPFill",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.TeammateBars.Teammate.DownedTag",
+   "name": "DownedTag",
+   "class": "TextLabel",
+   "visible": false
+  },
+  {
+   "path": "Hud.Minimap",
+   "name": "Minimap",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.Minimap.Ring",
+   "name": "Ring",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.Minimap.Field",
+   "name": "Field",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.Minimap.Dots",
+   "name": "Dots",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.Minimap.Dots.MapDot",
+   "name": "MapDot",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.Minimap.Dots.MapDot",
+   "name": "MapDot",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.Minimap.Dots.MapDot",
+   "name": "MapDot",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.Minimap.PlayerArrow",
+   "name": "PlayerArrow",
+   "class": "ImageLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.Minimap.N",
+   "name": "N",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.Minimap.E",
+   "name": "E",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.Minimap.S",
+   "name": "S",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.Minimap.W",
+   "name": "W",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.ItemStrip",
+   "name": "ItemStrip",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.ItemStrip.ItemSlot",
+   "name": "ItemSlot",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.ItemStrip.ItemSlot.Icon",
+   "name": "Icon",
+   "class": "ImageLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.ItemStrip.ItemSlot.Count",
+   "name": "Count",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.ItemStrip.ItemSlot",
+   "name": "ItemSlot",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.ItemStrip.ItemSlot.Icon",
+   "name": "Icon",
+   "class": "ImageLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.ItemStrip.ItemSlot.Count",
+   "name": "Count",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.ItemStrip.ItemSlot",
+   "name": "ItemSlot",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.ItemStrip.ItemSlot.Icon",
+   "name": "Icon",
+   "class": "ImageLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.ItemStrip.ItemSlot.Count",
+   "name": "Count",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.BossBars",
+   "name": "BossBars",
+   "class": "Frame",
+   "visible": false
+  },
+  {
+   "path": "Hud.BossBars.Minis",
+   "name": "Minis",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.BossBars.Minis.MiniBar",
+   "name": "MiniBar",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.BossBars.Minis.MiniBar.Name",
+   "name": "Name",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.BossBars.Minis.MiniBar.Back",
+   "name": "Back",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.BossBars.Minis.MiniBar.Back.Fill",
+   "name": "Fill",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.BossBars.Minis.MiniBar.Text",
+   "name": "Text",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.BossBars.Minis.MiniBar",
+   "name": "MiniBar",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.BossBars.Minis.MiniBar.Name",
+   "name": "Name",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.BossBars.Minis.MiniBar.Back",
+   "name": "Back",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.BossBars.Minis.MiniBar.Back.Fill",
+   "name": "Fill",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.BossBars.Minis.MiniBar.Text",
+   "name": "Text",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.BossBars.Minis.MiniBar",
+   "name": "MiniBar",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.BossBars.Minis.MiniBar.Name",
+   "name": "Name",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.BossBars.Minis.MiniBar.Back",
+   "name": "Back",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.BossBars.Minis.MiniBar.Back.Fill",
+   "name": "Fill",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.BossBars.Minis.MiniBar.Text",
+   "name": "Text",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.BossBars.Main",
+   "name": "Main",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.BossBars.Main.Name",
+   "name": "Name",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.BossBars.Main.Back",
+   "name": "Back",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.BossBars.Main.Back.Fill",
+   "name": "Fill",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.BossBars.Main.Text",
+   "name": "Text",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.InteractPrompt",
+   "name": "InteractPrompt",
+   "class": "Frame",
+   "visible": false
+  },
+  {
+   "path": "Hud.InteractPrompt.KeyCap",
+   "name": "KeyCap",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.InteractPrompt.Key",
+   "name": "Key",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.InteractPrompt.Text",
+   "name": "Text",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.Banner",
+   "name": "Banner",
+   "class": "Frame",
+   "visible": false
+  },
+  {
+   "path": "Hud.Banner.BannerText",
+   "name": "BannerText",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.Banner.BannerSub",
+   "name": "BannerSub",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.StageTitle",
+   "name": "StageTitle",
+   "class": "Frame",
+   "visible": false
+  },
+  {
+   "path": "Hud.StageTitle.TierLabel",
+   "name": "TierLabel",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.StageTitle.RuleTop",
+   "name": "RuleTop",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.StageTitle.StageName",
+   "name": "StageName",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.StageTitle.RuleBottom",
+   "name": "RuleBottom",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.StageTitle.StageJoke",
+   "name": "StageJoke",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.Letterbox",
+   "name": "Letterbox",
+   "class": "Frame",
+   "visible": false
+  },
+  {
+   "path": "Hud.Letterbox.Top",
+   "name": "Top",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.Letterbox.Bottom",
+   "name": "Bottom",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.Toast",
+   "name": "Toast",
+   "class": "Frame",
+   "visible": false
+  },
+  {
+   "path": "Hud.Toast.ToastPortrait",
+   "name": "ToastPortrait",
+   "class": "ImageLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.Toast.ToastTitle",
+   "name": "ToastTitle",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.Toast.ToastText",
+   "name": "ToastText",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.Toast.Rivet",
+   "name": "Rivet",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.Toast.Rivet",
+   "name": "Rivet",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.Toast.Rivet",
+   "name": "Rivet",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.Toast.Rivet",
+   "name": "Rivet",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.PickupToast",
+   "name": "PickupToast",
+   "class": "TextLabel",
+   "visible": false
+  },
+  {
+   "path": "Hud.DownedOverlay",
+   "name": "DownedOverlay",
+   "class": "Frame",
+   "visible": false
+  },
+  {
+   "path": "Hud.DownedOverlay.DownedLabel",
+   "name": "DownedLabel",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.DownedOverlay.ReviveBack",
+   "name": "ReviveBack",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.DownedOverlay.ReviveBack.ReviveFill",
+   "name": "ReviveFill",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.DownedOverlay.SpectateName",
+   "name": "SpectateName",
+   "class": "TextLabel",
+   "visible": true
+  },
+  {
+   "path": "Hud.HurtFlash",
+   "name": "HurtFlash",
+   "class": "Frame",
+   "visible": true
+  },
+  {
+   "path": "Hud.LevelUpText",
+   "name": "LevelUpText",
+   "class": "TextLabel",
+   "visible": false
+  }
+ ],
+ "icons": {
+  "IconArrowPlayer": [
+   "Hud.Minimap.PlayerArrow"
+  ],
+  "IconBoomernana": [
+   "Hud.WeaponRow.LoadoutSlot.Icon"
+  ],
+  "IconCheck": [
+   "Hud.QuestTracker.QuestLine.Check"
+  ],
+  "IconChest": [
+   "Hud.NextChest.Icon"
+  ],
+  "IconClock": [
+   "Hud.RunClock.Icon"
+  ],
+  "IconGold": [
+   "Hud.GoldCount.Icon"
+  ],
+  "IconItemLuckyClover": [
+   "Hud.ItemStrip.ItemSlot.Icon"
+  ],
+  "IconItemStinkyCheese": [
+   "Hud.ItemStrip.ItemSlot.Icon"
+  ],
+  "IconItemZoomSocks": [
+   "Hud.ItemStrip.ItemSlot.Icon"
+  ],
+  "IconLightningStaff": [
+   "Hud.WeaponRow.LoadoutSlot.Icon"
+  ],
+  "IconSilver": [
+   "Hud.DifficultyPill.TierMult.Icon",
+   "Hud.SilverCount.Icon"
+  ],
+  "IconSkull": [
+   "Hud.KillCount.Icon",
+   "Hud.Toast.ToastPortrait"
+  ],
+  "IconSword": [
+   "Hud.WeaponRow.LoadoutSlot.Icon"
+  ],
+  "IconTomeAgility": [
+   "Hud.TomeRow.LoadoutSlot.Icon"
+  ],
+  "IconTomeDamage": [
+   "Hud.TomeRow.LoadoutSlot.Icon"
+  ],
+  "PortraitFox": [
+   "Hud.TeammateBars.Teammate.Portrait"
+  ],
+  "PortraitFrostling": [
+   "Hud.TeammateBars.Teammate.Portrait"
+  ],
+  "PortraitKnight": [
+   "Hud.TeammateBars.Teammate.Portrait"
+  ]
+ }
+}

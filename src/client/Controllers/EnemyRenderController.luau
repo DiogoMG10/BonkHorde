@@ -25,6 +25,8 @@ local EnemyRenderController = Knit.CreateController({ Name = "EnemyRenderControl
 local SNAP_INTERVAL = 1 / GameConfig.SnapshotHz
 local LIMB_SWING = { ArmL = 1, ArmR = -1, LegL = -1, LegR = 1 }
 local MAX_NUMBERS = 60
+-- enemy types whose model is not simply "Enemy" .. type
+local MODEL_NAME = { BoulderBro = "EnemyRockGolem", Hamlet = "EnemyHogBrute", OldManTimber = "BossOldManTimber" }
 
 function EnemyRenderController:KnitInit()
 	self._active = {} -- slot -> visual state
@@ -78,13 +80,15 @@ function EnemyRenderController:_build(typeName: string, elite: boolean)
 	local def = Roster.Enemies[typeName]
 	local scale = if elite then GameConfig.EliteScale else 1
 	local assets = ReplicatedStorage:FindFirstChild("Assets")
-	local source = assets and assets:FindFirstChild("Enemies") and assets.Enemies:FindFirstChild(typeName)
+	local modelName = MODEL_NAME[typeName] or ("Enemy" .. typeName)
+	local source = assets and assets:FindFirstChild("Enemies") and assets.Enemies:FindFirstChild(modelName)
 	local model: Model
 	if source and source:IsA("Model") then
 		model = source:Clone()
-		if scale ~= 1 then
-			model:ScaleTo(model:GetScale() * scale)
-		end
+		-- fit the model to the height the roster gives this enemy, so one mesh can serve two sizes
+		local _, size = model:GetBoundingBox()
+		local fit = if size.Y > 0.1 then def.height / size.Y else 1
+		model:ScaleTo(fit * scale)
 	else
 		model = placeholder(def, scale)
 	end

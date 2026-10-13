@@ -83,6 +83,18 @@ function DebugUiController:KnitStart()
 	gui.DisplayOrder = 5
 	gui.Parent = player:WaitForChild("PlayerGui")
 
+	-- Until the real screens are wired, keep them out of the way of this one.
+	if not player.PlayerGui:GetAttribute("BonkRealUi") then
+		for _, name in { "Hud", "Choices", "Menu", "EndScreens", "Overlay" } do
+			task.spawn(function()
+				local screen = player.PlayerGui:WaitForChild(name, 10)
+				if screen and screen:IsA("ScreenGui") then
+					screen.Enabled = false
+				end
+			end)
+		end
+	end
+
 	local hud = label(gui, { Name = "Hud", Position = UDim2.fromOffset(16, 46), Size = UDim2.fromOffset(520, 520), RichText = true })
 	local timer = label(gui, {
 		Name = "Timer",

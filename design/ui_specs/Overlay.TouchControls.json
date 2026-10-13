@@ -1,0 +1,136 @@
+{
+ "name": "Overlay.TouchControls",
+ "theme": "../ui_theme.json",
+ "resolution": [
+  1920,
+  1080
+ ],
+ "kind": "page",
+ "screenGui": "Overlay",
+ "displayOrder": 50,
+ "children": [
+  {
+   "type": "frame",
+   "name": "TouchControls",
+   "size": [
+    1,
+    0,
+    1,
+    0
+   ],
+   "transparent": true,
+   "children": [
+    {
+     "type": "button",
+     "name": "JumpButton",
+     "colour": "grey",
+     "size": [
+      0,
+      140,
+      0,
+      140
+     ],
+     "corner": 0.5,
+     "font": "LuckiestGuy",
+     "textStroke": 3,
+     "textScale": 0.2714,
+     "text": "JUMP",
+     "pos": [
+      1,
+      -70,
+      1,
+      -70
+     ],
+     "anchor": [
+      1,
+      1
+     ],
+     "alpha": 0.25
+    },
+    {
+     "type": "button",
+     "name": "SlideButton",
+     "colour": "grey",
+     "size": [
+      0,
+      132,
+      0,
+      132
+     ],
+     "corner": 0.5,
+     "font": "LuckiestGuy",
+     "textStroke": 3,
+     "textScale": 0.2576,
+     "text": "SLIDE",
+     "pos": [
+      1,
+      -234,
+      1,
+      -50
+     ],
+     "anchor": [
+      1,
+      1
+     ],
+     "alpha": 0.25
+    },
+    {
+     "type": "button",
+     "name": "InteractButton",
+     "colour": "grey",
+     "size": [
+      0,
+      132,
+      0,
+      132
+     ],
+     "corner": 0.5,
+     "font": "LuckiestGuy",
+     "textStroke": 3,
+     "textScale": 0.2879,
+     "text": "USE",
+     "pos": [
+      1,
+      -54,
+      1,
+      -234
+     ],
+     "anchor": [
+      1,
+      1
+     ],
+     "alpha": 0.25
+    },
+    {
+     "type": "button",
+     "name": "TabButton",
+     "colour": "grey",
+     "size": [
+      0,
+      116,
+      0,
+      116
+     ],
+     "corner": 0.5,
+     "font": "LuckiestGuy",
+     "textStroke": 3,
+     "textScale": 0.2931,
+     "text": "MAP",
+     "pos": [
+      1,
+      -30,
+      0,
+      380
+     ],
+     "anchor": [
+      1,
+      0
+     ],
+     "alpha": 0.25
+    }
+   ],
+   "visible": false,
+   "mockShow": true
+  }
+ ]
+}
