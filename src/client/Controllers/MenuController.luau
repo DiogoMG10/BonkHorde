@@ -478,6 +478,37 @@ function MenuController:_hideEnd()
 	self._camera:SetUiOpen("results", false)
 end
 
+-- The fallen hero, slumped in the middle of the death screen, lit from above.
+function MenuController:_deathHero(viewport: Instance?)
+	if not viewport or not viewport:IsA("ViewportFrame") then
+		return
+	end
+	viewport:ClearAllChildren()
+	local heroId = Roster.HeroOrder[1]
+	for _, entry in self._state.roster.players do
+		if entry.userId == Players.LocalPlayer.UserId then
+			heroId = entry.hero
+		end
+	end
+	local assets = ReplicatedStorage:FindFirstChild("Assets")
+	local source = assets and assets:FindFirstChild("Heroes") and assets.Heroes:FindFirstChild("Hero" .. heroId)
+	if not source then
+		return
+	end
+	local model = source:Clone()
+	-- slumped forward and sunk a little, as if on one knee
+	model:PivotTo(CFrame.new(0, -0.6, 0) * CFrame.Angles(math.rad(-24), math.rad(18), 0))
+	model.Parent = viewport
+	local camera = Instance.new("Camera")
+	camera.FieldOfView = 34
+	camera.CFrame = CFrame.lookAt(Vector3.new(0, 1.2, -13), Vector3.new(0, -0.2, 0))
+	camera.Parent = viewport
+	viewport.CurrentCamera = camera
+	viewport.Ambient = Color3.fromRGB(70, 80, 95)
+	viewport.LightColor = Color3.fromRGB(235, 240, 255)
+	viewport.LightDirection = Vector3.new(0.2, -1, 0.5)
+end
+
 function MenuController:_showDeath()
 	local r = self._r
 	local data = self._results
@@ -486,6 +517,9 @@ function MenuController:_showDeath()
 	UiKit.show(r.results, false)
 	UiKit.show(r.death, true)
 	UiKit.focus(r.deathConfirm)
+	UiKit.safe("death hero", function()
+		self:_deathHero(UiKit.find(r.death, "HeroViewport"))
+	end)
 	local stamp = os.clock()
 	self._resultsStamp = stamp
 	task.delay(DEATH_SECONDS, function()

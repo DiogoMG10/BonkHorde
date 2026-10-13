@@ -27,3 +27,6 @@
 {"kind": "end", "stage": "animation", "status": "fell-back", "ts": "2026-10-13T08:12:16+01:00"}
 {"kind": "end", "stage": "vfx", "status": "fell-back", "ts": "2026-10-13T08:12:16+01:00"}
 {"kind": "end", "stage": "sfx", "status": "ok", "ts": "2026-10-13T08:12:17+01:00"}
+{"kind": "start", "stage": "assembly-playtest", "ts": "2026-10-13T08:24:58+01:00"}
+{"kind": "note", "stage": "assembly-playtest", "note": "Multiplayer handed over UNTESTED: no tool can start a second client. Listed in HANDOVER.md.", "ts": "2026-10-13T08:24:58+01:00"}
+{"kind": "end", "stage": "assembly-playtest", "status": "partial", "ts": "2026-10-13T08:24:58+01:00"}

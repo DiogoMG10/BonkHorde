@@ -18698,7 +18698,8 @@
             1.0
            ]
           },
-          "TextXAlignment": "Left"
+          "TextXAlignment": "Left",
+          "TextWrapped": false
          },
          "children": [
           {
