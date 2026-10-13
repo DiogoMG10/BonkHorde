@@ -55,7 +55,7 @@ function InteractableService:KnitStart()
 		if dx * dx + dz * dz > (GameConfig.InteractRange + 4) ^ 2 then
 			return -- too far: the client asked for something it cannot reach
 		end
-		self:_interact(rec, it, os.clock())
+		self:_interact(rec, it, self._director:Now())
 	end)
 
 	Net.server("PanelChoice").OnServerEvent:Connect(function(player: Player, id: unknown, action: unknown, index: unknown)

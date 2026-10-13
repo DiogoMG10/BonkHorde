@@ -110,6 +110,15 @@ function BossService:_strike(x: number, z: number, radius: number, delay: number
 	self._telegraph:FireAllClients(x, z, radius, delay, kind)
 end
 
+--- Called when a pause ends. The warning for a strike that was already on its
+--- way played out on screen during the pause, so draw it again with the
+--- gameplay time the strike still has left.
+function BossService:Resync(now: number)
+	for _, s in self._pending do
+		self._telegraph:FireAllClients(s.x, s.z, s.r, math.max(s.at - now, 0.05), s.kind)
+	end
+end
+
 function BossService:_throwThorn(x: number, z: number, dx: number, dz: number, damage: number)
 	local id = self._nextThorn
 	self._nextThorn = if id >= 65000 then 61000 else id + 1

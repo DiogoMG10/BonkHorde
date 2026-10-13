@@ -14,6 +14,7 @@ local Net = require(ReplicatedStorage.Shared.Net)
 local Progress = require(ReplicatedStorage.Shared.Core.Progress)
 local Roster = require(ReplicatedStorage.Shared.Config.Roster)
 local RunState = require(ReplicatedStorage.Shared.Core.RunState)
+local SimClock = require(ReplicatedStorage.Shared.Core.SimClock)
 local Spawn = require(ReplicatedStorage.Shared.Core.Spawn)
 
 local RunDirectorService = Knit.CreateService({ Name = "RunDirectorService" })
@@ -38,6 +39,9 @@ function RunDirectorService:KnitInit()
 	self._exitAt = nil
 	self._phaseUntil = nil
 	self._accum = 0
+	-- gameplay time: every simulation timestamp is taken from this, never from
+	-- os.clock(), so nothing comes due while the run is paused
+	self._sim = SimClock.new()
 	self._clockSentAt = 0
 	self._phaseEvent = Net.server("Phase")
 	self._clockEvent = Net.server("Clock")
@@ -108,6 +112,12 @@ function RunDirectorService:IsPaused(): boolean
 	return self._paused
 end
 
+--- Gameplay time in seconds. Anything that acts outside the simulation tick
+--- (a remote, a signal, a dev hook) stamps with this, not with os.clock().
+function RunDirectorService:Now(): number
+	return SimClock.now(self._sim)
+end
+
 -- ------------------------------------------------------------------ events from other services
 
 function RunDirectorService:SetPause(reason: string, on: boolean)
@@ -117,6 +127,10 @@ function RunDirectorService:SetPause(reason: string, on: boolean)
 		self._paused = paused
 		self._players:SetFrozen(paused)
 		self:_sendClock()
+		if not paused then
+			-- a warning drawn before the pause ran out on screen while the strike waited
+			self._bosses:Resync(self:Now())
+		end
 	end
 end
 
@@ -144,10 +158,10 @@ function RunDirectorService:PortalUsed(it)
 		self._bossSummoned = true
 		self._portalFound = true
 		self._interactables:SetState(it, "summoned")
-		self._bosses:SummonStage(it.x + 14, it.z, os.clock())
+		self._bosses:SummonStage(it.x + 14, it.z, self:Now())
 		self:_sendPhase(nil)
 	elseif self._bossDead and not self._exitAt then
-		self._exitAt = os.clock() + GameConfig.ExitCountdownSeconds
+		self._exitAt = self:Now() + GameConfig.ExitCountdownSeconds
 		self._banner:FireAllClients(`Leaving in {GameConfig.ExitCountdownSeconds}...`, "exit")
 	end
 end
@@ -370,7 +384,7 @@ function RunDirectorService:_frame(dt: number)
 	while self._accum >= STEP do
 		self._accum -= STEP
 		local t0 = os.clock()
-		self:_tick(STEP, now)
+		self:_tick(STEP, SimClock.advance(self._sim, STEP))
 		-- a running average of what one simulation tick costs, for the perf check
 		self._tickCost = (self._tickCost or 0) * 0.95 + (os.clock() - t0) * 0.05
 		if not RunState.isLive(self._phase) or self._paused then

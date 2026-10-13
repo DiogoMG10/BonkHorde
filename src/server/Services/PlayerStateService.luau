@@ -42,6 +42,7 @@ function PlayerStateService:KnitStart()
 	self._map = Knit.GetService("MapService")
 	self._enemies = Knit.GetService("EnemyService")
 	self._xp = Knit.GetService("XPService")
+	self._director = Knit.GetService("RunDirectorService")
 	Players.PlayerRemoving:Connect(function(player)
 		self:_remove(player)
 	end)
@@ -553,7 +554,7 @@ function PlayerStateService:Revive(rec)
 	end
 	rec.downed = false
 	rec.hp = math.max(1, rec.stats.MaxHP * GameConfig.ReviveHPFraction)
-	rec.invulnUntil = os.clock() + 2
+	rec.invulnUntil = self._director:Now() + 2
 	rec.dirty = true
 	self:_applyMovement(rec)
 	self.Revived:Fire(rec)
@@ -615,7 +616,8 @@ function PlayerStateService:Step(dt: number, now: number)
 			end
 		end
 	end
-	self:Flush(now)
+	-- the send throttle is real time: it also runs while the run is paused
+	self:Flush(os.clock())
 end
 
 --- Send dirty player state (at most 5 Hz) and the squad vitals (4 Hz).

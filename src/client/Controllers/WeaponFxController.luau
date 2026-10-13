@@ -324,6 +324,9 @@ function WeaponFxController:KnitStart()
 	end
 
 	RunService.RenderStepped:Connect(function(dt)
+		if state.paused then
+			return -- the server is not moving them either
+		end
 		for id, p in projs do
 			p.age += dt
 			if p.age > 8 or not p.part.Parent then

@@ -63,7 +63,7 @@ function DevService:KnitStart()
 	end
 	function commands.hurt(rec, n)
 		rec.invulnUntil = 0
-		players:Hurt(rec, tonumber(n) or 10, nil, os.clock())
+		players:Hurt(rec, tonumber(n) or 10, nil, director:Now())
 	end
 	function commands.killall(rec)
 		local out = {}
@@ -106,7 +106,7 @@ function DevService:KnitStart()
 		-- interact with the nearest interactable of a kind, as if E were pressed
 		for _, it in interactables._list do
 			if it.kind == kind and (it.x - rec.x) ^ 2 + (it.z - rec.z) ^ 2 < 15 * 15 then
-				interactables:_interact(rec, it, os.clock())
+				interactables:_interact(rec, it, director:Now())
 				print(`[Dev] used {kind} id {it.id}`)
 				return
 			end
@@ -126,7 +126,7 @@ function DevService:KnitStart()
 		end
 	end
 	function commands.mini(_, name)
-		bosses:SpawnMini(name or "BoulderBro", os.clock())
+		bosses:SpawnMini(name or "BoulderBro", director:Now())
 	end
 	function commands.bosshp(_, fraction)
 		for slot in bosses._bosses do
