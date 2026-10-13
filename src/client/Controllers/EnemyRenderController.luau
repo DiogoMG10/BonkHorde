@@ -97,15 +97,38 @@ function EnemyRenderController:_build(typeName: string, elite: boolean)
 		model = placeholder(def, scale)
 	end
 	if elite then
-		local crown = Instance.new("Part")
-		crown.Name = "Crown"
-		crown.Shape = Enum.PartType.Cylinder
-		crown.Size = Vector3.new(0.5, 1.4, 1.4)
-		crown.Color = Color3.fromRGB(255, 206, 50)
-		crown.Material = Enum.Material.Neon
 		local pivot = model:GetPivot()
-		crown.CFrame = pivot * CFrame.new(0, def.height * scale * 0.5 + 1.6, 0) * CFrame.Angles(0, 0, math.rad(90))
+		local above = pivot * CFrame.new(0, def.height * scale * 0.5 + 1.4, 0)
+		local crownSource = assets and assets:FindFirstChild("Pickups") and assets.Pickups:FindFirstChild("EliteCrown")
+		local body = crownSource and crownSource:FindFirstChild("Body")
+		local crown: BasePart
+		if body and body:IsA("BasePart") then
+			crown = body:Clone()
+			crown.Size *= 1.6
+			crown.CFrame = above
+		else
+			local fallback = Instance.new("Part")
+			fallback.Shape = Enum.PartType.Cylinder
+			fallback.Size = Vector3.new(0.5, 1.4, 1.4)
+			fallback.Color = Color3.fromRGB(255, 206, 50)
+			fallback.Material = Enum.Material.Neon
+			fallback.CFrame = above * CFrame.Angles(0, 0, math.rad(90))
+			crown = fallback
+		end
+		crown.Name = "Crown"
+		crown.Anchored = true
+		crown.CanCollide = false
+		crown.CanQuery = false
+		crown.CanTouch = false
+		crown.CastShadow = false
 		crown.Parent = model
+		pcall(Vfx.attach, "EliteGlint", crown)
+	end
+	if typeName == "Ghost" then
+		local body = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+		if body then
+			pcall(Vfx.attach, "GhostWisp", body)
+		end
 	end
 
 	local pivot = model:GetPivot()

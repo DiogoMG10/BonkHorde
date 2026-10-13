@@ -14,6 +14,7 @@ local RunService = game:GetService("RunService")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
 local Net = require(ReplicatedStorage.Shared.Net)
+local Vfx = require(script.Parent.Parent.Vfx)
 
 local HeroAnimController = Knit.CreateController({ Name = "HeroAnimController" })
 
@@ -218,6 +219,10 @@ function HeroAnimController:KnitStart()
 			humanoid.StateChanged:Connect(function(_old, new)
 				if new == Enum.HumanoidStateType.Landed then
 					self:Play(state:MyIndex(), "Land")
+					local root = model:FindFirstChild("HumanoidRootPart")
+					if root and root:IsA("BasePart") then
+						pcall(Vfx.burst, "DustPuff", root.Position - Vector3.new(0, 2.6, 0))
+					end
 				end
 			end)
 		end
@@ -232,6 +237,13 @@ function HeroAnimController:KnitStart()
 	RunService.Stepped:Connect(function()
 		local now = os.clock()
 		self._mySlot = state:MyIndex()
+		if self._movement and self._movement:IsSliding() and now - (self._dustAt or 0) > 0.1 then
+			self._dustAt = now
+			local root = state:Root()
+			if root then
+				pcall(Vfx.burst, "DustPuff", root.Position - Vector3.new(0, 2.6, 0), { count = 1 })
+			end
+		end
 		for _, member in state.roster.players do
 			local root = state:RootOfIndex(member.index)
 			local model = root and root.Parent

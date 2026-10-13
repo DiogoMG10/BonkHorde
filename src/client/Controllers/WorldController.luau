@@ -16,6 +16,7 @@ local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Roster = require(ReplicatedStorage.Shared.Config.Roster)
 local Signal = require(ReplicatedStorage.Packages.Signal)
+local Vfx = require(script.Parent.Parent.Vfx)
 
 local WorldController = Knit.CreateController({ Name = "WorldController" })
 
@@ -143,6 +144,13 @@ function WorldController:_add(data)
 		dome.Parent = model
 		entry.dome = dome
 	end
+	if data.kind == "BossPortal" then
+		-- a swirl in the arch, and red wind so the site reads from far away
+		pcall(function()
+			Vfx.place("PortalSwirl", CFrame.new(data.x, data.y + 6, data.z), 3, model)
+			entry.wind = Vfx.place("BossPortalWind", CFrame.new(data.x, data.y + 4, data.z), 18, model)
+		end)
+	end
 	self._items[data.id] = entry
 	self:_applyState(entry, data.state)
 end
@@ -158,6 +166,22 @@ end
 function WorldController:_applyState(entry, state: string, value)
 	local data = entry.data
 	data.state = state
+	if state == "used" and not data.used then
+		local at = Vector3.new(data.x, data.y + 0.4, data.z)
+		pcall(function()
+			if data.kind == "ChargeShrine" then
+				local colour = if entry.dome then entry.dome.Color else Color3.new(1, 1, 1)
+				Vfx.ground(at, "ring", colour, 3, GameConfig.ChargeShrineRadius * 1.3, 0.6)
+				Vfx.burst("ShrineCharged", at + Vector3.new(0, 3, 0), { tint = colour })
+			elseif data.kind == "Chest" then
+				Vfx.ground(at, "ring", Color3.fromRGB(255, 225, 90), 1, 9, 0.5)
+				Vfx.burst("LevelUpBurst", at + Vector3.new(0, 2, 0))
+				Vfx.burst("Confetti", at + Vector3.new(0, 3, 0), { count = 18 })
+			else
+				Vfx.ground(at, "ring_thin", Color3.fromRGB(255, 255, 255), 1, 8, 0.45)
+			end
+		end)
+	end
 	if state == "used" then
 		data.used = true
 		for _, d in entry.model:GetDescendants() do
@@ -187,8 +211,17 @@ function WorldController:_applyState(entry, state: string, value)
 		if entry.dome then
 			entry.dome.Transparency = 0.55
 		end
-	elseif data.kind == "BossPortal" and PORTAL_COLOURS[state] and not entry.model:GetAttribute("IsAsset") then
-		entry.main.Color = PORTAL_COLOURS[state]
+	elseif data.kind == "BossPortal" and PORTAL_COLOURS[state] then
+		if not entry.model:GetAttribute("IsAsset") and entry.main.Transparency < 1 then
+			entry.main.Color = PORTAL_COLOURS[state]
+		end
+		if state == "exit" and entry.wind then
+			entry.wind:Destroy() -- the danger is over; only the swirl stays
+			entry.wind = nil
+		end
+		if state == "summoned" or state == "exit" then
+			pcall(Vfx.ground, Vector3.new(data.x, data.y + 0.4, data.z), "ring", PORTAL_COLOURS[state], 2, 26, 0.8)
+		end
 		if entry.label then
 			entry.label.Text = if state == "exit" then "EXIT PORTAL" elseif state == "summoned" then "BOSS SUMMONED" else "BOSS PORTAL"
 		end
@@ -222,6 +255,9 @@ function WorldController:KnitStart()
 			local entry = self._items[id]
 			if not entry then
 				return
+			end
+			if state == "broken" then
+				pcall(Vfx.burst, "BreakPuff", Vector3.new(entry.data.x, entry.data.y + 1.5, entry.data.z))
 			end
 			if state == "gone" or state == "broken" then
 				self:_remove(id)

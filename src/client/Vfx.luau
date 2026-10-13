@@ -748,6 +748,18 @@ function Vfx.attach(name: string, part: BasePart): { ParticleEmitter }
 	return out
 end
 
+--- A continuous effect at a place in the world. Returns its invisible host part;
+--- destroy the part (or its parent) to stop it.
+function Vfx.place(name: string, cframe: CFrame, size: number, parent: Instance?): Part
+	local p = host(size)
+	p.CFrame = cframe
+	if parent then
+		p.Parent = parent
+	end
+	Vfx.attach(name, p)
+	return p
+end
+
 -- flat shapes: a SurfaceGui on a thin part, unlit so it stays bright at night
 local flats: { any } = {}
 

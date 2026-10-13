@@ -360,6 +360,18 @@ function WeaponFxController:KnitStart()
 		end
 	end)
 
+	-- slow red embers drifting through the forest, carried along with the camera
+	local embers = Vfx.place("Embers", CFrame.new(0, 20, 0), 110, folder)
+	task.spawn(function()
+		while embers.Parent do
+			local camera = Workspace.CurrentCamera
+			if camera then
+				embers.CFrame = CFrame.new(camera.CFrame.Position)
+			end
+			task.wait(0.5)
+		end
+	end)
+
 	state.Changed:Connect(function(key)
 		if key == "phase" and state.phase == "Lobby" then
 			for id, p in projs do

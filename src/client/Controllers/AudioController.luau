@@ -322,10 +322,8 @@ function AudioController:KnitStart()
 			return
 		elseif what == "broken" then
 			self:Play(if typeof(data) == "table" and data.kind == "Crate" then "crate_break" else "pot_break", 0.1)
-		elseif what == "portal" then
+		elseif what == "summoned" or what == "exit" then
 			self:Play("portal_open")
-		elseif what == "revived" then
-			self:Play("revive")
 		end
 	end)
 
