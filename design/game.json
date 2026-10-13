@@ -40,19 +40,19 @@
   },
   "ui": {
    "spec": "design/ui.json",
-   "status": "todo"
+   "status": "done"
   },
   "animation": {
    "spec": "design/animations.json",
-   "status": "todo"
+   "status": "done"
   },
   "vfx": {
    "spec": "design/vfx.json",
-   "status": "todo"
+   "status": "done"
   },
   "sfx": {
    "spec": "design/sfx.json",
-   "status": "todo"
+   "status": "done"
   }
  },
  "systems": [

@@ -30,6 +30,15 @@ function MovementController:KnitInit()
 	self._jumpsUsed = 0
 end
 
+-- the slide key, or the touch slide button (which the overlay reports on PlayerGui)
+function MovementController:_slideWanted(): boolean
+	if self._slideHeld then
+		return true
+	end
+	local gui = player:FindFirstChildOfClass("PlayerGui")
+	return gui ~= nil and gui:GetAttribute("BonkSlideHeld") == true
+end
+
 function MovementController:IsSliding(): boolean
 	return self._sliding
 end
@@ -104,7 +113,7 @@ function MovementController:_frame(dt: number)
 	local grounded = humanoid.FloorMaterial ~= Enum.Material.Air
 
 	if not self._sliding then
-		if self._slideHeld and grounded and flat.Magnitude > base * 0.5 then
+		if self:_slideWanted() and grounded and flat.Magnitude > base * 0.5 then
 			self._sliding = true
 			self._slideMult = GameConfig.SlideBoost
 			self._slideFor = 0
@@ -134,7 +143,7 @@ function MovementController:_frame(dt: number)
 	end
 	self._slideMult = math.clamp(self._slideMult, 0.5, GameConfig.SlideMaxMultiplier)
 
-	local done = (not self._slideHeld and self._slideFor >= GameConfig.SlideMinSeconds) or self._slideMult <= 0.8
+	local done = (not self:_slideWanted() and self._slideFor >= GameConfig.SlideMinSeconds) or self._slideMult <= 0.8
 	if done then
 		self._sliding = false
 		humanoid.WalkSpeed = base

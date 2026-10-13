@@ -1,0 +1,84 @@
+{
+ "rig": "R15",
+ "route": "No animation is uploaded: stock locomotion plus code-driven overlays, so the game needs no animation assets or quota. Fallback from authored Blender clips, logged in the ledger.",
+ "clips": [
+  {
+   "name": "Idle",
+   "route": "stock",
+   "how": "Roblox stock R15 Animate script (the hero model rides the avatar's limbs)",
+   "loop": true
+  },
+  {
+   "name": "Run",
+   "route": "stock",
+   "how": "Roblox stock R15 Animate script (the hero model rides the avatar's limbs)",
+   "loop": true
+  },
+  {
+   "name": "Jump",
+   "route": "stock",
+   "how": "Roblox stock R15 Animate script (the hero model rides the avatar's limbs)",
+   "loop": false
+  },
+  {
+   "name": "Fall",
+   "route": "stock",
+   "how": "Roblox stock R15 Animate script (the hero model rides the avatar's limbs)",
+   "loop": true
+  },
+  {
+   "name": "Land",
+   "route": "procedural",
+   "how": "procedural Motor6D.Transform overlay in src/client/Controllers/HeroAnimController.luau",
+   "loop": false
+  },
+  {
+   "name": "Slide",
+   "route": "procedural",
+   "how": "procedural Motor6D.Transform overlay in src/client/Controllers/HeroAnimController.luau",
+   "loop": true
+  },
+  {
+   "name": "AttackSwing",
+   "route": "procedural",
+   "how": "procedural Motor6D.Transform overlay in src/client/Controllers/HeroAnimController.luau",
+   "loop": false
+  },
+  {
+   "name": "AttackCast",
+   "route": "procedural",
+   "how": "procedural Motor6D.Transform overlay in src/client/Controllers/HeroAnimController.luau",
+   "loop": false
+  },
+  {
+   "name": "AttackThrow",
+   "route": "procedural",
+   "how": "procedural Motor6D.Transform overlay in src/client/Controllers/HeroAnimController.luau",
+   "loop": false
+  },
+  {
+   "name": "Downed",
+   "route": "procedural",
+   "how": "procedural Motor6D.Transform overlay in src/client/Controllers/HeroAnimController.luau",
+   "loop": true
+  },
+  {
+   "name": "Kneel",
+   "route": "procedural",
+   "how": "procedural: same joint pose as Downed in HeroAnimController",
+   "loop": true
+  },
+  {
+   "name": "Cheer",
+   "route": "procedural",
+   "how": "procedural Motor6D.Transform overlay in src/client/Controllers/HeroAnimController.luau",
+   "loop": false
+  },
+  {
+   "name": "PortalStep",
+   "route": "procedural",
+   "how": "procedural Motor6D.Transform overlay in src/client/Controllers/HeroAnimController.luau",
+   "loop": false
+  }
+ ]
+}

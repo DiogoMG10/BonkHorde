@@ -13,3 +13,17 @@
 {"kind": "note", "stage": null, "note": "Section 2 closed and continued without a stop: the user asked on 2026-10-12 for the whole game in one continuous run.", "ts": "2026-10-13T00:26:04+01:00"}
 {"kind": "start", "stage": "ui", "ts": "2026-10-13T00:27:58+01:00"}
 {"kind": "start", "stage": "3d-meshes", "ts": "2026-10-13T00:27:58+01:00"}
+{"kind": "note", "stage": "ui", "note": "Elapsed time includes a usage-limit pause of about four hours; the work itself was not stalled.", "ts": "2026-10-13T08:12:13+01:00"}
+{"kind": "end", "stage": "ui", "status": "ok", "ts": "2026-10-13T08:12:13+01:00"}
+{"kind": "end", "stage": "3d-meshes", "status": "ok", "ts": "2026-10-13T08:12:14+01:00"}
+{"kind": "start", "stage": "map", "ts": "2026-10-13T08:12:14+01:00"}
+{"kind": "end", "stage": "map", "status": "ok", "ts": "2026-10-13T08:12:14+01:00"}
+{"kind": "start", "stage": "animation", "ts": "2026-10-13T08:12:15+01:00"}
+{"kind": "start", "stage": "vfx", "ts": "2026-10-13T08:12:15+01:00"}
+{"kind": "start", "stage": "sfx", "ts": "2026-10-13T08:12:15+01:00"}
+{"kind": "fallback", "stage": "vfx", "note": "Harvest library empty and Creator Store search returned no usable cartoon pack: authored the kit from own textures (tools/vfx/make_textures.py) uploaded with Studio upload_image.", "ts": "2026-10-13T08:12:15+01:00"}
+{"kind": "fallback", "stage": "animation", "note": "No animation uploads: stock R15 locomotion plus code-driven joint overlays (HeroAnimController) instead of authored Blender clips.", "ts": "2026-10-13T08:12:16+01:00"}
+{"kind": "fallback", "stage": "ui", "note": "Icons uploaded with Studio upload_image in batches of 8 (larger batches time out) instead of Open Cloud with the user key.", "ts": "2026-10-13T08:12:16+01:00"}
+{"kind": "end", "stage": "animation", "status": "fell-back", "ts": "2026-10-13T08:12:16+01:00"}
+{"kind": "end", "stage": "vfx", "status": "fell-back", "ts": "2026-10-13T08:12:16+01:00"}
+{"kind": "end", "stage": "sfx", "status": "ok", "ts": "2026-10-13T08:12:17+01:00"}
