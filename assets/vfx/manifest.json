@@ -1,0 +1,283 @@
+{
+ "kit": "src/client/Vfx.luau",
+ "route": "authored: own textures drawn by tools/vfx/make_textures.py and uploaded with Studio upload_image; emitter values written for this game (the harvest library was empty and Creator Store search returned no usable cartoon pack)",
+ "textures": {
+  "beam": {
+   "asset": "rbxassetid://114031481080589",
+   "file": "assets/vfx/tex/beam.png"
+  },
+  "bolt": {
+   "asset": "rbxassetid://104447010833774",
+   "file": "assets/vfx/tex/bolt.png"
+  },
+  "burst": {
+   "asset": "rbxassetid://87765611716980",
+   "file": "assets/vfx/tex/burst.png"
+  },
+  "confetti": {
+   "asset": "rbxassetid://76386719894460",
+   "file": "assets/vfx/tex/confetti.png"
+  },
+  "crescent": {
+   "asset": "rbxassetid://134627825287974",
+   "file": "assets/vfx/tex/crescent.png"
+  },
+  "dot": {
+   "asset": "rbxassetid://93327830389071",
+   "file": "assets/vfx/tex/dot.png"
+  },
+  "glow": {
+   "asset": "rbxassetid://101511447930755",
+   "file": "assets/vfx/tex/glow.png"
+  },
+  "leaf": {
+   "asset": "rbxassetid://120432521175251",
+   "file": "assets/vfx/tex/leaf.png"
+  },
+  "plus": {
+   "asset": "rbxassetid://104512335820545",
+   "file": "assets/vfx/tex/plus.png"
+  },
+  "puff": {
+   "asset": "rbxassetid://103341265199303",
+   "file": "assets/vfx/tex/puff.png"
+  },
+  "ring": {
+   "asset": "rbxassetid://93877420201685",
+   "file": "assets/vfx/tex/ring.png"
+  },
+  "ring_thin": {
+   "asset": "rbxassetid://136208787434277",
+   "file": "assets/vfx/tex/ring_thin.png"
+  },
+  "shard": {
+   "asset": "rbxassetid://96787596936523",
+   "file": "assets/vfx/tex/shard.png"
+  },
+  "star4": {
+   "asset": "rbxassetid://138729166738433",
+   "file": "assets/vfx/tex/star4.png"
+  },
+  "star5": {
+   "asset": "rbxassetid://104390310820076",
+   "file": "assets/vfx/tex/star5.png"
+  },
+  "streak": {
+   "asset": "rbxassetid://105801032795942",
+   "file": "assets/vfx/tex/streak.png"
+  },
+  "swirl": {
+   "asset": "rbxassetid://110730811881184",
+   "file": "assets/vfx/tex/swirl.png"
+  }
+ },
+ "presets": [
+  "BossPortalWind",
+  "BreakPuff",
+  "Confetti",
+  "CritBurst",
+  "DeathPoof",
+  "DustPuff",
+  "EliteGlint",
+  "Embers",
+  "FireExplosion",
+  "FireTrail",
+  "FreezeShatter",
+  "FrenzyAura",
+  "FrenzyFlare",
+  "FrostSparkle",
+  "GhostWisp",
+  "HealPlus",
+  "HitSpark",
+  "LevelUpBurst",
+  "LightningImpact",
+  "MagnetPull",
+  "MirrorBurst",
+  "NightBurst",
+  "PaleTrail",
+  "PoisonBubbles",
+  "PortalSwirl",
+  "RocketExplosion",
+  "RocketTrail",
+  "RootBurst",
+  "ShrineCharged",
+  "ThornTrail"
+ ],
+ "effects": [
+  {
+   "name": "SwordSlash",
+   "status": "wired",
+   "how": "WeaponFx Effects.Slash: two crescent ground shapes swept over the arc"
+  },
+  {
+   "name": "FireballTrail",
+   "status": "wired",
+   "how": "Vfx.attach FireTrail on the fireball projectile"
+  },
+  {
+   "name": "FireballExplosion",
+   "status": "wired",
+   "how": "Vfx.burst FireExplosion + ground ring"
+  },
+  {
+   "name": "FrostRingGround",
+   "status": "wired",
+   "how": "Effects.Frost: ring, thin ring, glow, FrostSparkle"
+  },
+  {
+   "name": "FreezeShatter",
+   "status": "wired",
+   "how": "preset FreezeShatter (kit only, not yet fired)"
+  },
+  {
+   "name": "LightningBolt",
+   "status": "wired",
+   "how": "Vfx.bolt x2 from the sky"
+  },
+  {
+   "name": "LightningImpact",
+   "status": "wired",
+   "how": "Vfx.burst LightningImpact + ground ring"
+  },
+  {
+   "name": "ProjectileTrailPale",
+   "status": "wired",
+   "how": "Vfx.attach PaleTrail on bone, boomernana and axe"
+  },
+  {
+   "name": "AxeSpin",
+   "status": "wired",
+   "how": "axe mesh orbiting a spinning thin ring"
+  },
+  {
+   "name": "RocketTrail",
+   "status": "wired",
+   "how": "Vfx.attach RocketTrail on the rocket mesh"
+  },
+  {
+   "name": "RocketExplosion",
+   "status": "wired",
+   "how": "Vfx.burst RocketExplosion + ground ring"
+  },
+  {
+   "name": "HitSpark",
+   "status": "wired",
+   "how": "EnemyRender Hits: Vfx.burst HitSpark, 6 per frame at most"
+  },
+  {
+   "name": "CritBurst",
+   "status": "wired",
+   "how": "EnemyRender Hits: Vfx.burst CritBurst on crit flags"
+  },
+  {
+   "name": "EnemyDeathPoof",
+   "status": "wired",
+   "how": "EnemyRender EnemyGone (killed): Vfx.burst DeathPoof"
+  },
+  {
+   "name": "PickupGlint",
+   "status": "kit",
+   "how": "preset or world effect still to be wired in section 4/5"
+  },
+  {
+   "name": "MagnetPull",
+   "status": "wired",
+   "how": "Effects.Pickup Magnet"
+  },
+  {
+   "name": "HealPlus",
+   "status": "wired",
+   "how": "Effects.Pickup Snack"
+  },
+  {
+   "name": "FrenzyAura",
+   "status": "wired",
+   "how": "Effects.Pickup Frenzy: flare + aura for FrenzySeconds"
+  },
+  {
+   "name": "PoisonCloud",
+   "status": "kit",
+   "how": "preset or world effect still to be wired in section 4/5"
+  },
+  {
+   "name": "DustPuff",
+   "status": "kit",
+   "how": "preset or world effect still to be wired in section 4/5"
+  },
+  {
+   "name": "PortalSwirl",
+   "status": "kit",
+   "how": "preset or world effect still to be wired in section 4/5"
+  },
+  {
+   "name": "BossPortalWind",
+   "status": "kit",
+   "how": "preset or world effect still to be wired in section 4/5"
+  },
+  {
+   "name": "ShrineDome",
+   "status": "kit",
+   "how": "preset or world effect still to be wired in section 4/5"
+  },
+  {
+   "name": "ShrineChargedBurst",
+   "status": "kit",
+   "how": "preset or world effect still to be wired in section 4/5"
+  },
+  {
+   "name": "ChestBeam",
+   "status": "kit",
+   "how": "preset or world effect still to be wired in section 4/5"
+  },
+  {
+   "name": "BreakPuff",
+   "status": "kit",
+   "how": "preset or world effect still to be wired in section 4/5"
+  },
+  {
+   "name": "BossTelegraphDome",
+   "status": "wired",
+   "how": "Telegraph: red rim + growing fill, then RootBurst"
+  },
+  {
+   "name": "BossShockwave",
+   "status": "kit",
+   "how": "preset or world effect still to be wired in section 4/5"
+  },
+  {
+   "name": "RootEruption",
+   "status": "wired",
+   "how": "RootBurst at telegraph end"
+  },
+  {
+   "name": "ThornVolley",
+   "status": "wired",
+   "how": "Vfx.attach ThornTrail on thorn projectiles"
+  },
+  {
+   "name": "EliteCrownGlow",
+   "status": "kit",
+   "how": "preset or world effect still to be wired in section 4/5"
+  },
+  {
+   "name": "GhostTrail",
+   "status": "kit",
+   "how": "preset or world effect still to be wired in section 4/5"
+  },
+  {
+   "name": "ReviveRing",
+   "status": "kit",
+   "how": "preset or world effect still to be wired in section 4/5"
+  },
+  {
+   "name": "LevelUpBurst",
+   "status": "wired",
+   "how": "Effects.LevelUp: two rings + LevelUpBurst"
+  },
+  {
+   "name": "AmbientEmbers",
+   "status": "kit",
+   "how": "preset or world effect still to be wired in section 4/5"
+  }
+ ]
+}

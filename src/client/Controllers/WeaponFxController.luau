@@ -7,24 +7,48 @@
 -- flash and never a dead client. The VFX stage swaps these shapes for real
 -- effects by replacing entries in the `Effects` table.
 
-local Debris = game:GetService("Debris")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
+local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
+local Vfx = require(script.Parent.Parent.Vfx)
 local Net = require(ReplicatedStorage.Shared.Net)
 
 local WeaponFxController = Knit.CreateController({ Name = "WeaponFxController" })
 
 local P_FIREBALL, P_BONE, P_NANA, P_ROCKET, P_THORN = 1, 2, 3, 4, 5
 local PROJ_LOOK = {
-	[P_FIREBALL] = { colour = Color3.fromRGB(255, 130, 30), size = Vector3.new(2.2, 2.2, 2.2), shape = Enum.PartType.Ball, neon = true },
-	[P_BONE] = { colour = Color3.fromRGB(240, 235, 215), size = Vector3.new(0.7, 2.6, 0.7), spin = 14 },
-	[P_NANA] = { colour = Color3.fromRGB(255, 220, 50), size = Vector3.new(0.9, 3.4, 0.9), spin = 18 },
-	[P_ROCKET] = { colour = Color3.fromRGB(255, 90, 170), size = Vector3.new(0.9, 0.9, 2.6), neon = true },
-	[P_THORN] = { colour = Color3.fromRGB(40, 110, 40), size = Vector3.new(0.6, 0.6, 3), neon = false },
+	[P_FIREBALL] = {
+		colour = Color3.fromRGB(255, 160, 40),
+		size = Vector3.new(2, 2, 2),
+		shape = Enum.PartType.Ball,
+		neon = true,
+		trail = "FireTrail",
+	},
+	[P_BONE] = {
+		colour = Color3.fromRGB(240, 235, 215),
+		size = Vector3.new(0.7, 2.6, 0.7),
+		spin = 14,
+		model = "WeaponBone",
+		trail = "PaleTrail",
+	},
+	[P_NANA] = {
+		colour = Color3.fromRGB(255, 220, 50),
+		size = Vector3.new(0.9, 3.4, 0.9),
+		spin = 18,
+		model = "WeaponBoomernana",
+		trail = "PaleTrail",
+	},
+	[P_ROCKET] = {
+		colour = Color3.fromRGB(255, 90, 170),
+		size = Vector3.new(0.9, 0.9, 2.6),
+		neon = true,
+		model = "WeaponRocket",
+		trail = "RocketTrail",
+	},
+	[P_THORN] = { colour = Color3.fromRGB(40, 110, 40), size = Vector3.new(0.6, 0.6, 3), neon = false, trail = "ThornTrail" },
 }
 
 local folder: Folder
@@ -45,23 +69,21 @@ local function part(size: Vector3, colour: Color3, cframe: CFrame, transparency:
 	return p
 end
 
-local function fade(p: BasePart, seconds: number, goal: { [string]: any }?)
-	local props = goal or {}
-	props.Transparency = 1
-	TweenService:Create(p, TweenInfo.new(seconds, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), props):Play()
-	Debris:AddItem(p, seconds + 0.05)
-end
-
--- a flat disc on the ground
-local function disc(x: number, y: number, z: number, radius: number, colour: Color3, transparency: number): Part
-	local p = part(
-		Vector3.new(0.3, radius * 2, radius * 2),
-		colour,
-		CFrame.new(x, y + 0.4, z) * CFrame.Angles(0, 0, math.rad(90)),
-		transparency,
-		true
-	)
-	p.Shape = Enum.PartType.Cylinder
+-- the mesh of a weapon from the asset pack, as one loose anchored part
+local function model(name: string): BasePart?
+	local assets = ReplicatedStorage:FindFirstChild("Assets")
+	local source = assets and assets:FindFirstChild("Weapons") and assets.Weapons:FindFirstChild(name)
+	local body = source and source:FindFirstChild("Body")
+	if not (body and body:IsA("BasePart")) then
+		return nil
+	end
+	local p = body:Clone()
+	p.Anchored = true
+	p.CanCollide = false
+	p.CanQuery = false
+	p.CanTouch = false
+	p.CastShadow = false
+	p.Parent = folder
 	return p
 end
 
@@ -80,12 +102,21 @@ function WeaponFxController:KnitStart()
 	local Effects = self.Effects
 
 	function Effects.Slash(_index, x, y, z, dx, dz, range, arcDeg)
-		-- a thin wedge-ish slab swept in front of the hero
-		local width = 2 * range * math.sin(math.rad(arcDeg / 2))
-		local centre = Vector3.new(x + dx * range * 0.55, y, z + dz * range * 0.55)
-		local cf = CFrame.lookAt(centre, centre + Vector3.new(dx, 0, dz))
-		local p = part(Vector3.new(width, 0.35, range * 0.9), Color3.fromRGB(210, 235, 255), cf, 0.25, true)
-		fade(p, 0.18, { Size = Vector3.new(width * 1.15, 0.2, range) })
+		-- a crescent swoosh swept across the arc in front of the hero
+		local yaw = math.atan2(-dx, -dz)
+		local sweep = math.clamp(arcDeg, 60, 200)
+		local at = Vector3.new(x, y + 0.6, z)
+		local turn = yaw + math.rad(45 + sweep / 2)
+		Vfx.ground(at, "crescent", Color3.fromRGB(215, 240, 255), range * 0.75, range * 1.08, 0.2, { yaw = turn, spin = sweep, hold = 0.5, alpha = 0.15 })
+		Vfx.ground(
+			at - Vector3.new(0, 0.15, 0),
+			"crescent",
+			Color3.fromRGB(120, 190, 255),
+			range * 0.7,
+			range * 1.15,
+			0.26,
+			{ yaw = turn, spin = sweep * 0.8, alpha = 0.45, hold = 0.3 }
+		)
 	end
 
 	function Effects.Frost(index, radius, seconds)
@@ -94,41 +125,53 @@ function WeaponFxController:KnitStart()
 			return
 		end
 		local pos = root.Position
-		local ground = state:HeightAt(pos.X, pos.Z)
-		local p = disc(pos.X, ground, pos.Z, radius * 0.6, Color3.fromRGB(120, 225, 255), 0.45)
-		fade(p, math.max(seconds, 0.3), { Size = Vector3.new(0.3, radius * 2, radius * 2) })
+		local at = Vector3.new(pos.X, state:HeightAt(pos.X, pos.Z) + 0.35, pos.Z)
+		local life = math.max(seconds, 0.35)
+		Vfx.ground(at, "ring", Color3.fromRGB(120, 230, 255), radius * 0.5, radius, life, { alpha = 0.1 })
+		Vfx.ground(at, "ring_thin", Color3.fromRGB(220, 250, 255), radius * 0.2, radius * 0.8, life, { alpha = 0.2, spin = 40 })
+		Vfx.ground(at, "glow", Color3.fromRGB(90, 200, 255), radius * 0.8, radius, life, { alpha = 0.7 })
+		Vfx.burst("FrostSparkle", at + Vector3.new(0, 1, 0))
 	end
 
 	function Effects.Bolt(x, z, radius)
 		local ground = state:HeightAt(x, z)
-		local bolt = part(
-			Vector3.new(0.9, 70, 0.9),
-			Color3.fromRGB(255, 255, 255),
-			CFrame.new(x, ground + 35, z) * CFrame.Angles(0, 0, math.rad(math.random(-6, 6))),
-			0,
-			true
-		)
-		fade(bolt, 0.14)
-		local ring = disc(x, ground, z, radius, Color3.fromRGB(200, 230, 255), 0.4)
-		fade(ring, 0.25)
+		local at = Vector3.new(x, ground + 0.4, z)
+		Vfx.bolt(at + Vector3.new(math.random(-8, 8), 80, math.random(-8, 8)), at, Color3.fromRGB(255, 255, 255), 9, 0.13)
+		Vfx.bolt(at + Vector3.new(math.random(-8, 8), 80, math.random(-8, 8)), at, Color3.fromRGB(150, 225, 255), 14, 0.1)
+		Vfx.ground(at, "ring", Color3.fromRGB(200, 240, 255), radius * 0.3, radius, 0.28)
+		Vfx.burst("LightningImpact", at + Vector3.new(0, 1.2, 0))
 	end
 
 	function Effects.Burst(x, _y, z, radius, style)
 		local ground = state:HeightAt(x, z)
-		local colour = if style == "night"
-			then Color3.fromRGB(255, 245, 180)
-			elseif style == "mirror" then Color3.fromRGB(190, 230, 255)
-			else Color3.fromRGB(255, 150, 40)
-		local p = part(Vector3.new(2, 2, 2), colour, CFrame.new(x, ground + 2, z), 0.35, true)
-		p.Shape = Enum.PartType.Ball
-		fade(p, 0.3, { Size = Vector3.new(radius * 2, radius * 2, radius * 2) })
+		local at = Vector3.new(x, ground + 2, z)
+		local name, colour = "FireExplosion", Color3.fromRGB(255, 170, 60)
+		if style == "night" then
+			name, colour = "NightBurst", Color3.fromRGB(255, 245, 180)
+		elseif style == "mirror" then
+			name, colour = "MirrorBurst", Color3.fromRGB(190, 230, 255)
+		elseif style == "rocket" then
+			name, colour = "RocketExplosion", Color3.fromRGB(255, 140, 200)
+		end
+		Vfx.burst(name, at)
+		Vfx.ground(Vector3.new(x, ground + 0.35, z), "ring", colour, radius * 0.25, radius, 0.32)
 	end
 
 	function Effects.Axe(_index, fromX, fromZ, toX, toZ, radius, duration)
 		local fromY = state:HeightAt(fromX, fromZ) + 3
 		local toY = state:HeightAt(toX, toZ) + 2.5
-		local axe = part(Vector3.new(0.5, 3.4, 2), Color3.fromRGB(190, 195, 205), CFrame.new(fromX, fromY, fromZ))
-		local ring = disc(toX, toY - 2.5, toZ, radius, Color3.fromRGB(200, 205, 215), 0.78)
+		local axe = model("WeaponAxe") or part(Vector3.new(0.5, 3.4, 2), Color3.fromRGB(190, 195, 205), CFrame.new(fromX, fromY, fromZ))
+		axe.Size *= 1.5
+		Vfx.attach("PaleTrail", axe)
+		Vfx.ground(
+			Vector3.new(toX, toY - 2.1, toZ),
+			"ring_thin",
+			Color3.fromRGB(215, 220, 230),
+			radius,
+			radius,
+			duration + 0.35,
+			{ alpha = 0.35, spin = 360 * duration, hold = 0.9 }
+		)
 		local born = os.clock()
 		local conn
 		conn = RunService.RenderStepped:Connect(function()
@@ -136,7 +179,6 @@ function WeaponFxController:KnitStart()
 			if age >= duration + 0.35 or not axe.Parent then
 				conn:Disconnect()
 				axe:Destroy()
-				ring:Destroy()
 				return
 			end
 			local travel = math.clamp(age / 0.35, 0, 1)
@@ -147,7 +189,7 @@ function WeaponFxController:KnitStart()
 				local a = age * 7
 				pos = Vector3.new(toX + math.cos(a) * radius * 0.6, toY, toZ + math.sin(a) * radius * 0.6)
 			end
-			axe.CFrame = CFrame.new(pos) * CFrame.Angles(age * 16, 0, 0)
+			axe.CFrame = CFrame.new(pos) * CFrame.Angles(0, age * 18, math.rad(90))
 		end)
 	end
 
@@ -156,13 +198,33 @@ function WeaponFxController:KnitStart()
 			local root = state:RootOfIndex(entry.index)
 			if root then
 				local ground = state:HeightAt(root.Position.X, root.Position.Z)
-				local ring = disc(root.Position.X, ground, root.Position.Z, 3, Color3.fromRGB(255, 220, 70), 0.3)
-				fade(ring, 0.6, { Size = Vector3.new(0.3, 22, 22) })
+				local at = Vector3.new(root.Position.X, ground + 0.35, root.Position.Z)
+				Vfx.ground(at, "ring", Color3.fromRGB(255, 220, 70), 2, 12, 0.6)
+				Vfx.ground(at, "ring_thin", Color3.fromRGB(255, 245, 170), 1, 16, 0.75, { alpha = 0.2 })
+				Vfx.burst("LevelUpBurst", at + Vector3.new(0, 1.5, 0))
 			end
 		end
 	end
 
-	function Effects.Pickup(_index, _name) end -- the HUD announces powerups; nothing in the world yet
+	function Effects.Pickup(index, name)
+		local root = state:RootOfIndex(index)
+		if not root then
+			return
+		end
+		if name == "Magnet" then
+			Vfx.burst("MagnetPull", root.Position)
+		elseif name == "Snack" then
+			Vfx.burst("HealPlus", root.Position)
+		elseif name == "Frenzy" then
+			Vfx.burst("FrenzyFlare", root.Position)
+			local aura = Vfx.attach("FrenzyAura", root)
+			task.delay(GameConfig.FrenzySeconds, function()
+				for _, e in aura do
+					e:Destroy()
+				end
+			end)
+		end
+	end
 
 	local fx = Net.client("Fx")
 	if fx then
@@ -183,15 +245,13 @@ function WeaponFxController:KnitStart()
 		telegraph.OnClientEvent:Connect(function(x, z, radius, delay, _kind)
 			local ok, err = pcall(function()
 				local ground = state:HeightAt(x, z)
-				local outer = disc(x, ground, z, radius, Color3.fromRGB(255, 40, 40), 0.75)
-				local inner = disc(x, ground + 0.1, z, 0.5, Color3.fromRGB(255, 60, 60), 0.45)
-				TweenService
-					:Create(inner, TweenInfo.new(delay, Enum.EasingStyle.Linear), { Size = Vector3.new(0.3, radius * 2, radius * 2) })
-					:Play()
+				local at = Vector3.new(x, ground + 0.4, z)
+				-- the rim shows where it lands, the fill grows to meet it as the hit arrives
+				Vfx.ground(at, "ring", Color3.fromRGB(255, 50, 50), radius, radius, delay + 0.05, { alpha = 0.1, hold = 0.95 })
+				Vfx.ground(at, "dot", Color3.fromRGB(255, 60, 60), 0.5, radius * 0.94, delay + 0.05, { alpha = 0.55, hold = 0.95 })
 				task.delay(delay, function()
-					outer:Destroy()
-					inner.Transparency = 0.1
-					fade(inner, 0.25)
+					Vfx.ground(at, "ring_thin", Color3.fromRGB(255, 200, 190), radius * 0.6, radius * 1.5, 0.3)
+					Vfx.burst("RootBurst", at + Vector3.new(0, 1, 0))
 				end)
 			end)
 			if not ok then
@@ -210,9 +270,13 @@ function WeaponFxController:KnitStart()
 				if not look then
 					return
 				end
-				local p = part(look.size, look.colour, CFrame.new(x, state:HeightAt(x, z) + 3, z), 0, look.neon)
-				if look.shape then
+				local p = (look.model and model(look.model))
+					or part(look.size, look.colour, CFrame.new(x, state:HeightAt(x, z) + 3, z), 0, look.neon)
+				if look.shape and p:IsA("Part") then
 					p.Shape = look.shape
+				end
+				if look.trail then
+					Vfx.attach(look.trail, p)
 				end
 				projs[id] = {
 					part = p,
@@ -245,7 +309,7 @@ function WeaponFxController:KnitStart()
 				end
 				local x, z, boom = a1, a2, a3
 				if boom and boom > 0 then
-					pcall(Effects.Burst, x, 0, z, boom, "fire")
+					pcall(Effects.Burst, x, 0, z, boom, if p and p.kind == P_ROCKET then "rocket" else "fire")
 				end
 			end
 		end)

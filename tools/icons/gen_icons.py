@@ -38,7 +38,7 @@ def full_prompt(cfg, it):
     if it["mode"] == "thumb":
         return cfg["thumb_style"].format(subject=it["subject"]), cfg["thumb_negative"]
     p = cfg["style"].format(subject=it["subject"], bgname=BGNAMES[it["bg"]])
-    neg = cfg["negative"]
+    neg = cfg["negative_v1"] if it.get("v") == 1 else cfg["negative"]
     if it.get("neg"):
         neg = it["neg"] + ", " + neg
     return p, neg

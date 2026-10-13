@@ -18,3 +18,11 @@ generated IconSword seed 1101 in 43s
 keyed IconSword {'bg': [235, 96, 163], 'coverage': 0.07339668273925781, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]}   <-- CHECK
 generated IconFireStaff seed 1102 in 52s
 keyed IconFireStaff {'bg': [232, 64, 139], 'coverage': 0.1660165786743164, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconFrostRing seed 1103 in 40s
+keyed IconFrostRing {'bg': [124, 62, 127], 'coverage': 0.3495206832885742, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconLightningStaff seed 1104 in 36s
+keyed IconLightningStaff {'bg': [234, 138, 185], 'coverage': 0.07084369659423828, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]}   <-- CHECK
+generated IconBone seed 1105 in 38s
+keyed IconBone {'bg': [230, 95, 178], 'coverage': 0.10982990264892578, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]}   <-- CHECK
+generated IconBoomernana seed 1106 in 39s
+keyed IconBoomernana {'bg': [215, 50, 152], 'coverage': 0.127044677734375, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 

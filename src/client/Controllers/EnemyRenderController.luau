@@ -15,10 +15,13 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
+local Vfx = require(script.Parent.Parent.Vfx)
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Roster = require(ReplicatedStorage.Shared.Config.Roster)
 local Snapshot = require(ReplicatedStorage.Shared.Core.Snapshot)
+
+local GONE_KILLED = 1 -- matches EnemyService
 
 local EnemyRenderController = Knit.CreateController({ Name = "EnemyRenderController" })
 
@@ -29,6 +32,7 @@ local MAX_NUMBERS = 60
 local MODEL_NAME = { BoulderBro = "EnemyRockGolem", Hamlet = "EnemyHogBrute", OldManTimber = "BossOldManTimber" }
 
 function EnemyRenderController:KnitInit()
+	self._sparkBudget = 6
 	self._active = {} -- slot -> visual state
 	self._pool = {} -- key -> { visual }
 	self._parts = {}
@@ -292,6 +296,9 @@ function EnemyRenderController:KnitStart()
 			local slot = buffer.readu16(b, i * 3)
 			local e = self._active[slot]
 			if e then
+				if buffer.readu8(b, i * 3 + 2) == GONE_KILLED and e.x then
+					pcall(Vfx.burst, "DeathPoof", Vector3.new(e.x, e.y + e.height * 0.5, e.z))
+				end
 				self:_release(e.visual)
 				self._active[slot] = nil
 			end
@@ -306,7 +313,14 @@ function EnemyRenderController:KnitStart()
 			local e = self._active[slot]
 			if e and e.x then
 				e.flashUntil = now + 0.09
-				self:_number(Vector3.new(e.x, e.y + e.height, e.z), buffer.readu16(b, o + 2), buffer.readu8(b, o + 4))
+				local flags = buffer.readu8(b, o + 4)
+				self:_number(Vector3.new(e.x, e.y + e.height, e.z), buffer.readu16(b, o + 2), flags)
+				-- every hit sparks; the budget keeps a 300-enemy frost tick from flooding the screen
+				if self._sparkBudget > 0 then
+					self._sparkBudget -= 1
+					local at = Vector3.new(e.x, e.y + e.height * 0.6, e.z)
+					pcall(Vfx.burst, if bit32.band(flags, 3) > 0 then "CritBurst" else "HitSpark", at)
+				end
 			end
 		end
 	end)
@@ -323,6 +337,7 @@ function EnemyRenderController:KnitStart()
 end
 
 function EnemyRenderController:_frame(dt: number)
+	self._sparkBudget = 6
 	local now = os.clock()
 	local state = self._state
 	local parts, cframes = self._parts, self._cframes
