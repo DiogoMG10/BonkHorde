@@ -495,7 +495,8 @@
       },
       "ZIndex": 0,
       "BackgroundTransparency": 1,
-      "ScaleType": "Fit"
+      "ScaleType": "Fit",
+      "Image": "rbxassetid://108715038463926"
      },
      "attributes": {
       "IconName": "IconClock"
@@ -617,7 +618,8 @@
       },
       "ZIndex": 0,
       "BackgroundTransparency": 1,
-      "ScaleType": "Fit"
+      "ScaleType": "Fit",
+      "Image": "rbxassetid://120698284478658"
      },
      "attributes": {
       "IconName": "IconSilver"
@@ -739,7 +741,8 @@
       },
       "ZIndex": 0,
       "BackgroundTransparency": 1,
-      "ScaleType": "Fit"
+      "ScaleType": "Fit",
+      "Image": "rbxassetid://85947511924781"
      },
      "attributes": {
       "IconName": "IconGold"
@@ -861,7 +864,8 @@
       },
       "ZIndex": 0,
       "BackgroundTransparency": 1,
-      "ScaleType": "Fit"
+      "ScaleType": "Fit",
+      "Image": "rbxassetid://100036258340539"
      },
      "attributes": {
       "IconName": "IconSkull"
@@ -1244,7 +1248,8 @@
         },
         "ZIndex": 0,
         "BackgroundTransparency": 1,
-        "ScaleType": "Fit"
+        "ScaleType": "Fit",
+        "Image": "rbxassetid://120698284478658"
        },
        "attributes": {
         "IconName": "IconSilver"
@@ -1328,7 +1333,8 @@
       },
       "ZIndex": 0,
       "BackgroundTransparency": 1,
-      "ScaleType": "Fit"
+      "ScaleType": "Fit",
+      "Image": "rbxassetid://98325407272190"
      },
      "attributes": {
       "IconName": "IconChest"
@@ -2265,7 +2271,8 @@
         },
         "ZIndex": 1,
         "BackgroundTransparency": 1,
-        "ScaleType": "Fit"
+        "ScaleType": "Fit",
+        "Image": "rbxassetid://80866047531072"
        },
        "attributes": {
         "IconName": "IconSword"
@@ -2530,7 +2537,8 @@
         },
         "ZIndex": 1,
         "BackgroundTransparency": 1,
-        "ScaleType": "Fit"
+        "ScaleType": "Fit",
+        "Image": "rbxassetid://70816421098869"
        },
        "attributes": {
         "IconName": "IconLightningStaff"
@@ -2795,7 +2803,8 @@
         },
         "ZIndex": 1,
         "BackgroundTransparency": 1,
-        "ScaleType": "Fit"
+        "ScaleType": "Fit",
+        "Image": "rbxassetid://128514697792788"
        },
        "attributes": {
         "IconName": "IconBoomernana"
@@ -3116,7 +3125,8 @@
         },
         "ZIndex": 1,
         "BackgroundTransparency": 1,
-        "ScaleType": "Fit"
+        "ScaleType": "Fit",
+        "Image": "rbxassetid://91289892362739"
        },
        "attributes": {
         "IconName": "IconTomeDamage"
@@ -3381,7 +3391,8 @@
         },
         "ZIndex": 1,
         "BackgroundTransparency": 1,
-        "ScaleType": "Fit"
+        "ScaleType": "Fit",
+        "Image": "rbxassetid://131046204359082"
        },
        "attributes": {
         "IconName": "IconTomeAgility"
@@ -3765,7 +3776,8 @@
         "ZIndex": 2,
         "Visible": false,
         "BackgroundTransparency": 1,
-        "ScaleType": "Fit"
+        "ScaleType": "Fit",
+        "Image": "rbxassetid://106107883413409"
        },
        "attributes": {
         "IconName": "IconCheck"
@@ -4092,7 +4104,8 @@
         },
         "ZIndex": 2,
         "BackgroundTransparency": 1,
-        "ScaleType": "Fit"
+        "ScaleType": "Fit",
+        "Image": "rbxassetid://106107883413409"
        },
        "attributes": {
         "IconName": "IconCheck"
@@ -4311,7 +4324,8 @@
         },
         "ZIndex": 0,
         "BackgroundTransparency": 1,
-        "ScaleType": "Fit"
+        "ScaleType": "Fit",
+        "Image": "rbxassetid://77082805777113"
        },
        "attributes": {
         "IconName": "PortraitFox"
@@ -4744,7 +4758,8 @@
         },
         "ZIndex": 0,
         "BackgroundTransparency": 1,
-        "ScaleType": "Fit"
+        "ScaleType": "Fit",
+        "Image": "rbxassetid://92293233429599"
        },
        "attributes": {
         "IconName": "PortraitFrostling"
@@ -5177,7 +5192,8 @@
         },
         "ZIndex": 0,
         "BackgroundTransparency": 1,
-        "ScaleType": "Fit"
+        "ScaleType": "Fit",
+        "Image": "rbxassetid://95074487909614"
        },
        "attributes": {
         "IconName": "PortraitKnight"
@@ -6114,7 +6130,8 @@
       },
       "ZIndex": 3,
       "BackgroundTransparency": 1,
-      "ScaleType": "Fit"
+      "ScaleType": "Fit",
+      "Image": "rbxassetid://132600941026578"
      },
      "attributes": {
       "IconName": "IconArrowPlayer"
@@ -6572,7 +6589,8 @@
         },
         "ZIndex": 0,
         "BackgroundTransparency": 1,
-        "ScaleType": "Fit"
+        "ScaleType": "Fit",
+        "Image": "rbxassetid://108984003731669"
        },
        "attributes": {
         "IconName": "IconItemZoomSocks"
@@ -6735,7 +6753,8 @@
         },
         "ZIndex": 0,
         "BackgroundTransparency": 1,
-        "ScaleType": "Fit"
+        "ScaleType": "Fit",
+        "Image": "rbxassetid://74706055471393"
        },
        "attributes": {
         "IconName": "IconItemLuckyClover"
@@ -6898,7 +6917,8 @@
         },
         "ZIndex": 0,
         "BackgroundTransparency": 1,
-        "ScaleType": "Fit"
+        "ScaleType": "Fit",
+        "Image": "rbxassetid://100529787456080"
        },
        "attributes": {
         "IconName": "IconItemStinkyCheese"
@@ -9959,7 +9979,8 @@
       },
       "ZIndex": 0,
       "BackgroundTransparency": 1,
-      "ScaleType": "Fit"
+      "ScaleType": "Fit",
+      "Image": "rbxassetid://100036258340539"
      },
      "attributes": {
       "IconName": "IconSkull"

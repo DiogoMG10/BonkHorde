@@ -184,7 +184,8 @@
       },
       "ZIndex": 0,
       "BackgroundTransparency": 1,
-      "ScaleType": "Fit"
+      "ScaleType": "Fit",
+      "Image": "rbxassetid://132600941026578"
      },
      "attributes": {
       "IconName": "IconArrowPlayer"
@@ -732,7 +733,8 @@
           },
           "ZIndex": 0,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://98600303333966"
          },
          "attributes": {
           "IconName": "IconMapChest"
@@ -879,7 +881,8 @@
           },
           "ZIndex": 0,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://107982139961878"
          },
          "attributes": {
           "IconName": "IconMapShrine"
@@ -1026,7 +1029,8 @@
           },
           "ZIndex": 0,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://80196924824348"
          },
          "attributes": {
           "IconName": "IconMapBoss"
@@ -1173,7 +1177,8 @@
           },
           "ZIndex": 0,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://107717818608321"
          },
          "attributes": {
           "IconName": "IconMapVendor"
@@ -1320,7 +1325,8 @@
           },
           "ZIndex": 0,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://117236328075408"
          },
          "attributes": {
           "IconName": "IconMapTeammate"
@@ -3901,7 +3907,8 @@
         },
         "ZIndex": 2,
         "BackgroundTransparency": 1,
-        "ScaleType": "Fit"
+        "ScaleType": "Fit",
+        "Image": "rbxassetid://106107883413409"
        },
        "attributes": {
         "IconName": "IconCheck"

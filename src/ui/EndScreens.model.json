@@ -3542,7 +3542,8 @@
           },
           "ZIndex": 0,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://95074487909614"
          },
          "attributes": {
           "IconName": "PortraitKnight"
@@ -3886,7 +3887,8 @@
             },
             "ZIndex": 0,
             "BackgroundTransparency": 1,
-            "ScaleType": "Fit"
+            "ScaleType": "Fit",
+            "Image": "rbxassetid://120698284478658"
            },
            "attributes": {
             "IconName": "IconSilver"
@@ -4033,7 +4035,8 @@
           },
           "ZIndex": 0,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://77082805777113"
          },
          "attributes": {
           "IconName": "PortraitFox"
@@ -4377,7 +4380,8 @@
             },
             "ZIndex": 0,
             "BackgroundTransparency": 1,
-            "ScaleType": "Fit"
+            "ScaleType": "Fit",
+            "Image": "rbxassetid://120698284478658"
            },
            "attributes": {
             "IconName": "IconSilver"
@@ -4524,7 +4528,8 @@
           },
           "ZIndex": 0,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://92293233429599"
          },
          "attributes": {
           "IconName": "PortraitFrostling"
@@ -4868,7 +4873,8 @@
             },
             "ZIndex": 0,
             "BackgroundTransparency": 1,
-            "ScaleType": "Fit"
+            "ScaleType": "Fit",
+            "Image": "rbxassetid://120698284478658"
            },
            "attributes": {
             "IconName": "IconSilver"

@@ -991,7 +991,8 @@
           },
           "ZIndex": 2,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://95074487909614"
          },
          "attributes": {
           "IconName": "PortraitKnight"
@@ -1697,7 +1698,8 @@
           },
           "ZIndex": 2,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://77082805777113"
          },
          "attributes": {
           "IconName": "PortraitFox"
@@ -2404,7 +2406,8 @@
           },
           "ZIndex": 2,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://92293233429599"
          },
          "attributes": {
           "IconName": "PortraitFrostling"
@@ -2990,7 +2993,8 @@
         },
         "ZIndex": 0,
         "BackgroundTransparency": 1,
-        "ScaleType": "Fit"
+        "ScaleType": "Fit",
+        "Image": "rbxassetid://120698284478658"
        },
        "attributes": {
         "IconName": "IconSilver"
@@ -4448,7 +4452,8 @@
           },
           "ZIndex": 2,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://95074487909614"
          },
          "attributes": {
           "IconName": "PortraitKnight"
@@ -5521,7 +5526,8 @@
           },
           "ZIndex": 2,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://77082805777113"
          },
          "attributes": {
           "IconName": "PortraitFox"
@@ -6594,7 +6600,8 @@
           },
           "ZIndex": 2,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://92293233429599"
          },
          "attributes": {
           "IconName": "PortraitFrostling"
@@ -7961,7 +7968,8 @@
           },
           "ZIndex": 2,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://74301908224393"
          },
          "attributes": {
           "IconName": "IconPadlock"
@@ -8511,7 +8519,8 @@
           },
           "ZIndex": 2,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://74301908224393"
          },
          "attributes": {
           "IconName": "IconPadlock"
@@ -9061,7 +9070,8 @@
           },
           "ZIndex": 2,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://74301908224393"
          },
          "attributes": {
           "IconName": "IconPadlock"
@@ -9611,7 +9621,8 @@
           },
           "ZIndex": 2,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://74301908224393"
          },
          "attributes": {
           "IconName": "IconPadlock"
@@ -10161,7 +10172,8 @@
           },
           "ZIndex": 2,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://74301908224393"
          },
          "attributes": {
           "IconName": "IconPadlock"
@@ -10711,7 +10723,8 @@
           },
           "ZIndex": 2,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://74301908224393"
          },
          "attributes": {
           "IconName": "IconPadlock"
@@ -11261,7 +11274,8 @@
           },
           "ZIndex": 2,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://74301908224393"
          },
          "attributes": {
           "IconName": "IconPadlock"
@@ -11811,7 +11825,8 @@
           },
           "ZIndex": 2,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://74301908224393"
          },
          "attributes": {
           "IconName": "IconPadlock"
@@ -12361,7 +12376,8 @@
           },
           "ZIndex": 2,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://74301908224393"
          },
          "attributes": {
           "IconName": "IconPadlock"
@@ -12911,7 +12927,8 @@
           },
           "ZIndex": 2,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://74301908224393"
          },
          "attributes": {
           "IconName": "IconPadlock"
@@ -13461,7 +13478,8 @@
           },
           "ZIndex": 2,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://74301908224393"
          },
          "attributes": {
           "IconName": "IconPadlock"
@@ -14011,7 +14029,8 @@
           },
           "ZIndex": 2,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://74301908224393"
          },
          "attributes": {
           "IconName": "IconPadlock"
@@ -14561,7 +14580,8 @@
           },
           "ZIndex": 2,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://74301908224393"
          },
          "attributes": {
           "IconName": "IconPadlock"
@@ -15111,7 +15131,8 @@
           },
           "ZIndex": 2,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://74301908224393"
          },
          "attributes": {
           "IconName": "IconPadlock"
@@ -15661,7 +15682,8 @@
           },
           "ZIndex": 2,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://74301908224393"
          },
          "attributes": {
           "IconName": "IconPadlock"
@@ -16211,7 +16233,8 @@
           },
           "ZIndex": 2,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://74301908224393"
          },
          "attributes": {
           "IconName": "IconPadlock"
@@ -16761,7 +16784,8 @@
           },
           "ZIndex": 2,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://74301908224393"
          },
          "attributes": {
           "IconName": "IconPadlock"
@@ -17458,7 +17482,8 @@
         },
         "ZIndex": 2,
         "BackgroundTransparency": 1,
-        "ScaleType": "Fit"
+        "ScaleType": "Fit",
+        "Image": "rbxassetid://95074487909614"
        },
        "attributes": {
         "IconName": "PortraitKnight"
@@ -17642,7 +17667,8 @@
           },
           "ZIndex": 0,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://72829149563290"
          },
          "attributes": {
           "IconName": "IconRun"
@@ -17891,7 +17917,8 @@
           },
           "ZIndex": 0,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://80866047531072"
          },
          "attributes": {
           "IconName": "IconSword"
@@ -18219,7 +18246,8 @@
           },
           "ZIndex": 0,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://117003587450262"
          },
          "attributes": {
           "IconName": "IconPassive"
@@ -18611,7 +18639,8 @@
           },
           "ZIndex": 2,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://120698284478658"
          },
          "attributes": {
           "IconName": "IconSilver"
@@ -20327,7 +20356,8 @@
           },
           "ZIndex": 2,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://78605962719876"
          },
          "attributes": {
           "IconName": "ThumbMossyWoods"
@@ -20887,7 +20917,8 @@
           },
           "ZIndex": 2,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://137133643576509"
          },
          "attributes": {
           "IconName": "ThumbDesert"
@@ -21447,7 +21478,8 @@
           },
           "ZIndex": 2,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://102792774709385"
          },
          "attributes": {
           "IconName": "ThumbGraveyard"
@@ -22822,7 +22854,8 @@
           },
           "ZIndex": 0,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://100036258340539"
          },
          "attributes": {
           "IconName": "IconSkull"

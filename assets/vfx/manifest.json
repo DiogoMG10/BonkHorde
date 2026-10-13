@@ -103,181 +103,146 @@
   "ShrineCharged",
   "ThornTrail"
  ],
- "effects": [
-  {
-   "name": "SwordSlash",
+ "effects": {
+  "SwordSlash": {
    "status": "wired",
    "how": "WeaponFx Effects.Slash: two crescent ground shapes swept over the arc"
   },
-  {
-   "name": "FireballTrail",
+  "FireballTrail": {
    "status": "wired",
    "how": "Vfx.attach FireTrail on the fireball projectile"
   },
-  {
-   "name": "FireballExplosion",
+  "FireballExplosion": {
    "status": "wired",
    "how": "Vfx.burst FireExplosion + ground ring"
   },
-  {
-   "name": "FrostRingGround",
+  "FrostRingGround": {
    "status": "wired",
    "how": "Effects.Frost: ring, thin ring, glow, FrostSparkle"
   },
-  {
-   "name": "FreezeShatter",
-   "status": "wired",
+  "FreezeShatter": {
+   "status": "kit",
    "how": "preset FreezeShatter (kit only, not yet fired)"
   },
-  {
-   "name": "LightningBolt",
+  "LightningBolt": {
    "status": "wired",
    "how": "Vfx.bolt x2 from the sky"
   },
-  {
-   "name": "LightningImpact",
+  "LightningImpact": {
    "status": "wired",
    "how": "Vfx.burst LightningImpact + ground ring"
   },
-  {
-   "name": "ProjectileTrailPale",
+  "ProjectileTrailPale": {
    "status": "wired",
    "how": "Vfx.attach PaleTrail on bone, boomernana and axe"
   },
-  {
-   "name": "AxeSpin",
+  "AxeSpin": {
    "status": "wired",
    "how": "axe mesh orbiting a spinning thin ring"
   },
-  {
-   "name": "RocketTrail",
+  "RocketTrail": {
    "status": "wired",
    "how": "Vfx.attach RocketTrail on the rocket mesh"
   },
-  {
-   "name": "RocketExplosion",
+  "RocketExplosion": {
    "status": "wired",
    "how": "Vfx.burst RocketExplosion + ground ring"
   },
-  {
-   "name": "HitSpark",
+  "HitSpark": {
    "status": "wired",
    "how": "EnemyRender Hits: Vfx.burst HitSpark, 6 per frame at most"
   },
-  {
-   "name": "CritBurst",
+  "CritBurst": {
    "status": "wired",
    "how": "EnemyRender Hits: Vfx.burst CritBurst on crit flags"
   },
-  {
-   "name": "EnemyDeathPoof",
+  "EnemyDeathPoof": {
    "status": "wired",
    "how": "EnemyRender EnemyGone (killed): Vfx.burst DeathPoof"
   },
-  {
-   "name": "PickupGlint",
+  "PickupGlint": {
    "status": "kit",
    "how": "preset or world effect still to be wired in section 4/5"
   },
-  {
-   "name": "MagnetPull",
+  "MagnetPull": {
    "status": "wired",
    "how": "Effects.Pickup Magnet"
   },
-  {
-   "name": "HealPlus",
+  "HealPlus": {
    "status": "wired",
    "how": "Effects.Pickup Snack"
   },
-  {
-   "name": "FrenzyAura",
+  "FrenzyAura": {
    "status": "wired",
    "how": "Effects.Pickup Frenzy: flare + aura for FrenzySeconds"
   },
-  {
-   "name": "PoisonCloud",
+  "PoisonCloud": {
    "status": "kit",
    "how": "preset or world effect still to be wired in section 4/5"
   },
-  {
-   "name": "DustPuff",
-   "status": "kit",
-   "how": "preset or world effect still to be wired in section 4/5"
+  "DustPuff": {
+   "status": "wired",
+   "how": "HeroAnim: on landing and while sliding"
   },
-  {
-   "name": "PortalSwirl",
-   "status": "kit",
-   "how": "preset or world effect still to be wired in section 4/5"
+  "PortalSwirl": {
+   "status": "wired",
+   "how": "WorldController: Vfx.place on the boss portal"
   },
-  {
-   "name": "BossPortalWind",
-   "status": "kit",
-   "how": "preset or world effect still to be wired in section 4/5"
+  "BossPortalWind": {
+   "status": "wired",
+   "how": "WorldController: red wind until the portal becomes the exit"
   },
-  {
-   "name": "ShrineDome",
-   "status": "kit",
-   "how": "preset or world effect still to be wired in section 4/5"
+  "ShrineDome": {
+   "status": "wired",
+   "how": "WorldController: ForceField dome per charge shrine"
   },
-  {
-   "name": "ShrineChargedBurst",
-   "status": "kit",
-   "how": "preset or world effect still to be wired in section 4/5"
+  "ShrineChargedBurst": {
+   "status": "wired",
+   "how": "WorldController on a charge shrine used: ring + ShrineCharged"
   },
-  {
-   "name": "ChestBeam",
-   "status": "kit",
-   "how": "preset or world effect still to be wired in section 4/5"
+  "ChestBeam": {
+   "status": "wired",
+   "how": "WorldController on a chest used: ring, gold burst, confetti (no beam fan yet)"
   },
-  {
-   "name": "BreakPuff",
-   "status": "kit",
-   "how": "preset or world effect still to be wired in section 4/5"
+  "BreakPuff": {
+   "status": "wired",
+   "how": "WorldController on pot or crate broken"
   },
-  {
-   "name": "BossTelegraphDome",
+  "BossTelegraphDome": {
    "status": "wired",
    "how": "Telegraph: red rim + growing fill, then RootBurst"
   },
-  {
-   "name": "BossShockwave",
-   "status": "kit",
-   "how": "preset or world effect still to be wired in section 4/5"
+  "BossShockwave": {
+   "status": "wired",
+   "how": "Telegraph end: thin ring expanding past the radius"
   },
-  {
-   "name": "RootEruption",
+  "RootEruption": {
    "status": "wired",
    "how": "RootBurst at telegraph end"
   },
-  {
-   "name": "ThornVolley",
+  "ThornVolley": {
    "status": "wired",
    "how": "Vfx.attach ThornTrail on thorn projectiles"
   },
-  {
-   "name": "EliteCrownGlow",
+  "EliteCrownGlow": {
+   "status": "wired",
+   "how": "EnemyRender: EliteGlint on the crown mesh"
+  },
+  "GhostTrail": {
+   "status": "wired",
+   "how": "EnemyRender: GhostWisp on ghosts"
+  },
+  "ReviveRing": {
    "status": "kit",
    "how": "preset or world effect still to be wired in section 4/5"
   },
-  {
-   "name": "GhostTrail",
-   "status": "kit",
-   "how": "preset or world effect still to be wired in section 4/5"
-  },
-  {
-   "name": "ReviveRing",
-   "status": "kit",
-   "how": "preset or world effect still to be wired in section 4/5"
-  },
-  {
-   "name": "LevelUpBurst",
+  "LevelUpBurst": {
    "status": "wired",
    "how": "Effects.LevelUp: two rings + LevelUpBurst"
   },
-  {
-   "name": "AmbientEmbers",
-   "status": "kit",
-   "how": "preset or world effect still to be wired in section 4/5"
+  "AmbientEmbers": {
+   "status": "wired",
+   "how": "WeaponFx: Embers host following the camera"
   }
- ]
+ }
 }

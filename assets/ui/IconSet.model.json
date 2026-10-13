@@ -1,0 +1,1385 @@
+{
+ "className": "Folder",
+ "children": [
+  {
+   "name": "IconArrowPlayer",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://132600941026578",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconAxe",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://72623116608437",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconBone",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://125613504615617",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconBoomernana",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://128514697792788",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconCheck",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://106107883413409",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconChest",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://98325407272190",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconClock",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://108715038463926",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconCrown",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://92704842005662",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconExclaim",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://128297169166851",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconFireStaff",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://98975365319352",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconFrostRing",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://118796211156429",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconGold",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://85947511924781",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconItemBandageBox",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://74286340094299",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconItemBigIceCube",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://119405681190292",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconItemColossalFork",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://121955789766598",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconItemCrackedGoggles",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://107953914413106",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconItemDodgyBattery",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://98745237593948",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconItemEchoGem",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://82102896074908",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconItemFeatherweight",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://122943538963359",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconItemFrostShard",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://73132026930411",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconItemGiantSlayerPin",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://77855590110593",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconItemGildedSneakers",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://87438965262902",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconItemLuckyClover",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://74706055471393",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconItemNightlight",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://86811854199526",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconItemPanicMirror",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://102208364368172",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconItemPocketCampfire",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://92778101460219",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconItemProteinGoop",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://129257783217746",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconItemSecondWindClock",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://136052125525274",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconItemShrineWrench",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://129461812835216",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconItemSkeletonKey",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://98628757475883",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconItemStaticMitts",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://87230909922029",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconItemStinkyCheese",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://100529787456080",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconItemSusJuice",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://124912358963334",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconItemTickingBracelet",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://80318624122922",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconItemVampireMitts",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://105704288960657",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconItemVolatileMeatball",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://136473756322240",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconItemZoomSocks",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://108984003731669",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconLightningStaff",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://70816421098869",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconMapBoss",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://80196924824348",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconMapChest",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://98600303333966",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconMapShrine",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://107982139961878",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconMapTeammate",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://117236328075408",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconMapVendor",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://107717818608321",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconPadlock",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://74301908224393",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconPartyRocket",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://134214492991319",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconPassive",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://117003587450262",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconRun",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://72829149563290",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconShield",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://75158389310578",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconSilver",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://120698284478658",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconSkull",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://100036258340539",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconSword",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://80866047531072",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconTomeAgility",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://131046204359082",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconTomeAttraction",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://113381583268610",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconTomeCooldown",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://119154606530759",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconTomeDamage",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://91289892362739",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconTomeHealth",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://140613343428111",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconTomeLuck",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://86456125624767",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconTomePrecision",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://116238749409494",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconTomeQuantity",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://126324019018570",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconTomeRegen",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://108181250222869",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconTomeShield",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://74072025503512",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconTomeSize",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://75962125575676",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "IconTomeXP",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://106714271225117",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "PortraitFox",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://77082805777113",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "PortraitFrostling",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://92293233429599",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "PortraitKnight",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://95074487909614",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "ThumbDesert",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://137133643576509",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "ThumbGraveyard",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://102792774709385",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  },
+  {
+   "name": "ThumbMossyWoods",
+   "className": "ImageLabel",
+   "properties": {
+    "Image": "rbxassetid://78605962719876",
+    "BackgroundTransparency": 1,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       256
+      ],
+      [
+       0,
+       256
+      ]
+     ]
+    }
+   }
+  }
+ ]
+}

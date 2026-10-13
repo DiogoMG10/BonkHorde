@@ -1,0 +1,5 @@
+COUNT ScreenGui 5
+COUNT MeshPart 212
+COUNT Sound 63
+COUNT ImageLabel 92
+PROBE_OK

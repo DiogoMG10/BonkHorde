@@ -1,0 +1,572 @@
+{
+ "className": "Folder",
+ "children": [
+  {
+   "name": "ui_click",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://113397864512278",
+    "Volume": 0.5,
+    "Looped": false
+   }
+  },
+  {
+   "name": "ui_hover",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://105474290615373",
+    "Volume": 0.3,
+    "Looped": false
+   }
+  },
+  {
+   "name": "ui_confirm",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://85240253037283",
+    "Volume": 0.5,
+    "Looped": false
+   }
+  },
+  {
+   "name": "ui_back",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://87437544236708",
+    "Volume": 0.5,
+    "Looped": false
+   }
+  },
+  {
+   "name": "level_up",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://1301186018",
+    "Volume": 0.7,
+    "Looped": false
+   }
+  },
+  {
+   "name": "offer_pick",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://80335269981031",
+    "Volume": 0.6,
+    "Looped": false
+   }
+  },
+  {
+   "name": "banish",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://136029417452204",
+    "Volume": 0.5,
+    "Looped": false
+   }
+  },
+  {
+   "name": "refresh",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://9113578540",
+    "Volume": 0.5,
+    "Looped": false
+   }
+  },
+  {
+   "name": "chest_open",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://115509131608873",
+    "Volume": 0.6,
+    "Looped": false
+   }
+  },
+  {
+   "name": "chest_reveal",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://134383970285022",
+    "Volume": 0.6,
+    "Looped": false
+   }
+  },
+  {
+   "name": "chest_reveal_legendary",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://1840076509",
+    "Volume": 0.7,
+    "Looped": false
+   }
+  },
+  {
+   "name": "coin_pickup",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://93529351909119",
+    "Volume": 0.35,
+    "Looped": false
+   }
+  },
+  {
+   "name": "xp_pickup",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://122625848431274",
+    "Volume": 0.25,
+    "Looped": false
+   }
+  },
+  {
+   "name": "magnet",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://9120733724",
+    "Volume": 0.6,
+    "Looped": false
+   }
+  },
+  {
+   "name": "heal",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://116368587548012",
+    "Volume": 0.5,
+    "Looped": false
+   }
+  },
+  {
+   "name": "frenzy",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://133977339172345",
+    "Volume": 0.6,
+    "Looped": false
+   }
+  },
+  {
+   "name": "sword_swing",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://135315310485417",
+    "Volume": 0.45,
+    "Looped": false
+   }
+  },
+  {
+   "name": "fireball_cast",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://83533788421264",
+    "Volume": 0.45,
+    "Looped": false
+   }
+  },
+  {
+   "name": "fireball_explode",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://140278004623742",
+    "Volume": 0.5,
+    "Looped": false
+   }
+  },
+  {
+   "name": "frost_pulse",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://140692325552736",
+    "Volume": 0.4,
+    "Looped": false
+   }
+  },
+  {
+   "name": "lightning_strike",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://92090867642655",
+    "Volume": 0.5,
+    "Looped": false
+   }
+  },
+  {
+   "name": "bone_throw",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://15674975792",
+    "Volume": 0.4,
+    "Looped": false
+   }
+  },
+  {
+   "name": "boomerang_whoosh",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://119868279005714",
+    "Volume": 0.4,
+    "Looped": false
+   }
+  },
+  {
+   "name": "axe_throw",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://9119746592",
+    "Volume": 0.45,
+    "Looped": false
+   }
+  },
+  {
+   "name": "rocket_launch",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://128930562703728",
+    "Volume": 0.45,
+    "Looped": false
+   }
+  },
+  {
+   "name": "rocket_explode",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://134947109312227",
+    "Volume": 0.5,
+    "Looped": false
+   }
+  },
+  {
+   "name": "enemy_hit",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://109316755832781",
+    "Volume": 0.3,
+    "Looped": false
+   }
+  },
+  {
+   "name": "enemy_crit",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://87911326370728",
+    "Volume": 0.4,
+    "Looped": false
+   }
+  },
+  {
+   "name": "enemy_death",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://98060153996881",
+    "Volume": 0.3,
+    "Looped": false
+   }
+  },
+  {
+   "name": "freeze",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://130739754816577",
+    "Volume": 0.4,
+    "Looped": false
+   }
+  },
+  {
+   "name": "player_hurt",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://100970228713833",
+    "Volume": 0.6,
+    "Looped": false
+   }
+  },
+  {
+   "name": "shield_break",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://84416257080892",
+    "Volume": 0.6,
+    "Looped": false
+   }
+  },
+  {
+   "name": "player_down",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://9113481220",
+    "Volume": 0.7,
+    "Looped": false
+   }
+  },
+  {
+   "name": "revive",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://9116394876",
+    "Volume": 0.6,
+    "Looped": false
+   }
+  },
+  {
+   "name": "jump",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://132163823091536",
+    "Volume": 0.3,
+    "Looped": false
+   }
+  },
+  {
+   "name": "land",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://123350827153183",
+    "Volume": 0.3,
+    "Looped": false
+   }
+  },
+  {
+   "name": "slide",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://114626769792529",
+    "Volume": 0.35,
+    "Looped": true
+   }
+  },
+  {
+   "name": "footstep_grass",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://135037154891351",
+    "Volume": 0.25,
+    "Looped": false
+   }
+  },
+  {
+   "name": "shrine_charge_loop",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://126797688359826",
+    "Volume": 0.4,
+    "Looped": true
+   }
+  },
+  {
+   "name": "shrine_complete",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://5371948450",
+    "Volume": 0.6,
+    "Looped": false
+   }
+  },
+  {
+   "name": "shrine_greed",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://71523868896758",
+    "Volume": 0.6,
+    "Looped": false
+   }
+  },
+  {
+   "name": "boss_spawn",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://9126102694",
+    "Volume": 0.8,
+    "Looped": false
+   }
+  },
+  {
+   "name": "boss_roar",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://133651202885353",
+    "Volume": 0.7,
+    "Looped": false
+   }
+  },
+  {
+   "name": "boss_slam",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://74149238738530",
+    "Volume": 0.7,
+    "Looped": false
+   }
+  },
+  {
+   "name": "boss_roots",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://9120825586",
+    "Volume": 0.6,
+    "Looped": false
+   }
+  },
+  {
+   "name": "boss_death",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://9126102254",
+    "Volume": 0.8,
+    "Looped": false
+   }
+  },
+  {
+   "name": "portal_open",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://93989620006639",
+    "Volume": 0.6,
+    "Looped": false
+   }
+  },
+  {
+   "name": "portal_enter",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://76843646912123",
+    "Volume": 0.6,
+    "Looped": false
+   }
+  },
+  {
+   "name": "final_swarm_alarm",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://17737027571",
+    "Volume": 0.8,
+    "Looped": false
+   }
+  },
+  {
+   "name": "ghost_wail",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://128403319571587",
+    "Volume": 0.35,
+    "Looped": false
+   }
+  },
+  {
+   "name": "pot_break",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://9117859897",
+    "Volume": 0.5,
+    "Looped": false
+   }
+  },
+  {
+   "name": "crate_break",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://117158373103667",
+    "Volume": 0.5,
+    "Looped": false
+   }
+  },
+  {
+   "name": "shop_buy",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://120891770644830",
+    "Volume": 0.5,
+    "Looped": false
+   }
+  },
+  {
+   "name": "shop_denied",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://97367190838793",
+    "Volume": 0.5,
+    "Looped": false
+   }
+  },
+  {
+   "name": "timer_tick",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://134410911353980",
+    "Volume": 0.4,
+    "Looped": false
+   }
+  },
+  {
+   "name": "victory_sting",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://1836860398",
+    "Volume": 0.7,
+    "Looped": false
+   }
+  },
+  {
+   "name": "death_sting",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://1837950656",
+    "Volume": 0.7,
+    "Looped": false
+   }
+  },
+  {
+   "name": "ambience_forest",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://9112764558",
+    "Volume": 0.25,
+    "Looped": true
+   }
+  },
+  {
+   "name": "music_menu",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://112135643561867",
+    "Volume": 0.35,
+    "Looped": true
+   }
+  },
+  {
+   "name": "music_forest",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://139164113687966",
+    "Volume": 0.35,
+    "Looped": true
+   }
+  },
+  {
+   "name": "music_boss",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://109212175093615",
+    "Volume": 0.4,
+    "Looped": true
+   }
+  },
+  {
+   "name": "music_overtime",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://1842262051",
+    "Volume": 0.4,
+    "Looped": true
+   }
+  },
+  {
+   "name": "music_results",
+   "className": "Sound",
+   "properties": {
+    "SoundId": "rbxassetid://127032334305190",
+    "Volume": 0.3,
+    "Looped": true
+   }
+  }
+ ]
+}

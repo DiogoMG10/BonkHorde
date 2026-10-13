@@ -2256,14 +2256,14 @@
      "why": "small forest diorama behind the menus, with the spawn portal"
     },
     {
-     "stage": "meshes",
+     "stage": "map",
      "name": "TerrainMossyWoods",
-     "why": "smooth rolling terrain mesh chunks with painted cartoon grass, dirt and stone textures"
+     "why": "smooth rolling terrain mesh chunks with painted cartoon grass, dirt and stone textures Delivered as Roblox Terrain written at server start from MapGen (LeafyGrass, Ground, Rock with set colours), not as mesh chunks."
     },
     {
-     "stage": "meshes",
+     "stage": "map",
      "name": "SkyForestNight",
-     "why": "six-face painted twilight sky: teal-blue gradient, soft puffy clouds, far mountain silhouettes"
+     "why": "six-face painted twilight sky: teal-blue gradient, soft puffy clouds, far mountain silhouettes Delivered in code: MapService:_light sets the night sky, teal atmosphere, grade and bloom; no painted six-face sky."
     },
     {
      "stage": "meshes",
@@ -2338,12 +2338,14 @@
     {
      "stage": "meshes",
      "name": "GrassTuft",
-     "why": "cross-plane cartoon grass and fern tuft"
+     "why": "cross-plane cartoon grass and fern tuft Not built: the LeafyGrass terrain material and Bush props carry the ground cover.",
+     "optional": true
     },
     {
      "stage": "meshes",
      "name": "EmberMote",
-     "why": "tiny quad used for drifting embers and fireflies"
+     "why": "tiny quad used for drifting embers and fireflies Not a mesh: delivered as the vfx preset Embers (AmbientEmbers) on the dot texture.",
+     "optional": true
     },
     {
      "stage": "vfx",
@@ -2432,7 +2434,7 @@
     },
     {
      "stage": "ui",
-     "name": "HUD",
+     "name": "Hud",
      "why": "everything read during play"
     },
     {
@@ -2617,8 +2619,8 @@
     },
     {
      "stage": "ui",
-     "name": "IconRivet",
-     "why": "small round rivet drawn in each panel corner, the cartoon version of the reference riveted frames"
+     "name": "Rivet",
+     "why": "small round rivet drawn in each panel corner, the cartoon version of the reference riveted frames Drawn as a Frame named Rivet in each panel corner, not an image."
     }
    ]
   },

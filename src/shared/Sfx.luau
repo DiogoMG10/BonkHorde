@@ -32,6 +32,12 @@ local function template(role: string): Sound?
 		warn(`[Sfx] no such role: {role}`)
 		return nil
 	end
+	-- the bank installed in the place (tools/sfx/install_bank.py) comes first
+	local installed = script.Parent:FindFirstChild("Sounds")
+	local ready = installed and installed:FindFirstChild(role)
+	if ready and ready:IsA("Sound") then
+		return ready
+	end
 	local folder = templates()
 	local existing = folder:FindFirstChild(role)
 	if existing and existing:IsA("Sound") then

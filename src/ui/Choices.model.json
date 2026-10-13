@@ -1321,10 +1321,10 @@
           },
           "ZIndex": 0,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://80866047531072"
          },
          "attributes": {
-          "PendingIcon": "IconSword",
           "IconName": "IconSword"
          }
         },
@@ -1547,10 +1547,10 @@
           },
           "ZIndex": 0,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://70816421098869"
          },
          "attributes": {
-          "PendingIcon": "IconLightningStaff",
           "IconName": "IconLightningStaff"
          }
         },
@@ -1773,10 +1773,10 @@
           },
           "ZIndex": 0,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://118796211156429"
          },
          "attributes": {
-          "PendingIcon": "IconFrostRing",
           "IconName": "IconFrostRing"
          }
         },
@@ -1999,10 +1999,10 @@
           },
           "ZIndex": 0,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://125613504615617"
          },
          "attributes": {
-          "PendingIcon": "IconBone",
           "IconName": "IconBone"
          }
         },
@@ -2361,10 +2361,10 @@
           },
           "ZIndex": 0,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://91289892362739"
          },
          "attributes": {
-          "PendingIcon": "IconTomeDamage",
           "IconName": "IconTomeDamage"
          }
         },
@@ -2587,10 +2587,10 @@
           },
           "ZIndex": 0,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://131046204359082"
          },
          "attributes": {
-          "PendingIcon": "IconTomeAgility",
           "IconName": "IconTomeAgility"
          }
         },
@@ -2813,10 +2813,10 @@
           },
           "ZIndex": 0,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://119154606530759"
          },
          "attributes": {
-          "PendingIcon": "IconTomeCooldown",
           "IconName": "IconTomeCooldown"
          }
         },
@@ -3039,10 +3039,10 @@
           },
           "ZIndex": 0,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://86456125624767"
          },
          "attributes": {
-          "PendingIcon": "IconTomeLuck",
           "IconName": "IconTomeLuck"
          }
         },
@@ -3424,10 +3424,10 @@
           },
           "ZIndex": 0,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://74706055471393"
          },
          "attributes": {
-          "PendingIcon": "IconItemLuckyClover",
           "IconName": "IconItemLuckyClover"
          }
         },
@@ -3658,10 +3658,10 @@
           },
           "ZIndex": 0,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://80318624122922"
          },
          "attributes": {
-          "PendingIcon": "IconItemTickingBracelet",
           "IconName": "IconItemTickingBracelet"
          }
         },
@@ -3892,10 +3892,10 @@
           },
           "ZIndex": 0,
           "BackgroundTransparency": 1,
-          "ScaleType": "Fit"
+          "ScaleType": "Fit",
+          "Image": "rbxassetid://108984003731669"
          },
          "attributes": {
-          "PendingIcon": "IconItemZoomSocks",
           "IconName": "IconItemZoomSocks"
          }
         },
@@ -6426,10 +6426,10 @@
             },
             "ZIndex": 0,
             "BackgroundTransparency": 1,
-            "ScaleType": "Fit"
+            "ScaleType": "Fit",
+            "Image": "rbxassetid://80866047531072"
            },
            "attributes": {
-            "PendingIcon": "IconSword",
             "IconName": "IconSword"
            }
           }
@@ -8361,10 +8361,10 @@
             },
             "ZIndex": 0,
             "BackgroundTransparency": 1,
-            "ScaleType": "Fit"
+            "ScaleType": "Fit",
+            "Image": "rbxassetid://70816421098869"
            },
            "attributes": {
-            "PendingIcon": "IconLightningStaff",
             "IconName": "IconLightningStaff"
            }
           }
@@ -10296,10 +10296,10 @@
             },
             "ZIndex": 0,
             "BackgroundTransparency": 1,
-            "ScaleType": "Fit"
+            "ScaleType": "Fit",
+            "Image": "rbxassetid://91289892362739"
            },
            "attributes": {
-            "PendingIcon": "IconTomeDamage",
             "IconName": "IconTomeDamage"
            }
           }
@@ -14251,10 +14251,10 @@
         },
         "ZIndex": 0,
         "BackgroundTransparency": 1,
-        "ScaleType": "Fit"
+        "ScaleType": "Fit",
+        "Image": "rbxassetid://136052125525274"
        },
        "attributes": {
-        "PendingIcon": "IconItemSecondWindClock",
         "IconName": "IconItemSecondWindClock"
        }
       },
@@ -14294,10 +14294,10 @@
         },
         "ZIndex": 0,
         "BackgroundTransparency": 1,
-        "ScaleType": "Fit"
+        "ScaleType": "Fit",
+        "Image": "rbxassetid://98325407272190"
        },
        "attributes": {
-        "PendingIcon": "IconChest",
         "IconName": "IconChest"
        }
       }
@@ -18245,10 +18245,10 @@
             },
             "ZIndex": 0,
             "BackgroundTransparency": 1,
-            "ScaleType": "Fit"
+            "ScaleType": "Fit",
+            "Image": "rbxassetid://136473756322240"
            },
            "attributes": {
-            "PendingIcon": "IconItemVolatileMeatball",
             "IconName": "IconItemVolatileMeatball"
            }
           }
@@ -18425,10 +18425,10 @@
             "ZIndex": 0,
             "BackgroundTransparency": 1,
             "ScaleType": "Fit",
-            "LayoutOrder": 0
+            "LayoutOrder": 0,
+            "Image": "rbxassetid://85947511924781"
            },
            "attributes": {
-            "PendingIcon": "IconGold",
             "IconName": "IconGold"
            }
           },
@@ -19715,10 +19715,10 @@
             },
             "ZIndex": 0,
             "BackgroundTransparency": 1,
-            "ScaleType": "Fit"
+            "ScaleType": "Fit",
+            "Image": "rbxassetid://119405681190292"
            },
            "attributes": {
-            "PendingIcon": "IconItemBigIceCube",
             "IconName": "IconItemBigIceCube"
            }
           }
@@ -19895,10 +19895,10 @@
             "ZIndex": 0,
             "BackgroundTransparency": 1,
             "ScaleType": "Fit",
-            "LayoutOrder": 0
+            "LayoutOrder": 0,
+            "Image": "rbxassetid://85947511924781"
            },
            "attributes": {
-            "PendingIcon": "IconGold",
             "IconName": "IconGold"
            }
           },
@@ -21185,10 +21185,10 @@
             },
             "ZIndex": 0,
             "BackgroundTransparency": 1,
-            "ScaleType": "Fit"
+            "ScaleType": "Fit",
+            "Image": "rbxassetid://121955789766598"
            },
            "attributes": {
-            "PendingIcon": "IconItemColossalFork",
             "IconName": "IconItemColossalFork"
            }
           }
@@ -21365,10 +21365,10 @@
             "ZIndex": 0,
             "BackgroundTransparency": 1,
             "ScaleType": "Fit",
-            "LayoutOrder": 0
+            "LayoutOrder": 0,
+            "Image": "rbxassetid://85947511924781"
            },
            "attributes": {
-            "PendingIcon": "IconGold",
             "IconName": "IconGold"
            }
           },
@@ -23971,10 +23971,10 @@
             },
             "ZIndex": 0,
             "BackgroundTransparency": 1,
-            "ScaleType": "Fit"
+            "ScaleType": "Fit",
+            "Image": "rbxassetid://74706055471393"
            },
            "attributes": {
-            "PendingIcon": "IconItemLuckyClover",
             "IconName": "IconItemLuckyClover"
            }
           }
@@ -25183,10 +25183,10 @@
             },
             "ZIndex": 0,
             "BackgroundTransparency": 1,
-            "ScaleType": "Fit"
+            "ScaleType": "Fit",
+            "Image": "rbxassetid://108984003731669"
            },
            "attributes": {
-            "PendingIcon": "IconItemZoomSocks",
             "IconName": "IconItemZoomSocks"
            }
           }
@@ -26395,10 +26395,10 @@
             },
             "ZIndex": 0,
             "BackgroundTransparency": 1,
-            "ScaleType": "Fit"
+            "ScaleType": "Fit",
+            "Image": "rbxassetid://102208364368172"
            },
            "attributes": {
-            "PendingIcon": "IconItemPanicMirror",
             "IconName": "IconItemPanicMirror"
            }
           }
