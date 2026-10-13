@@ -474,6 +474,9 @@ function EnemyService:Step(dt: number, now: number)
 			else
 				if dist > touch * 0.8 then
 					mx, mz = dx / dist * sp, dz / dist * sp
+				elseif dist < touch * 0.6 and dist > 1e-3 then
+					-- standing inside the hero: back out, so a pack rings him instead of burying him
+					mx, mz = -dx / dist * sp * 0.7, -dz / dist * sp * 0.7
 				end
 				-- keep the horde from collapsing into one point
 				table.clear(scratch)

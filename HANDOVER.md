@@ -80,6 +80,6 @@ three are kept in `work/shots/`.
 ## Debts
 
 - **Fallbacks taken:** one-way push instead of Rojo live sync; effects authored from own textures instead of harvested; hero animation in code instead of authored clips; icons uploaded through Studio instead of Open Cloud. All logged in the ledger (`build-runs/bonk-horde`).
-- **Known flaws:** the Bone icon reads as an animal; the knight portrait is pink and the model is silver; enemies stack on the hero's exact spot when he cannot be hurt; a faint lighter rectangle shows on the ground near spawn in some views; the sky is a flat gradient with no painted clouds or mountains; the chest effect has no beam fan.
+- **Known flaws:** the Bone icon reads as an animal; the knight portrait is pink and the model is silver; a pack still crowds tightly round the hero; the sky has moving clouds but no painted mountains; the chest effect has no beam fan.
 - **Before publishing:** turn `HttpService.HttpEnabled` off, delete `ServerStorage.BonkPull`, `ServerStorage.BonkStage` and `Workspace.Staging`, then save. Enable Studio access to API services in Game Settings if saving should be tested in Studio.
 - **Not built (declared out of scope in `design/game.json`):** Desert and Graveyard maps, later tiers, quests and unlock shop, weapon evolutions, purchases, leaderboards.

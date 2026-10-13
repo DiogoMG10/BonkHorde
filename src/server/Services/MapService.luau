@@ -127,6 +127,16 @@ function MapService:_light()
 	bloom.Parent = Lighting
 
 	local terrain = Workspace.Terrain
+	-- soft puffy clouds lit by the moon, the reference's dark cloud bank in cartoon form
+	local oldClouds = terrain:FindFirstChildOfClass("Clouds")
+	if oldClouds then
+		oldClouds:Destroy()
+	end
+	local clouds = Instance.new("Clouds")
+	clouds.Cover = 0.62
+	clouds.Density = 0.75
+	clouds.Color = Color3.fromRGB(120, 175, 215)
+	clouds.Parent = terrain
 	terrain:SetMaterialColor(Enum.Material.LeafyGrass, Color3.fromRGB(74, 150, 78))
 	terrain:SetMaterialColor(Enum.Material.Ground, Color3.fromRGB(112, 92, 66))
 	terrain:SetMaterialColor(Enum.Material.Rock, Color3.fromRGB(96, 104, 122))
