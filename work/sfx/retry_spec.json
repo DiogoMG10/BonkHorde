@@ -1,0 +1,109 @@
+{
+ "name": "bonk-retry",
+ "roles": [
+  {
+   "name": "ui_confirm",
+   "query": "button confirm",
+   "kind": "SoundEffect",
+   "min_len": 0.05,
+   "max_len": 2.0,
+   "volume": 0.5
+  },
+  {
+   "name": "banish",
+   "query": "poof",
+   "kind": "SoundEffect",
+   "min_len": 0.05,
+   "max_len": 2.5,
+   "volume": 0.5
+  },
+  {
+   "name": "xp_pickup",
+   "query": "pickup blip",
+   "kind": "SoundEffect",
+   "min_len": 0.02,
+   "max_len": 1.0,
+   "volume": 0.25
+  },
+  {
+   "name": "fireball_cast",
+   "query": "fire whoosh",
+   "kind": "SoundEffect",
+   "min_len": 0.1,
+   "max_len": 2.5,
+   "volume": 0.45
+  },
+  {
+   "name": "fireball_explode",
+   "query": "explosion",
+   "kind": "SoundEffect",
+   "min_len": 0.2,
+   "max_len": 3.5,
+   "volume": 0.5
+  },
+  {
+   "name": "frost_pulse",
+   "query": "ice magic",
+   "kind": "SoundEffect",
+   "min_len": 0.1,
+   "max_len": 2.5,
+   "volume": 0.4
+  },
+  {
+   "name": "lightning_strike",
+   "query": "electric zap",
+   "kind": "SoundEffect",
+   "min_len": 0.05,
+   "max_len": 2.5,
+   "volume": 0.5
+  },
+  {
+   "name": "bone_throw",
+   "query": "whoosh",
+   "kind": "SoundEffect",
+   "min_len": 0.05,
+   "max_len": 1.2,
+   "volume": 0.4
+  },
+  {
+   "name": "enemy_hit",
+   "query": "punch hit",
+   "kind": "SoundEffect",
+   "min_len": 0.03,
+   "max_len": 0.8,
+   "volume": 0.3
+  },
+  {
+   "name": "land",
+   "query": "thud",
+   "kind": "SoundEffect",
+   "min_len": 0.05,
+   "max_len": 1.0,
+   "volume": 0.3
+  },
+  {
+   "name": "boss_roar",
+   "query": "monster roar",
+   "kind": "SoundEffect",
+   "min_len": 0.5,
+   "max_len": 6.0,
+   "volume": 0.7
+  },
+  {
+   "name": "shop_buy",
+   "query": "cash register",
+   "kind": "SoundEffect",
+   "min_len": 0.1,
+   "max_len": 2.5,
+   "volume": 0.5
+  },
+  {
+   "name": "music_menu",
+   "query": "adventure calm",
+   "kind": "Music",
+   "min_len": 40.0,
+   "max_len": 400.0,
+   "volume": 0.35
+  }
+ ]
+}

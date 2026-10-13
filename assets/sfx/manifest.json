@@ -1,0 +1,1349 @@
+{
+ "name": "BonkHordeSounds",
+ "sounds": [
+  {
+   "role": "ui_click",
+   "id": 113397864512278,
+   "name": "UI Click 1",
+   "creator": "0FFZ3TI",
+   "length": 0.201,
+   "volume": 0.5,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "listing_was_wrong": "listing said 0.0s, Studio measured 0.201s"
+  },
+  {
+   "role": "ui_hover",
+   "id": 105474290615373,
+   "name": "Hover",
+   "creator": "Hyproxily",
+   "length": 0.108,
+   "volume": 0.3,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "listing_was_wrong": "listing said 0.0s, Studio measured 0.108s"
+  },
+  {
+   "role": "ui_confirm",
+   "id": 85240253037283,
+   "name": "ui_menu_button_confirm_16",
+   "creator": "mike1122434exe",
+   "length": 0.728,
+   "volume": 0.5,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "listing_was_wrong": "listing said 1.0s, Studio measured 0.728s"
+  },
+  {
+   "role": "ui_back",
+   "id": 87437544236708,
+   "name": "UI - Click 1",
+   "creator": "SodaBreadle",
+   "length": 0.728,
+   "volume": 0.5,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "listing_was_wrong": "listing said 1.0s, Studio measured 0.728s"
+  },
+  {
+   "role": "level_up",
+   "id": 1301186018,
+   "name": "Checkpoint",
+   "creator": "ClicheChloe",
+   "length": 1.853,
+   "volume": 0.7,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "offer_pick",
+   "id": 80335269981031,
+   "name": "point2",
+   "creator": "Skywarp47364",
+   "length": 1.219,
+   "volume": 0.6,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "banish",
+   "id": 136029417452204,
+   "name": "Poof",
+   "creator": "Theanonimous",
+   "length": 1.355,
+   "volume": 0.5,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "listing_was_wrong": "listing said 1.0s, Studio measured 1.355s"
+  },
+  {
+   "role": "refresh",
+   "id": 9113578540,
+   "name": "Box Slide Cardboard Rub 10 (SFX)",
+   "creator": "ProSoundEffects",
+   "length": 0.699,
+   "volume": 0.5,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "note": "hand-swapped: the scored pick was a rip from another game or the wrong kind of sound"
+  },
+  {
+   "role": "chest_open",
+   "id": 115509131608873,
+   "name": "in attic appear1",
+   "creator": "Robloxianu9d7u7s2q",
+   "length": 0.926,
+   "volume": 0.6,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "chest_reveal",
+   "id": 134383970285022,
+   "name": "Cute pop sound ",
+   "creator": "a1cindy",
+   "length": 1.833,
+   "volume": 0.6,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "chest_reveal_legendary",
+   "id": 1840076509,
+   "name": "Through the Roof (sting)",
+   "creator": "APMOfficial",
+   "length": 2.255,
+   "volume": 0.7,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "coin_pickup",
+   "id": 93529351909119,
+   "name": "retro coin pickup sound effect powerup",
+   "creator": "Greengem353",
+   "length": 0.478,
+   "volume": 0.35,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "listing_was_wrong": "listing said 0.0s, Studio measured 0.478s"
+  },
+  {
+   "role": "xp_pickup",
+   "id": 122625848431274,
+   "name": "backpack open",
+   "creator": "thewho014",
+   "length": 0.137,
+   "volume": 0.25,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "listing_was_wrong": "listing said 0.0s, Studio measured 0.137s"
+  },
+  {
+   "role": "magnet",
+   "id": 9120733724,
+   "name": "Whoosh Rising Swish Airy Various Pitches 2 (SFX)",
+   "creator": "ProSoundEffects",
+   "length": 1.446,
+   "volume": 0.6,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "listing_was_wrong": "listing said 1.0s, Studio measured 1.446s"
+  },
+  {
+   "role": "heal",
+   "id": 116368587548012,
+   "name": "bling_big_diamond_pickup",
+   "creator": "TheBaconHair_745",
+   "length": 2.0,
+   "volume": 0.5,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "frenzy",
+   "id": 133977339172345,
+   "name": "power up 1",
+   "creator": "AwakenThePotential",
+   "length": 1.723,
+   "volume": 0.6,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "note": "hand-swapped: the scored pick was a rip from another game or the wrong kind of sound"
+  },
+  {
+   "role": "sword_swing",
+   "id": 135315310485417,
+   "name": "sword-swing-whoosh-sound-effect-1-full-pack",
+   "creator": "Akin_TR",
+   "length": 0.653,
+   "volume": 0.45,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "listing_was_wrong": "listing said 1.0s, Studio measured 0.653s"
+  },
+  {
+   "role": "fireball_cast",
+   "id": 83533788421264,
+   "name": "fire-torch-whoosh-2-186586",
+   "creator": "SlimeBoi6564",
+   "length": 0.6,
+   "volume": 0.45,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "listing_was_wrong": "listing said 1.0s, Studio measured 0.600s"
+  },
+  {
+   "role": "fireball_explode",
+   "id": 140278004623742,
+   "name": "explosion",
+   "creator": "TheyCallMeD33z",
+   "length": 2.009,
+   "volume": 0.5,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "frost_pulse",
+   "id": 140692325552736,
+   "name": "WX_Ice_Crack_02",
+   "creator": "MSDLF",
+   "length": 1.437,
+   "volume": 0.4,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "note": "hand-swapped: the scored pick was a rip from another game or the wrong kind of sound"
+  },
+  {
+   "role": "lightning_strike",
+   "id": 92090867642655,
+   "name": "Electric Zap Sound",
+   "creator": "Siege1z",
+   "length": 2.136,
+   "volume": 0.5,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "bone_throw",
+   "id": 15674975792,
+   "name": "Roblox_UI_Whoosh_03",
+   "creator": "Roblox",
+   "length": 1.102,
+   "volume": 0.4,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "boomerang_whoosh",
+   "id": 119868279005714,
+   "name": "Thrown Spin",
+   "creator": "oayd",
+   "length": 1.187,
+   "volume": 0.4,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "axe_throw",
+   "id": 9119746592,
+   "name": "Sword Hit 2 (SFX)",
+   "creator": "ProSoundEffects",
+   "length": 1.193,
+   "volume": 0.45,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "rocket_launch",
+   "id": 128930562703728,
+   "name": "sentry_rocket",
+   "creator": "yanggengmianshi",
+   "length": 1.792,
+   "volume": 0.45,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "rocket_explode",
+   "id": 134947109312227,
+   "name": "Firework explosion",
+   "creator": "katorea_1",
+   "length": 0.753,
+   "volume": 0.5,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "enemy_hit",
+   "id": 109316755832781,
+   "name": "Punch hit.",
+   "creator": "x_iifran",
+   "length": 0.642,
+   "volume": 0.3,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "listing_was_wrong": "listing said 1.0s, Studio measured 0.642s"
+  },
+  {
+   "role": "enemy_crit",
+   "id": 87911326370728,
+   "name": "Impact Metal Hit 3",
+   "creator": "NickySergal",
+   "length": 0.759,
+   "volume": 0.4,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "enemy_death",
+   "id": 98060153996881,
+   "name": "Grunt Death",
+   "creator": "slime64's network",
+   "length": 0.866,
+   "volume": 0.3,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "freeze",
+   "id": 130739754816577,
+   "name": "CharacterSkills4",
+   "creator": "roboloc2200",
+   "length": 0.682,
+   "volume": 0.4,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "listing_was_wrong": "listing said 1.0s, Studio measured 0.682s"
+  },
+  {
+   "role": "player_hurt",
+   "id": 100970228713833,
+   "name": "Heavy Punch 3",
+   "creator": "projay2951",
+   "length": 0.342,
+   "volume": 0.6,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "note": "hand-swapped: the scored pick was a rip from another game or the wrong kind of sound"
+  },
+  {
+   "role": "shield_break",
+   "id": 84416257080892,
+   "name": "bottle_break",
+   "creator": "johounus",
+   "length": 1.431,
+   "volume": 0.6,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "listing_was_wrong": "listing said 1.0s, Studio measured 1.431s"
+  },
+  {
+   "role": "player_down",
+   "id": 9113481220,
+   "name": "Body Fall Wood 5 (SFX)",
+   "creator": "ProSoundEffects",
+   "length": 2.304,
+   "volume": 0.7,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "revive",
+   "id": 9116394876,
+   "name": "Magic Glows Soft Clusters Of Chiming Hits 2 (SFX)",
+   "creator": "ProSoundEffects",
+   "length": 2.006,
+   "volume": 0.6,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "note": "hand-swapped: the scored pick was a rip from another game or the wrong kind of sound"
+  },
+  {
+   "role": "jump",
+   "id": 132163823091536,
+   "name": "jump_whoosh_04",
+   "creator": "Habby92729",
+   "length": 0.279,
+   "volume": 0.3,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "listing_was_wrong": "listing said 0.0s, Studio measured 0.279s"
+  },
+  {
+   "role": "land",
+   "id": 123350827153183,
+   "name": "Thud",
+   "creator": "AutoDelux3",
+   "length": 0.601,
+   "volume": 0.3,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "listing_was_wrong": "listing said 1.0s, Studio measured 0.601s"
+  },
+  {
+   "role": "slide",
+   "id": 114626769792529,
+   "name": "grass run",
+   "creator": "levka_321",
+   "length": 1.294,
+   "volume": 0.35,
+   "looped": true,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "listing_was_wrong": "listing said 1.0s, Studio measured 1.294s"
+  },
+  {
+   "role": "footstep_grass",
+   "id": 135037154891351,
+   "name": "footstep grass 4",
+   "creator": "Robloxmastermanyay",
+   "length": 0.38,
+   "volume": 0.25,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "listing_was_wrong": "listing said 0.0s, Studio measured 0.380s"
+  },
+  {
+   "role": "shrine_charge_loop",
+   "id": 126797688359826,
+   "name": "Low tone sireg Loop",
+   "creator": "Sasadadf245v2",
+   "length": 5.0,
+   "volume": 0.4,
+   "looped": true,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "shrine_complete",
+   "id": 5371948450,
+   "name": "Generic Chime 1",
+   "creator": "Halfai93294Detected",
+   "length": 2.797,
+   "volume": 0.6,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "shrine_greed",
+   "id": 71523868896758,
+   "name": "Tokenless Block 6",
+   "creator": "joneySG",
+   "length": 2.593,
+   "volume": 0.6,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "boss_spawn",
+   "id": 9126102694,
+   "name": "Time Warp Searing Build Up Large Suck Rumble (SFX)",
+   "creator": "ProSoundEffects",
+   "length": 2.891,
+   "volume": 0.8,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "note": "hand-swapped: the scored pick was a rip from another game or the wrong kind of sound"
+  },
+  {
+   "role": "boss_roar",
+   "id": 133651202885353,
+   "name": "Monster Roar ",
+   "creator": "JuanitoproCritica",
+   "length": 4.272,
+   "volume": 0.7,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "boss_slam",
+   "id": 74149238738530,
+   "name": "Ground Slam Impact Shockwave",
+   "creator": "0FFZ3TI",
+   "length": 2.194,
+   "volume": 0.7,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "boss_roots",
+   "id": 9120825586,
+   "name": "Wood Crack Slow Splintering Crackling 2 (SFX)",
+   "creator": "ProSoundEffects",
+   "length": 2.453,
+   "volume": 0.6,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "boss_death",
+   "id": 9126102254,
+   "name": "Time Warp Big Explosion Blast Boom Tonal Tai (SFX)",
+   "creator": "ProSoundEffects",
+   "length": 5.722,
+   "volume": 0.8,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "note": "hand-swapped: the scored pick was a rip from another game or the wrong kind of sound"
+  },
+  {
+   "role": "portal_open",
+   "id": 93989620006639,
+   "name": "Magic Spell Cast",
+   "creator": "GleonoffG",
+   "length": 1.462,
+   "volume": 0.6,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "note": "hand-swapped: the scored pick was a rip from another game or the wrong kind of sound"
+  },
+  {
+   "role": "portal_enter",
+   "id": 76843646912123,
+   "name": "Crystal_Chime_Teleport_Whoosh_V1",
+   "creator": "gamerkudbu",
+   "length": 1.898,
+   "volume": 0.6,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "final_swarm_alarm",
+   "id": 17737027571,
+   "name": "horn",
+   "creator": "axtrull",
+   "length": 2.894,
+   "volume": 0.8,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "ghost_wail",
+   "id": 128403319571587,
+   "name": "Ghost Hum",
+   "creator": "myboi_noob",
+   "length": 2.961,
+   "volume": 0.35,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "note": "hand-swapped: the scored pick was a rip from another game or the wrong kind of sound"
+  },
+  {
+   "role": "pot_break",
+   "id": 9117859897,
+   "name": "Pottery Breaks 3 (SFX)",
+   "creator": "ProSoundEffects",
+   "length": 1.269,
+   "volume": 0.5,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "listing_was_wrong": "listing said 1.0s, Studio measured 1.269s"
+  },
+  {
+   "role": "crate_break",
+   "id": 117158373103667,
+   "name": "wood_crate_break5",
+   "creator": "Concoerror",
+   "length": 1.488,
+   "volume": 0.5,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "listing_was_wrong": "listing said 1.0s, Studio measured 1.488s"
+  },
+  {
+   "role": "shop_buy",
+   "id": 120891770644830,
+   "name": "cash-register-sound-fx",
+   "creator": "hotmoldybanana",
+   "length": 1.045,
+   "volume": 0.5,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "shop_denied",
+   "id": 97367190838793,
+   "name": "Error Beep (1)",
+   "creator": "ReyesF10",
+   "length": 0.637,
+   "volume": 0.5,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "listing_was_wrong": "listing said 1.0s, Studio measured 0.637s"
+  },
+  {
+   "role": "timer_tick",
+   "id": 134410911353980,
+   "name": "clock tick",
+   "creator": "(official) soul fighters",
+   "length": 0.18,
+   "volume": 0.4,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "listing_was_wrong": "listing said 0.0s, Studio measured 0.180s"
+  },
+  {
+   "role": "victory_sting",
+   "id": 1836860398,
+   "name": "Winning Spirit",
+   "creator": "APMOfficial",
+   "length": 5.701,
+   "volume": 0.7,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "death_sting",
+   "id": 1837950656,
+   "name": "Brute Force Sting 3",
+   "creator": "APMOfficial",
+   "length": 6.481,
+   "volume": 0.7,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "ambience_forest",
+   "id": 9112764558,
+   "name": "Crickets Night 2 (SFX)",
+   "creator": "ProSoundEffects",
+   "length": 36.011,
+   "volume": 0.25,
+   "looped": true,
+   "kind": "Unknown",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "music_menu",
+   "id": 112135643561867,
+   "name": "Calmed Down Mind Adventuring",
+   "creator": "DistrokidOfficial",
+   "length": 160.03,
+   "volume": 0.35,
+   "looped": true,
+   "kind": "Music",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "music_forest",
+   "id": 139164113687966,
+   "name": "PEACE OF MIND",
+   "creator": "DistrokidOfficial",
+   "length": 214.167,
+   "volume": 0.35,
+   "looped": true,
+   "kind": "Music",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "music_boss",
+   "id": 109212175093615,
+   "name": "insect",
+   "creator": "DistrokidOfficial",
+   "length": 169.622,
+   "volume": 0.4,
+   "looped": true,
+   "kind": "Music",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "music_overtime",
+   "id": 1842262051,
+   "name": "Electro Rhythm 34",
+   "creator": "APMOfficial",
+   "length": 68.089,
+   "volume": 0.4,
+   "looped": true,
+   "kind": "Music",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "music_results",
+   "id": 127032334305190,
+   "name": "repeating memories",
+   "creator": "DistrokidOfficial",
+   "length": 142.577,
+   "volume": 0.3,
+   "looped": true,
+   "kind": "Music",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  }
+ ],
+ "unfilled": [],
+ "rejected": [
+  {
+   "role": "ui_confirm",
+   "id": 77433517511280,
+   "name": "confirm",
+   "reason": "length 1.300s outside the 0.1-1.2s band for this role"
+  },
+  {
+   "role": "ui_confirm",
+   "id": 1293433423,
+   "name": "Chat Progress",
+   "reason": "length 1.505s outside the 0.1-1.2s band for this role"
+  },
+  {
+   "role": "ui_confirm",
+   "id": 74398595989807,
+   "name": "#those l4d2 comp killsounds",
+   "reason": "length 1.225s outside the 0.1-1.2s band for this role"
+  },
+  {
+   "role": "ui_confirm",
+   "id": 117507021128390,
+   "name": "Hunter_Death_sound",
+   "reason": "length 1.225s outside the 0.1-1.2s band for this role"
+  },
+  {
+   "role": "ui_confirm",
+   "id": 130209344488547,
+   "name": "lord-x-appears",
+   "reason": "length 1.743s outside the 0.1-1.2s band for this role"
+  },
+  {
+   "role": "ui_back",
+   "id": 122125495508907,
+   "name": "Audio/UI_Examine_Cancel",
+   "reason": "length 2.926s outside the 0.05-0.8s band for this role"
+  },
+  {
+   "role": "ui_back",
+   "id": 124387798635805,
+   "name": "ui error",
+   "reason": "length 1.228s outside the 0.05-0.8s band for this role"
+  },
+  {
+   "role": "ui_back",
+   "id": 83600603085349,
+   "name": "soundshelfstudio-ui-error-pop-515668",
+   "reason": "length 1.228s outside the 0.05-0.8s band for this role"
+  },
+  {
+   "role": "level_up",
+   "id": 82669582574373,
+   "name": "Mario Kart 8 Deluxe - Lap Fanfare Waluigi Pinball",
+   "reason": "length 4.541s outside the 0.4-3.0s band for this role"
+  },
+  {
+   "role": "offer_pick",
+   "id": 99980076888596,
+   "name": "Audio_jingle_chime_07_positive",
+   "reason": "length 1.659s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "banish",
+   "id": 2741718865,
+   "name": "Fire Blast",
+   "reason": "length 2.847s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "banish",
+   "id": 121889068784641,
+   "name": "sfx_lap_count",
+   "reason": "length 3.105s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "banish",
+   "id": 90425047148501,
+   "name": "Air",
+   "reason": "length 1.894s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "banish",
+   "id": 99265113726181,
+   "name": "Flame sfx 3",
+   "reason": "length 2.133s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "banish",
+   "id": 5272402910,
+   "name": "Mothership_AttackLaunch3",
+   "reason": "length 1.894s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "chest_open",
+   "id": 9120829478,
+   "name": "Wood Creak 1 (SFX)",
+   "reason": "length 4.384s outside the 0.3-2.5s band for this role"
+  },
+  {
+   "role": "xp_pickup",
+   "id": 108976115226602,
+   "name": "3",
+   "reason": "length 1.834s outside the 0.03-0.6s band for this role"
+  },
+  {
+   "role": "xp_pickup",
+   "id": 110139386841910,
+   "name": "terminal_success",
+   "reason": "length 0.721s outside the 0.03-0.6s band for this role"
+  },
+  {
+   "role": "xp_pickup",
+   "id": 113941931379519,
+   "name": "teleport 2011X",
+   "reason": "length 1.200s outside the 0.03-0.6s band for this role"
+  },
+  {
+   "role": "xp_pickup",
+   "id": 103361990794662,
+   "name": "Quickhack Use SFX Cyberpunk",
+   "reason": "length 2.048s outside the 0.03-0.6s band for this role"
+  },
+  {
+   "role": "xp_pickup",
+   "id": 70844388753756,
+   "name": "anchor",
+   "reason": "length 1.719s outside the 0.03-0.6s band for this role"
+  },
+  {
+   "role": "magnet",
+   "id": 124047596872022,
+   "name": "universal pull",
+   "reason": "length 3.000s outside the 0.3-2.5s band for this role"
+  },
+  {
+   "role": "heal",
+   "id": 4612374036,
+   "name": "bling_big_diamond_pickup",
+   "reason": "length 2.010s outside the 0.2-2.0s band for this role"
+  },
+  {
+   "role": "heal",
+   "id": 122678184054527,
+   "name": "sucess",
+   "reason": "length 3.117s outside the 0.2-2.0s band for this role"
+  },
+  {
+   "role": "fireball_cast",
+   "id": 113430394599612,
+   "name": "grimm_fireball_cast",
+   "reason": "length 1.773s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "fireball_cast",
+   "id": 117004284856621,
+   "name": "grimm_fireball_cast",
+   "reason": "length 1.773s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "fireball_cast",
+   "id": 83708869553967,
+   "name": "grimm_fireball_cast",
+   "reason": "length 1.773s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "fireball_cast",
+   "id": 122768680065404,
+   "name": "I CAST FIREBALL YELL",
+   "reason": "length 2.261s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "fireball_cast",
+   "id": 116387663356092,
+   "name": "grimm fireball cast",
+   "reason": "length 1.773s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "fireball_explode",
+   "id": 71835143192892,
+   "name": "Magic Fire Small Hard Explosion Sci-fi",
+   "reason": "length 3.274s outside the 0.2-2.5s band for this role"
+  },
+  {
+   "role": "fireball_explode",
+   "id": 80609705040874,
+   "name": "Skibidi_toilet_explosion_remade",
+   "reason": "length 3.895s outside the 0.2-2.5s band for this role"
+  },
+  {
+   "role": "fireball_explode",
+   "id": 98753363372264,
+   "name": "combat_melee_CriticalELECTRIChit",
+   "reason": "length 2.769s outside the 0.2-2.5s band for this role"
+  },
+  {
+   "role": "fireball_explode",
+   "id": 98659271571886,
+   "name": "Saitama Uppercut Hit (TSB)",
+   "reason": "length 4.049s outside the 0.2-2.5s band for this role"
+  },
+  {
+   "role": "fireball_explode",
+   "id": 105593434509539,
+   "name": "lifePodHit.mp3",
+   "reason": "length 5.235s outside the 0.2-2.5s band for this role"
+  },
+  {
+   "role": "frost_pulse",
+   "id": 140333839829336,
+   "name": "eshifaust_4_1-4",
+   "reason": "length 2.175s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "frost_pulse",
+   "id": 102776277220946,
+   "name": "eshifaust_4_1-4",
+   "reason": "length 2.175s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "frost_pulse",
+   "id": 91665582611876,
+   "name": "yumiya hikishiboru",
+   "reason": "length 2.920s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "frost_pulse",
+   "id": 94264337045350,
+   "name": "Castle Crashers - \"sound_skeletonrise\"",
+   "reason": "length 2.000s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "frost_pulse",
+   "id": 90660729223700,
+   "name": "Dough Spawn normal",
+   "reason": "length 3.000s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "lightning_strike",
+   "id": 78450558683717,
+   "name": "Lightning bolt/explosion",
+   "reason": "length 4.663s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "lightning_strike",
+   "id": 86789834935708,
+   "name": "Lightning Bolt",
+   "reason": "length 4.663s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "lightning_strike",
+   "id": 102434178016995,
+   "name": "shinji_electric_lightning_impactframes",
+   "reason": "length 3.192s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "lightning_strike",
+   "id": 821439273,
+   "name": "lightning_bolt",
+   "reason": "length 4.663s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "lightning_strike",
+   "id": 85673790935437,
+   "name": "lightning_bolt",
+   "reason": "length 4.663s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "bone_throw",
+   "id": 9105104700,
+   "name": "Warframe SFX - Throwing Dagger Light Whoosh",
+   "reason": "length 1.890s outside the 0.05-0.8s band for this role"
+  },
+  {
+   "role": "bone_throw",
+   "id": 96900500826099,
+   "name": "Audio_StartClose",
+   "reason": "length 2.084s outside the 0.05-0.8s band for this role"
+  },
+  {
+   "role": "bone_throw",
+   "id": 70994594705903,
+   "name": "fangdance-close-startup",
+   "reason": "length 2.084s outside the 0.05-0.8s band for this role"
+  },
+  {
+   "role": "bone_throw",
+   "id": 112611832797358,
+   "name": "Downslam Air",
+   "reason": "length 2.011s outside the 0.05-0.8s band for this role"
+  },
+  {
+   "role": "bone_throw",
+   "id": 135795583883391,
+   "name": "palmstrikes_startup",
+   "reason": "length 1.138s outside the 0.05-0.8s band for this role"
+  },
+  {
+   "role": "axe_throw",
+   "id": 91199208950140,
+   "name": "Axe_Swing",
+   "reason": "length 1.687s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "rocket_explode",
+   "id": 76934600196196,
+   "name": "firework pop",
+   "reason": "length 6.024s outside the 0.2-2.5s band for this role"
+  },
+  {
+   "role": "enemy_hit",
+   "id": 130310699595980,
+   "name": "[CRAB/PHYSICS] Metal hit",
+   "reason": "length 1.254s outside the 0.03-0.5s band for this role"
+  },
+  {
+   "role": "enemy_hit",
+   "id": 9047102251,
+   "name": "Game Day Warrior Link",
+   "reason": "length 10.292s outside the 0.03-0.5s band for this role"
+  },
+  {
+   "role": "enemy_hit",
+   "id": 9047102381,
+   "name": "Game Day Warrior Sting 1",
+   "reason": "length 3.291s outside the 0.03-0.5s band for this role"
+  },
+  {
+   "role": "enemy_hit",
+   "id": 101131107755679,
+   "name": "aw",
+   "reason": "length 0.859s outside the 0.03-0.5s band for this role"
+  },
+  {
+   "role": "enemy_hit",
+   "id": 96018251153710,
+   "name": "MInecraft Mace Smash",
+   "reason": "length 2.235s outside the 0.03-0.5s band for this role"
+  },
+  {
+   "role": "freeze",
+   "id": 103076518786222,
+   "name": "Ice Crack Freeze Sound Effect - 4s long",
+   "reason": "length 4.876s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "freeze",
+   "id": 103299884118401,
+   "name": "crackle ice",
+   "reason": "length 1.964s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "freeze",
+   "id": 81864120370532,
+   "name": "ICE SFX",
+   "reason": "length 5.000s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "shield_break",
+   "id": 83993400486667,
+   "name": "Guardian Angel Guard Break Among Us",
+   "reason": "length 2.438s outside the 0.2-1.5s band for this role"
+  },
+  {
+   "role": "player_down",
+   "id": 9113482032,
+   "name": "Body Fall Wrestling 1 (SFX)",
+   "reason": "length 3.200s outside the 0.3-2.5s band for this role"
+  },
+  {
+   "role": "revive",
+   "id": 130363919513154,
+   "name": "Angelic revive sound",
+   "reason": "length 5.016s outside the 0.4-3.0s band for this role"
+  },
+  {
+   "role": "land",
+   "id": 9119330368,
+   "name": "Soccer Ball Tackle 3 (SFX)",
+   "reason": "length 0.995s outside the 0.05-0.6s band for this role"
+  },
+  {
+   "role": "land",
+   "id": 9118767941,
+   "name": "Sand Impacts 3 (SFX)",
+   "reason": "length 1.347s outside the 0.05-0.6s band for this role"
+  },
+  {
+   "role": "land",
+   "id": 124390056660834,
+   "name": "Release",
+   "reason": "length 1.280s outside the 0.05-0.6s band for this role"
+  },
+  {
+   "role": "land",
+   "id": 9119331556,
+   "name": "Soccer Ball Tackle 4 (SFX)",
+   "reason": "length 0.728s outside the 0.05-0.6s band for this role"
+  },
+  {
+   "role": "land",
+   "id": 104277440834299,
+   "name": "g666_dashground",
+   "reason": "length 1.986s outside the 0.05-0.6s band for this role"
+  },
+  {
+   "role": "shrine_complete",
+   "id": 82593634625537,
+   "name": "Mitsubishi Elevator Chime - Down",
+   "reason": "length 3.057s outside the 0.4-3.0s band for this role"
+  },
+  {
+   "role": "shrine_complete",
+   "id": 91728968749666,
+   "name": "Mitsubishi Elevator Chime - Up",
+   "reason": "length 3.057s outside the 0.4-3.0s band for this role"
+  },
+  {
+   "role": "shrine_greed",
+   "id": 89295624005021,
+   "name": "lem",
+   "reason": "length 9.990s outside the 0.3-3.0s band for this role"
+  },
+  {
+   "role": "shrine_greed",
+   "id": 112235821158757,
+   "name": "B7RLE Crack 2",
+   "reason": "length 5.492s outside the 0.3-3.0s band for this role"
+  },
+  {
+   "role": "boss_roar",
+   "id": 130316465772004,
+   "name": "deep-sea-monster-roar-329857",
+   "reason": "length 6.478s outside the 0.6-4.0s band for this role"
+  },
+  {
+   "role": "boss_roar",
+   "id": 81768325426833,
+   "name": "deep sea monster roar",
+   "reason": "length 6.478s outside the 0.6-4.0s band for this role"
+  },
+  {
+   "role": "boss_roar",
+   "id": 70452604022015,
+   "name": "deep-sea-monster-roar-329857",
+   "reason": "length 6.478s outside the 0.6-4.0s band for this role"
+  },
+  {
+   "role": "boss_roar",
+   "id": 111534933257180,
+   "name": "Rex Roar",
+   "reason": "length 6.092s outside the 0.6-4.0s band for this role"
+  },
+  {
+   "role": "boss_roar",
+   "id": 73208296937635,
+   "name": "howler Roar",
+   "reason": "length 4.075s outside the 0.6-4.0s band for this role"
+  },
+  {
+   "role": "boss_roots",
+   "id": 9120818605,
+   "name": "Wood Crack 2 (SFX)",
+   "reason": "length 8.405s outside the 0.3-2.5s band for this role"
+  },
+  {
+   "role": "boss_roots",
+   "id": 9120818212,
+   "name": "Wood Crack 10 (SFX)",
+   "reason": "length 8.960s outside the 0.3-2.5s band for this role"
+  },
+  {
+   "role": "boss_roots",
+   "id": 9120817931,
+   "name": "Wood Crack 7 (SFX)",
+   "reason": "length 4.512s outside the 0.3-2.5s band for this role"
+  },
+  {
+   "role": "boss_roots",
+   "id": 9120826020,
+   "name": "Wood Crack Slow Splintering Crackling 6 (SFX)",
+   "reason": "length 6.997s outside the 0.3-2.5s band for this role"
+  },
+  {
+   "role": "boss_death",
+   "id": 113588577115019,
+   "name": "Megaman Zero Boss Defeat Sound (With Explosions)",
+   "reason": "length 5.017s outside the 0.8-5.0s band for this role"
+  },
+  {
+   "role": "ghost_wail",
+   "id": 129823359634605,
+   "name": "Ghost Wail - Daily Sounds",
+   "reason": "length 5.199s outside the 0.4-3.0s band for this role"
+  },
+  {
+   "role": "ghost_wail",
+   "id": 9043346594,
+   "name": "HORROR SCREAM 16",
+   "reason": "length 7.471s outside the 0.4-3.0s band for this role"
+  },
+  {
+   "role": "ghost_wail",
+   "id": 9114013031,
+   "name": "Crowd Reaction 1 (SFX)",
+   "reason": "length 4.576s outside the 0.4-3.0s band for this role"
+  },
+  {
+   "role": "ghost_wail",
+   "id": 9125996467,
+   "name": "Stadium Whistle Two Loud Males Long Reverber (SFX)",
+   "reason": "length 4.459s outside the 0.4-3.0s band for this role"
+  },
+  {
+   "role": "pot_break",
+   "id": 9117859288,
+   "name": "Pottery Breaks 4 (SFX)",
+   "reason": "length 2.464s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "pot_break",
+   "id": 9117859012,
+   "name": "Pottery Breaks 1 (SFX)",
+   "reason": "length 4.576s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "pot_break",
+   "id": 9117859890,
+   "name": "Pottery Breaks 1 (SFX)",
+   "reason": "length 2.379s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "shop_buy",
+   "id": 134810204798705,
+   "name": "Cash Register",
+   "reason": "length 2.090s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "shop_buy",
+   "id": 101396758527961,
+   "name": "Cash Register  Cha Ching - Sound Effect (HD)",
+   "reason": "length 4.110s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "shop_buy",
+   "id": 91833496592511,
+   "name": "COD Zombie Door Buy",
+   "reason": "length 2.251s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "shop_buy",
+   "id": 87123900728301,
+   "name": "COD Zombies Buy/Purchase Sound",
+   "reason": "length 2.406s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "shop_buy",
+   "id": 116302615297311,
+   "name": "buy-online-audio-converter",
+   "reason": "length 1.529s outside the 0.1-1.5s band for this role"
+  },
+  {
+   "role": "death_sting",
+   "id": 77836720354344,
+   "name": "One Good Deed Sting 3",
+   "reason": "length 10.102s outside the 1.0-8.0s band for this role"
+  },
+  {
+   "role": "music_menu",
+   "id": 1837692270,
+   "name": "Another Day",
+   "reason": "length 12.164s outside the 45.0-400.0s band for this role"
+  },
+  {
+   "role": "music_menu",
+   "id": 1835495594,
+   "name": "Holy Pop",
+   "reason": "length 11.703s outside the 45.0-400.0s band for this role"
+  },
+  {
+   "role": "music_menu",
+   "id": 1840076509,
+   "name": "Through the Roof (sting)",
+   "reason": "length 2.255s outside the 45.0-400.0s band for this role"
+  },
+  {
+   "role": "music_menu",
+   "id": 1836860398,
+   "name": "Winning Spirit",
+   "reason": "length 5.701s outside the 45.0-400.0s band for this role"
+  },
+  {
+   "role": "music_menu",
+   "id": 76978414910237,
+   "name": "monster trances",
+   "reason": "length 3.448s outside the 45.0-400.0s band for this role"
+  },
+  {
+   "role": "music_forest",
+   "id": 9038916741,
+   "name": "Up For Anything - 15",
+   "reason": "length 15.517s outside the 60.0-400.0s band for this role"
+  },
+  {
+   "role": "music_forest",
+   "id": 9038916743,
+   "name": "Up For Anything - 15, Alt",
+   "reason": "length 15.517s outside the 60.0-400.0s band for this role"
+  },
+  {
+   "role": "music_forest",
+   "id": 9040102016,
+   "name": "Bringing It Home (b) (30)",
+   "reason": "length 30.067s outside the 60.0-400.0s band for this role"
+  },
+  {
+   "role": "music_forest",
+   "id": 9040467783,
+   "name": "Hitch A Different Ride - 15A, Alt",
+   "reason": "length 17.476s outside the 60.0-400.0s band for this role"
+  }
+ ]
+}

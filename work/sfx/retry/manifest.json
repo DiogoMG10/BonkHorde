@@ -1,0 +1,163 @@
+{
+ "name": "bonk-retry",
+ "sounds": [
+  {
+   "role": "ui_confirm",
+   "id": 85240253037283,
+   "name": "ui_menu_button_confirm_16",
+   "creator": "mike1122434exe",
+   "length": 0.728,
+   "volume": 0.5,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "listing_was_wrong": "listing said 1.0s, Studio measured 0.728s"
+  },
+  {
+   "role": "banish",
+   "id": 136029417452204,
+   "name": "Poof",
+   "creator": "Theanonimous",
+   "length": 1.355,
+   "volume": 0.5,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "listing_was_wrong": "listing said 1.0s, Studio measured 1.355s"
+  },
+  {
+   "role": "xp_pickup",
+   "id": 122625848431274,
+   "name": "backpack open",
+   "creator": "thewho014",
+   "length": 0.137,
+   "volume": 0.25,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "listing_was_wrong": "listing said 0.0s, Studio measured 0.137s"
+  },
+  {
+   "role": "fireball_cast",
+   "id": 83533788421264,
+   "name": "fire-torch-whoosh-2-186586",
+   "creator": "SlimeBoi6564",
+   "length": 0.6,
+   "volume": 0.45,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "listing_was_wrong": "listing said 1.0s, Studio measured 0.600s"
+  },
+  {
+   "role": "fireball_explode",
+   "id": 140278004623742,
+   "name": "explosion",
+   "creator": "TheyCallMeD33z",
+   "length": 2.009,
+   "volume": 0.5,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "frost_pulse",
+   "id": 109148447880023,
+   "name": "Castle Crashers \"sound_magic_ice\"",
+   "creator": "insignia_decay",
+   "length": 1.5,
+   "volume": 0.4,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "lightning_strike",
+   "id": 92090867642655,
+   "name": "Electric Zap Sound",
+   "creator": "Siege1z",
+   "length": 2.136,
+   "volume": 0.5,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "bone_throw",
+   "id": 15674975792,
+   "name": "Roblox_UI_Whoosh_03",
+   "creator": "Roblox",
+   "length": 1.102,
+   "volume": 0.4,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "enemy_hit",
+   "id": 109316755832781,
+   "name": "Punch hit.",
+   "creator": "x_iifran",
+   "length": 0.642,
+   "volume": 0.3,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "listing_was_wrong": "listing said 1.0s, Studio measured 0.642s"
+  },
+  {
+   "role": "land",
+   "id": 123350827153183,
+   "name": "Thud",
+   "creator": "AutoDelux3",
+   "length": 0.601,
+   "volume": 0.3,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload.",
+   "listing_was_wrong": "listing said 1.0s, Studio measured 0.601s"
+  },
+  {
+   "role": "boss_roar",
+   "id": 133651202885353,
+   "name": "Monster Roar ",
+   "creator": "JuanitoproCritica",
+   "length": 4.272,
+   "volume": 0.7,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "shop_buy",
+   "id": 120891770644830,
+   "name": "cash-register-sound-fx",
+   "creator": "hotmoldybanana",
+   "length": 1.045,
+   "volume": 0.5,
+   "looped": false,
+   "kind": "SoundEffect",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  },
+  {
+   "role": "music_menu",
+   "id": 112135643561867,
+   "name": "Calmed Down Mind Adventuring",
+   "creator": "DistrokidOfficial",
+   "length": 160.03,
+   "volume": 0.35,
+   "looped": false,
+   "kind": "Music",
+   "source": "Roblox Creator Store, free, inserted by id. No upload."
+  }
+ ],
+ "unfilled": [],
+ "rejected": [
+  {
+   "role": "bone_throw",
+   "id": 12222095,
+   "name": "Rocket whoosh 01.wav",
+   "reason": "length 6.177s outside the 0.05-1.2s band for this role"
+  }
+ ]
+}

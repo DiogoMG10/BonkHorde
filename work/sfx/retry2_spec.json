@@ -1,0 +1,77 @@
+{
+ "name": "bonk-retry2",
+ "roles": [
+  {
+   "name": "refresh",
+   "query": "card",
+   "kind": "SoundEffect",
+   "min_len": 0.05,
+   "max_len": 1.5,
+   "volume": 0.5
+  },
+  {
+   "name": "frenzy",
+   "query": "power up",
+   "kind": "SoundEffect",
+   "min_len": 0.3,
+   "max_len": 3.0,
+   "volume": 0.6
+  },
+  {
+   "name": "frost_pulse",
+   "query": "ice crack",
+   "kind": "SoundEffect",
+   "min_len": 0.1,
+   "max_len": 2.5,
+   "volume": 0.4
+  },
+  {
+   "name": "player_hurt",
+   "query": "punch impact body",
+   "kind": "SoundEffect",
+   "min_len": 0.05,
+   "max_len": 1.2,
+   "volume": 0.6
+  },
+  {
+   "name": "revive",
+   "query": "magic chime",
+   "kind": "SoundEffect",
+   "min_len": 0.4,
+   "max_len": 3.5,
+   "volume": 0.6
+  },
+  {
+   "name": "boss_spawn",
+   "query": "rumble",
+   "kind": "SoundEffect",
+   "min_len": 0.8,
+   "max_len": 6.0,
+   "volume": 0.8
+  },
+  {
+   "name": "boss_death",
+   "query": "big explosion",
+   "kind": "SoundEffect",
+   "min_len": 0.8,
+   "max_len": 6.0,
+   "volume": 0.8
+  },
+  {
+   "name": "portal_open",
+   "query": "magic spell",
+   "kind": "SoundEffect",
+   "min_len": 0.4,
+   "max_len": 4.0,
+   "volume": 0.6
+  },
+  {
+   "name": "ghost_wail",
+   "query": "ghost",
+   "kind": "SoundEffect",
+   "min_len": 0.4,
+   "max_len": 4.0,
+   "volume": 0.35
+  }
+ ]
+}

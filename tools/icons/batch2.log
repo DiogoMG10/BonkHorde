@@ -10,3 +10,100 @@ generated IconCrown seed 1008 in 51s
 keyed IconCrown {'bg': [227, 83, 150], 'coverage': 0.32305335998535156, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
 generated IconRun seed 1009 in 54s
 keyed IconRun {'bg': [223, 104, 153], 'coverage': 0.288604736328125, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconShield seed 1016 in 41s
+keyed IconShield {'bg': [178, 48, 132], 'coverage': 0.4299278259277344, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconSword seed 1101 in 37s
+keyed IconSword {'bg': [235, 96, 163], 'coverage': 0.07339668273925781, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]}   <-- CHECK
+generated IconFireStaff seed 1102 in 36s
+keyed IconFireStaff {'bg': [232, 64, 139], 'coverage': 0.1660165786743164, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconFrostRing seed 1103 in 38s
+keyed IconFrostRing {'bg': [124, 62, 127], 'coverage': 0.3495206832885742, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconLightningStaff seed 1104 in 38s
+keyed IconLightningStaff {'bg': [234, 138, 185], 'coverage': 0.07084369659423828, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]}   <-- CHECK
+generated IconBone seed 1105 in 39s
+keyed IconBone {'bg': [230, 95, 178], 'coverage': 0.10982990264892578, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]}   <-- CHECK
+generated IconAxe seed 1107 in 32s
+keyed IconAxe {'bg': [235, 84, 163], 'coverage': 0.08806133270263672, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]}   <-- CHECK
+generated IconPartyRocket seed 1108 in 27s
+keyed IconPartyRocket {'bg': [148, 33, 113], 'coverage': 0.32222843170166016, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconTomeDamage seed 1201 in 25s
+keyed IconTomeDamage {'bg': [152, 44, 84], 'coverage': 0.09304332733154297, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]}   <-- CHECK
+generated IconTomeAgility seed 1202 in 25s
+keyed IconTomeAgility {'bg': [208, 88, 155], 'coverage': 0.34616565704345703, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconTomeCooldown seed 1203 in 25s
+keyed IconTomeCooldown {'bg': [226, 97, 182], 'coverage': 0.3527030944824219, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconTomePrecision seed 1204 in 25s
+keyed IconTomePrecision {'bg': [223, 71, 152], 'coverage': 0.42574024200439453, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconTomeSize seed 1205 in 25s
+keyed IconTomeSize {'bg': [227, 107, 158], 'coverage': 0.37145233154296875, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconTomeShield seed 1206 in 25s
+keyed IconTomeShield {'bg': [157, 60, 143], 'coverage': 0.3718442916870117, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconTomeHealth seed 1207 in 25s
+keyed IconTomeHealth {'bg': [231, 105, 164], 'coverage': 0.15122222900390625, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconTomeRegen seed 1208 in 25s
+keyed IconTomeRegen {'bg': [163, 57, 143], 'coverage': 0.3345327377319336, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconTomeXP seed 1209 in 25s
+keyed IconTomeXP {'bg': [205, 46, 137], 'coverage': 0.38947391510009766, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconTomeLuck seed 1210 in 25s
+keyed IconTomeLuck {'bg': [54, 20, 61], 'coverage': 0.8285903930664062, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconTomeAttraction seed 1211 in 25s
+keyed IconTomeAttraction {'bg': [90, 65, 111], 'coverage': 0.5376615524291992, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconTomeQuantity seed 1212 in 25s
+keyed IconTomeQuantity {'bg': [231, 114, 164], 'coverage': 0.3463134765625, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconItemTickingBracelet seed 1301 in 25s
+keyed IconItemTickingBracelet {'bg': [237, 72, 145], 'coverage': 0.6130514144897461, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconItemLuckyClover seed 1302 in 25s
+keyed IconItemLuckyClover {'bg': [203, 88, 165], 'coverage': 0.24211788177490234, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconItemZoomSocks seed 1303 in 25s
+keyed IconItemZoomSocks {'bg': [200, 64, 156], 'coverage': 0.2571687698364258, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconItemProteinGoop seed 1304 in 25s
+keyed IconItemProteinGoop {'bg': [229, 124, 179], 'coverage': 0.353057861328125, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconItemSusJuice seed 1305 in 25s
+keyed IconItemSusJuice {'bg': [219, 64, 163], 'coverage': 0.2257976531982422, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconItemDodgyBattery seed 1306 in 25s
+keyed IconItemDodgyBattery {'bg': [226, 84, 173], 'coverage': 0.35925769805908203, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconItemBandageBox seed 1307 in 25s
+keyed IconItemBandageBox {'bg': [238, 131, 183], 'coverage': 0.38135242462158203, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconItemStinkyCheese seed 1308 in 25s
+keyed IconItemStinkyCheese {'bg': [234, 123, 162], 'coverage': 0.3083925247192383, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconItemFrostShard seed 1309 in 25s
+keyed IconItemFrostShard {'bg': [165, 72, 136], 'coverage': 0.12169456481933594, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconItemGiantSlayerPin seed 1310 in 25s
+keyed IconItemGiantSlayerPin {'bg': [210, 87, 150], 'coverage': 0.41417980194091797, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconItemShrineWrench seed 1311 in 25s
+keyed IconItemShrineWrench {'bg': [178, 26, 119], 'coverage': 0.736485481262207, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconItemGildedSneakers seed 1312 in 25s
+keyed IconItemGildedSneakers {'bg': [230, 131, 153], 'coverage': 0.20609283447265625, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconItemEchoGem seed 1313 in 25s
+keyed IconItemEchoGem {'bg': [88, 53, 136], 'coverage': 0.2731199264526367, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconItemPocketCampfire seed 1314 in 25s
+keyed IconItemPocketCampfire {'bg': [218, 85, 169], 'coverage': 0.2508535385131836, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconItemFeatherweight seed 1315 in 25s
+keyed IconItemFeatherweight {'bg': [212, 120, 166], 'coverage': 0.1361980438232422, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconItemStaticMitts seed 1316 in 25s
+keyed IconItemStaticMitts {'bg': [231, 136, 195], 'coverage': 0.3160066604614258, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconItemSkeletonKey seed 1317 in 25s
+keyed IconItemSkeletonKey {'bg': [239, 58, 162], 'coverage': 0.7922019958496094, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconItemVampireMitts seed 1318 in 25s
+keyed IconItemVampireMitts {'bg': [217, 118, 155], 'coverage': 0.40351104736328125, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconItemNightlight seed 1319 in 25s
+keyed IconItemNightlight {'bg': [228, 159, 192], 'coverage': 0.21117115020751953, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconItemCrackedGoggles seed 1320 in 25s
+keyed IconItemCrackedGoggles {'bg': [233, 134, 167], 'coverage': 0.32359981536865234, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconItemPanicMirror seed 1321 in 25s
+keyed IconItemPanicMirror {'bg': [217, 146, 186], 'coverage': 0.30138492584228516, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconItemVolatileMeatball seed 1322 in 25s
+keyed IconItemVolatileMeatball {'bg': [206, 42, 125], 'coverage': 0.24477577209472656, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconItemBigIceCube seed 1323 in 25s
+keyed IconItemBigIceCube {'bg': [165, 46, 151], 'coverage': 0.25742149353027344, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconItemColossalFork seed 1324 in 25s
+keyed IconItemColossalFork {'bg': [222, 33, 140], 'coverage': 0.13019084930419922, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconItemSecondWindClock seed 1325 in 25s
+keyed IconItemSecondWindClock {'bg': [230, 67, 159], 'coverage': 0.3853578567504883, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated PortraitKnight seed 1401 in 25s
+keyed PortraitKnight {'bg': [217, 120, 152], 'coverage': 0.42814064025878906, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated PortraitFrostling seed 1403 in 25s
+keyed PortraitFrostling {'bg': [37, 61, 76], 'coverage': 0.33203125, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated ThumbMossyWoods seed 1501 in 25s
+generated ThumbDesert seed 1502 in 25s
+generated ThumbGraveyard seed 1503 in 25s
