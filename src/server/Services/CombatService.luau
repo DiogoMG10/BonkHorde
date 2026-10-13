@@ -10,8 +10,11 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Knit = require(ReplicatedStorage.Packages.Knit)
 local Damage = require(ReplicatedStorage.Shared.Core.Damage)
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
+local MapGen = require(ReplicatedStorage.Shared.Core.MapGen)
 local Net = require(ReplicatedStorage.Shared.Net)
+local PrimaryTrigger = require(ReplicatedStorage.Shared.Core.PrimaryTrigger)
 local Roster = require(ReplicatedStorage.Shared.Config.Roster)
+local RunState = require(ReplicatedStorage.Shared.Core.RunState)
 
 local CombatService = Knit.CreateService({ Name = "CombatService" })
 
@@ -35,6 +38,47 @@ function CombatService:KnitStart()
 	self._enemies = Knit.GetService("EnemyService")
 	self._players = Knit.GetService("PlayerStateService")
 	self._xp = Knit.GetService("XPService")
+	self._director = Knit.GetService("RunDirectorService")
+	self._map = Knit.GetService("MapService"):GetMap()
+
+	-- The attack button. The client reports a state (held or not, and where it
+	-- is aiming); this only records it. Whether and when the weapon fires is
+	-- decided in Step, on the server's own cooldown.
+	Net.server("PrimaryInput").OnServerEvent:Connect(function(player: Player, held: unknown, yaw: unknown)
+		local rec = self._players:Get(player)
+		if not rec or not rec.manual then
+			return
+		end
+		local ok, isHeld, aim = PrimaryTrigger.parse(held, yaw)
+		if not ok then
+			return
+		end
+		local input = rec.input
+		local real = os.clock()
+		if not PrimaryTrigger.allow(input, real, GameConfig.PrimaryInputRate, GameConfig.PrimaryInputBurst, not isHeld) then
+			return
+		end
+		if not isHeld then
+			PrimaryTrigger.release(input, real)
+		elseif
+			rec.downed
+			or rec.frozen
+			or not rec.active
+			or self._director:IsPaused()
+			or not RunState.isLive(self._director:GetPhase())
+		then
+			PrimaryTrigger.clear(input) -- not a moment anyone can attack in
+		else
+			PrimaryTrigger.press(input, aim, self._director:Now(), real)
+		end
+	end)
+end
+
+--- Drop every held attack button and remembered click (a pause began).
+function CombatService:ReleaseInputs()
+	for _, rec in self._players:All() do
+		PrimaryTrigger.clear(rec.input)
+	end
 end
 
 function CombatService:Reset()
@@ -190,11 +234,18 @@ end
 
 local Fire = {}
 
-function Fire.Arc(self, rec, w, now)
+-- `aim` is only passed for a hand-fired primary: { dx, dz }, the direction the
+-- player chose. Without it the weapon aims itself, as every automatic one does.
+function Fire.Arc(self, rec, w, now, aim)
 	local s = w.s
 	local range = s.Range * sizeOf(rec, w)
 	local half = math.cos(math.rad(s.Arc / 2))
-	local ax, az = self:_aim(rec, range + 8)
+	local ax, az
+	if aim then
+		ax, az = aim.dx, aim.dz
+	else
+		ax, az = self:_aim(rec, range + 8)
+	end
 	local swings = shots(rec, w)
 	local out = {}
 	for k = 1, swings do
@@ -208,7 +259,7 @@ function Fire.Arc(self, rec, w, now)
 			local x, _, z = self._enemies:Pos(slot)
 			local vx, vz = x - rec.x, z - rec.z
 			local d = math.sqrt(vx * vx + vz * vz)
-			if d < 2.5 or (vx * dx + vz * dz) / d >= half then
+			if (d < 2.5 or (vx * dx + vz * dz) / d >= half) and (not aim or self:_canTouch(rec, slot)) then
 				self:_hit(rec, w, slot, s.Damage, now, false, dx, dz)
 			end
 		end
@@ -402,6 +453,44 @@ function Fire.Homing(self, rec, w, _now)
 	end
 end
 
+-- ------------------------------------------------------------------ the primary weapon
+
+-- Can a swing made at the hero's own height touch this enemy? Its body has to
+-- be within vertical reach, and the ground must not stand between the two:
+-- an enemy up on a ledge or down over a cliff edge is not hit through it.
+-- Scenery props are not checked; a melee sweep passes a tree trunk.
+function CombatService:_canTouch(rec, slot: number): boolean
+	local x, ground, z = self._enemies:Pos(slot)
+	local at = PrimaryTrigger.touchHeight(rec.y, GameConfig.PrimaryReachY, ground, self._enemies:HeightOf(slot))
+	if not at then
+		return false
+	end
+	-- aim a little above the ground the enemy stands on, so its own slope does not hide it
+	return MapGen.sightClear(self._map, rec.x, rec.y, rec.z, x, math.max(at, ground + 1), z)
+end
+
+-- The hero's own weapon, fired by the attack button. Same cooldown, same
+-- attack-speed scaling and the same Fire function as an automatic weapon; the
+-- only differences are who decides when, and where it points.
+function CombatService:_stepPrimary(rec, w, elapsed: number, now: number)
+	local input = rec.input
+	PrimaryTrigger.expire(input, os.clock(), GameConfig.PrimaryHeldTimeout)
+	local left, fires = PrimaryTrigger.step(input, w.cd, elapsed, w.s.Cooldown, now, GameConfig.PrimaryClickBuffer)
+	w.cd = left
+	if not fires then
+		return
+	end
+	rec.primarySwings = (rec.primarySwings or 0) + 1 -- read by the dev status hook
+	local fire = Fire[Roster.Weapons[w.id].kind]
+	if fire then
+		local dx, dz = PrimaryTrigger.direction(input.yaw)
+		local ok, err = pcall(fire, self, rec, w, now, { dx = dx, dz = dz })
+		if not ok then
+			warn(`[CombatService] primary {w.id} failed: {err}`)
+		end
+	end
+end
+
 -- ------------------------------------------------------------------ projectiles
 
 function CombatService:_stepProj(p, dt: number, now: number)
@@ -527,10 +616,15 @@ end
 function CombatService:Step(dt: number, now: number)
 	for _, rec in self._players:All() do
 		if rec.downed or not rec.active then
+			PrimaryTrigger.clear(rec.input) -- a fallen hero is not holding an attack
 			continue
 		end
 		local haste = rec.stats.AttackSpeed * (if now < rec.frenzyUntil then 1 + GameConfig.FrenzyBonus else 1)
 		for _, w in rec.weapons do
+			if rec.manual and w == rec.primary then
+				self:_stepPrimary(rec, w, dt * haste, now)
+				continue
+			end
 			w.cd -= dt * haste
 			if w.cd <= 0 then
 				w.cd += w.s.Cooldown

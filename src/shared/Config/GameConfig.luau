@@ -6,7 +6,7 @@
 -- what makes a balance pass a data edit.
 
 local GameConfig = {
-	BuildStamp = "bonk-0.2.0",
+	BuildStamp = "bonk-0.3.0-m1b",
 
 	-- squad
 	MaxPlayers = 3,
@@ -65,6 +65,14 @@ local GameConfig = {
 	ReviveRadius = 7,
 	ReviveHPFraction = 0.5,
 	AimRange = 70,
+
+	-- primary weapon (the hero's starting weapon, fired by hand)
+	ManualPrimaryHeroes = { Knight = true }, -- heroes whose weapon in slot 1 waits for the attack button
+	PrimaryClickBuffer = 0.25, -- how long one click during the cooldown is remembered
+	PrimaryHeldTimeout = 1, -- a held button the client stops confirming is dropped after this
+	PrimaryInputRate = 20, -- attack-button messages accepted per second, per player
+	PrimaryInputBurst = 20,
+	PrimaryReachY = 9, -- how far above or below the hero a primary melee swing can touch
 
 	-- XP and offers
 	XPBase = 4,

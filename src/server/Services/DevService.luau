@@ -187,6 +187,7 @@ function DevService:KnitStart()
 			`[Dev] phase={director:GetPhase()} clock={math.floor(director:GetClock())} paused={director:IsPaused()} lvl={xp:GetLevel()} `
 				.. `hp={math.floor(rec.hp)}/{math.floor(rec.stats.MaxHP)} sh={math.floor(rec.shield)} gold={rec.gold} kills={director._kills} `
 				.. `enemies={enemies:Count()} bosses={bossCount} weapons={table.concat(w, ",")} items={#rec.items} tomes={#rec.tomes} `
+				.. `manual={rec.manual} held={rec.input.held} swings={rec.primarySwings or 0} `
 				.. `pos={math.floor(rec.x)},{math.floor(rec.y)},{math.floor(rec.z)} downed={rec.downed} `
 				.. `tickMs={string.format("%.2f", (director._tickCost or 0) * 1000)}`
 		)

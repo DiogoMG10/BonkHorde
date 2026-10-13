@@ -127,7 +127,9 @@ function RunDirectorService:SetPause(reason: string, on: boolean)
 		self._paused = paused
 		self._players:SetFrozen(paused)
 		self:_sendClock()
-		if not paused then
+		if paused then
+			self._combat:ReleaseInputs() -- nobody is holding an attack through a pause
+		else
 			-- a warning drawn before the pause ran out on screen while the strike waited
 			self._bosses:Resync(self:Now())
 		end

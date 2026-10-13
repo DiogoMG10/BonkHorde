@@ -116,6 +116,11 @@ function EnemyService:IsTough(slot: number): boolean
 	return elite[slot] == true or bossKind[slot] > 0
 end
 
+--- How tall an enemy stands, in studs.
+function EnemyService:HeightOf(slot: number): number
+	return def[slot].height * (if elite[slot] then GameConfig.EliteScale else 1)
+end
+
 function EnemyService:Health(slot: number): (number, number)
 	return hp[slot], maxHp[slot]
 end

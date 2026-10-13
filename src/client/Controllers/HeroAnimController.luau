@@ -24,6 +24,7 @@ local rad = math.rad
 -- how long each one-shot lasts, in seconds
 local ACTIONS = { AttackSwing = 0.3, AttackCast = 0.34, AttackThrow = 0.36, Land = 0.18, PortalStep = 0.6 }
 local P_FIREBALL, P_BONE, P_NANA, P_ROCKET = 1, 2, 3, 4
+local MAX_TWIST = rad(100) -- how far the upper body turns to follow a swing
 
 local function ease(t: number): number
 	t = math.clamp(t, 0, 1)
@@ -56,7 +57,7 @@ function HeroAnimController:_rig(character: Model)
 	if not joints.Waist then
 		return nil -- not an R15 body yet
 	end
-	rig = { joints = joints, action = nil, startedAt = 0 }
+	rig = { joints = joints, action = nil, startedAt = 0, root = character:FindFirstChild("HumanoidRootPart") }
 	self._rigs[character] = rig
 	character.Destroying:Connect(function()
 		self._rigs[character] = nil
@@ -64,14 +65,16 @@ function HeroAnimController:_rig(character: Model)
 	return rig
 end
 
---- Start a one-shot on the hero in squad slot `index`.
-function HeroAnimController:Play(index: number, action: string)
+--- Start a one-shot on the hero in squad slot `index`. `aimX`, `aimZ` is the
+--- direction an attack was made in, when it has one: the body turns to it.
+function HeroAnimController:Play(index: number, action: string, aimX: number?, aimZ: number?)
 	local root = self._state:RootOfIndex(index)
 	local character = root and root.Parent
 	local rig = character and self:_rig(character)
 	if rig and ACTIONS[action] then
 		rig.action = action
 		rig.startedAt = os.clock()
+		rig.aimX, rig.aimZ = aimX, aimZ
 	end
 end
 
@@ -93,7 +96,16 @@ function HeroAnimController:_pose(rig, slot: number?, now: number)
 			-- wind up to the right, cut across to the left, torso following the blade
 			local sweep = ease(t) * 2 - 1
 			local lift = arc(t)
-			set(joints, "Waist", CFrame.Angles(0, rad(-38) * sweep, 0))
+			-- The swing goes where the attack went, not where the legs are running:
+			-- the upper body turns towards it and back, and the hero is not rotated.
+			-- A waist only turns so far, so a swing aimed behind is cut at the limit.
+			local turn = 0
+			local root = rig.root
+			if rig.aimX and rig.aimZ and root and root.Parent then
+				local v = root.CFrame:VectorToObjectSpace(Vector3.new(rig.aimX, 0, rig.aimZ))
+				turn = math.clamp(math.atan2(-v.X, -v.Z), -MAX_TWIST, MAX_TWIST) * lift
+			end
+			set(joints, "Waist", CFrame.Angles(0, turn + rad(-38) * sweep, 0))
 			set(joints, "RightShoulder", CFrame.Angles(rad(80) * lift, rad(-50) * sweep, rad(-20) * lift))
 			set(joints, "RightElbow", CFrame.Angles(rad(25) * lift, 0, 0))
 			set(joints, "LeftShoulder", CFrame.Angles(rad(-20) * lift, 0, rad(-18) * lift))
@@ -172,9 +184,9 @@ function HeroAnimController:KnitStart()
 		end
 	end
 
-	on("Fx", function(name, index)
+	on("Fx", function(name, index, _x, _y, _z, dx, dz)
 		if name == "Slash" then
-			self:Play(index, "AttackSwing")
+			self:Play(index, "AttackSwing", dx, dz)
 		elseif name == "Axe" then
 			self:Play(index, "AttackThrow")
 		elseif name == "Frost" then

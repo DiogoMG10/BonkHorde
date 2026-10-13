@@ -155,6 +155,27 @@ function MapGen.canStep(map: Map, x: number, z: number, nx: number, nz: number, 
 	return rise / run <= cliffSlope
 end
 
+--- Is the straight line between two points in space clear of the ground?
+--- This is a question about the terrain's shape, not about where an enemy may
+--- walk (`canStep`): a steep bank that stops an enemy does not hide what is
+--- standing on it, and a rise an enemy strolls over can. The line is sampled
+--- every half cell and is blocked where the ground stands more than `margin`
+--- above it. The two ends are not sampled, so standing on the ground is not
+--- being inside it. Props are not part of the heightfield and never block.
+function MapGen.sightClear(map: Map, x0: number, y0: number, z0: number, x1: number, y1: number, z1: number, margin: number?): boolean
+	local run = math.sqrt((x1 - x0) ^ 2 + (z1 - z0) ^ 2)
+	local steps = math.ceil(run / (map.cell * 0.5))
+	local allow = margin or 0.5
+	for i = 1, steps - 1 do
+		local t = i / steps
+		local ground = MapGen.heightAt(map, lerp(x0, x1, t), lerp(z0, z1, t))
+		if ground > lerp(y0, y1, t) + allow then
+			return false
+		end
+	end
+	return true
+end
+
 -- a stable hash in [0, 1) for anchor jitter
 local function hash(ix: number, iz: number, salt: number): number
 	local v = math.sin(ix * 127.1 + iz * 311.7 + salt * 74.7) * 43758.5453

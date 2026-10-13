@@ -16,6 +16,8 @@ find the boss portal, kill Old Man Timber and leave through the portal.
 3. In Studio's command bar: `return require(game.ServerStorage.BonkPull)()`.
 4. Press Play. Controls: WASD, mouse look, Space (hold to bunny hop), Left Shift or C to
    slide, E to interact, Tab for the big map, P to pause.
+   Since M1.B (unverified in Studio, see `docs/M1-hybrid-combat.md`): Sir Clonk's Sword is
+   fired by hand, left mouse button, click or hold, aimed with the camera.
 
 Test hooks (Studio only): set the Workspace attribute `BonkDev` to a command, for example
 `god`, `auto`, `gold 500`, `weapon Axe`, `spawn Skeleton 40`, `goto BossPortal`,

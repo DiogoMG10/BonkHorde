@@ -14,6 +14,7 @@ local Knit = require(ReplicatedStorage.Packages.Knit)
 local Damage = require(ReplicatedStorage.Shared.Core.Damage)
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local Net = require(ReplicatedStorage.Shared.Net)
+local PrimaryTrigger = require(ReplicatedStorage.Shared.Core.PrimaryTrigger)
 local Progress = require(ReplicatedStorage.Shared.Core.Progress)
 local Roster = require(ReplicatedStorage.Shared.Config.Roster)
 local Signal = require(ReplicatedStorage.Packages.Signal)
@@ -71,6 +72,9 @@ local function newRecord(player: Player, index: number, heroId: string)
 		chestsOpened = 0,
 		weapons = {},
 		weaponIndex = {},
+		primary = nil, -- the weapon in slot 1: the hero's own, whatever its type
+		manual = false, -- true when that weapon waits for the attack button
+		input = PrimaryTrigger.new(),
 		tomes = {},
 		tomeIndex = {},
 		items = {},
@@ -141,6 +145,10 @@ function PlayerStateService:_join(player: Player, late: boolean)
 	self._recs[player] = rec
 	table.insert(self._list, rec)
 	self:GrantWeapon(rec, rec.heroDef.weapon)
+	-- primary is a matter of slot, not of weapon type: the same weapon picked up
+	-- later by another hero is an ordinary automatic one
+	rec.primary = rec.weapons[1]
+	rec.manual = GameConfig.ManualPrimaryHeroes[rec.hero] == true
 	self:Recompute(rec)
 	rec.hp = rec.stats.MaxHP
 	rec.shield = rec.stats.Shield
@@ -653,7 +661,7 @@ end
 function PlayerStateService:Push(rec)
 	local weapons = {}
 	for _, w in rec.weapons do
-		table.insert(weapons, { id = w.id, level = w.level, s = w.s })
+		table.insert(weapons, { id = w.id, level = w.level, s = w.s, primary = rec.manual and w == rec.primary })
 	end
 	self._stateEvent:FireClient(rec.player, {
 		hero = rec.hero,
