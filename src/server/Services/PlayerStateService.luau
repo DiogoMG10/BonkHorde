@@ -8,6 +8,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
 local Damage = require(ReplicatedStorage.Shared.Core.Damage)
@@ -150,6 +151,7 @@ end
 function PlayerStateService:_spawnCharacter(rec, late: boolean)
 	local player = rec.player
 	local ok, err = pcall(function()
+		player.ReplicationFocus = nil -- follow the hero from here on
 		player:LoadCharacter()
 	end)
 	if not ok then
@@ -278,6 +280,7 @@ function PlayerStateService:EndRun()
 		if character then
 			character:Destroy()
 			rec.player.Character = nil
+			rec.player.ReplicationFocus = Workspace:FindFirstChild("LobbyFocus") -- keep the clearing streamed in behind the menu
 		end
 	end
 	table.clear(self._list)

@@ -32,11 +32,11 @@
  "stages": {
   "map": {
    "spec": "design/map.json",
-   "status": "todo"
+   "status": "done"
   },
   "meshes": {
    "spec": "design/meshes.json",
-   "status": "todo"
+   "status": "done"
   },
   "ui": {
    "spec": "design/ui.json",

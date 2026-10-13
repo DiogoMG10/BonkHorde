@@ -1,0 +1,71 @@
+{
+  "anchors": 391,
+  "cell_studs": 4,
+  "checks": [
+    {
+      "detail": "391 of 391 anchors can be walked to from spawn",
+      "name": "anchors_reachable",
+      "pass": true
+    },
+    {
+      "detail": "207 anchors at least 220 studs from spawn",
+      "name": "boss_portal_sites",
+      "pass": true
+    },
+    {
+      "detail": "18 anchors within 60 studs, 65 within 120",
+      "name": "tutorial_sites",
+      "pass": true
+    },
+    {
+      "detail": "worst slope 0.068, 0 props inside 42 studs",
+      "name": "spawn_clearing",
+      "pass": true
+    },
+    {
+      "detail": "top at 35.1 studs, reached by the ramps only",
+      "name": "plateau_route",
+      "pass": true
+    },
+    {
+      "detail": "nothing walks out of the map",
+      "name": "boundary_wall",
+      "pass": true
+    },
+    {
+      "detail": "97% of the playfield is walkable from spawn",
+      "name": "walkable_share",
+      "pass": true
+    },
+    {
+      "detail": "14.5% of the playfield is 20 to 40 degree slide ground",
+      "name": "slide_runs",
+      "pass": true
+    },
+    {
+      "detail": "262 solid props, 0 pairs closer than 4 studs apart",
+      "name": "prop_gaps",
+      "pass": true
+    }
+  ],
+  "map": "ForestGrove",
+  "props": 477,
+  "props_by_kind": {
+    "BoulderFlat": 20,
+    "BoulderLarge": 28,
+    "Bush": 88,
+    "FallenLog": 14,
+    "LanternPost": 10,
+    "RockSmall": 56,
+    "RuinArch": 2,
+    "RuinTower": 2,
+    "RuinWall": 5,
+    "Stump": 20,
+    "TreeLeaning": 96,
+    "TreeSapling": 64,
+    "TreeTwin": 72
+  },
+  "size_studs": 720,
+  "source": "tools/map/prove.luau over src/shared/Core/MapGen.luau (the module the server runs)",
+  "verdict": "PASS"
+}

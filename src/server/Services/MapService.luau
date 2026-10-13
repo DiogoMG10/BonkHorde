@@ -214,7 +214,7 @@ function MapService:_writeTerrain()
 					end
 					for iy = 1, layers do
 						local bottom = FLOOR_Y + (iy - 1) * VOXEL
-						local fill = math.clamp((h - bottom) / VOXEL, 0, 1)
+						local fill = math.clamp((h - VOXEL / 2 - bottom) / VOXEL, 0, 1) -- the drawn surface sits half a voxel above the fill
 						if fill > 0 then
 							occX[iy][iz] = fill
 							-- only the top couple of voxels carry the surface material

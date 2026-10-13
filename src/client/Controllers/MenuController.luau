@@ -328,7 +328,7 @@ function MenuController:_renderHero()
 	end
 
 	local weapon = Roster.Weapons[hero.weapon]
-	local runs = profile and tonumber(profile.runs[id]) or 0
+	local runs = profile and profile.runs and tonumber(profile.runs[id]) or 0
 	UiKit.setIcon(m.heroPortrait, "Portrait" .. id)
 	UiKit.text(m.heroName, hero.name)
 	UiKit.text(m.heroRuns, if runs == 1 then "1 Run" else `{runs} Runs`)

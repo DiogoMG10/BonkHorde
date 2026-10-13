@@ -71,6 +71,12 @@ function DebugUiController:OfferText(offer): string
 end
 
 function DebugUiController:KnitStart()
+	-- The real screens (UiKit sets this when it is required, before any
+	-- controller starts) own the interface: this fallback builds nothing.
+	if player:WaitForChild("PlayerGui"):GetAttribute("BonkRealUi") == true then
+		return
+	end
+
 	local state = Knit.GetController("StateController")
 	local camera = Knit.GetController("CameraController")
 	local world = Knit.GetController("WorldController")

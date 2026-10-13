@@ -7,6 +7,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
@@ -44,6 +45,20 @@ function PartyService:KnitStart()
 			index += 1
 		end
 		self._members[player] = { index = index, hero = Roster.HeroOrder[1], ready = false }
+		-- no character exists in the lobby, so tell streaming where this player is looking
+		local focus = Workspace:FindFirstChild("LobbyFocus")
+		if not focus then
+			focus = Instance.new("Part")
+			focus.Name = "LobbyFocus"
+			focus.Anchored = true
+			focus.CanCollide = false
+			focus.CanQuery = false
+			focus.Transparency = 1
+			focus.Size = Vector3.one
+			focus.Position = Vector3.new(0, 12, 0)
+			focus.Parent = Workspace
+		end
+		player.ReplicationFocus = focus
 		table.insert(self._order, player)
 		self:Broadcast()
 	end

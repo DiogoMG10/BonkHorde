@@ -1,0 +1,20 @@
+generated IconSilver seed 1002 in 38s
+keyed IconSilver {'bg': [196, 52, 148], 'coverage': 0.252105712890625, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconGold seed 1003 in 42s
+keyed IconGold {'bg': [229, 77, 158], 'coverage': 0.1867847442626953, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconChest seed 1005 in 39s
+keyed IconChest {'bg': [230, 127, 172], 'coverage': 0.5032634735107422, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconPadlock seed 1006 in 38s
+keyed IconPadlock {'bg': [228, 64, 142], 'coverage': 0.2272653579711914, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconCrown seed 1008 in 38s
+keyed IconCrown {'bg': [227, 83, 150], 'coverage': 0.32305335998535156, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconRun seed 1009 in 37s
+keyed IconRun {'bg': [223, 104, 153], 'coverage': 0.288604736328125, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconShield seed 1016 in 41s
+keyed IconShield {'bg': [178, 48, 132], 'coverage': 0.4299278259277344, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconPassive seed 1017 in 41s
+keyed IconPassive {'bg': [216, 55, 154], 'coverage': 0.14316368103027344, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 
+generated IconSword seed 1101 in 43s
+keyed IconSword {'bg': [235, 96, 163], 'coverage': 0.07339668273925781, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]}   <-- CHECK
+generated IconFireStaff seed 1102 in 52s
+keyed IconFireStaff {'bg': [232, 64, 139], 'coverage': 0.1660165786743164, 'touches_edge': False, 'corner_alpha': [0, 0, 0, 0]} 

@@ -96,10 +96,13 @@ function CameraController:KnitStart()
 		camera.CameraType = Enum.CameraType.Scriptable
 
 		if not inRun then
-			-- lobby: a slow orbit over the spawn clearing
-			local t = os.clock() * 0.05
-			local eye = Vector3.new(math.cos(t) * 70, 46, math.sin(t) * 70)
-			camera.CFrame = CFrame.lookAt(eye, Vector3.new(0, 10, 0))
+			-- lobby: look at the squad standing in the clearing, with a slow sway
+			local ground = self._state:HeightAt(0, 0)
+			local sway = math.sin(os.clock() * 0.25) * 1.2
+			local eye = Vector3.new(sway - 1.5, ground + 5.5, -12)
+			camera.FieldOfView = 50
+			camera.CFrame = CFrame.lookAt(eye, Vector3.new(0, ground + 4.2, 0))
+			camera.Focus = CFrame.new(0, ground + 3, 0)
 			return
 		end
 

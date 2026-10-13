@@ -258,7 +258,7 @@ end
 -- Set the attribute BonkUiScaleCompensate = false on PlayerGui to turn this off.
 local function applyScale()
 	local s = currentScale()
-	local compensate = playerGui:GetAttribute("BonkUiScaleCompensate") ~= false
+	local compensate = playerGui:GetAttribute("BonkUiScaleCompensate") == true
 	local k = if compensate then 1 / s else 1
 	for _, entry in scaled do
 		entry.scale.Scale = s

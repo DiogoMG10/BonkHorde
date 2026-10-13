@@ -133,5 +133,155 @@
    0,
    0
   ]
+ },
+ "IconGold": {
+  "bg": [
+   229,
+   77,
+   158
+  ],
+  "coverage": 0.1867847442626953,
+  "touches_edge": false,
+  "corner_alpha": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ "IconChest": {
+  "bg": [
+   230,
+   127,
+   172
+  ],
+  "coverage": 0.5032634735107422,
+  "touches_edge": false,
+  "corner_alpha": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ "IconPadlock": {
+  "bg": [
+   228,
+   64,
+   142
+  ],
+  "coverage": 0.2272653579711914,
+  "touches_edge": false,
+  "corner_alpha": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ "IconCrown": {
+  "bg": [
+   227,
+   83,
+   150
+  ],
+  "coverage": 0.32305335998535156,
+  "touches_edge": false,
+  "corner_alpha": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ "IconRun": {
+  "bg": [
+   223,
+   104,
+   153
+  ],
+  "coverage": 0.288604736328125,
+  "touches_edge": false,
+  "corner_alpha": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ "IconShield": {
+  "bg": [
+   178,
+   48,
+   132
+  ],
+  "coverage": 0.4299278259277344,
+  "touches_edge": false,
+  "corner_alpha": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ "IconPassive": {
+  "bg": [
+   216,
+   55,
+   154
+  ],
+  "coverage": 0.14316368103027344,
+  "touches_edge": false,
+  "corner_alpha": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ "IconSword": {
+  "bg": [
+   235,
+   96,
+   163
+  ],
+  "coverage": 0.07339668273925781,
+  "touches_edge": false,
+  "corner_alpha": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ "IconFireStaff": {
+  "bg": [
+   232,
+   64,
+   139
+  ],
+  "coverage": 0.1660165786743164,
+  "touches_edge": false,
+  "corner_alpha": [
+   0,
+   0,
+   0,
+   0
+  ]
+ },
+ "IconFrostRing": {
+  "bg": [
+   124,
+   62,
+   127
+  ],
+  "coverage": 0.3495206832885742,
+  "touches_edge": false,
+  "corner_alpha": [
+   0,
+   0,
+   0,
+   0
+  ]
  }
 }
