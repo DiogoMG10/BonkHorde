@@ -1,5 +1,8 @@
 # Bonk Horde
 
+Current roadmap: `docs/ROADMAP.md`. Local development and release: `docs/ROJO-WORKFLOW.md`.
+Instructions for Claude Code: `CLAUDE.md`.
+
 ## The five standing rules
 
 1. **Disk is the only source of truth.** Studio connects via `rojo serve`. Never
@@ -31,7 +34,7 @@ tests/                  *.spec.luau, headless        - `lune run test`
 ```sh
 aftman install                 # pinned tools
 wally install                  # Knit, Promise, Signal, Trove -> Packages/
-rojo serve                     # live-sync to Studio (the ONLY sync path)
+rojo serve                     # live-sync to your local DEV place (not the release process)
 lune run test                  # headless test suite
 selene src                     # lint
 stylua src lune                # format
