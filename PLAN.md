@@ -1,5 +1,8 @@
 # Bonk Horde: the plan
 
+> **Historical.** This is the plan for the original six-stage build (October 2026), kept for
+> its design decisions. It is not the active plan: see `docs/ROADMAP.md`.
+
 Stage 1 of 6 (research and plan) is finished. Nothing has been built yet. This is what
 I intend to build; say "approved" or tell me what to change.
 

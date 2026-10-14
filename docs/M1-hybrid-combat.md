@@ -1,22 +1,25 @@
 # M1 Hybrid Combat: progress
 
-Last updated 2026-10-13. Branch `m1-hybrid-combat`, build stamp `bonk-0.3.0-m1b`.
+Last updated 2026-10-14. On `main` (`bfa22f5`), build stamp `bonk-0.3.0-m1b`. Roadmap:
+`docs/ROADMAP.md`.
 
-Approved scope so far: **M1.A** (gameplay clock) and **M1.B** (manual Sword for Sir Clonk
-only). M1.C (Fire Staff, Frost Ring), M1.D (Auto-Trigger) and M1.E are **not started** and
-wait for Tiago and Diogo's playtest of the Sword.
+Done: **M1.A** (gameplay clock) and **M1.B** (manual Sword for Sir Clonk only). M1.C (Fire
+Staff, Frost Ring), M1.D (Auto-Trigger) and M1.E are **not started**; the Sword playtest they
+waited for has happened.
 
 ## State
 
 | Stage | Code | Offline checks | Studio | Human playtest |
 |---|---|---|---|---|
-| M1.A gameplay clock | done | pass | **not run** | n/a |
-| M1.B manual Sword | done | pass | **not run** | **pending** |
+| M1.A gameplay clock | done | pass | boots and runs; **pause fix not tested** | n/a |
+| M1.B manual Sword | done | pass | click and hold swing | **validated** by Tiago and Diogo |
 
-**Nothing in M1 has run in Roblox Studio yet.** The session that wrote it had no Studio
-connection, and pushing to the place needs the developers' approval and a backup first.
+In Studio, during the Rojo migration test on 2026-10-14 (`docs/ROJO-WORKFLOW.md`): server and
+client printed `BUILD bonk-0.3.0-m1b`, a run started, Sword click and hold worked, no errors.
+That covers Studio test 1 below and the basic part of test 3; the rest of that list, including
+the clock test (2), has not been run. Tiago and Diogo then validated the Sword in Studio.
 Everything below marked "offline" was checked with `lune run test`, `selene src`,
-`stylua --check src lune` and `rojo build` only.
+`stylua --check src lune` and `rojo build` only, and is left as written on 2026-10-13.
 
 ## M1.A: gameplay clock
 

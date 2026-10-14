@@ -1,14 +1,19 @@
 # Rojo workflow
 
-Status: **sync validated, release not rehearsed** (branch `chore/rojo-primary`). Steps 0 to 4
-of the plan passed in a disposable copy on 2026-10-14 (results below). Releasing to the shared
-place has not been rehearsed, so `tools/push` (BonkPull) and `tools/proto` (ProtoPull) remain
-the working fallback and are not to be deleted.
+Status: **local sync validated on both developer machines, release not rehearsed.** Steps 0 to
+4 of the plan passed in a disposable copy on 2026-10-14 (results below), and Tiago and Diogo
+each have their own `DEV-<name>.rbxl` set up and syncing. Releasing to the shared place has not
+been rehearsed, so `tools/push` (BonkPull) and `tools/proto` (ProtoPull) remain the working
+fallback and are not to be deleted.
 
 ## The model
 
 - GitHub is the source of truth. Each developer has their own checkout, their own local `.rbxl`
   file and their own `rojo serve`. Nobody shares a sync session.
+- Development is sequential by default: one active feature branch, worked on by one developer
+  at a time. Whoever stops commits, pushes and leaves a short handoff (commit message plus the
+  phase line in `docs/ROADMAP.md`); the other pulls before continuing. Parallel branches only
+  when both decide it.
 - `default.project.json` is the one Rojo project. It is locked to unpublished local files
   (`servePlaceIds: [0]`) and blocks the live place (`blockedPlaceIds`). Rojo is never connected
   to the shared Team Create place.
@@ -73,15 +78,19 @@ drift check above covers them.
 | Play | Server and client both printed `BUILD bonk-0.3.0-m1b`; `MapService` terrain ready (391 anchors, 477 props); a run started; Sword click and hold worked; no errors |
 | Not covered in Studio | `SignalBehavior`, `StreamingIntegrityMode`, `Lighting.Technology` print `UNREADABLE`; use the drift check on a saved file |
 
-## Daily workflow (after the checkpoints pass)
+## Daily workflow
 
-1. `git pull`, `wally install` if `wally.lock` changed.
+1. With Rojo disconnected: `git switch <feature-branch>`, `git pull`, `wally install` if
+   `wally.lock` changed. **Never switch branches while Rojo is connected.**
 2. Open your local `DEV-<name>.rbxl`, run `rojo serve`, click Connect in the plugin.
-3. Edit on disk. Before each Play test run the gates and check the build stamp in Output.
-   Gates: `python check.py` (from the roblox-code skill) or the four commands in the README
-   (`rojo build -o <tmp>.rbxl`, `lune run test`, `selene src`, `stylua --check src lune`).
-4. Work built in Studio goes in `Workspace.Staging`, then is exported to disk (see Assets).
-5. Commit, push your branch, open a PR. Disconnect when you close Studio.
+3. Edit on disk and Play as often as you like; exploratory Play needs no gates. Check the
+   build stamp in Output when it matters which build you are on.
+4. Run the gates before integrating (PR or merge into `main`), or earlier when a change is
+   risky. Gates: `python check.py` (from the roblox-code skill) or the four commands in the
+   README (`rojo build -o <tmp>.rbxl`, `lune run test`, `selene src`, `stylua --check src lune`).
+5. Work built in Studio goes in `Workspace.Staging`, then is exported to disk (see Assets).
+6. End of session: commit, push the feature branch, leave the handoff. When the feature is
+   done, open a PR into `main`. Disconnect when you close Studio.
 
 ## Setting up a developer machine
 
@@ -104,7 +113,9 @@ backups in `D:\Dev.2\BonkHorde-backups` exist only on Diogo's machine and are no
    `PlaceId=0 GameId=0`.** Otherwise Rojo will refuse it; do not loosen the lock, use the
    from-disk option instead.
 5. `rojo serve` (port 34872). Plugin on port 34872, Connect, accept (the list may only show
-   managed instances).
+   managed instances). On a place saved from the live place, the first Connect lists
+   `CollisionFidelity` changes on MeshParts in `ReplicatedStorage.Assets` (Box to Default or
+   Hull): expected, the file on disk is the canonical version.
 6. Play: Output shows `BUILD <stamp>` equal to `BuildStamp` in
    `src/shared/Config/GameConfig.luau`. Stop. Save `DEV-<name>.rbxl`: it is yours.
 
@@ -135,12 +146,14 @@ unmanaged configuration listed above, check it with the drift tool, and publish.
 
 1. Done 2026-10-14: `m1-hybrid-combat` fast-forwarded into `main` (`bfa22f5`, M1.A + M1.B,
    what the live game runs). Gates green on it: rojo build, 79 specs, selene, stylua.
-2. `chore/rojo-primary` → `main` by pull request: it sits directly on `bfa22f5` and touches
-   only `default.project.json`, `tools/rojo/` and `docs/`.
-3. `proto/wardwood`: rebase onto the new `main`. Its files (MapService, DevService,
-   CameraController, GameConfig stamp, prove.luau, `.gitignore`, `tools/proto/`) do not overlap
-   with step 2. It stays unmerged until its review; once Rojo is the daily workflow, its
-   `tools/proto/build.ps1` and ProtoPull are retired in a Wardwood commit.
+2. Done 2026-10-14: `chore/rojo-primary` merged into `main` by pull request #1 (`10b3725`).
+   Rojo is the daily workflow from here on.
+3. Pending: `proto/wardwood` still sits on `bfa22f5`; rebase it onto `main` when its work
+   resumes. Its files (MapService, DevService, CameraController, GameConfig stamp, prove.luau,
+   `.gitignore`, `tools/proto/`) do not overlap with step 2. It stays unmerged until its review;
+   its `tools/proto/build.ps1` and ProtoPull are retired in a Wardwood commit, not before.
+4. New work: one branch per feature off `main` (for example `m1c-staff-ring`), merged by PR.
+   No permanent per-developer branches.
 
 ## Assets: where sources live and how they are preserved
 
