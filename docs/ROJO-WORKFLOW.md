@@ -43,7 +43,9 @@ experience setting stored on the Roblox website (permissions, collaborators, mon
 
 It reports managed trees and declared settings as `same` or `DRIFT`, and lists the unmanaged
 objects. In Studio, `tools/rojo/fingerprint.luau` (paste into the command bar) prints the same
-picture for an open place, plus its PlaceId and GameId.
+picture for an open place, plus its PlaceId and GameId. Settings the command bar cannot read
+(`SignalBehavior`, `StreamingIntegrityMode`, `Lighting.Technology`) print `UNREADABLE`; only the
+drift check above covers them.
 
 ## Migration test in a disposable copy (steps 3 and 4)
 

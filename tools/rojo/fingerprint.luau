@@ -75,11 +75,34 @@ for _, c in game:GetService("ReplicatedStorage"):GetChildren() do
 	end
 end
 
+-- one property as text; some (Workspace.SignalBehavior) are not scriptable and
+-- throw when read from the command bar, so they print UNREADABLE instead
+local function setting(inst, name)
+	local ok, value = pcall(function()
+		return inst[name]
+	end)
+	if not ok then
+		return "UNREADABLE"
+	end
+	return if typeof(value) == "EnumItem" then value.Name else tostring(value)
+end
+
 add("[fingerprint] SETTINGS")
 local ws, sp, lt = workspace, game:GetService("StarterPlayer"), game:GetService("Lighting")
-add(`  Workspace StreamingEnabled={ws.StreamingEnabled} SignalBehavior={ws.SignalBehavior.Name} StreamingIntegrityMode={ws.StreamingIntegrityMode.Name}`)
-add(`  StarterPlayer CharacterUseJumpPower={sp.CharacterUseJumpPower} CameraMaxZoomDistance={sp.CameraMaxZoomDistance} CharacterBreakJointsOnDeath={sp.CharacterBreakJointsOnDeath}`)
-add(`  Lighting Technology={lt.Technology.Name}  StarterGui ScreenOrientation={game:GetService("StarterGui").ScreenOrientation.Name}`)
-add(`  HttpService HttpEnabled={game:GetService("HttpService").HttpEnabled}`)
+local sg, http = game:GetService("StarterGui"), game:GetService("HttpService")
+local settingLines = {
+	{ "Workspace", ws, "StreamingEnabled", "SignalBehavior", "StreamingIntegrityMode" },
+	{ "StarterPlayer", sp, "CharacterUseJumpPower", "CameraMaxZoomDistance", "CharacterBreakJointsOnDeath" },
+	{ "Lighting", lt, "Technology" },
+	{ "StarterGui", sg, "ScreenOrientation" },
+	{ "HttpService", http, "HttpEnabled" },
+}
+for _, line in settingLines do
+	local parts = { `  {line[1]}` }
+	for i = 3, #line do
+		table.insert(parts, `{line[i]}={setting(line[2], line[i])}`)
+	end
+	add(table.concat(parts, " "))
+end
 
 print(table.concat(out, "\n"))
