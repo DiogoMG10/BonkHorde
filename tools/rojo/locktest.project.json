@@ -1,0 +1,13 @@
+{
+  "name": "RojoLockTest-MUST-BE-REFUSED",
+  "servePort": 34874,
+  "servePlaceIds": [1],
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "RojoLockTest": {
+        "$path": "locktest"
+      }
+    }
+  }
+}

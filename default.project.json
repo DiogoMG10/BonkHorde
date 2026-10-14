@@ -1,5 +1,7 @@
 {
   "name": "Bonk Horde",
+  "servePlaceIds": [0],
+  "blockedPlaceIds": [125855916502243],
   "tree": {
     "$className": "DataModel",
     "ReplicatedStorage": {
@@ -19,6 +21,12 @@
       }
     },
     "StarterPlayer": {
+      "$properties": {
+        "AvatarJointUpgrade": "Enabled",
+        "CameraMaxZoomDistance": 128.0,
+        "CharacterBreakJointsOnDeath": false,
+        "CharacterUseJumpPower": false
+      },
       "StarterPlayerScripts": {
         "Client": {
           "$path": "src/client"
@@ -27,16 +35,25 @@
     },
     "Workspace": {
       "$properties": {
-        "FilteringEnabled": true
+        "FilteringEnabled": true,
+        "PlayerCharacterDestroyBehavior": "Enabled",
+        "PlayerScriptsUseInputActionSystem": "Enabled",
+        "SignalBehavior": "Deferred",
+        "StreamOutBehavior": "Opportunistic",
+        "StreamingEnabled": true,
+        "StreamingIntegrityMode": "PauseOutsideLoadedArea"
       }
     },
     "Lighting": {
       "$properties": {
-        "Technology": "Future"
+        "Technology": "ShadowMap"
       }
     },
     "StarterGui": {
-      "$path": "src/ui"
+      "$path": "src/ui",
+      "$properties": {
+        "ScreenOrientation": "Sensor"
+      }
     }
   }
 }
