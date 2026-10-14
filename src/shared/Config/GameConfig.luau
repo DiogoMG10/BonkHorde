@@ -6,7 +6,7 @@
 -- what makes a balance pass a data edit.
 
 local GameConfig = {
-	BuildStamp = "bonk-0.3.0-m1b",
+	BuildStamp = "bonk-0.3.0-m1b-ww0",
 
 	-- squad
 	MaxPlayers = 3,

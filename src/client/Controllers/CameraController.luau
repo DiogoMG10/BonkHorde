@@ -40,6 +40,12 @@ function CameraController:Yaw(): number
 	return self._yaw
 end
 
+--- Turn the camera to a yaw (radians, 0 looks down -z). Used by the Studio
+--- viewpoint hook so comparison screenshots are taken from the same angle.
+function CameraController:Face(yaw: number)
+	self._yaw = yaw
+end
+
 function CameraController:KnitStart()
 	self._state = Knit.GetController("StateController")
 	local sens = GameConfig.CameraSensitivity

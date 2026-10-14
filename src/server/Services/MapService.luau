@@ -5,33 +5,73 @@
 -- The map is a pure function (Shared.Core.MapGen), so the server can simulate on
 -- it without physics and every client can rebuild the same heights. This service
 -- also writes that heightfield into Roblox Terrain so characters have ground.
+--
+-- Profiles: the normal map is MossyWoods. The Wardwood visual prototype
+-- (branch proto/wardwood) replaces the props in one region and the lighting,
+-- and only in an armed, unpublished local Studio file - see Core/ProtoGate.
 
 local Lighting = game:GetService("Lighting")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local ServerStorage = game:GetService("ServerStorage")
 local Workspace = game:GetService("Workspace")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local MapGen = require(ReplicatedStorage.Shared.Core.MapGen)
+local ProtoGate = require(ReplicatedStorage.Shared.Core.ProtoGate)
+local Wardwood = require(ReplicatedStorage.Shared.Config.Wardwood)
+local WardwoodDressing = require(ReplicatedStorage.Shared.Core.WardwoodDressing)
+local WardwoodLook = require(ReplicatedStorage.Shared.Config.WardwoodLook)
+local Blockout = require(script.Parent.Parent.Wardwood.Blockout)
+local Look = require(script.Parent.Parent.Wardwood.Look)
 
 local MapService = Knit.CreateService({ Name = "MapService" })
 
 local VOXEL = 4
 local FLOOR_Y = -8
 
+-- Which profile this server runs. Anything unexpected keeps the normal map.
+local function decideProfile(): (string, string, boolean)
+	local marker = ServerStorage:FindFirstChild(Wardwood.MarkerName)
+	local value = nil
+	if marker then
+		value = if marker:IsA("StringValue") then marker.Value else `<a {marker.ClassName}>`
+	end
+	local env = { studio = RunService:IsStudio(), placeId = game.PlaceId, gameId = game.GameId, marker = value }
+	local profile, reason = ProtoGate.decide(env, Wardwood)
+	return profile, reason, marker ~= nil
+end
+
 function MapService:KnitInit()
 	local c = GameConfig
+	self._profile, self._profileReason, self._markerSeen = decideProfile()
 	self._map = MapGen.build(c.MapSizeStuds, c.HeightCellStuds, c.WallHeight)
 	self._anchors = MapGen.anchors(self._map, 26, 0.35)
 	-- scenery first, so "reachable" already knows what a tree is
 	self._props = MapGen.props(self._map, self._anchors)
+	if self._profile == ProtoGate.Prototype then
+		self._props, self._ward = WardwoodDressing.build(Wardwood, self._map, self._anchors, self._props)
+	end
 	MapGen.block(self._map, self._props)
 	self._reach = MapGen.reachable(self._map, 0, 0, c.CliffSlope)
 	self._terrainReady = false
 end
 
 function MapService:KnitStart()
+	Workspace:SetAttribute("BonkMapProfile", self._profile)
+	if self._markerSeen or self._profile ~= ProtoGate.Default then
+		-- a marker that was refused is reported loudly, so it is never silent
+		local say = if self._profile == ProtoGate.Prototype then print else warn
+		say(`[MapService] map profile {self._profile}: {self._profileReason}`)
+	end
 	self:_light()
+	if self._profile == ProtoGate.Prototype then
+		local ok, err = pcall(Look.apply, WardwoodLook.DefaultLook)
+		if not ok then
+			warn(`[MapService] Wardwood look failed: {err}`)
+		end
+	end
 	task.spawn(function()
 		local ok, err = pcall(function()
 			self:_writeTerrain()
@@ -52,6 +92,24 @@ end
 
 function MapService:GetMap()
 	return self._map
+end
+
+--- The running profile ("MossyWoods" or "Wardwood") and why.
+function MapService:GetProfile(): (string, string)
+	return self._profile, self._profileReason
+end
+
+--- Where the Wardwood ward stands ({ x, z, yaw }), nil outside the prototype.
+function MapService:GetWard()
+	return self._ward
+end
+
+--- Switch the Wardwood lighting condition. Prototype only.
+function MapService:SetLook(name: string): (boolean, string)
+	if self._profile ~= ProtoGate.Prototype then
+		return false, "not the Wardwood prototype"
+	end
+	return Look.apply(name)
 end
 
 function MapService:HeightAt(x: number, z: number): number
@@ -154,10 +212,20 @@ function MapService:_placeProps()
 	local assets = ReplicatedStorage:FindFirstChild("Assets")
 	local source = assets and assets:FindFirstChild("Props")
 	local placed = 0
-	if source then
+	local prototype = self._profile == ProtoGate.Prototype
+	if source or prototype then
 		for i, prop in self._props do
-			local template = source:FindFirstChild(prop.kind)
-			if template and template:IsA("Model") then
+			local template = source and source:FindFirstChild(prop.kind)
+			if prototype and Blockout.has(prop.kind) then
+				-- greybox stand-ins; one failure costs one prop, not the map
+				local ok, model = pcall(Blockout.build, prop, self._map)
+				if ok then
+					model.Parent = folder
+					placed += 1
+				else
+					warn(`[MapService] blockout {prop.kind} failed: {model}`)
+				end
+			elseif template and template:IsA("Model") then
 				local model = template:Clone()
 				model:ScaleTo(prop.scale)
 				local y = MapGen.heightAt(self._map, prop.x, prop.z) - 0.4 * prop.scale

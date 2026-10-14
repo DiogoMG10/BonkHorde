@@ -4,6 +4,8 @@
 -- layout (heights, anchors, props) to work/map/layout.json for the plan image.
 --
 --     lune run tools/map/prove.luau
+--     lune run tools/map/prove.luau wardwood   (the Wardwood prototype's dressing;
+--                                               writes report_wardwood.json etc.)
 
 local fs = require("@lune/fs")
 local process = require("@lune/process")
@@ -11,11 +13,19 @@ local serde = require("@lune/serde")
 
 local GameConfig = require("../../src/shared/Config/GameConfig")
 local MapGen = require("../../src/shared/Core/MapGen")
+local Wardwood = require("../../src/shared/Config/Wardwood")
+local WardwoodDressing = require("../../src/shared/Core/WardwoodDressing")
+
+local wardwood = process.args[1] == "wardwood"
+local suffix = if wardwood then "_wardwood" else ""
 
 local c = GameConfig
 local map = MapGen.build(c.MapSizeStuds, c.HeightCellStuds, c.WallHeight)
 local anchors = MapGen.anchors(map, 26, 0.35)
 local props = MapGen.props(map, anchors)
+if wardwood then
+	props = WardwoodDressing.build(Wardwood, map, anchors, props)
+end
 MapGen.block(map, props)
 local reach = MapGen.reachable(map, 0, 0, c.CliffSlope)
 
@@ -129,7 +139,7 @@ for _, ch in checks do
 end
 
 local report = {
-	map = "ForestGrove",
+	map = if wardwood then "ForestGrove + Wardwood prototype dressing" else "ForestGrove",
 	verdict = if pass then "PASS" else "FAIL",
 	size_studs = c.MapSizeStuds,
 	cell_studs = c.HeightCellStuds,
@@ -143,7 +153,7 @@ local report = {
 if not fs.isDir("work/map") then
 	fs.writeDir("work/map")
 end
-fs.writeFile("work/map/report.json", serde.encode("json", report, true))
+fs.writeFile(`work/map/report{suffix}.json`, serde.encode("json", report, true))
 
 local step = 2 -- every second sample is plenty for a plan image
 local rows = {}
@@ -163,10 +173,20 @@ for iz = 0, n - 1, step do
 	end
 	table.insert(reachRows, table.concat(row))
 end
-fs.writeFile(
-	"work/map/layout.json",
-	serde.encode("json", { half = map.half, cell = map.cell * step, heights = rows, reach = reachRows, anchors = anchors, props = props }, false)
-)
+local layout = { half = map.half, cell = map.cell * step, heights = rows, reach = reachRows, anchors = anchors, props = props }
+if wardwood then
+	-- the prototype's own layout rules, for tools/proto/plan.py
+	layout.wardwood = {
+		region = Wardwood.Region,
+		clearing = Wardwood.ClearingRadius,
+		spawnKeepClear = Wardwood.SpawnKeepClear,
+		pathHalfWidth = Wardwood.PathHalfWidth,
+		paths = Wardwood.Paths,
+		viewpoints = Wardwood.Viewpoints,
+		bandMaxX = Wardwood.BandMaxX,
+	}
+end
+fs.writeFile(`work/map/layout{suffix}.json`, serde.encode("json", layout, false))
 
 for _, ch in checks do
 	print((if ch.pass then "PASS  " else "FAIL  ") .. ch.name .. " - " .. ch.detail)

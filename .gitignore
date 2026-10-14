@@ -15,6 +15,7 @@ design/refs/*.jpg
 # Roblox Studio local files
 *.rbxl.lock
 
-# built trees for the Studio push, and server logs
+# built trees for the Studio push (and the Wardwood prototype's own), and server logs
 work/push/
+work/push-proto/
 build-runs/*.log

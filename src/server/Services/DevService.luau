@@ -8,6 +8,8 @@
 --   gold 500 | level 3 | clock 590 | god | hurt 50 | killall | item Nightlight
 --   weapon Axe | tp 120 -40 | goto Chest | goto ChargeShrine | goto BossPortal
 --   spawn Skeleton 40 | boss | mini Hamlet | bosshp 0.05 | status
+--   perf 20 (client frame timing for 20 s, any map profile)
+--   look cam 2 | look status | look light golden (light: Wardwood prototype only)
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -15,7 +17,9 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
+local ProtoGate = require(ReplicatedStorage.Shared.Core.ProtoGate)
 local Roster = require(ReplicatedStorage.Shared.Config.Roster)
+local Wardwood = require(ReplicatedStorage.Shared.Config.Wardwood)
 
 local DevService = Knit.CreateService({ Name = "DevService" })
 
@@ -191,6 +195,77 @@ function DevService:KnitStart()
 				.. `pos={math.floor(rec.x)},{math.floor(rec.y)},{math.floor(rec.z)} downed={rec.downed} `
 				.. `tickMs={string.format("%.2f", (director._tickCost or 0) * 1000)}`
 		)
+	end
+
+	-- measure: the client samples its frame times and prints one [Perf] line
+	function commands.perf(rec, seconds)
+		local s = tonumber(seconds) or Wardwood.PerfSeconds
+		commands.status(rec)
+		Workspace:SetAttribute("BonkPerf", `{s}:{os.clock()}`)
+		print(`[Dev] perf: sampling {s} s on the client, then a [Perf] line`)
+	end
+
+	-- the Wardwood prototype: switch the lighting (prototype only), stand at a
+	-- viewpoint and report (either profile, so the baseline uses the same views)
+	function commands.look(rec, what, arg)
+		local profile, reason = mapService:GetProfile()
+		local ward = mapService:GetWard()
+		if what == "light" then
+			if profile ~= ProtoGate.Prototype then
+				print(`[Dev] look light needs the Wardwood prototype (map profile {profile}: {reason})`)
+				return
+			end
+			local _, message = mapService:SetLook(arg or "")
+			print(`[Dev] look light: {message}`)
+		elseif what == "cam" then
+			local index = tonumber(arg) or 0
+			local view = Wardwood.Viewpoints[index]
+			if not view then
+				print(`[Dev] look cam 1 to {#Wardwood.Viewpoints}`)
+				return
+			end
+			local tx, tz = view.lookX or 0, view.lookZ or 0
+			if view.lookAt == "ward" then
+				-- on the normal map there is no ward: face where it would be
+				tx, tz = if ward then ward.x else Wardwood.WardCenter[1], if ward then ward.z else Wardwood.WardCenter[2]
+			end
+			-- yaw 0 looks down -z, as the camera controller counts it
+			local yaw = math.atan2(-(tx - view.x), -(tz - view.z))
+			local character = rec.player.Character
+			if character then
+				character:PivotTo(CFrame.new(view.x, mapService:HeightAt(view.x, view.z) + 4, view.z) * CFrame.Angles(0, yaw, 0))
+			end
+			Workspace:SetAttribute("BonkFace", `{yaw}:{os.clock()}`)
+			print(`[Dev] look cam {index}: {view.name}`)
+		else
+			local counts, lights, shadowed = {}, 0, 0
+			local map = Workspace:FindFirstChild("Map")
+			if map then
+				for _, model in map:GetChildren() do
+					if string.sub(model.Name, 1, 3) == "WW_" then
+						counts[model.Name] = (counts[model.Name] or 0) + 1
+					end
+				end
+				for _, d in map:GetDescendants() do
+					if d:IsA("Light") then
+						lights += 1
+						if d.Shadows then
+							shadowed += 1
+						end
+					end
+				end
+			end
+			local parts = {}
+			for kind, n in counts do
+				table.insert(parts, `{kind}={n}`)
+			end
+			table.sort(parts)
+			local wardText = if ward then `{math.floor(ward.x)},{math.floor(ward.z)}` else "none"
+			print(
+				`[Dev] look: profile={profile} light={Workspace:GetAttribute("BonkLook")} ward={wardText} `
+					.. `lights={lights} shadowed={shadowed} {table.concat(parts, " ")}`
+			)
+		end
 	end
 
 	local function run(text: string)
