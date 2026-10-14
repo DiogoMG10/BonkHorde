@@ -1,8 +1,9 @@
 # Rojo workflow
 
-Status: **migration in progress** (branch `chore/rojo-primary`). Steps 0 to 4 of the plan are
-being validated. Until the plan's checkpoints pass, `tools/push` (BonkPull) and `tools/proto`
-(ProtoPull) remain the working fallback and are not to be deleted.
+Status: **sync validated, release not rehearsed** (branch `chore/rojo-primary`). Steps 0 to 4
+of the plan passed in a disposable copy on 2026-10-14 (results below). Releasing to the shared
+place has not been rehearsed, so `tools/push` (BonkPull) and `tools/proto` (ProtoPull) remain
+the working fallback and are not to be deleted.
 
 ## The model
 
@@ -60,14 +61,55 @@ drift check above covers them.
 5. Paste the fingerprint again: UNMANAGED lines identical, SETTINGS identical.
 6. Play: Output shows the expected `BUILD` stamp. Stop. Disconnect. Close without saving.
 
+### Results, 2026-10-14 (Diogo's machine, Rojo 7.7.1 CLI and plugin)
+
+| Check | Result |
+|---|---|
+| Identity of the copy | `PlaceId=0 GameId=0`, `BuildStamp=bonk-0.3.0-m1b` |
+| Lock test (port 34874) | **Refused**: "Your place ID is 0, but needs to be one of these: 1." |
+| Valid sync (port 34872) | Connected; fingerprint before and after identical on every MANAGED and UNMANAGED line and every readable setting |
+| Managed trees vs disk | All six tallies equal to a `rojo build` of the same commit |
+| Live edit | A new file in `src/shared` appeared as a StringValue and an edit to `Net.luau` reached its Source; after the revert the StringValue was gone |
+| Play | Server and client both printed `BUILD bonk-0.3.0-m1b`; `MapService` terrain ready (391 anchors, 477 props); a run started; Sword click and hold worked; no errors |
+| Not covered in Studio | `SignalBehavior`, `StreamingIntegrityMode`, `Lighting.Technology` print `UNREADABLE`; use the drift check on a saved file |
+
 ## Daily workflow (after the checkpoints pass)
 
 1. `git pull`, `wally install` if `wally.lock` changed.
 2. Open your local `DEV-<name>.rbxl`, run `rojo serve`, click Connect in the plugin.
-3. Edit on disk. Before each Play test run the gates (`python check.py`) and check the build
-   stamp in Output.
+3. Edit on disk. Before each Play test run the gates and check the build stamp in Output.
+   Gates: `python check.py` (from the roblox-code skill) or the four commands in the README
+   (`rojo build -o <tmp>.rbxl`, `lune run test`, `selene src`, `stylua --check src lune`).
 4. Work built in Studio goes in `Workspace.Staging`, then is exported to disk (see Assets).
 5. Commit, push your branch, open a PR. Disconnect when you close Studio.
+
+## Setting up a developer machine
+
+Once per developer, on their own computer. Nothing here needs another developer's files: the
+backups in `D:\Dev.2\BonkHorde-backups` exist only on Diogo's machine and are not required.
+
+1. Install Git, Roblox Studio and Rokit (or Aftman). Clone the repo, then in it run
+   `rokit install` (reads `aftman.toml`: Rojo 7.7.1, Wally, Selene, StyLua, Lune) and
+   `rojo plugin install` (installs the Studio plugin matching the CLI). Restart Studio.
+2. `git checkout main`, `git pull`, `wally install`. Run the gates: all green.
+3. Make your own place file `DEV-<name>.rbxl`, **outside the repo**. Either:
+   - **From the live place** (needs edit access to it): open it in Studio, **File → Save to
+     File As** → `DEV-<name>.rbxl`, close the live place without changing anything, then open
+     the saved file. Do not connect Rojo while the live place is open (it is blocked anyway).
+   - **From disk only:** `rojo build -o DEV-<name>.rbxl`. It has every managed tree and the
+     declared settings but none of the unmanaged objects (no `Workspace.Staging`, no Lighting
+     effects until MapService builds them, default TextChatService and `HttpEnabled`).
+     *Not yet tested as a daily place:* Play it once and report what is missing.
+4. Open `DEV-<name>.rbxl` and paste `tools/rojo/fingerprint.luau`. **It must say
+   `PlaceId=0 GameId=0`.** Otherwise Rojo will refuse it; do not loosen the lock, use the
+   from-disk option instead.
+5. `rojo serve` (port 34872). Plugin on port 34872, Connect, accept (the list may only show
+   managed instances).
+6. Play: Output shows `BUILD <stamp>` equal to `BuildStamp` in
+   `src/shared/Config/GameConfig.luau`. Stop. Save `DEV-<name>.rbxl`: it is yours.
+
+Each developer runs their own `rojo serve` against their own file; nobody connects to someone
+else's session, and the port only has to be free on your own machine.
 
 ## Releasing to the shared place (draft, NOT rehearsed)
 
@@ -89,14 +131,12 @@ Fallback if local copies keep the live PlaceId: build the release file from disk
 (`rojo build -o release.rbxl`; the project now carries the place settings), carry over the
 unmanaged configuration listed above, check it with the drift tool, and publish.
 
-## Branch integration (nothing merged yet)
+## Branch integration
 
-`main` is behind: the live game runs M1.A + M1.B from `m1-hybrid-combat`. Never release from
-`main` until step 1 below has happened.
-
-1. `m1-hybrid-combat` → `main`: a fast-forward (main has no commits of its own).
-2. `chore/rojo-primary` → `main`: branched from the M1.B commit; touches only
-   `default.project.json`, `tools/rojo/` and `docs/`.
+1. Done 2026-10-14: `m1-hybrid-combat` fast-forwarded into `main` (`bfa22f5`, M1.A + M1.B,
+   what the live game runs). Gates green on it: rojo build, 79 specs, selene, stylua.
+2. `chore/rojo-primary` → `main` by pull request: it sits directly on `bfa22f5` and touches
+   only `default.project.json`, `tools/rojo/` and `docs/`.
 3. `proto/wardwood`: rebase onto the new `main`. Its files (MapService, DevService,
    CameraController, GameConfig stamp, prove.luau, `.gitignore`, `tools/proto/`) do not overlap
    with step 2. It stays unmerged until its review; once Rojo is the daily workflow, its
@@ -116,5 +156,5 @@ Rules: the repo keeps references and recipes, not large binaries. New Studio-mad
 built in `Workspace.Staging`, exported to `assets/models/<Category>/<Name>.rbxmx` and then
 referenced by the project. Mesh and image content must be saved to Roblox (a permanent asset
 id) before it is committed; session-only Editable content is lost on save. Dated place backups
-live outside the repo in `D:\Dev.2\BonkHorde-backups`. A one-time archive export of the 51
+live outside the repo in `D:\Dev.2\BonkHorde-backups` (Diogo's machine only). A one-time archive export of the 51
 meshes (Studio "Export Selection") to that folder is recommended but not required.
