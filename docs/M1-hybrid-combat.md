@@ -1,11 +1,10 @@
 # M1 Hybrid Combat: progress
 
-Last updated 2026-10-14. On `main` (`bfa22f5`), build stamp `bonk-0.3.0-m1b`. Roadmap:
-`docs/ROADMAP.md`.
+Last updated 2026-10-15. M1.A and M1.B on `main`; M1.C and M1.D on branch
+`m1c-d-primaries-autotrigger`, build stamp `bonk-0.4.0-m1d`. Roadmap: `docs/ROADMAP.md`.
 
-Done: **M1.A** (gameplay clock) and **M1.B** (manual Sword for Sir Clonk only). M1.C (Fire
-Staff, Frost Ring), M1.D (Auto-Trigger) and M1.E are **not started**; the Sword playtest they
-waited for has happened.
+Done: **M1.A** (gameplay clock), **M1.B** (manual Sword), **M1.C** (manual Fire Staff and Frost
+Ring) and **M1.D** (Auto-Trigger item). M1.E is not started.
 
 ## State
 
@@ -13,6 +12,8 @@ waited for has happened.
 |---|---|---|---|---|
 | M1.A gameplay clock | done | pass | boots and runs; **pause fix not tested** | n/a |
 | M1.B manual Sword | done | pass | click and hold swing | **validated** by Tiago and Diogo |
+| M1.C manual Fire Staff, Frost Ring | done | pass | **not run** | not yet |
+| M1.D Auto-Trigger | done | pass | **not run** | not yet |
 
 In Studio, during the Rojo migration test on 2026-10-14 (`docs/ROJO-WORKFLOW.md`): server and
 client printed `BUILD bonk-0.3.0-m1b`, a run started, Sword click and hold worked, no errors.
@@ -82,6 +83,34 @@ animation turns the upper body towards it (up to 100 degrees either side) and ba
 hero itself is not rotated and keeps facing the way it runs. A ground marker at the hero's
 feet shows the aim.
 
+## M1.C: manual Fire Staff and Frost Ring
+
+`ManualPrimaryHeroes` now lists all three heroes, so every hero's weapon in slot 1 uses the
+M1.B input and cooldown rule unchanged. Secondaries stay automatic, whatever their type.
+
+- **Zib, Fire Staff:** each attack throws the weapon's fireballs along the camera aim (extra
+  projectiles fan out 0.35 rad either side). Damage, speed, range and the explosion are the
+  automatic ones; a fireball that meets nothing explodes at the end of its range, as before.
+- **Mint, Frost Ring:** each attack is one ring around the hero, with the automatic radius,
+  damage and freeze. It ignores the aim, so no aim marker is drawn for it.
+- **Sword slash effect:** the crescent's start angle moved 90 degrees (was drawn well left of
+  the swing). Derived from the texture, not yet seen in Studio.
+
+## M1.D: Auto-Trigger
+
+Rare item, `AutoTrigger` in `Roster.Items`, offered once (taking it banishes it from later
+offers and chests). Icon is a placeholder (the Cooldown tome's).
+
+- When the primary is ready and the button is idle, it fires by itself if something is in
+  reach: Sword, the nearest enemy a hand swing could touch (same reach and ground rules);
+  Fire Staff, any enemy within its range, aimed as the old automatic staff; Frost Ring, any
+  enemy inside the ring.
+- `PrimaryTrigger.step` asks the item only on a tick where the weapon is ready and the player
+  is not attacking, so the button always comes first and both share one cooldown. With
+  nothing in reach the weapon waits at zero and banks nothing.
+- Dev hook `status` prints `auto=` (attacks fired by the item) next to `swings=` (by hand).
+  `item AutoTrigger` grants it.
+
 ## Offline results (2026-10-13)
 
 | Check | Result |
@@ -103,6 +132,11 @@ What the new specs establish, on the pure rules only:
 - vertical reach and the ground blocking a swing, on the real map's plateau, ramp and ridge.
 
 Mutation check: breaking the click expiry, and breaking the ground test, each made specs fail.
+
+M1.C and M1.D (2026-10-15): `lune run test` 88 passed, 0 failed (9 new specs in
+`tests/AutoTrigger.spec.luau`: the cadence for each hero's weapon held and automated, the
+item never adds an attack or overrides the button, banks nothing when idle); `selene src`,
+`stylua --check src lune`, `rojo build` clean. Server wiring and visuals are not covered.
 
 ## Not verified
 
@@ -160,3 +194,22 @@ Dev hooks are Studio-only: set the Workspace attribute `BonkDev`. `status` now a
 8. Enemies on a ledge above or a drop below: is it fair that you cannot hit them?
 9. Should the hero turn to face the attack?
 10. Would you play another run like this?
+
+## Playtest checklist for M1.C and M1.D (all three heroes)
+
+Set the Workspace attribute `BonkDev` for the `status` and `item` hooks. Output must show
+`BUILD bonk-0.4.0-m1d`.
+
+1. **Sir Clonk:** click once = one swing, hold = steady swings. Does the slash crescent now
+   sit across the aim marker, not to its left?
+2. **Zib:** click = one fireball (`swings` +1) along the aim marker; hold = one every 1.4 s.
+   Spam-clicking is no faster than holding. Does aiming fireballs feel better than auto-aim?
+3. **Mint:** click = one frost ring around the hero, enemies freeze/slow as before; hold =
+   one every 1.6 s. No aim marker. Does a manual ring feel worth clicking?
+4. For each hero, pick up a secondary (e.g. `weapon Sword` on Zib): it fires by itself.
+5. **Auto-Trigger** (`item AutoTrigger`, or find it in a chest; it shows as Rare): standing
+   idle, each hero attacks only when an enemy is in reach; `auto` rises, `swings` does not.
+6. With Auto-Trigger, hold or spam-click: no faster attacks than without it, no double
+   slashes/fireballs/rings in one moment; clicks aim where you look.
+7. Sir Clonk with Auto-Trigger next to an enemy on a ledge he cannot reach: no swing.
+8. Auto-Trigger never appears again in a chest or offer once taken.

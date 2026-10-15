@@ -18,6 +18,7 @@ local Workspace = game:GetService("Workspace")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
 local Net = require(ReplicatedStorage.Shared.Net)
+local Roster = require(ReplicatedStorage.Shared.Config.Roster)
 
 local PrimaryController = Knit.CreateController({ Name = "PrimaryController" })
 
@@ -33,23 +34,25 @@ function PrimaryController:KnitInit()
 	self._sentAt = 0
 end
 
--- Is this a moment the local hero can attack by hand in?
-function PrimaryController:_enabled(): boolean
+-- Is this a moment the local hero can attack by hand in? The second value
+-- says whether the weapon goes where it is aimed (a ring around the hero does not).
+function PrimaryController:_enabled(): (boolean, boolean)
 	local state = self._state
 	local me = state.me
 	if not me or me.downed or state.paused or not state:IsLive() or not state:Root() then
-		return false
+		return false, false
 	end
 	-- a free mouse means a menu or panel is open: clicks belong to it
 	if UserInputService.MouseBehavior ~= Enum.MouseBehavior.LockCenter then
-		return false
+		return false, false
 	end
 	for _, w in me.weapons do
 		if w.primary then
-			return true
+			local def = Roster.Weapons[w.id]
+			return true, not def or def.kind ~= "Aura"
 		end
 	end
-	return false
+	return false, false
 end
 
 function PrimaryController:_send(held: boolean, yaw: number, now: number)
@@ -112,7 +115,7 @@ function PrimaryController:KnitStart()
 	-- after the camera has turned for this frame
 	RunService:BindToRenderStep("BonkPrimary", Enum.RenderPriority.Camera.Value + 2, function()
 		local now = os.clock()
-		local enabled = self:_enabled()
+		local enabled, aimed = self:_enabled()
 		local yaw = self._camera:Yaw()
 		local want = self._down and enabled
 
@@ -126,7 +129,7 @@ function PrimaryController:KnitStart()
 			end
 		end
 
-		local root = enabled and self._state:Root()
+		local root = enabled and aimed and self._state:Root()
 		if root then
 			local dx, dz = -math.sin(yaw), -math.cos(yaw)
 			local x, z = root.Position.X + dx * MARKER_DISTANCE, root.Position.Z + dz * MARKER_DISTANCE

@@ -97,25 +97,38 @@ function PrimaryTrigger.wants(input: Input, simNow: number, buffer: number): boo
 end
 
 --- One tick of the primary weapon's cooldown. `cd` is the time left, `elapsed`
---- the tick already scaled by attack speed. Returns the new time left and
---- whether the weapon fires this tick.
+--- the tick already scaled by attack speed. Returns the new time left, whether
+--- the weapon fires this tick, and whether that attack is the player's own.
 ---
 --- A ready weapon waits at zero: waiting never banks a second attack. Firing on
 --- the very tick it came ready keeps the fraction of the tick left over, which
 --- is what gives a held button exactly the cadence of an automatic weapon.
-function PrimaryTrigger.step(input: Input, cd: number, elapsed: number, cooldown: number, simNow: number, buffer: number): (number, boolean)
+---
+--- `auto` (the Auto-Trigger item) is asked only when the weapon is ready and
+--- the player is not attacking: the button always comes first, and both share
+--- this one cooldown, so the item can never add an attack.
+function PrimaryTrigger.step(
+	input: Input,
+	cd: number,
+	elapsed: number,
+	cooldown: number,
+	simNow: number,
+	buffer: number,
+	auto: (() -> boolean)?
+): (number, boolean, boolean)
 	local left = cd - elapsed
 	if left > 0 then
 		-- still cooling down; an old click may time out while it does
 		PrimaryTrigger.wants(input, simNow, buffer)
-		return left, false
+		return left, false, false
 	end
-	if not PrimaryTrigger.wants(input, simNow, buffer) then
-		return 0, false
+	local byHand = PrimaryTrigger.wants(input, simNow, buffer)
+	if not byHand and not (auto and auto()) then
+		return 0, false, false
 	end
 	input.clickAt = nil -- the click, if there was one, is spent on this attack
 	local carry = if cd > 0 then left else 0
-	return math.max(cooldown + carry, 0), true
+	return math.max(cooldown + carry, 0), true, byHand
 end
 
 --- Unit direction (x, z) for a camera yaw.

@@ -106,7 +106,10 @@ function WeaponFxController:KnitStart()
 		local yaw = math.atan2(-dx, -dz)
 		local sweep = math.clamp(arcDeg, 60, 200)
 		local at = Vector3.new(x, y + 0.6, z)
-		local turn = yaw + math.rad(45 + sweep / 2)
+		-- The crescent texture's body sits clockwise of its top edge, and the
+		-- swoosh is seen mostly near the end of its spin; this start angle puts
+		-- what is on screen across the swing direction. (+45 drew it well left.)
+		local turn = yaw + math.rad(sweep / 2 - 45)
 		Vfx.ground(
 			at,
 			"crescent",

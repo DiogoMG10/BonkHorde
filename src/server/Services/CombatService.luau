@@ -267,15 +267,19 @@ function Fire.Arc(self, rec, w, now, aim)
 	end
 end
 
-function Fire.Fireball(self, rec, w, _now)
+function Fire.Fireball(self, rec, w, _now, aim)
 	local s = w.s
 	local out = {}
 	local count = shots(rec, w)
-	local found = self._enemies:NearestN(rec.x, rec.z, s.Range, count, out)
+	local found = if aim then 0 else self._enemies:NearestN(rec.x, rec.z, s.Range, count, out)
 	local speed = s.Speed * (s.ProjectileSpeed or 1) * rec.stats.ProjectileSpeed
 	for k = 1, count do
 		local dx, dz = rec.fx, rec.fz
-		if found > 0 then
+		if aim then
+			-- the first straight down the aim, extra ones fanned out either side of it
+			local fan = math.ceil((k - 1) / 2) * 0.35 * (if k % 2 == 0 then 1 else -1)
+			dx, dz = rotate(aim.dx, aim.dz, fan)
+		elseif found > 0 then
 			local x, _, z = self._enemies:Pos(out[(k - 1) % found + 1])
 			local vx, vz = x - rec.x, z - rec.z
 			local m = math.sqrt(vx * vx + vz * vz)
@@ -283,7 +287,7 @@ function Fire.Fireball(self, rec, w, _now)
 				dx, dz = vx / m, vz / m
 			end
 		end
-		if k > found then
+		if not aim and k > found then
 			dx, dz = rotate(dx, dz, (k - found) * 0.35 * (if k % 2 == 0 then 1 else -1))
 		end
 		self:_spawnProj({
@@ -469,22 +473,79 @@ function CombatService:_canTouch(rec, slot: number): boolean
 	return MapGen.sightClear(self._map, rec.x, rec.y, rec.z, x, math.max(at, ground + 1), z)
 end
 
--- The hero's own weapon, fired by the attack button. Same cooldown, same
--- attack-speed scaling and the same Fire function as an automatic weapon; the
--- only differences are who decides when, and where it points.
+-- Auto-Trigger: would the primary reach anything right now? Returns whether it
+-- should fire, and the aim to fire with. A nil aim lets the weapon aim itself,
+-- exactly as it did when it was automatic.
+function CombatService:_autoTarget(rec, w): (boolean, any)
+	local enemies = self._enemies
+	local s = w.s
+	local kind = Roster.Weapons[w.id].kind
+	if kind == "Aura" then
+		return enemies:Nearest(rec.x, rec.z, s.Range * sizeOf(rec, w)) ~= nil, nil
+	elseif kind ~= "Arc" then
+		return enemies:Nearest(rec.x, rec.z, s.Range) ~= nil, nil
+	end
+	-- a melee swing: the nearest enemy it could actually touch, so the item
+	-- never swings at something up a ledge that a hand-aimed swing would miss
+	local out = self._out
+	local n = enemies:Query(rec.x, rec.z, s.Range * sizeOf(rec, w), out)
+	local bestD, ax, az = math.huge, nil, nil
+	for i = 1, n do
+		local slot = out[i]
+		local x, _, z = enemies:Pos(slot)
+		local dx, dz = x - rec.x, z - rec.z
+		local d = dx * dx + dz * dz
+		if d < bestD and self:_canTouch(rec, slot) then
+			bestD = d
+			local m = math.sqrt(d)
+			if m > 0.05 then
+				ax, az = dx / m, dz / m
+			else
+				ax, az = rec.fx, rec.fz
+			end
+		end
+	end
+	if not ax then
+		return false, nil
+	end
+	return true, { dx = ax, dz = az }
+end
+
+-- The hero's own weapon, fired by the attack button (or, with Auto-Trigger,
+-- by itself when the button is idle). Same cooldown, same attack-speed scaling
+-- and the same Fire function as an automatic weapon; the only differences are
+-- who decides when, and where it points.
 function CombatService:_stepPrimary(rec, w, elapsed: number, now: number)
 	local input = rec.input
 	PrimaryTrigger.expire(input, os.clock(), GameConfig.PrimaryHeldTimeout)
-	local left, fires = PrimaryTrigger.step(input, w.cd, elapsed, w.s.Cooldown, now, GameConfig.PrimaryClickBuffer)
+	local autoAim = nil
+	local auto = nil
+	if rec.itemIndex.AutoTrigger then
+		auto = function(): boolean
+			local found, aim = self:_autoTarget(rec, w)
+			autoAim = aim
+			return found
+		end
+	end
+	local left, fires, byHand = PrimaryTrigger.step(input, w.cd, elapsed, w.s.Cooldown, now, GameConfig.PrimaryClickBuffer, auto)
 	w.cd = left
 	if not fires then
 		return
 	end
-	rec.primarySwings = (rec.primarySwings or 0) + 1 -- read by the dev status hook
+	-- read by the dev status hook
+	if byHand then
+		rec.primarySwings = (rec.primarySwings or 0) + 1
+	else
+		rec.primaryAuto = (rec.primaryAuto or 0) + 1
+	end
 	local fire = Fire[Roster.Weapons[w.id].kind]
 	if fire then
-		local dx, dz = PrimaryTrigger.direction(input.yaw)
-		local ok, err = pcall(fire, self, rec, w, now, { dx = dx, dz = dz })
+		local aim = autoAim
+		if byHand then
+			local dx, dz = PrimaryTrigger.direction(input.yaw)
+			aim = { dx = dx, dz = dz }
+		end
+		local ok, err = pcall(fire, self, rec, w, now, aim)
 		if not ok then
 			warn(`[CombatService] primary {w.id} failed: {err}`)
 		end

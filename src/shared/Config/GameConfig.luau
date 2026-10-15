@@ -6,7 +6,7 @@
 -- what makes a balance pass a data edit.
 
 local GameConfig = {
-	BuildStamp = "bonk-0.3.0-m1b",
+	BuildStamp = "bonk-0.4.0-m1d",
 
 	-- squad
 	MaxPlayers = 3,
@@ -67,7 +67,7 @@ local GameConfig = {
 	AimRange = 70,
 
 	-- primary weapon (the hero's starting weapon, fired by hand)
-	ManualPrimaryHeroes = { Knight = true }, -- heroes whose weapon in slot 1 waits for the attack button
+	ManualPrimaryHeroes = { Knight = true, Fox = true, Frostling = true }, -- heroes whose weapon in slot 1 waits for the attack button
 	PrimaryClickBuffer = 0.25, -- how long one click during the cooldown is remembered
 	PrimaryHeldTimeout = 1, -- a held button the client stops confirming is dropped after this
 	PrimaryInputRate = 20, -- attack-button messages accepted per second, per player

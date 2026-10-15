@@ -423,6 +423,9 @@ function PlayerStateService:GrantItem(rec, id: string)
 		rec.itemIndex[id] = 1
 		table.insert(rec.items, { id = id, count = 1 })
 	end
+	if def.unique then
+		rec.banished["item:" .. id] = true -- out of every later offer and chest
+	end
 	if def.stats then
 		for stat, amount in def.stats do
 			Stats.add(rec.bonus, stat, amount)

@@ -10,8 +10,10 @@ explicit decision by Tiago and Diogo.
 
 - **State:** M1.A gameplay clock and M1.B manual Sword (Sir Clonk) are on `main`. M1.B
   validated in Studio by Tiago and Diogo. The M1.A pause fix has not been tested in Studio.
-- **Next playable result:** M1.C, manual Fire Staff (Zib) and Frost Ring (Mint); then M1.D
-  Auto-Trigger.
+  M1.C (manual Fire Staff, Frost Ring) and M1.D (Auto-Trigger) are built on branch
+  `m1c-d-primaries-autotrigger`, offline checks only, awaiting the Studio playtest.
+- **Next playable result:** playtest M1.C/M1.D (checklist in `docs/M1-hybrid-combat.md`),
+  then merge.
 - **Blockers:** none.
 
 ## M2 Movement & Game Feel — not started

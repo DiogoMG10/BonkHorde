@@ -179,7 +179,7 @@ return {
 		for _, id in Roster.ItemOrder do
 			assert(Roster.Items[id] ~= nil, "undefined item " .. id)
 		end
-		assert(#Roster.ItemOrder == 25)
+		assert(#Roster.ItemOrder == 26)
 		for _, id in Roster.WeaponOrder do
 			assert(Roster.Weapons[id] ~= nil, "undefined weapon " .. id)
 		end

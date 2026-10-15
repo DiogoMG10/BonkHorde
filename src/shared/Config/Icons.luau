@@ -64,6 +64,7 @@ Icons.Map = {
 	IconItemFeatherweight = "rbxassetid://122943538963359",
 	IconItemStaticMitts = "rbxassetid://87230909922029",
 	IconItemSkeletonKey = "rbxassetid://98628757475883",
+	IconItemAutoTrigger = "rbxassetid://119154606530759", -- placeholder: the Cooldown tome icon until its own is drawn
 	IconItemVampireMitts = "rbxassetid://105704288960657",
 	IconItemNightlight = "rbxassetid://86811854199526",
 	IconItemCrackedGoggles = "rbxassetid://107953914413106",
