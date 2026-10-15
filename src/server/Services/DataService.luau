@@ -26,7 +26,15 @@ local function blank()
 			unlocked[id] = true
 		end
 	end
-	return { silver = 0, unlocked = unlocked, runs = {}, best = { kills = 0, time = 0 }, settings = {}, canSave = true }
+	return {
+		silver = 0,
+		unlocked = unlocked,
+		runs = {},
+		best = { kills = 0, time = 0 },
+		settings = {},
+		devUnlocked = {}, -- Studio test unlocks: shown and playable, never saved
+		canSave = true,
+	}
 end
 
 --- Only known keys, only numbers, clamped: a forged message stores nothing odd.
@@ -195,6 +203,19 @@ function DataService:Unlock(player: Player, heroId: string): boolean
 	return true
 end
 
+--- Studio test hook (DevService): unlock a hero for this session only. It
+--- costs nothing and is left out of every save.
+function DataService:DevUnlock(player: Player, heroId: string): boolean
+	local p = self._profiles[player]
+	if not p or not Roster.Heroes[heroId] or p.unlocked[heroId] then
+		return false
+	end
+	p.unlocked[heroId] = true
+	p.devUnlocked[heroId] = true
+	self:Push(player)
+	return true
+end
+
 function DataService:RecordRun(player: Player, heroId: string, kills: number, bossSeconds: number?)
 	local p = self._profiles[player]
 	if not p then
@@ -215,10 +236,16 @@ function DataService:Save(player: Player)
 	if not p or not p.canSave or not self._store then
 		return
 	end
+	local unlocked = {}
+	for id, value in p.unlocked do
+		if not p.devUnlocked[id] then
+			unlocked[id] = value
+		end
+	end
 	local ok, err = pcall(function()
 		self._store:SetAsync(
 			"u" .. player.UserId,
-			{ silver = p.silver, unlocked = p.unlocked, runs = p.runs, best = p.best, settings = p.settings }
+			{ silver = p.silver, unlocked = unlocked, runs = p.runs, best = p.best, settings = p.settings }
 		)
 	end)
 	if not ok then

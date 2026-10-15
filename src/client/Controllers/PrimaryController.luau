@@ -8,10 +8,11 @@
 -- hearing it lets go.
 --
 -- Mouse and keyboard only for now. How the aim is shown depends on the weapon:
--- a melee swing is a direction on the ground, shown as a marker at the hero's
--- feet; a shot (Fire Staff) flies from the camera's focus along its look, so a
--- crosshair at the centre of the screen is exactly where it goes. A ring
--- around the hero (Frost Ring) shows nothing.
+-- a melee swing (Sword) goes where the camera faces and its slash draws the
+-- area it hit; a shot (Fire Staff) flies from the camera's focus along its
+-- look, so a crosshair at the centre of the screen is exactly where it goes. A
+-- ring around the hero (Frost Ring) shows nothing. The swing's ground marker
+-- is a Studio debug aid only: `marker` in Workspace.BonkDev (DevService).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -181,7 +182,8 @@ function PrimaryController:KnitStart()
 			self:_crosshair().Enabled = shoots
 		end
 
-		local root = enabled and kind == "Arc" and self._state:Root()
+		local debugMarker = RunService:IsStudio() and Workspace:GetAttribute("BonkAimMarker") == true
+		local root = enabled and kind == "Arc" and debugMarker and self._state:Root()
 		if root then
 			local dx, dz = -math.sin(yaw), -math.cos(yaw)
 			local x, z = root.Position.X + dx * MARKER_DISTANCE, root.Position.Z + dz * MARKER_DISTANCE

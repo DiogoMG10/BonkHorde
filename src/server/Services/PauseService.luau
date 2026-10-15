@@ -3,8 +3,11 @@
 -- Core/PauseVote; this keeps the votes, holds the run director's "player"
 -- pause reason while the vote says so, and tells every client where it stands.
 --
--- It only ever sets its own reason, so a level-up or a panel pause is never
--- lifted by a player resuming, and the other way round.
+-- It only ever sets its own reasons, so a level-up or a panel pause is never
+-- lifted by a player resuming, and the other way round. It also owns the short
+-- co-op countdown after the last level-up choice ("countdown" reason): the run
+-- stays frozen for `PauseResumeSeconds` so nobody is dropped back into a fight
+-- the moment their card closes.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -27,6 +30,7 @@ local MESSAGE_GAP = 0.2 -- seconds between two messages a player may send
 
 function PauseService:KnitInit()
 	self._vote = PauseVote.new()
+	self._countdownUntil = nil
 	self._lastMessage = {}
 	self._event = Net.server("Pause")
 end
@@ -88,16 +92,40 @@ function PauseService:_participants(): { number }
 	return ids
 end
 
+--- Let go of `reason` (a level-up) behind a short countdown in co-op, so the
+--- world stays frozen while everyone gets their bearings. Solo lets go at once.
+function PauseService:ResumeWithCountdown(reason: string)
+	local director = self._director
+	if not director:HasPause(reason) then
+		return
+	end
+	if #self:_participants() <= 1 then
+		director:SetPause(reason, false)
+		return
+	end
+	director:SetPause("countdown", true) -- first, so the run is never free in between
+	director:SetPause(reason, false)
+	self._countdownUntil = os.clock() + CFG.resumeSeconds
+	self:_send(nil)
+end
+
 --- Run every frame from the run director, paused or not.
 function PauseService:Step(now: number)
 	local vote = self._vote
 	if not RunState.isLive(self._director:GetPhase()) then
 		-- a run ending, wiping or never started: no request or pause survives it
-		if vote.mode ~= "none" or next(vote.lastAsk) then
+		if vote.mode ~= "none" or next(vote.lastAsk) or self._countdownUntil then
 			PauseVote.reset(vote)
+			self._countdownUntil = nil
+			self._director:SetPause("countdown", false)
 			self:_apply()
 		end
 		return
+	end
+	if self._countdownUntil and now >= self._countdownUntil then
+		self._countdownUntil = nil
+		self._director:SetPause("countdown", false)
+		self:_send(nil)
 	end
 	if PauseVote.step(vote, self:_participants(), now, CFG) then
 		self:_apply()
@@ -112,9 +140,12 @@ end
 function PauseService:_payload(player: Player?)
 	local vote = self._vote
 	local now = os.clock()
-	local votes = {}
+	local votes, ready = {}, {}
 	for id in vote.votes do
 		table.insert(votes, id)
+	end
+	for id in vote.ready do
+		table.insert(ready, id)
 	end
 	local asker = vote.by and Players:GetPlayerByUserId(vote.by)
 	return {
@@ -122,10 +153,13 @@ function PauseService:_payload(player: Player?)
 		by = vote.by,
 		byName = if asker then asker.DisplayName else nil,
 		votes = votes,
+		ready = ready,
 		need = vote.need,
 		seconds = if vote.ends == math.huge then -1 else math.max(0, vote.ends - now),
 		resuming = vote.resuming,
 		cooldown = if player then PauseVote.cooldownLeft(vote, player.UserId, now, CFG) else 0,
+		-- the countdown after a co-op level-up, if one is running
+		countdown = if self._countdownUntil then math.max(0, self._countdownUntil - now) else nil,
 	}
 end
 

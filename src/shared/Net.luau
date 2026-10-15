@@ -34,7 +34,7 @@ export type EventName =
 	| "Banner" -- S>C all: text, style
 	| "Toast" -- S>C one/all: title, text
 	| "Results" -- S>C all: results table
-	| "Pause" -- S>C all: { mode, by, byName, votes = { userId }, need, seconds, resuming, cooldown }
+	| "Pause" -- S>C all: { mode, by, byName, votes, ready = { userId }, need, seconds, resuming, cooldown, countdown }
 	| "PauseAsk" -- C>S: action ("request" | "accept" | "withdraw" | "resume")
 	-- player state
 	| "PlayerState" -- S>C owner: full run state for the HUD and panels

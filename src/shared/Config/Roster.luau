@@ -94,7 +94,7 @@ Roster.Heroes = {
 		colour = { 232, 120, 40 },
 	},
 	Frostling = {
-		name = "Mint",
+		name = "Minty",
 		blurb = "Chilly hooded mage. Stand close, regret it.",
 		weapon = "FrostRing",
 		passiveName = "Brain Freeze",

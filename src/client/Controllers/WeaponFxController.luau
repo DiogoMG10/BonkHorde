@@ -87,6 +87,105 @@ local function model(name: string): BasePart?
 	return p
 end
 
+-- ---------------------------------------------------------------- the sword slash
+
+local SLASH_FILL = Color3.fromRGB(150, 210, 255)
+local SLASH_EDGE = Color3.fromRGB(235, 250, 255)
+local SLASH_SWEEP = 0.1 -- seconds for the cut to cross the arc
+local SLASH_LIFE = 0.32 -- seconds until the last of it is gone
+local SLASH_LIFT = 0.3 -- studs above the ground, so it never sinks into a slope
+
+local function wedge(colour: Color3): WedgePart
+	local w = Instance.new("WedgePart")
+	w.Anchored = true
+	w.CanCollide = false
+	w.CanQuery = false
+	w.CanTouch = false
+	w.CastShadow = false
+	w.Material = Enum.Material.Neon
+	w.Color = colour
+	w.Transparency = 1
+	w.Parent = folder
+	return w
+end
+
+-- A flat triangle a, b, c out of two wedges (each wedge is a right triangle).
+local function triangle(a: Vector3, b: Vector3, c: Vector3, colour: Color3): { WedgePart }
+	local ab, ac, bc = b - a, c - a, c - b
+	local abd, acd, bcd = ab:Dot(ab), ac:Dot(ac), bc:Dot(bc)
+	-- a must sit opposite the longest side
+	if abd > acd and abd > bcd then
+		c, a = a, c
+	elseif acd > bcd and acd > abd then
+		a, b = b, a
+	end
+	ab, ac, bc = b - a, c - a, c - b
+	local right = ac:Cross(ab).Unit
+	local up = bc:Cross(right).Unit
+	local back = bc.Unit
+	local height = math.abs(ab:Dot(up))
+	local w1, w2 = wedge(colour), wedge(colour)
+	w1.Size = Vector3.new(0.05, height, math.abs(ab:Dot(back)))
+	w1.CFrame = CFrame.fromMatrix((a + b) / 2, right, up, back)
+	w2.Size = Vector3.new(0.05, height, math.abs(ac:Dot(back)))
+	w2.CFrame = CFrame.fromMatrix((a + c) / 2, -right, up, -back)
+	return { w1, w2 }
+end
+
+-- The swing's whole area as slices of a fan, plus a bright rim along the
+-- outer edge. Slice 1 is the hero's right; each lights up as the cut passes
+-- it and then fades, so the fan reads as one sweep from right to left.
+local function slash(at: Vector3, forward: Vector3, range: number, arcDeg: number)
+	local state = Knit.GetController("StateController")
+	local right = Vector3.new(-forward.Z, 0, forward.X)
+	local half = math.rad(arcDeg) / 2
+	local count = math.max(3, math.ceil(arcDeg / 12))
+	local function point(angle: number, radius: number): Vector3
+		local flat = at + (forward * math.cos(angle) + right * math.sin(angle)) * radius
+		return Vector3.new(flat.X, state:HeightAt(flat.X, flat.Z) + SLASH_LIFT, flat.Z)
+	end
+	local centre = point(0, 0)
+	local slices = {}
+	for i = 1, count do
+		local a0 = half - (i - 1) / count * 2 * half
+		local a1 = half - i / count * 2 * half
+		local p0, p1 = point(a0, range), point(a1, range)
+		local rim = Instance.new("Part")
+		rim.Anchored, rim.CanCollide, rim.CanQuery, rim.CanTouch = true, false, false, false
+		rim.CastShadow = false
+		rim.Material = Enum.Material.Neon
+		rim.Color = SLASH_EDGE
+		rim.Transparency = 1
+		rim.Size = Vector3.new(0.45, 0.12, (p1 - p0).Magnitude + 0.2)
+		rim.CFrame = CFrame.lookAt((p0 + p1) / 2, p1)
+		rim.Parent = folder
+		table.insert(slices, { fill = triangle(centre, p0, p1, SLASH_FILL), rim = rim, at = (i - 1) / count * SLASH_SWEEP })
+	end
+	local born = os.clock()
+	local conn
+	conn = RunService.RenderStepped:Connect(function()
+		local age = os.clock() - born
+		local done = age >= SLASH_LIFE
+		for _, slice in slices do
+			local t = (age - slice.at) / (SLASH_LIFE - slice.at)
+			local shown = if done or t < 0 then 0 else (1 - t) ^ 1.5
+			for _, w in slice.fill do
+				w.Transparency = 1 - 0.38 * shown
+			end
+			slice.rim.Transparency = 1 - 0.9 * shown
+		end
+		if done then
+			conn:Disconnect()
+			for _, slice in slices do
+				slice.rim:Destroy()
+				for _, w in slice.fill do
+					w:Destroy()
+				end
+			end
+		end
+	end)
+end
+
 function WeaponFxController:KnitInit()
 	folder = Instance.new("Folder")
 	folder.Name = "Fx"
@@ -101,35 +200,19 @@ function WeaponFxController:KnitStart()
 	self._state = state
 	local Effects = self.Effects
 
-	function Effects.Slash(_index, x, y, z, dx, dz, range, arcDeg)
-		-- a crescent swoosh swept across the arc in front of the hero
-		local yaw = math.atan2(-dx, -dz)
-		local sweep = math.clamp(arcDeg, 60, 200)
-		local at = Vector3.new(x, y + 0.6, z)
-		-- Measured, not guessed: the texture's mass sits 37 degrees clockwise of
-		-- its top edge; on a Top-face SurfaceGui that top edge points 90 degrees
-		-- left of the part's look; and with the eased spin and the fade, what is
-		-- seen averages 0.62 of the way through the spin. This start angle puts
-		-- that average on the swing direction. (sweep/2 - 45 sat ~8 degrees right.)
-		local turn = yaw + math.rad(sweep * 0.62 + 37 - 90)
-		Vfx.ground(
-			at,
-			"crescent",
-			Color3.fromRGB(215, 240, 255),
-			range * 0.75,
-			range * 1.08,
-			0.2,
-			{ yaw = turn, spin = sweep, hold = 0.5, alpha = 0.15 }
-		)
-		Vfx.ground(
-			at - Vector3.new(0, 0.15, 0),
-			"crescent",
-			Color3.fromRGB(120, 190, 255),
-			range * 0.7,
-			range * 1.15,
-			0.26,
-			{ yaw = turn, spin = sweep * 0.8, alpha = 0.45, hold = 0.3 }
-		)
+	function Effects.Slash(index, x, _y, z, dx, dz, range, arcDeg)
+		-- Drawn from the hit test itself (CombatService Fire.Arc): a sector of
+		-- radius `range` and width `arcDeg` around the swing direction, so what
+		-- is seen is where the swing hits. Centred on the hero as this client
+		-- sees them, and swept right to left like the animation's cut.
+		local root = state:RootOfIndex(index)
+		if root then
+			x, z = root.Position.X, root.Position.Z
+		end
+		if dx * dx + dz * dz < 1e-6 then
+			return
+		end
+		slash(Vector3.new(x, 0, z), Vector3.new(dx, 0, dz).Unit, range, math.clamp(arcDeg, 20, 360))
 	end
 
 	function Effects.Frost(index, radius, seconds)

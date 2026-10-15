@@ -18,8 +18,11 @@ explicit decision by Tiago and Diogo.
 - **Scope:** momentum, bunny hop, slide, camera, impact, animation and audio.
 - **State:** M2.A (real player pause solo and co-op vote, master/music/SFX volumes kept in the
   profile, edge hit flash, low-HP vignette, health bar at the hero's feet) on branch
-  `feat/m2a-player-feedback`, build `bonk-0.5.0-m2a`: offline checks only.
-- **Next playable result:** Studio playtest of M2.A by Tiago and Diogo (checklist in its PR),
+  `feat/m2a-player-feedback`. `bonk-0.5.0-m2a` validated in Studio by Tiago and Diogo.
+  Polish pass `bonk-0.5.1-m2a` (Sword slash drawn from the hit area, paused-world grade,
+  co-op READY to resume with 3-2-1, co-op level-up countdown, Minty, dev `unlock`/`marker`):
+  offline checks only.
+- **Next playable result:** short Studio playtest of the polish pass (checklist in PR #4),
   then merge; then M2.B (bunny hop, movement, difficulty balance).
 - **Blockers:** none.
 

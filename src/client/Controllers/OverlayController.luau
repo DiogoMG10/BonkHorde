@@ -7,8 +7,13 @@
 -- on touch). In a live run that asks the server (PauseService) for a pause:
 -- solo it pauses at once; co-op it asks the squad, and the notice at the top
 -- says plainly that the game is still running until everyone agrees. The menu
--- opens for everyone once the run is really paused. Outside a run, and from
--- the main menu's SETTINGS button, the same sheet opens as plain settings.
+-- opens for everyone once the run is really paused; co-op plays on once every
+-- player has pressed READY. Outside a run, and from the main menu's SETTINGS
+-- button, the same sheet opens as plain settings.
+--
+-- While the run is really paused (any reason) the world is softly desaturated
+-- and darkened. Going back in, a 3-2-1 countdown plays over the frozen world
+-- and the colour returns with it; the sheet fades out rather than vanishing.
 --
 -- The settings live as attributes on PlayerGui so any controller can read
 -- them and listen for changes:
@@ -21,12 +26,15 @@
 
 local ContextActionService = game:GetService("ContextActionService")
 local GuiService = game:GetService("GuiService")
+local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
+local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local Net = require(ReplicatedStorage.Shared.Net)
 local UiKit = require(script.Parent.Parent.UiKit)
 
@@ -45,6 +53,11 @@ local DEFAULTS = {
 local VOLUMES = { master = "MasterVolume", music = "MusicVolume", sfx = "SfxVolume" }
 local PAD_STEP = 0.05
 local AMBER = Color3.fromHex("#FFB23A")
+local RESUME_SECONDS = GameConfig.PauseResumeSeconds
+local AUTO_WARNING = 10 -- seconds of warning before a co-op pause resumes on its own
+local FADE_IN, FADE_OUT = 0.18, 0.35
+-- the paused world: how far colour and light drop at full strength
+local GRADE_SATURATION, GRADE_BRIGHTNESS, GRADE_CONTRAST = -0.6, -0.07, -0.05
 
 local function noPause()
 	return { mode = "none", votes = {}, need = 0, seconds = 0 }
@@ -60,6 +73,11 @@ function OverlayController:KnitInit()
 	self._volumesSent = nil
 	self._sliders = {}
 	self._dragging = nil
+	self._fadeStamp = 0
+	self._grade = 0 -- the paused-world look, 0..1
+	self._cdShown = nil -- the countdown text on screen
+	self._cdTotal = nil -- how long this countdown was when first seen
+	self._cdStamp = 0
 	local gui = UiKit.playerGui()
 	for name, value in DEFAULTS do
 		if gui:GetAttribute(name) == nil then
@@ -90,12 +108,38 @@ function OverlayController:OpenSettings(back: Instance?)
 	self:_openMenu("settings")
 end
 
+-- Fade the sheet to `to` (0 shown, 1 gone); hidden for good once gone.
+function OverlayController:_fade(to: number, seconds: number)
+	local sheet = self._pause
+	self._fadeStamp += 1
+	local stamp = self._fadeStamp
+	if not sheet:IsA("CanvasGroup") then
+		UiKit.show(sheet, to < 1)
+		return
+	end
+	if to < 1 then
+		if not sheet.Visible then
+			sheet.GroupTransparency = 1
+		end
+		UiKit.show(sheet, true)
+	end
+	local tween = TweenService:Create(sheet, TweenInfo.new(seconds, Enum.EasingStyle.Quad), { GroupTransparency = to })
+	tween:Play()
+	if to >= 1 then
+		tween.Completed:Once(function()
+			if self._fadeStamp == stamp then
+				UiKit.show(sheet, false)
+			end
+		end)
+	end
+end
+
 function OverlayController:_openMenu(mode: string)
 	if not self._pause then
 		return
 	end
 	self._menuMode = mode
-	UiKit.show(self._pause, true)
+	self:_fade(0, FADE_IN)
 	self._camera:SetUiOpen("pause", true)
 	self:_renderSettings()
 	self:_renderMenuText()
@@ -108,7 +152,7 @@ function OverlayController:_closeMenu()
 	end
 	self._menuMode = nil
 	self._dragging = nil
-	UiKit.show(self._pause, false)
+	self:_fade(1, FADE_OUT)
 	self._camera:SetUiOpen("pause", false)
 	UiKit.unfocus(self._pause)
 	self:_sendVolumes()
@@ -131,6 +175,17 @@ end
 
 function OverlayController:_voted(): boolean
 	return table.find(self._info.votes or {}, player.UserId) ~= nil
+end
+
+--- When the countdown back into play ends (os.clock time), or nil.
+function OverlayController:_countdownEnd(): number?
+	local info = self._info
+	if info.mode == "paused" and info.resuming then
+		return self._infoAt + math.max(0, tonumber(info.seconds) or 0)
+	elseif info.mode ~= "paused" and typeof(info.countdown) == "number" then
+		return self._infoAt + info.countdown -- after a co-op level-up
+	end
+	return nil
 end
 
 --- Seconds left on the vote or the pause; -1 for a pause with no limit (solo).
@@ -211,9 +266,18 @@ function OverlayController:_renderMenuText()
 	local title, button = "SETTINGS", "CLOSE"
 	if self._menuMode == "pause" then
 		local seconds = self:_secondsLeft()
-		local coop = seconds >= 0
-		title = if coop then `PAUSED  {UiKit.clock(math.ceil(seconds))}` else "PAUSED"
-		button = if coop then "RESUME ALL" else "RESUME"
+		if seconds >= 0 then
+			-- co-op: everyone presses READY; near the limit it resumes on its own
+			local ready = self._info.ready or {}
+			local n, need = #ready, self._info.need or 0
+			local auto = seconds - RESUME_SECONDS
+			title = if auto <= AUTO_WARNING
+				then `AUTO-RESUME IN {math.max(0, math.ceil(auto))}`
+				else `PAUSED  {UiKit.clock(math.ceil(seconds))}`
+			button = if table.find(ready, player.UserId) then `WAITING  {n}/{need}` else `READY  {n}/{need}`
+		else
+			title, button = "PAUSED", "RESUME"
+		end
 	end
 	UiKit.text(self._title, title)
 	UiKit.text(self._resumeLabel, button)
@@ -239,10 +303,7 @@ function OverlayController:_renderNotice()
 		else
 			title, sub, action = who, `Game still running · {self:_keyName()} to agree · {left}s`, "ACCEPT"
 		end
-	elseif info.mode == "paused" and info.resuming then
-		title = `RESUMING IN {math.max(1, math.ceil(self:_secondsLeft()))}`
-		sub, subColour = "Get ready!", UiKit.Colours.ink
-	elseif info.mode == "paused" and self._menuMode ~= "pause" and self:_inRun() then
+	elseif info.mode == "paused" and not info.resuming and self._menuMode ~= "pause" and self:_inRun() then
 		local seconds = self:_secondsLeft()
 		title = if seconds >= 0 then `PAUSED  {UiKit.clock(math.ceil(seconds))}` else "PAUSED"
 		sub, subColour = `{self:_keyName()} to open the menu`, UiKit.Colours.ink
@@ -319,6 +380,22 @@ function OverlayController:_start()
 	UiKit.fillIcons(pause)
 	UiKit.show(pause, false)
 	UiKit.show(UiKit.find(pause, "LeaveButton"), false) -- there is no way to leave a run yet
+
+	local countdown = UiKit.find(overlay, "ResumeCountdown")
+	self._countdown = countdown
+	self._cdNumber = UiKit.find(countdown, "Number")
+	UiKit.show(countdown, false)
+	if self._cdNumber then
+		local pop = Instance.new("UIScale")
+		pop.Name = "Pop"
+		pop.Parent = self._cdNumber
+		self._cdPop = pop
+	end
+	local grade = Instance.new("ColorCorrectionEffect")
+	grade.Name = "BonkPauseGrade"
+	grade.Enabled = false
+	grade.Parent = Lighting
+	self._gradeFx = grade
 
 	local notice = UiKit.find(overlay, "PauseNotice")
 	self._notice = {
@@ -441,9 +518,20 @@ function OverlayController:_start()
 	self:_loadVolumes()
 	self:_renderSettings()
 
-	-- the countdowns in the notice and the menu title
+	-- every frame: the paused-world look and the 3-2-1; ten times a second:
+	-- the timers in the notice and the menu title
 	local tick = 0
+	local broken = false
 	RunService.Heartbeat:Connect(function(dt)
+		if not broken then
+			local ok, err = pcall(function()
+				self:_renderCountdown(dt)
+			end)
+			if not ok then
+				broken = true -- one warning, not one per frame
+				warn(`[OverlayController] countdown stopped: {err}`)
+			end
+		end
 		tick += dt
 		if tick < 0.1 or (self._info.mode == "none" and not self._hint) then
 			return
@@ -576,6 +664,63 @@ function OverlayController:_start()
 			end
 		end
 	end)
+end
+
+--- The 3-2-1 back into play, and the paused world's colour returning with it.
+function OverlayController:_renderCountdown(dt: number)
+	local endAt = self:_countdownEnd()
+	local left = if endAt then endAt - os.clock() else 0
+	local live = self._state:IsLive()
+	if left > 0 and live then
+		self._cdTotal = self._cdTotal or math.max(left, 0.5)
+		local digit = tostring(math.ceil(left))
+		if digit ~= self._cdShown then
+			self._cdShown = digit
+			self:_showText(digit)
+		end
+	elseif self._cdShown then
+		-- it just ran out: one quick word, then out of the way
+		self._cdShown = nil
+		self._cdTotal = nil
+		if live then
+			self:_showText("GO!")
+			local stamp = self._cdStamp
+			task.delay(0.45, function()
+				if self._cdStamp == stamp then
+					UiKit.show(self._countdown, false)
+				end
+			end)
+		else
+			UiKit.show(self._countdown, false)
+		end
+	end
+
+	-- 1 while paused, falling with the countdown, 0 in play
+	local target = 0
+	if self._cdTotal and left > 0 then
+		target = math.clamp(left / self._cdTotal, 0, 1)
+	elseif self._state.paused and live then
+		target = 1
+	end
+	self._grade += (target - self._grade) * math.min(1, dt * 8)
+	local fx = self._gradeFx
+	if fx then
+		local g = self._grade
+		fx.Enabled = g > 0.002
+		fx.Saturation = GRADE_SATURATION * g
+		fx.Brightness = GRADE_BRIGHTNESS * g
+		fx.Contrast = GRADE_CONTRAST * g
+	end
+end
+
+function OverlayController:_showText(text: string)
+	self._cdStamp += 1
+	UiKit.text(self._cdNumber, text)
+	UiKit.show(self._countdown, true)
+	if self._cdPop then
+		self._cdPop.Scale = 1.45
+		TweenService:Create(self._cdPop, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+	end
 end
 
 function OverlayController:_jump()
