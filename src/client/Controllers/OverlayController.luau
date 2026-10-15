@@ -108,30 +108,67 @@ function OverlayController:OpenSettings(back: Instance?)
 	self:_openMenu("settings")
 end
 
+-- The transparencies a fade scales, per kind of instance.
+local function fadedProps(inst: Instance): { string }?
+	if inst:IsA("UIStroke") then
+		return { "Transparency" }
+	elseif inst:IsA("TextLabel") or inst:IsA("TextButton") then
+		return { "BackgroundTransparency", "TextTransparency" }
+	elseif inst:IsA("ImageLabel") or inst:IsA("ImageButton") then
+		return { "BackgroundTransparency", "ImageTransparency" }
+	elseif inst:IsA("GuiObject") then
+		return { "BackgroundTransparency" }
+	end
+	return nil
+end
+
+-- Remember every transparency in the sheet as designed, so a fade can scale
+-- them and always hand back the exact originals. (A CanvasGroup did this in
+-- one property but rendered the full-screen sheet as a black box.)
+function OverlayController:_collectFade()
+	local list = {}
+	for _, inst in { self._pause, table.unpack(self._pause:GetDescendants()) } do
+		for _, prop in fadedProps(inst) or {} do
+			table.insert(list, { inst = inst, prop = prop, base = inst[prop] })
+		end
+	end
+	self._fadeList = list
+	self._fadeLevel = 1
+end
+
+function OverlayController:_applyFade(level: number)
+	self._fadeLevel = level
+	for _, entry in self._fadeList do
+		entry.inst[entry.prop] = entry.base + (1 - entry.base) * level
+	end
+end
+
 -- Fade the sheet to `to` (0 shown, 1 gone); hidden for good once gone.
 function OverlayController:_fade(to: number, seconds: number)
 	local sheet = self._pause
 	self._fadeStamp += 1
 	local stamp = self._fadeStamp
-	if not sheet:IsA("CanvasGroup") then
-		UiKit.show(sheet, to < 1)
-		return
-	end
 	if to < 1 then
-		if not sheet.Visible then
-			sheet.GroupTransparency = 1
-		end
 		UiKit.show(sheet, true)
 	end
-	local tween = TweenService:Create(sheet, TweenInfo.new(seconds, Enum.EasingStyle.Quad), { GroupTransparency = to })
-	tween:Play()
-	if to >= 1 then
-		tween.Completed:Once(function()
-			if self._fadeStamp == stamp then
+	local from = self._fadeLevel
+	local started = os.clock()
+	local conn
+	conn = RunService.Heartbeat:Connect(function()
+		if self._fadeStamp ~= stamp then
+			conn:Disconnect()
+			return
+		end
+		local t = math.min((os.clock() - started) / seconds, 1)
+		local eased = 1 - (1 - t) ^ 2
+		self:_applyFade(from + (to - from) * eased)
+		if t >= 1 then
+			conn:Disconnect()
+			if to >= 1 then
 				UiKit.show(sheet, false)
 			end
-		end)
-	end
+		end
+	end)
 end
 
 function OverlayController:_openMenu(mode: string)
@@ -380,6 +417,8 @@ function OverlayController:_start()
 	UiKit.fillIcons(pause)
 	UiKit.show(pause, false)
 	UiKit.show(UiKit.find(pause, "LeaveButton"), false) -- there is no way to leave a run yet
+	self:_collectFade()
+	self:_applyFade(1) -- hidden: the first open fades in from clear
 
 	local countdown = UiKit.find(overlay, "ResumeCountdown")
 	self._countdown = countdown

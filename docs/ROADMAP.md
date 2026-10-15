@@ -19,10 +19,10 @@ explicit decision by Tiago and Diogo.
 - **State:** M2.A (real player pause solo and co-op vote, master/music/SFX volumes kept in the
   profile, edge hit flash, low-HP vignette, health bar at the hero's feet) on branch
   `feat/m2a-player-feedback`. `bonk-0.5.0-m2a` validated in Studio by Tiago and Diogo.
-  Polish pass `bonk-0.5.1-m2a` (Sword slash drawn from the hit area, paused-world grade,
-  co-op READY to resume with 3-2-1, co-op level-up countdown, Minty, dev `unlock`/`marker`):
-  offline checks only.
-- **Next playable result:** short Studio playtest of the polish pass (checklist in PR #4),
+  Polish `bonk-0.5.1-m2a` playtested: pause flow and countdown fine; regressions fixed in
+  `bonk-0.5.2-m2a` (Sword slash as a blade trail plus a reach flash, pause menu no longer a
+  black box): offline checks only.
+- **Next playable result:** quick Studio check of `bonk-0.5.2-m2a` (checklist in PR #4),
   then merge; then M2.B (bunny hop, movement, difficulty balance).
 - **Blockers:** none.
 

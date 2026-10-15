@@ -89,99 +89,94 @@ end
 
 -- ---------------------------------------------------------------- the sword slash
 
-local SLASH_FILL = Color3.fromRGB(150, 210, 255)
-local SLASH_EDGE = Color3.fromRGB(235, 250, 255)
-local SLASH_SWEEP = 0.1 -- seconds for the cut to cross the arc
-local SLASH_LIFE = 0.32 -- seconds until the last of it is gone
-local SLASH_LIFT = 0.3 -- studs above the ground, so it never sinks into a slope
+local SLASH_CORE = Color3.fromRGB(255, 255, 255)
+local SLASH_GLOW = Color3.fromRGB(150, 210, 255)
+local TRAIL_ON = 0.28 -- seconds the blade leaves a trail: the swing animation's length
+local ARC_DELAY = 0.06 -- the reach flash lands as the cut passes the middle...
+local ARC_LIFE = 0.2 -- ...and is gone this soon after
 
-local function wedge(colour: Color3): WedgePart
-	local w = Instance.new("WedgePart")
-	w.Anchored = true
-	w.CanCollide = false
-	w.CanQuery = false
-	w.CanTouch = false
-	w.CastShadow = false
-	w.Material = Enum.Material.Neon
-	w.Color = colour
-	w.Transparency = 1
-	w.Parent = folder
-	return w
-end
-
--- A flat triangle a, b, c out of two wedges (each wedge is a right triangle).
-local function triangle(a: Vector3, b: Vector3, c: Vector3, colour: Color3): { WedgePart }
-	local ab, ac, bc = b - a, c - a, c - b
-	local abd, acd, bcd = ab:Dot(ab), ac:Dot(ac), bc:Dot(bc)
-	-- a must sit opposite the longest side
-	if abd > acd and abd > bcd then
-		c, a = a, c
-	elseif acd > bcd and acd > abd then
-		a, b = b, a
+-- A ribbon behind the hero's own blade, from just above the grip to the tip.
+-- It follows whatever the swing animation does, so it can never point the
+-- wrong way. The held weapon is welded with its length along its Y axis
+-- (PlayerStateService:_dress). Made once per character, switched on per swing.
+local function bladeTrail(character: Model): Trail?
+	local blade = character:FindFirstChild("HeldWeapon")
+	if not blade or not blade:IsA("BasePart") then
+		return nil
 	end
-	ab, ac, bc = b - a, c - a, c - b
-	local right = ac:Cross(ab).Unit
-	local up = bc:Cross(right).Unit
-	local back = bc.Unit
-	local height = math.abs(ab:Dot(up))
-	local w1, w2 = wedge(colour), wedge(colour)
-	w1.Size = Vector3.new(0.05, height, math.abs(ab:Dot(back)))
-	w1.CFrame = CFrame.fromMatrix((a + b) / 2, right, up, back)
-	w2.Size = Vector3.new(0.05, height, math.abs(ac:Dot(back)))
-	w2.CFrame = CFrame.fromMatrix((a + c) / 2, -right, up, -back)
-	return { w1, w2 }
+	local trail = blade:FindFirstChild("SlashTrail")
+	if trail and trail:IsA("Trail") then
+		return trail
+	end
+	local length = blade.Size.Y
+	local base = Instance.new("Attachment")
+	base.Name = "SlashBase"
+	base.Position = Vector3.new(0, -0.1 * length, 0)
+	base.Parent = blade
+	local tip = Instance.new("Attachment")
+	tip.Name = "SlashTip"
+	tip.Position = Vector3.new(0, 0.55 * length, 0)
+	tip.Parent = blade
+	local t = Instance.new("Trail")
+	t.Name = "SlashTrail"
+	t.Attachment0 = base
+	t.Attachment1 = tip
+	t.FaceCamera = false -- the ribbon is the surface the blade sweeps
+	t.Lifetime = 0.16
+	t.MinLength = 0.05
+	t.LightEmission = 1
+	t.LightInfluence = 0
+	t.Color = ColorSequence.new(SLASH_CORE, SLASH_GLOW)
+	t.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 0.05),
+		NumberSequenceKeypoint.new(0.4, 0.35),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+	t.Enabled = false
+	t.Parent = blade
+	return t
 end
 
--- The swing's whole area as slices of a fan, plus a bright rim along the
--- outer edge. Slice 1 is the hero's right; each lights up as the cut passes
--- it and then fades, so the fan reads as one sweep from right to left.
-local function slash(at: Vector3, forward: Vector3, range: number, arcDeg: number)
-	local state = Knit.GetController("StateController")
+-- The reach of the swing as one bright crescent in the air at waist height,
+-- on the edge of the hit area: thick in the middle, thin at the ends, pushed
+-- out a little as it fades. Symmetric, so it needs no idea of which way the
+-- blade travels.
+local function reachFlash(at: Vector3, forward: Vector3, range: number, arcDeg: number)
 	local right = Vector3.new(-forward.Z, 0, forward.X)
 	local half = math.rad(arcDeg) / 2
-	local count = math.max(3, math.ceil(arcDeg / 12))
-	local function point(angle: number, radius: number): Vector3
-		local flat = at + (forward * math.cos(angle) + right * math.sin(angle)) * radius
-		return Vector3.new(flat.X, state:HeightAt(flat.X, flat.Z) + SLASH_LIFT, flat.Z)
-	end
-	local centre = point(0, 0)
-	local slices = {}
+	local count = math.max(5, math.ceil(arcDeg / 10))
+	local pieces = {}
 	for i = 1, count do
-		local a0 = half - (i - 1) / count * 2 * half
-		local a1 = half - i / count * 2 * half
-		local p0, p1 = point(a0, range), point(a1, range)
-		local rim = Instance.new("Part")
-		rim.Anchored, rim.CanCollide, rim.CanQuery, rim.CanTouch = true, false, false, false
-		rim.CastShadow = false
-		rim.Material = Enum.Material.Neon
-		rim.Color = SLASH_EDGE
-		rim.Transparency = 1
-		rim.Size = Vector3.new(0.45, 0.12, (p1 - p0).Magnitude + 0.2)
-		rim.CFrame = CFrame.lookAt((p0 + p1) / 2, p1)
-		rim.Parent = folder
-		table.insert(slices, { fill = triangle(centre, p0, p1, SLASH_FILL), rim = rim, at = (i - 1) / count * SLASH_SWEEP })
+		local p = Instance.new("Part")
+		p.Anchored, p.CanCollide, p.CanQuery, p.CanTouch = true, false, false, false
+		p.CastShadow = false
+		p.Material = Enum.Material.Neon
+		p.Color = SLASH_GLOW
+		p.Transparency = 1
+		p.Parent = folder
+		local u = (i - 0.5) / count -- 0 at the hero's right end, 1 at the left
+		table.insert(pieces, { part = p, a0 = half - (i - 1) / count * 2 * half, a1 = half - i / count * 2 * half, u = u })
 	end
-	local born = os.clock()
+	local born = os.clock() + ARC_DELAY
 	local conn
 	conn = RunService.RenderStepped:Connect(function()
-		local age = os.clock() - born
-		local done = age >= SLASH_LIFE
-		for _, slice in slices do
-			local t = (age - slice.at) / (SLASH_LIFE - slice.at)
-			local shown = if done or t < 0 then 0 else (1 - t) ^ 1.5
-			for _, w in slice.fill do
-				w.Transparency = 1 - 0.38 * shown
-			end
-			slice.rim.Transparency = 1 - 0.9 * shown
-		end
-		if done then
+		local t = (os.clock() - born) / ARC_LIFE
+		if t >= 1 then
 			conn:Disconnect()
-			for _, slice in slices do
-				slice.rim:Destroy()
-				for _, w in slice.fill do
-					w:Destroy()
-				end
+			for _, piece in pieces do
+				piece.part:Destroy()
 			end
+			return
+		end
+		local shown = if t < 0 then 0 else (1 - t) ^ 1.6
+		local radius = range * (0.88 + 0.12 * math.max(t, 0))
+		for _, piece in pieces do
+			local p0 = at + (forward * math.cos(piece.a0) + right * math.sin(piece.a0)) * radius
+			local p1 = at + (forward * math.cos(piece.a1) + right * math.sin(piece.a1)) * radius
+			local width = 0.15 + 0.85 * math.sin(math.pi * piece.u) -- a crescent
+			piece.part.Size = Vector3.new(width, 0.1, (p1 - p0).Magnitude + 0.1)
+			piece.part.CFrame = CFrame.lookAt((p0 + p1) / 2, p1)
+			piece.part.Transparency = 1 - 0.85 * shown
 		end
 	end)
 end
@@ -200,19 +195,28 @@ function WeaponFxController:KnitStart()
 	self._state = state
 	local Effects = self.Effects
 
-	function Effects.Slash(index, x, _y, z, dx, dz, range, arcDeg)
-		-- Drawn from the hit test itself (CombatService Fire.Arc): a sector of
-		-- radius `range` and width `arcDeg` around the swing direction, so what
-		-- is seen is where the swing hits. Centred on the hero as this client
-		-- sees them, and swept right to left like the animation's cut.
-		local root = state:RootOfIndex(index)
-		if root then
-			x, z = root.Position.X, root.Position.Z
-		end
+	function Effects.Slash(index, x, y, z, dx, dz, range, arcDeg)
+		-- The blade's own trail sells the swing; the flash at the edge of the
+		-- hit area (range x arc, as CombatService Fire.Arc tests it) shows its
+		-- reach. Both on the hero as this client sees them.
 		if dx * dx + dz * dz < 1e-6 then
 			return
 		end
-		slash(Vector3.new(x, 0, z), Vector3.new(dx, 0, dz).Unit, range, math.clamp(arcDeg, 20, 360))
+		local root = state:RootOfIndex(index)
+		local at = if root then root.Position else Vector3.new(x, y, z)
+		reachFlash(at, Vector3.new(dx, 0, dz).Unit, range, math.clamp(arcDeg, 20, 360))
+		local trail = root and root.Parent and bladeTrail(root.Parent)
+		if trail then
+			trail:Clear()
+			trail.Enabled = true
+			local stamp = (trail:GetAttribute("Swing") or 0) + 1
+			trail:SetAttribute("Swing", stamp)
+			task.delay(TRAIL_ON, function()
+				if trail.Parent and trail:GetAttribute("Swing") == stamp then
+					trail.Enabled = false
+				end
+			end)
+		end
 	end
 
 	function Effects.Frost(index, radius, seconds)

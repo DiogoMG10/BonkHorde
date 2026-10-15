@@ -1403,7 +1403,7 @@
    ]
   },
   {
-   "className": "CanvasGroup",
+   "className": "Frame",
    "name": "PauseMenu",
    "properties": {
     "Size": {
