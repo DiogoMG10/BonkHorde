@@ -22,22 +22,25 @@ local CLIENT_WAIT_TIMEOUT = 10
 export type EventName =
 	-- lobby and profile
 	"Roster" -- S>C all: { players = { { userId, name, hero, ready, host } }, map }
-	| "Profile" -- S>C owner: { silver, unlocked, runs, best, canSave }
+	| "Profile" -- S>C owner: { silver, unlocked, runs, best, canSave, settings }
 	| "PickHero" -- C>S: heroId
 	| "PickMap" -- C>S: mapId (host only)
 	| "SetReady" -- C>S: boolean
 	| "UnlockHero" -- C>S: heroId
+	| "Settings" -- C>S: { master, music, sfx } volumes 0..1, kept in the profile
 	-- run state
 	| "Phase" -- S>C all: { phase, clock, tier, paused, kills, quests, map }
 	| "Clock" -- S>C all: clock seconds, tier, paused, kills
 	| "Banner" -- S>C all: text, style
 	| "Toast" -- S>C one/all: title, text
 	| "Results" -- S>C all: results table
+	| "Pause" -- S>C all: { mode, by, byName, votes, ready = { userId }, need, seconds, resuming, cooldown }
+	| "PauseAsk" -- C>S: action ("request" | "accept" | "withdraw" | "resume")
 	-- player state
 	| "PlayerState" -- S>C owner: full run state for the HUD and panels
 	| "Squad" -- S>C all: { { userId, hp, maxHp, shield, maxShield, downed, level } }
 	| "XP" -- S>C all: level, xp, need
-	| "Hurt" -- S>C owner: amount, dodged, shieldBroke
+	| "Hurt" -- S>C owner: amount, dodged, shieldBroke, hpLost
 	-- choices
 	| "Offers" -- S>C owner: { id, kind, offers, seconds, charges }
 	| "ChooseOffer" -- C>S: id, action ("pick" | "skip" | "banish" | "refresh"), index
@@ -111,11 +114,14 @@ Net.All = {
 	"PickMap",
 	"SetReady",
 	"UnlockHero",
+	"Settings",
 	"Phase",
 	"Clock",
 	"Banner",
 	"Toast",
 	"Results",
+	"Pause",
+	"PauseAsk",
 	"PlayerState",
 	"Squad",
 	"XP",

@@ -8,6 +8,9 @@
 --   gold 500 | level 3 | clock 590 | god | hurt 50 | killall | item Nightlight
 --   weapon Axe | tp 120 -40 | goto Chest | goto ChargeShrine | goto BossPortal
 --   spawn Skeleton 40 | boss | mini Hamlet | bosshp 0.05 | status
+-- From the lobby too:
+--   unlock Frostling   unlock a hero for this session only (no Silver, never saved)
+--   marker             show or hide the Sword's aim marker on the ground
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -31,6 +34,7 @@ function DevService:KnitStart()
 	local interactables = Knit.GetService("InteractableService")
 	local bosses = Knit.GetService("BossService")
 	local mapService = Knit.GetService("MapService")
+	local data = Knit.GetService("DataService")
 
 	local function firstRec()
 		return players:All()[1]
@@ -44,6 +48,22 @@ function DevService:KnitStart()
 	end
 
 	local commands = {}
+	-- these need no hero, so they also work in the lobby
+	local lobbyCommands = { clock = true, unlock = true, marker = true }
+
+	function commands.unlock(_, id)
+		local player = Players:GetPlayers()[1]
+		if player and data:DevUnlock(player, id or "") then
+			print(`[Dev] {id} unlocked for this session`)
+		else
+			print(`[Dev] cannot unlock {id}`)
+		end
+	end
+	function commands.marker()
+		local on = Workspace:GetAttribute("BonkAimMarker") ~= true
+		Workspace:SetAttribute("BonkAimMarker", on)
+		print(`[Dev] aim marker {if on then "on" else "off"}`)
+	end
 
 	function commands.gold(rec, n)
 		rec.gold += tonumber(n) or 100
@@ -202,7 +222,7 @@ function DevService:KnitStart()
 			print(`[Dev] unknown command {name}`)
 			return
 		end
-		if not rec and name ~= "clock" then
+		if not rec and not lobbyCommands[name] then
 			print(`[Dev] no hero in the run yet (phase {director:GetPhase()})`)
 			return
 		end

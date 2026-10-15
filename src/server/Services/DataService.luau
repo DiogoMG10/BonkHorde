@@ -1,6 +1,6 @@
 --!nonstrict
--- DataService - owns the persistent profile: silver, unlocked heroes, run counts
--- and best scores.
+-- DataService - owns the persistent profile: silver, unlocked heroes, run counts,
+-- best scores and the player's volume settings.
 --
 -- If the load fails the player still plays, on defaults, with saving DISABLED for
 -- the session, so a blank profile can never overwrite a real one.
@@ -17,6 +17,7 @@ local Roster = require(ReplicatedStorage.Shared.Config.Roster)
 local DataService = Knit.CreateService({ Name = "DataService" })
 
 local LOAD_TRIES = 3
+local SETTINGS = { "master", "music", "sfx" } -- volumes, 0..1; nil until the player sets one
 
 local function blank()
 	local unlocked = {}
@@ -25,11 +26,34 @@ local function blank()
 			unlocked[id] = true
 		end
 	end
-	return { silver = 0, unlocked = unlocked, runs = {}, best = { kills = 0, time = 0 }, canSave = true }
+	return {
+		silver = 0,
+		unlocked = unlocked,
+		runs = {},
+		best = { kills = 0, time = 0 },
+		settings = {},
+		devUnlocked = {}, -- Studio test unlocks: shown and playable, never saved
+		canSave = true,
+	}
+end
+
+--- Only known keys, only numbers, clamped: a forged message stores nothing odd.
+local function cleanSettings(raw: unknown)
+	local out = {}
+	if typeof(raw) == "table" then
+		for _, key in SETTINGS do
+			local value = (raw :: any)[key]
+			if typeof(value) == "number" and value == value then
+				out[key] = math.floor(math.clamp(value, 0, 1) * 100 + 0.5) / 100
+			end
+		end
+	end
+	return out
 end
 
 function DataService:KnitInit()
 	self._profiles = {}
+	self._settingsAt = {}
 	self._profileEvent = Net.server("Profile")
 	local ok, store = pcall(function()
 		return DataStoreService:GetDataStore(GameConfig.DataStoreName)
@@ -53,6 +77,17 @@ function DataService:KnitStart()
 	Players.PlayerRemoving:Connect(function(player)
 		self:Save(player)
 		self._profiles[player] = nil
+		self._settingsAt[player] = nil
+	end)
+	-- kept with the profile and written by the next autosave or on leaving
+	Net.server("Settings").OnServerEvent:Connect(function(player: Player, raw: unknown)
+		local p = self._profiles[player]
+		local now = os.clock()
+		if not p or now - (self._settingsAt[player] or 0) < 0.5 then
+			return
+		end
+		self._settingsAt[player] = now
+		p.settings = cleanSettings(raw)
 	end)
 	task.spawn(function()
 		while true do
@@ -96,6 +131,7 @@ function DataService:_load(player: Player)
 						profile.best.kills = tonumber(data.best.kills) or 0
 						profile.best.time = tonumber(data.best.time) or 0
 					end
+					profile.settings = cleanSettings(data.settings)
 				end
 				loaded = true
 				break
@@ -137,7 +173,7 @@ function DataService:Push(player: Player)
 	if p then
 		self._profileEvent:FireClient(
 			player,
-			{ silver = p.silver, unlocked = p.unlocked, runs = p.runs, best = p.best, canSave = p.canSave }
+			{ silver = p.silver, unlocked = p.unlocked, runs = p.runs, best = p.best, settings = p.settings, canSave = p.canSave }
 		)
 	end
 end
@@ -167,6 +203,19 @@ function DataService:Unlock(player: Player, heroId: string): boolean
 	return true
 end
 
+--- Studio test hook (DevService): unlock a hero for this session only. It
+--- costs nothing and is left out of every save.
+function DataService:DevUnlock(player: Player, heroId: string): boolean
+	local p = self._profiles[player]
+	if not p or not Roster.Heroes[heroId] or p.unlocked[heroId] then
+		return false
+	end
+	p.unlocked[heroId] = true
+	p.devUnlocked[heroId] = true
+	self:Push(player)
+	return true
+end
+
 function DataService:RecordRun(player: Player, heroId: string, kills: number, bossSeconds: number?)
 	local p = self._profiles[player]
 	if not p then
@@ -187,8 +236,17 @@ function DataService:Save(player: Player)
 	if not p or not p.canSave or not self._store then
 		return
 	end
+	local unlocked = {}
+	for id, value in p.unlocked do
+		if not p.devUnlocked[id] then
+			unlocked[id] = value
+		end
+	end
 	local ok, err = pcall(function()
-		self._store:SetAsync("u" .. player.UserId, { silver = p.silver, unlocked = p.unlocked, runs = p.runs, best = p.best })
+		self._store:SetAsync(
+			"u" .. player.UserId,
+			{ silver = p.silver, unlocked = unlocked, runs = p.runs, best = p.best, settings = p.settings }
+		)
 	end)
 	if not ok then
 		warn(`[DataService] save failed for {player.Name}: {err}`)
