@@ -8,8 +8,10 @@
 -- (never a product of the two); anything above the hop cap drains away
 -- smoothly, even in the air, and nothing exceeds the slide's own maximum.
 --
--- Air steering is a velocity chased at a limited acceleration: the hero can
--- turn and brake in the air, but cannot reverse a full-speed run in an instant.
+-- Air steering keeps speed and heading apart. Input up to a wide angle off the
+-- heading turns it at a limited rate and keeps the speed (strafing curves the
+-- run instead of eating it); input pulling back against the run brakes without
+-- turning, so a reversal takes a moment; no input slows gently.
 
 local Hop = {}
 
@@ -103,16 +105,54 @@ function Hop.air(s: State, cfg: Config, dt: number)
 	end
 end
 
---- Chase the target horizontal velocity (tx, tz) from (vx, vz) with at most
---- `accel` studs per second per second. Returns the new velocity.
-function Hop.steer(vx: number, vz: number, tx: number, tz: number, accel: number, dt: number): (number, number)
-	local ex, ez = tx - vx, tz - vz
-	local gap = math.sqrt(ex * ex + ez * ez)
-	local step = accel * dt
-	if gap <= step or gap < 1e-6 then
-		return tx, tz
+export type Air = {
+	accel: number, -- studs/s^2 gained towards the hop speed
+	brake: number, -- studs/s^2 lost with no input
+	turn: number, -- radians/s the heading can turn while steering
+	reverse: number, -- studs/s^2 lost while pulling back against the run
+	reverseDot: number, -- input this far behind the heading (cosine) is pulling back
+}
+
+--- One frame of air control. (vx, vz) is the current horizontal velocity,
+--- (dx, dz) the unit input direction or (0, 0) for none, `target` the hop speed.
+--- Returns the new velocity.
+function Hop.airStep(vx: number, vz: number, dx: number, dz: number, target: number, air: Air, dt: number): (number, number)
+	local speed = math.sqrt(vx * vx + vz * vz)
+	if dx == 0 and dz == 0 then
+		-- no input: keep the heading, slow gently
+		if speed < 1e-6 then
+			return 0, 0
+		end
+		local left = math.max(0, speed - air.brake * dt)
+		return vx / speed * left, vz / speed * left
 	end
-	return vx + ex / gap * step, vz + ez / gap * step
+	if speed < 0.5 then
+		-- next to no momentum: just go where the input says
+		local s = math.min(target, speed + air.accel * dt)
+		return dx * s, dz * s
+	end
+	local hx, hz = vx / speed, vz / speed
+	local dot = hx * dx + hz * dz
+	if dot < air.reverseDot then
+		-- pulling back against the run: brake along the heading, then turn round
+		local left = speed - air.reverse * dt
+		if left <= 0.5 then
+			return dx * 0.5, dz * 0.5
+		end
+		return hx * left, hz * left
+	end
+	-- turn the heading towards the input, at most `turn` this frame
+	local angle = math.atan2(hx * dz - hz * dx, dot)
+	local step = math.clamp(angle, -air.turn * dt, air.turn * dt)
+	local c, sn = math.cos(step), math.sin(step)
+	hx, hz = hx * c - hz * sn, hx * sn + hz * c
+	-- the speed follows the hop's speed, up quickly, down gently
+	if speed < target then
+		speed = math.min(target, speed + air.accel * dt)
+	else
+		speed = math.max(target, speed - air.brake * dt)
+	end
+	return hx * speed, hz * speed
 end
 
 return Hop

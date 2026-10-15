@@ -20,10 +20,11 @@ explicit decision by Tiago and Diogo.
   Studio (`bonk-0.5.4-m2a`) and merged to `main` (PR #4). M2.B bunny hop and momentum
   on branch `feat/m2b-bunny-hop`. `bonk-0.6.0-m2b` playtested: hops barely sped up and
   slide/hop transitions lost speed. Fixed in `bonk-0.6.1-m2b` (speed written to the body,
-  looser take-off check, slide/hop hand-offs, gain 0.2 to a 1.75x cap). Offline checks only;
-  Studio readout: `hop` in Workspace.BonkDev.
-- **Next playable result:** Studio playtest of `bonk-0.6.1-m2b` (1/3/5 hops, hop to slide,
-  downhill slide to jump, slide to hops, wall and restart), then tune and merge.
+  looser take-off check, slide/hop hand-offs), validated in Studio. `bonk-0.6.2-m2b`: air
+  steering turns the heading and keeps the speed (A/D no longer brakes), gain 0.15 to a 2.5x
+  cap over ~10 hops, slides to 2.8x. Offline checks only; readout: `hop` in Workspace.BonkDev.
+- **Next playable result:** Studio playtest of `bonk-0.6.2-m2b` (W+Space chain to ~50,
+  W+A/W+D and A/D at speed, hop to slide to jump, stop and wall), then tune and merge.
 - **Blockers:** none.
 
 ## M3 Art Direction & Wardwood — prototype

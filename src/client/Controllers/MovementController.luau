@@ -9,8 +9,8 @@
 -- Bunny hop (rules in Core/Hop): each jump made within a moment of landing,
 -- while running, raises a speed multiplier a step towards a cap; staying down
 -- or stopping bleeds it away. In the air the hero steers a remembered velocity
--- at a limited acceleration, so momentum carries between hops and a turn takes
--- a moment instead of being instant. A slide starts at least as fast as the
+-- by turning its heading at a limited rate with the speed kept, so momentum
+-- carries between hops, strafing curves the run, and a reversal takes a moment. A slide starts at least as fast as the
 -- hop it came from, a jump out of a slide carries the slide's speed, and a
 -- slide that ends hands its speed back to bleed off.
 --
@@ -48,6 +48,13 @@ local HOP: Hop.Config = {
 	overCapDecay = GameConfig.HopOverCapDecay,
 	carryMax = GameConfig.SlideMaxMultiplier,
 	keep = GameConfig.HopKeep,
+}
+local AIR: Hop.Air = {
+	accel = GameConfig.AirAccel,
+	brake = GameConfig.AirBrake,
+	turn = math.rad(GameConfig.AirTurnRate),
+	reverse = GameConfig.AirReverseBrake,
+	reverseDot = math.cos(math.rad(GameConfig.AirReverseAngle)),
 }
 
 -- Studio-only diagnostics for the M2.B playtest (DevService `hop`)
@@ -319,30 +326,31 @@ function MovementController:_hopFrame(dt: number, humanoid: Humanoid, root: Base
 	local moving = input.Magnitude > 0.1
 	local v = root.AssemblyLinearVelocity
 
+	-- On the ground inside the hop window (just landed, chain alive) the hop is
+	-- steered exactly as in the air: a landing with only A held must not snap
+	-- the run sideways. Past the window, ordinary ground control takes over.
+	local carrying = moving and hop.mult > 1 and self._groundFor <= HOP.window
 	if grounded then
-		self._airVel = nil
 		Hop.ground(hop, HOP, dt, self._groundFor, moving)
-		local speed = base * hop.mult
-		if humanoid.WalkSpeed ~= speed then
-			humanoid.WalkSpeed = speed
+		if not carrying then
+			self._airVel = nil
+			local speed = base * hop.mult
+			if humanoid.WalkSpeed ~= speed then
+				humanoid.WalkSpeed = speed
+			end
+			return
 		end
-		-- just landed and slower than the hop's speed: the landing must not eat
-		-- the momentum before the next jump (the Humanoid alone ramps too slowly)
-		if moving and hop.mult > 1 and self._groundFor <= HOP.window and flat.Magnitude < speed * 0.95 then
-			local want = input.Unit * speed
-			root.AssemblyLinearVelocity = Vector3.new(want.X, v.Y, want.Z)
-		end
-		return
+	else
+		Hop.air(hop, HOP, dt)
 	end
 
-	Hop.air(hop, HOP, dt)
 	local air = self._airVel or flat
 	-- something stopped the hero (a wall, a crowd): steer from what is real
-	if flat.Magnitude < air.Magnitude * 0.6 then
+	if flat.Magnitude < air.Magnitude * 0.8 then
 		air = flat
 	end
-	local target = if moving then input.Unit * base * hop.mult else Vector3.zero
-	local ax, az = Hop.steer(air.X, air.Z, target.X, target.Z, if moving then GameConfig.AirAccel else GameConfig.AirBrake, dt)
+	local dir = if moving then input.Unit else Vector3.zero
+	local ax, az = Hop.airStep(air.X, air.Z, dir.X, dir.Z, base * hop.mult, AIR, dt)
 	air = Vector3.new(ax, 0, az)
 	self._airVel = air
 	-- the body really moves at the steered velocity; the Humanoid is asked for

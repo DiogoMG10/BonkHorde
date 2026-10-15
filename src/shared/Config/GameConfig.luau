@@ -6,7 +6,7 @@
 -- what makes a balance pass a data edit.
 
 local GameConfig = {
-	BuildStamp = "bonk-0.6.1-m2b",
+	BuildStamp = "bonk-0.6.2-m2b",
 
 	-- squad
 	MaxPlayers = 3,
@@ -52,20 +52,23 @@ local GameConfig = {
 	SlideBoost = 1.35,
 	SlideDecayPerSecond = 0.55,
 	SlideDownhillAccel = 34,
-	SlideMaxMultiplier = 2.4,
+	SlideMaxMultiplier = 2.8, -- above the hop cap, so a downhill slide is still the fastest thing
 	SlideMinSeconds = 0.3,
 	-- bunny hop (Core/Hop): momentum is a multiplier on the hero's base speed
-	HopGain = 0.2, -- per chained hop: from a run, the cap is reached on the 5th jump
-	HopMaxMultiplier = 1.75, -- chained hops never go faster than this x base speed
+	HopGain = 0.15, -- per chained hop: from a run, the cap is reached after 10 hops
+	HopMaxMultiplier = 2.5, -- chained hops never go faster than this x base speed (50 at base 20)
 	HopWindow = 0.2, -- seconds on the ground after landing that a jump still chains
 	HopMinSpeed = 0.7, -- a hop only counts when moving at this share of the current speed
-	HopGroundDecay = 1.5, -- multiplier lost per second on the ground after the window
-	HopStopDecay = 4, -- ...and with no movement input
+	HopGroundDecay = 2, -- multiplier lost per second on the ground after the window
+	HopStopDecay = 6, -- ...and with no movement input
 	HopOverCapDecay = 0.5, -- slide speed carried above the cap drains this fast, in the air too
 	HopKeep = 1.25, -- a jump keeps its speed while real speed is within 1/1.25 of it (walls drop it)
 	HopSlideAfterJump = 0.2, -- seconds after a jump before a held slide key can start a slide
-	AirAccel = 90, -- studs/s^2 the hero can change air velocity by while steering
+	AirAccel = 90, -- studs/s^2 of speed gained in the air towards the hop speed
 	AirBrake = 20, -- studs/s^2 of slowdown in the air with no input (momentum mostly kept)
+	AirTurnRate = 220, -- degrees/s the heading turns while steering in the air; speed is kept
+	AirReverseBrake = 70, -- studs/s^2 lost pulling back against the run (a 180 is gradual)
+	AirReverseAngle = 120, -- input more than this many degrees off the heading is pulling back
 	SpeedFovKick = 10, -- extra degrees of FOV at the hop cap (less below, none at 1x)
 	CameraDistance = 18,
 	CameraHeight = 3.5,
