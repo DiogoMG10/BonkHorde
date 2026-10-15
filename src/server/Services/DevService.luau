@@ -10,6 +10,7 @@
 --   spawn Skeleton 40 | boss | mini Hamlet | bosshp 0.05 | status
 -- From the lobby too:
 --   unlock Frostling   unlock a hero for this session only (no Silver, never saved)
+--   site Falls         stand in front of a Wardwood landmark (site alone lists them)
 --   marker             show or hide the Sword's aim marker on the ground
 --   hop                show or hide real vs intended movement speed (M2.B playtest)
 
@@ -110,6 +111,23 @@ function DevService:KnitStart()
 	end
 	function commands.tp(rec, x, z)
 		teleport(rec, tonumber(x) or 0, tonumber(z) or 0)
+	end
+	-- the Wardwood's landmarks, for a quick look round in a playtest
+	function commands.site(rec, name)
+		local World = require(ReplicatedStorage.Shared.Core.World)
+		local names = {}
+		for _, s in World.Sites do
+			table.insert(names, s.name)
+			if string.lower(s.name) == string.lower(name or "") then
+				-- stand on the spawn side of it, looking at it
+				local d = math.sqrt(s.x * s.x + s.z * s.z)
+				local back = if d > 1 then (s.clear + 6) / d else 0
+				teleport(rec, s.x - s.x * back, s.z - s.z * back)
+				print(`[Dev] site {s.name} at {s.x}, {s.z}`)
+				return
+			end
+		end
+		print(`[Dev] sites: {table.concat(names, ", ")}`)
 	end
 	commands["goto"] = function(rec, kind)
 		local best, bestD = nil, math.huge
