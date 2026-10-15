@@ -85,6 +85,29 @@ return {
 		assert(near(lx, -1) and near(lz, 0), "a quarter turn left looks down -x")
 	end,
 
+	["a pitch is optional, must be a real number, and is held inside the camera's range"] = function()
+		local low, high = math.rad(GameConfig.CameraPitchMin), math.rad(GameConfig.CameraPitchMax)
+		local ok, _, _, level = PrimaryTrigger.parse(true, 0.5)
+		assert(ok and level == 0, "an old two-value message aims level")
+		assert(not PrimaryTrigger.parse(true, 0.5, "up", low, high))
+		assert(not PrimaryTrigger.parse(true, 0.5, 0 / 0, low, high), "NaN")
+		assert(not PrimaryTrigger.parse(true, 0.5, math.huge, low, high), "infinity")
+		local _, _, _, up = PrimaryTrigger.parse(true, 0.5, 1.5, low, high)
+		assert(near(up, high), "a client cannot aim above what the camera can look at")
+		local _, _, _, down = PrimaryTrigger.parse(true, 0.5, -1.5, low, high)
+		assert(near(down, low))
+		local _, _, _, mid = PrimaryTrigger.parse(true, 0.5, 0.2, low, high)
+		assert(near(mid, 0.2))
+	end,
+
+	["a press keeps the pitch for the next shot"] = function()
+		local input = PrimaryTrigger.new()
+		PrimaryTrigger.press(input, 0.3, 1, 1, 0.4)
+		assert(near(input.yaw, 0.3) and near(input.pitch, 0.4))
+		PrimaryTrigger.press(input, 0.3, 1.1, 1.1)
+		assert(input.pitch == 0, "a press without a pitch is level")
+	end,
+
 	-- ------------------------------------------------------------ rate limit
 
 	["a flood of presses is cut to the permitted rate"] = function()

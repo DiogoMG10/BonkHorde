@@ -3,7 +3,7 @@
 -- client may say about its attack button, how one click is remembered, and
 -- when the weapon fires. Pure.
 --
--- The client sends a STATE (button held or not, and the yaw it is aiming at),
+-- The client sends a STATE (button held or not, and the yaw and pitch it is aiming at),
 -- never a request per attack. The server keeps one Input per hero and asks
 -- `step` once a tick, so the cadence is the server's and clicking faster buys
 -- nothing. At most ONE click is ever remembered.
@@ -13,6 +13,7 @@ local PrimaryTrigger = {}
 export type Input = {
 	held: boolean,
 	yaw: number, -- the aim the next attack uses, radians, camera convention
+	pitch: number, -- up (+) or down (-) from level, radians; only a shot that flies uses it
 	heardAt: number, -- real time of the last accepted message, for the stale check
 	clickAt: number?, -- gameplay time of the one remembered click
 	tokens: number, -- rate limit
@@ -22,20 +23,33 @@ export type Input = {
 local MAX_YAW = 1e4 -- far beyond any real camera; rejects garbage
 
 function PrimaryTrigger.new(): Input
-	return { held = false, yaw = 0, heardAt = 0, clickAt = nil, tokens = 0, tokenAt = -math.huge }
+	return { held = false, yaw = 0, pitch = 0, heardAt = 0, clickAt = nil, tokens = 0, tokenAt = -math.huge }
 end
 
---- Check what a client sent. Returns ok, held, yaw wrapped to (-pi, pi].
-function PrimaryTrigger.parse(held: unknown, yaw: unknown): (boolean, boolean, number)
+--- Check what a client sent. Returns ok, held, yaw wrapped to (-pi, pi], and
+--- pitch held inside [low, high] (default: straight down to straight up). A
+--- missing pitch is level; a pitch that is not a real number refuses the message.
+function PrimaryTrigger.parse(held: unknown, yaw: unknown, pitch: unknown?, low: number?, high: number?): (boolean, boolean, number, number)
 	if type(held) ~= "boolean" or type(yaw) ~= "number" then
-		return false, false, 0
+		return false, false, 0, 0
 	end
 	local y = (yaw :: any) :: number
 	if y ~= y or math.abs(y) > MAX_YAW then
-		return false, false, 0 -- NaN, infinite or absurd
+		return false, false, 0, 0 -- NaN, infinite or absurd
 	end
 	y = (y + math.pi) % (2 * math.pi) - math.pi
-	return true, (held :: any) :: boolean, y
+	local p = 0
+	if pitch ~= nil then
+		if type(pitch) ~= "number" then
+			return false, false, 0, 0
+		end
+		p = (pitch :: any) :: number
+		if p ~= p or math.abs(p) > MAX_YAW then
+			return false, false, 0, 0
+		end
+		p = math.clamp(p, low or -math.pi / 2, high or math.pi / 2)
+	end
+	return true, (held :: any) :: boolean, y, p
 end
 
 --- Rate limit: a bucket of `burst` messages refilled at `rate` a second.
@@ -56,12 +70,13 @@ end
 
 --- The button is down. A press that follows a release is a click: it is
 --- remembered, replacing any click already remembered (never added to it).
-function PrimaryTrigger.press(input: Input, yaw: number, simNow: number, realNow: number)
+function PrimaryTrigger.press(input: Input, yaw: number, simNow: number, realNow: number, pitch: number?)
 	if not input.held then
 		input.clickAt = simNow
 	end
 	input.held = true
 	input.yaw = yaw
+	input.pitch = pitch or 0
 	input.heardAt = realNow
 end
 
@@ -97,25 +112,38 @@ function PrimaryTrigger.wants(input: Input, simNow: number, buffer: number): boo
 end
 
 --- One tick of the primary weapon's cooldown. `cd` is the time left, `elapsed`
---- the tick already scaled by attack speed. Returns the new time left and
---- whether the weapon fires this tick.
+--- the tick already scaled by attack speed. Returns the new time left, whether
+--- the weapon fires this tick, and whether that attack is the player's own.
 ---
 --- A ready weapon waits at zero: waiting never banks a second attack. Firing on
 --- the very tick it came ready keeps the fraction of the tick left over, which
 --- is what gives a held button exactly the cadence of an automatic weapon.
-function PrimaryTrigger.step(input: Input, cd: number, elapsed: number, cooldown: number, simNow: number, buffer: number): (number, boolean)
+---
+--- `auto` (the Auto-Trigger item) is asked only when the weapon is ready and
+--- the player is not attacking: the button always comes first, and both share
+--- this one cooldown, so the item can never add an attack.
+function PrimaryTrigger.step(
+	input: Input,
+	cd: number,
+	elapsed: number,
+	cooldown: number,
+	simNow: number,
+	buffer: number,
+	auto: (() -> boolean)?
+): (number, boolean, boolean)
 	local left = cd - elapsed
 	if left > 0 then
 		-- still cooling down; an old click may time out while it does
 		PrimaryTrigger.wants(input, simNow, buffer)
-		return left, false
+		return left, false, false
 	end
-	if not PrimaryTrigger.wants(input, simNow, buffer) then
-		return 0, false
+	local byHand = PrimaryTrigger.wants(input, simNow, buffer)
+	if not byHand and not (auto and auto()) then
+		return 0, false, false
 	end
 	input.clickAt = nil -- the click, if there was one, is spent on this attack
 	local carry = if cd > 0 then left else 0
-	return math.max(cooldown + carry, 0), true
+	return math.max(cooldown + carry, 0), true, byHand
 end
 
 --- Unit direction (x, z) for a camera yaw.

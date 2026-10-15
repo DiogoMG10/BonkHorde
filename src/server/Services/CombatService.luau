@@ -44,12 +44,13 @@ function CombatService:KnitStart()
 	-- The attack button. The client reports a state (held or not, and where it
 	-- is aiming); this only records it. Whether and when the weapon fires is
 	-- decided in Step, on the server's own cooldown.
-	Net.server("PrimaryInput").OnServerEvent:Connect(function(player: Player, held: unknown, yaw: unknown)
+	local pitchLow, pitchHigh = math.rad(GameConfig.CameraPitchMin), math.rad(GameConfig.CameraPitchMax)
+	Net.server("PrimaryInput").OnServerEvent:Connect(function(player: Player, held: unknown, yaw: unknown, pitch: unknown)
 		local rec = self._players:Get(player)
 		if not rec or not rec.manual then
 			return
 		end
-		local ok, isHeld, aim = PrimaryTrigger.parse(held, yaw)
+		local ok, isHeld, aim, aimPitch = PrimaryTrigger.parse(held, yaw, pitch, pitchLow, pitchHigh)
 		if not ok then
 			return
 		end
@@ -69,7 +70,7 @@ function CombatService:KnitStart()
 		then
 			PrimaryTrigger.clear(input) -- not a moment anyone can attack in
 		else
-			PrimaryTrigger.press(input, aim, self._director:Now(), real)
+			PrimaryTrigger.press(input, aim, self._director:Now(), real, aimPitch)
 		end
 	end)
 end
@@ -199,14 +200,18 @@ function CombatService:_hit(rec, w, slot: number, base: number, now: number, isP
 	return killed
 end
 
--- Hit everything in a circle with a weapon. Returns how many were hit.
-function CombatService:_blast(rec, w, x: number, z: number, r: number, base: number, now: number): number
+-- Hit everything in a circle with a weapon. Returns how many were hit. With a
+-- height `y` (a blast in the air), only bodies within `r` of that height count.
+function CombatService:_blast(rec, w, x: number, z: number, r: number, base: number, now: number, y: number?): number
 	local out = self._out
 	local n = self._enemies:Query(x, z, r, out)
 	local hitSlots = table.clone(out)
 	for i = 1, n do
 		local slot = hitSlots[i]
-		local ex, _, ez = self._enemies:Pos(slot)
+		local ex, ground, ez = self._enemies:Pos(slot)
+		if y and not PrimaryTrigger.touchHeight(y, r, ground, self._enemies:HeightOf(slot)) then
+			continue
+		end
 		local dx, dz = ex - x, ez - z
 		local m = math.sqrt(dx * dx + dz * dz)
 		if m > 0.05 then
@@ -222,20 +227,22 @@ function CombatService:_spawnProj(p)
 	p.id = self._nextProj
 	self._nextProj = self._nextProj % 60000 + 1
 	table.insert(self._projs, p)
-	self._proj:FireAllClients("spawn", p.id, p.kind, p.rec.index, p.x, p.z, p.dx, p.dz, p.speed, p.a or 0, p.b or 0)
+	-- y and dy only for a shot that flies at a height of its own (a hand-aimed fireball)
+	self._proj:FireAllClients("spawn", p.id, p.kind, p.rec.index, p.x, p.z, p.dx, p.dz, p.speed, p.a or 0, p.b or 0, p.y, p.dy)
 end
 
 function CombatService:_endProj(p, boom: number)
 	p.dead = true
-	self._proj:FireAllClients("end", p.id, p.x, p.z, boom)
+	self._proj:FireAllClients("end", p.id, p.x, p.z, boom, p.y)
 end
 
 -- ------------------------------------------------------------------ weapon kinds
 
 local Fire = {}
 
--- `aim` is only passed for a hand-fired primary: { dx, dz }, the direction the
--- player chose. Without it the weapon aims itself, as every automatic one does.
+-- `aim` is only passed for a hand-fired primary: { dx, dz, pitch? }, the
+-- direction the player chose (Auto-Trigger passes one without a pitch).
+-- Without it the weapon aims itself, as every automatic one does.
 function Fire.Arc(self, rec, w, now, aim)
 	local s = w.s
 	local range = s.Range * sizeOf(rec, w)
@@ -267,15 +274,28 @@ function Fire.Arc(self, rec, w, now, aim)
 	end
 end
 
-function Fire.Fireball(self, rec, w, _now)
+function Fire.Fireball(self, rec, w, _now, aim)
 	local s = w.s
 	local out = {}
 	local count = shots(rec, w)
-	local found = self._enemies:NearestN(rec.x, rec.z, s.Range, count, out)
+	local found = if aim then 0 else self._enemies:NearestN(rec.x, rec.z, s.Range, count, out)
 	local speed = s.Speed * (s.ProjectileSpeed or 1) * rec.stats.ProjectileSpeed
+	local pitch = aim and aim.pitch
 	for k = 1, count do
 		local dx, dz = rec.fx, rec.fz
-		if found > 0 then
+		local y, dy = nil, nil
+		if aim then
+			-- the first straight down the aim, extra ones fanned out either side of it
+			local fan = math.ceil((k - 1) / 2) * 0.35 * (if k % 2 == 0 then 1 else -1)
+			dx, dz = rotate(aim.dx, aim.dz, fan)
+			if pitch then
+				-- a real 3D shot: from the camera's focus above the hero, along the
+				-- camera's look, so it flies exactly under the crosshair
+				local level = math.cos(pitch)
+				dx, dz = dx * level, dz * level
+				y, dy = rec.y + GameConfig.CameraHeight, math.sin(pitch)
+			end
+		elseif found > 0 then
 			local x, _, z = self._enemies:Pos(out[(k - 1) % found + 1])
 			local vx, vz = x - rec.x, z - rec.z
 			local m = math.sqrt(vx * vx + vz * vz)
@@ -283,7 +303,7 @@ function Fire.Fireball(self, rec, w, _now)
 				dx, dz = vx / m, vz / m
 			end
 		end
-		if k > found then
+		if not aim and k > found then
 			dx, dz = rotate(dx, dz, (k - found) * 0.35 * (if k % 2 == 0 then 1 else -1))
 		end
 		self:_spawnProj({
@@ -291,8 +311,10 @@ function Fire.Fireball(self, rec, w, _now)
 			rec = rec,
 			w = w,
 			x = rec.x,
+			y = y,
 			z = rec.z,
 			dx = dx,
+			dy = dy,
 			dz = dz,
 			speed = speed,
 			life = s.Range / speed,
@@ -469,22 +491,79 @@ function CombatService:_canTouch(rec, slot: number): boolean
 	return MapGen.sightClear(self._map, rec.x, rec.y, rec.z, x, math.max(at, ground + 1), z)
 end
 
--- The hero's own weapon, fired by the attack button. Same cooldown, same
--- attack-speed scaling and the same Fire function as an automatic weapon; the
--- only differences are who decides when, and where it points.
+-- Auto-Trigger: would the primary reach anything right now? Returns whether it
+-- should fire, and the aim to fire with. A nil aim lets the weapon aim itself,
+-- exactly as it did when it was automatic.
+function CombatService:_autoTarget(rec, w): (boolean, any)
+	local enemies = self._enemies
+	local s = w.s
+	local kind = Roster.Weapons[w.id].kind
+	if kind == "Aura" then
+		return enemies:Nearest(rec.x, rec.z, s.Range * sizeOf(rec, w)) ~= nil, nil
+	elseif kind ~= "Arc" then
+		return enemies:Nearest(rec.x, rec.z, s.Range) ~= nil, nil
+	end
+	-- a melee swing: the nearest enemy it could actually touch, so the item
+	-- never swings at something up a ledge that a hand-aimed swing would miss
+	local out = self._out
+	local n = enemies:Query(rec.x, rec.z, s.Range * sizeOf(rec, w), out)
+	local bestD, ax, az = math.huge, nil, nil
+	for i = 1, n do
+		local slot = out[i]
+		local x, _, z = enemies:Pos(slot)
+		local dx, dz = x - rec.x, z - rec.z
+		local d = dx * dx + dz * dz
+		if d < bestD and self:_canTouch(rec, slot) then
+			bestD = d
+			local m = math.sqrt(d)
+			if m > 0.05 then
+				ax, az = dx / m, dz / m
+			else
+				ax, az = rec.fx, rec.fz
+			end
+		end
+	end
+	if not ax then
+		return false, nil
+	end
+	return true, { dx = ax, dz = az }
+end
+
+-- The hero's own weapon, fired by the attack button (or, with Auto-Trigger,
+-- by itself when the button is idle). Same cooldown, same attack-speed scaling
+-- and the same Fire function as an automatic weapon; the only differences are
+-- who decides when, and where it points.
 function CombatService:_stepPrimary(rec, w, elapsed: number, now: number)
 	local input = rec.input
 	PrimaryTrigger.expire(input, os.clock(), GameConfig.PrimaryHeldTimeout)
-	local left, fires = PrimaryTrigger.step(input, w.cd, elapsed, w.s.Cooldown, now, GameConfig.PrimaryClickBuffer)
+	local autoAim = nil
+	local auto = nil
+	if rec.itemIndex.AutoTrigger then
+		auto = function(): boolean
+			local found, aim = self:_autoTarget(rec, w)
+			autoAim = aim
+			return found
+		end
+	end
+	local left, fires, byHand = PrimaryTrigger.step(input, w.cd, elapsed, w.s.Cooldown, now, GameConfig.PrimaryClickBuffer, auto)
 	w.cd = left
 	if not fires then
 		return
 	end
-	rec.primarySwings = (rec.primarySwings or 0) + 1 -- read by the dev status hook
+	-- read by the dev status hook
+	if byHand then
+		rec.primarySwings = (rec.primarySwings or 0) + 1
+	else
+		rec.primaryAuto = (rec.primaryAuto or 0) + 1
+	end
 	local fire = Fire[Roster.Weapons[w.id].kind]
 	if fire then
-		local dx, dz = PrimaryTrigger.direction(input.yaw)
-		local ok, err = pcall(fire, self, rec, w, now, { dx = dx, dz = dz })
+		local aim = autoAim
+		if byHand then
+			local dx, dz = PrimaryTrigger.direction(input.yaw)
+			aim = { dx = dx, dz = dz, pitch = input.pitch }
+		end
+		local ok, err = pcall(fire, self, rec, w, now, aim)
 		if not ok then
 			warn(`[CombatService] primary {w.id} failed: {err}`)
 		end
@@ -504,7 +583,28 @@ function CombatService:_stepProj(p, dt: number, now: number)
 		p.x += p.dx * step
 		p.z += p.dz * step
 		local out = self._out
-		if enemies:Query(p.x, p.z, p.hitR, out) > 0 or p.life <= 0 then
+		if p.y then
+			-- flying at its own height: it bursts on the ground it meets, or on a
+			-- body it actually passes through, not on one far above or below it
+			p.y += p.dy * step
+			local ground = MapGen.heightAt(self._map, p.x, p.z)
+			local struck = p.y <= ground or p.life <= 0
+			if not struck then
+				local n = enemies:Query(p.x, p.z, p.hitR, out)
+				for i = 1, n do
+					local _, g, _ = enemies:Pos(out[i])
+					if PrimaryTrigger.touchHeight(p.y, p.hitR, g, enemies:HeightOf(out[i])) then
+						struck = true
+						break
+					end
+				end
+			end
+			if struck then
+				p.y = math.max(p.y, ground)
+				self:_blast(rec, w, p.x, p.z, p.boom, s.Damage, now, p.y)
+				self:_endProj(p, p.boom)
+			end
+		elseif enemies:Query(p.x, p.z, p.hitR, out) > 0 or p.life <= 0 then
 			self:_blast(rec, w, p.x, p.z, p.boom, s.Damage, now)
 			self:_endProj(p, p.boom)
 		end

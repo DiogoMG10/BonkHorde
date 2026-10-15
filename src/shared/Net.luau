@@ -58,7 +58,7 @@ export type EventName =
 	| "Interactables" -- S>C all: full list for this run
 	| "InteractableState" -- S>C all: id, state, data
 	| "Interact" -- C>S: interactable id
-	| "PrimaryInput" -- C>S: held (boolean), yaw (radians). A state, not a request per attack
+	| "PrimaryInput" -- C>S: held (boolean), yaw, pitch (radians). A state, not a request per attack
 
 local Net = {}
 

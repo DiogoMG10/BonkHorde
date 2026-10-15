@@ -428,6 +428,13 @@ Roster.Items = {
 		proc = "SkeletonKey",
 		n = { chance = 0.15 },
 	},
+	AutoTrigger = {
+		name = "Auto-Trigger",
+		rarity = "Rare",
+		text = "Your main weapon attacks by itself when an enemy is in reach. Clicking still comes first.",
+		proc = "AutoTrigger",
+		unique = true, -- a second one would do nothing, so it is never offered again
+	},
 	VampireMitts = {
 		name = "Vampire Mitts",
 		rarity = "Epic",
@@ -502,6 +509,7 @@ Roster.ItemOrder = {
 	"Featherweight",
 	"StaticMitts",
 	"SkeletonKey",
+	"AutoTrigger",
 	"VampireMitts",
 	"Nightlight",
 	"CrackedGoggles",

@@ -6,12 +6,11 @@ The only active roadmap. Keep each phase to a few lines; detail belongs in the p
 M2 and M3 can go in either order. Working on both at once is a parallel line and needs an
 explicit decision by Tiago and Diogo.
 
-## M1 Hybrid Combat — in progress
+## M1 Hybrid Combat — done
 
-- **State:** M1.A gameplay clock and M1.B manual Sword (Sir Clonk) are on `main`. M1.B
-  validated in Studio by Tiago and Diogo. The M1.A pause fix has not been tested in Studio.
-- **Next playable result:** M1.C, manual Fire Staff (Zib) and Frost Ring (Mint); then M1.D
-  Auto-Trigger.
+- **State:** M1.A clock, M1.B Sword, M1.C Fire Staff / Frost Ring and M1.D Auto-Trigger on
+  `main`. `bonk-0.4.1-m1d` validated in Studio by Tiago and Diogo. The M1.A pause fix had not
+  been tested in Studio on its own; M2.A rebuilds player pause on top of it.
 - **Blockers:** none.
 
 ## M2 Movement & Game Feel — not started
