@@ -6,7 +6,7 @@
 -- what makes a balance pass a data edit.
 
 local GameConfig = {
-	BuildStamp = "bonk-0.8.0-m2d",
+	BuildStamp = "bonk-0.8.1-m2d",
 
 	-- squad
 	MaxPlayers = 3,
@@ -52,6 +52,8 @@ local GameConfig = {
 	CampStrikeDelay = 1.2, -- the warning before it lands: move to dodge it
 	CampStrikeRadius = 4.5,
 	CampStrikeDamage = 1.5, -- x the contact damage of the enemy below that calls it
+	CampStrikeBelow = 3, -- it reaches feet this far under the height it was drawn at...
+	CampStrikeAbove = 7.5, -- ...and this far over it (a jump on the spot does not dodge it)
 	EliteHPMultiplier = 8,
 	EliteScale = 1.5,
 	EliteBaseChance = 0.02,

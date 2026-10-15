@@ -25,7 +25,7 @@ explicit decision by Tiago and Diogo.
   chance (+ Freeze Chance) to be frozen for 2 s, with an ice shell; validated in Studio by
   Diogo and merged. Fallback if it ever feels wrong: option B, a 15 % chance per ring
   activation to freeze every enemy it hit for 2 s.
-- **M2.D enemy fairness** (`bonk-0.8.0-m2d`, branch `feat/m2d-enemy-fairness`, offline checks
+- **M2.D enemy fairness** (`bonk-0.8.1-m2d`, branch `feat/m2d-enemy-fairness`, offline checks
   only): contact reach is body to body (radii measured from the meshes, hero 1.2, margin
   0.15), judged where clients draw the enemy, with a real height overlap; heroes camping out
   of reach (tree, roof) with enemies below get a telegraphed, dodgeable root strike after 4 s.

@@ -142,4 +142,16 @@ return {
 			assert(not Contact.campStep(s, cfg, false, true, DT, t))
 		end
 	end,
+
+	["a strike aimed up a tree reaches the camper, not a teammate on the ground below"] = function()
+		local below, above = GameConfig.CampStrikeBelow, GameConfig.CampStrikeAbove
+		-- the lowest a camper can be: feet just over CampHeight above the terrain (at 0)
+		local y = GameConfig.CampHeight + 0.01
+		assert(Contact.inStrikeBand(y, y, below, above), "the camper it was drawn at")
+		assert(Contact.inStrikeBand(y - 1, y, below, above), "a stud lower on the canopy")
+		assert(Contact.inStrikeBand(y + GameConfig.PlayerJumpHeight, y, below, above), "jumping on the spot does not dodge it")
+		assert(not Contact.inStrikeBand(0, y, below, above), "a teammate standing on the ground beneath")
+		assert(below < GameConfig.CampHeight, "the band never reaches down to the ground")
+		-- (strikes with no height, every boss attack, skip the band entirely: BossService)
+	end,
 }

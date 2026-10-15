@@ -263,7 +263,10 @@ function BossService:Step(dt: number, now: number)
 				if not rec.downed and (rec.x - s.x) ^ 2 + (rec.z - s.z) ^ 2 <= s.r * s.r then
 					-- a ground shock is jumped; a root or a rock is not
 					local airborne = rec.y - rec.groundY > 6.5
-					if not (airborne and (s.kind == "stomp" or s.kind == "slam")) then
+					-- a strike aimed at a height (anti-camping) only reaches that height
+					local level = not s.y
+						or Contact.inStrikeBand(rec.y - (rec.rootHeight or 3), s.y, GameConfig.CampStrikeBelow, GameConfig.CampStrikeAbove)
+					if level and not (airborne and (s.kind == "stomp" or s.kind == "slam")) then
 						players:Hurt(rec, s.dmg, nil, now)
 					end
 				end

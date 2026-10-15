@@ -32,6 +32,14 @@ function Contact.overlapsY(heroFeet: number, heroHeight: number, enemyLow: numbe
 	return heroFeet <= enemyHigh + tolerance and heroFeet + heroHeight >= enemyLow - tolerance
 end
 
+--- Does a strike aimed at height `y` (an anti-camping strike, drawn there)
+--- reach a hero whose feet are at `feet`? Only from `below` under it to
+--- `above` over it: the hero it was aimed at, not a teammate on the ground
+--- far beneath, and not dodged by jumping on the spot.
+function Contact.inStrikeBand(feet: number, y: number, below: number, above: number): boolean
+	return feet >= y - below and feet <= y + above
+end
+
 export type Camp = {
 	seconds: number, -- out of reach this long, with enemies below, before a strike
 	every: number, -- and then at most one strike this often
