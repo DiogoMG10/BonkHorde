@@ -21,7 +21,12 @@ explicit decision by Tiago and Diogo.
   steering, slide/hop momentum hand-offs, slides to 2.8x, `bonk-0.6.2-m2b`) validated in
   Studio by Tiago and Diogo and merged to `main`. Studio speed readout: `hop` in
   Workspace.BonkDev.
-- **Next playable result:** Minty's Frost Ring freezing (individual 25 % chance per enemy).
+- **M2.C Minty Frost Ring** (`bonk-0.7.0-m2c`, branch `feat/m2c-minty-frost`, offline checks
+  only): option A, each enemy the ring hits has its own 25 % chance (+ Freeze Chance) to be
+  frozen for 2 s; frozen enemies show an ice shell. Fallback if A feels wrong in Studio:
+  option B, a 15 % chance per ring activation to freeze every enemy it hit for 2 s.
+- **Next playable result:** Studio playtest of M2.C (freeze rate, 2 s, ice visibility, bosses
+  unaffected), then merge.
 - **Blockers:** none.
 
 ## M3 Art Direction & Wardwood — prototype

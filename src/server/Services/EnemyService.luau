@@ -78,11 +78,22 @@ function EnemyService:KnitInit()
 	self._spawned = {}
 	self._gone = {}
 	self._hits = {}
+	self._frozen = {} -- slot, tenths of a second: flushed with the hits so clients can show the ice
 	self.Killed = Signal.new()
 	self._spawnEvent = Net.server("EnemySpawn")
 	self._snapEvent = Net.server("EnemySnap")
 	self._goneEvent = Net.server("EnemyGone")
 	self._hitsEvent = Net.server("Hits")
+	self._frozenEvent = Net.server("EnemyFrozen")
+end
+
+-- queue a freeze for the clients' ice shell (bounded, like hits)
+function EnemyService:_tellFrozen(slot: number, seconds: number)
+	local frozen = self._frozen
+	if #frozen < 600 then
+		table.insert(frozen, slot)
+		table.insert(frozen, math.clamp(math.floor(seconds * 10 + 0.5), 1, 255))
+	end
 end
 
 function EnemyService:KnitStart()
@@ -374,6 +385,7 @@ end
 function EnemyService:Freeze(slot: number, seconds: number, now: number)
 	if alive[slot] and bossKind[slot] == 0 then
 		frozenUntil[slot] = math.max(frozenUntil[slot], now + seconds)
+		self:_tellFrozen(slot, frozenUntil[slot] - now)
 	end
 end
 
@@ -381,6 +393,7 @@ function EnemyService:FreezeAll(seconds: number, now: number)
 	for slot = 1, MAX do
 		if alive[slot] then
 			frozenUntil[slot] = math.max(frozenUntil[slot], now + seconds * (if bossKind[slot] > 0 then 0.4 else 1))
+			self:_tellFrozen(slot, frozenUntil[slot] - now)
 		end
 	end
 end
@@ -608,6 +621,18 @@ function EnemyService:FlushNet()
 		end
 		table.clear(hits)
 		self._hitsEvent:FireAllClients(b)
+	end
+	local frozen = self._frozen
+	if #frozen > 0 then
+		local n = #frozen / 2
+		local b = buffer.create(n * 3)
+		for i = 1, n do
+			local o = (i - 1) * 3
+			buffer.writeu16(b, o, frozen[i * 2 - 1])
+			buffer.writeu8(b, o + 2, frozen[i * 2])
+		end
+		table.clear(frozen)
+		self._frozenEvent:FireAllClients(b)
 	end
 end
 

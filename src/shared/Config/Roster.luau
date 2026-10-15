@@ -169,7 +169,8 @@ Roster.Weapons = {
 			Duration = 1.6,
 			Range = 14,
 			Knockback = 0,
-			Freeze = 0.12,
+			Freeze = 0.25, -- rolled for each enemy the ring hits (plus Freeze Chance)
+			FreezeSeconds = 2, -- this weapon's freezes last longer than the usual 1.5 s
 		},
 		pool = { Damage = 2, Size = 0.1, Duration = 0.12, CritChance = 0.08 },
 	},
