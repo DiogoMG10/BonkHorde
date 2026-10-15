@@ -1,0 +1,18 @@
+[
+  { "name": "w01_spawn_north", "x": 0, "z": -6, "yaw": 180 },
+  { "name": "w02_spawn_east_to_sunspire", "x": -6, "z": 0, "yaw": 265, "pitch": -8 },
+  { "name": "w03_sunspire_climb", "x": 300, "z": 10, "yaw": 265, "pitch": -4 },
+  { "name": "w04_sun_temple", "x": 352, "z": 22, "yaw": 270, "pitch": -6 },
+  { "name": "w05_temple_view_west", "x": 372, "z": 24, "yaw": 90, "pitch": -10 },
+  { "name": "w06_old_grove", "x": -330, "z": -34, "yaw": 90, "pitch": 6 },
+  { "name": "w07_fallen_giant", "x": 280, "z": -240, "yaw": 225, "pitch": -6 },
+  { "name": "w08_stoneglen", "x": -230, "z": -360, "yaw": 85, "pitch": -8 },
+  { "name": "w09_north_slope", "x": -60, "z": 330, "yaw": 180, "pitch": -12 },
+  { "name": "w10_north_vale", "x": -56, "z": 370, "yaw": 180, "pitch": -4 },
+  { "name": "w11_windhill", "x": 300, "z": 326, "yaw": 230, "pitch": -4 },
+  { "name": "w12_thornwood", "x": -260, "z": 300, "yaw": 120, "pitch": -4 },
+  { "name": "w13_boundary_south", "x": 0, "z": -420, "yaw": 0, "pitch": 4 },
+  { "name": "w14_boundary_west", "x": -410, "z": 60, "yaw": 90, "pitch": 6 },
+  { "name": "w15_mirewood_edge", "x": -150, "z": 10, "yaw": 95, "pitch": -6 },
+  { "name": "w16_aerial", "eye": [420, 360, -620], "target": [0, 20, 60], "fov": 60 }
+]

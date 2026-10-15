@@ -16,14 +16,14 @@ W = json.load(open(src, encoding="utf-8"))
 n, cell, half = W["n"], W["cell"], W["half"]
 H = W["heights"]
 S = W["surfaces"]
-PX = 4  # pixels per cell
+PX = 3  # pixels per cell
 size = (n - 1) * PX
 
 COL = {
     "Grass": (110, 150, 55), "Meadow": (128, 160, 60), "LeafyGrass": (72, 122, 52), "Lush": (78, 128, 52),
     "Ground": (110, 85, 58), "Path": (150, 118, 80), "Mud": (80, 62, 44), "ForestFloor": (60, 80, 42),
     "Rock": (105, 105, 105), "Slate": (80, 82, 88), "Cliff": (120, 115, 105), "Sand": (180, 160, 112),
-    "Pavement": (140, 140, 132), "Cobblestone": (128, 126, 116),
+    "Pavement": (140, 140, 132), "Cobblestone": (128, 126, 116), "Snow": (236, 242, 246),
 }
 
 img = Image.new("RGB", (size, size))

@@ -6,12 +6,20 @@
 -- written from it. Nothing about the layout is random per run; only what gets
 -- PLACED on the anchors is. Pure.
 --
--- Layout (north is +z), the Wardwood: a meadow basin round the spawn
--- clearing; the Highwatch plateau to the north, reached by two ramps and the
--- long curving Thunder Chute down its north-east shoulder; the Ridge Run to
+-- Layout (north is +z), the Wardwood. The heart: a meadow basin round the
+-- spawn clearing; the Highwatch plateau to the north, reached by two ramps and
+-- the long curving Thunder Chute down its north-east shoulder; the Ridge Run to
 -- the east; the Elder Hill to the south-west; the curved Terraced Gardens to
 -- the south with one smooth ramp through them; the Mirewood dell to the west
--- round the shallow Moonwell pond; a broken, mountainous rim round the edge.
+-- round the shallow Moonwell pond.
+-- The wider world round it: the plateau's long north slope down to the North
+-- Vale; Thornwood and its hills to the north-west and Windhill to the
+-- north-east; Sunspire Hill beyond the ridge to the east, the Sun Temple on
+-- its summit; the Fallen Giant's gully to the south-east; the long descent
+-- from the top terrace to Stoneglen in the south; the raised floor of the Old
+-- Grove to the west. All of it gentle enough for a horde to follow a hero.
+-- Round the playable world (a rounded, wandering boundary) mountains rise
+-- straight from its edge: scenery only, walled off by an invisible barrier.
 -- Core/World dresses it; the features below are shared with it.
 
 local MapGen = {}
@@ -23,6 +31,7 @@ export type Map = {
 	n: number, -- samples per side
 	heights: { number },
 	wall: number,
+	play: { boolean }, -- samples at least PLAY_MARGIN inside the playable edge
 	blocked: { boolean }?, -- samples a prop stands on; set by MapGen.block
 }
 export type Prop = { kind: string, x: number, z: number, yaw: number, scale: number, radius: number }
@@ -59,7 +68,50 @@ MapGen.Features = {
 	-- the garden ramp: one smooth slope through the terrace risers
 	gardenRampX = -58,
 	gardenRampHalf = 15,
+	-- Sunspire Hill: a broad hill beyond the ridge, a flat summit for the temple
+	sunspire = { x = 378, z = 24, top = 30, r = 120, rise = 40 },
+	-- the Fallen Giant's gully: a valley with gentle banks, a fallen tree across it
+	gully = { points = { { 248, -196 }, { 300, -262 }, { 360, -300 }, { 430, -320 } }, depth = 10, core = 14, bank = 30 },
+	-- rolling hills of the wider world: { x, z, radius, rise }
+	hills = {
+		{ 330, 340, 92, 20 }, -- Windhill
+		{ -330, 330, 84, 16 }, -- Thornback
+		{ -385, -40, 120, 10 }, -- the Old Grove's raised floor
+		{ 150, 380, 70, 9 },
+		{ -170, -400, 70, 8 },
+		{ 430, -150, 60, 10 },
+		{ -440, 190, 70, 12 },
+	},
+	-- Stoneglen: a shallow bowl below the terraces' long descent
+	glen = { x = -296, z = -372, r = 64, depth = 6 },
 }
+
+-- The playable world: a rounded square (a superellipse) whose edge wanders a
+-- little with the angle, so the mountains round it never form a straight wall.
+MapGen.Bound = { p = 4, r = 455 }
+-- enemies (and anchors) keep this far inside the edge
+MapGen.PLAY_MARGIN = 12
+
+--- How far (x, z) lies outside the playable edge, in studs (negative inside).
+function MapGen.outside(x: number, z: number): number
+	local b = MapGen.Bound
+	local ax, az = math.abs(x), math.abs(z)
+	local d = (ax ^ b.p + az ^ b.p) ^ (1 / b.p)
+	local a = math.atan2(z, x)
+	local r = b.r * (1 + 0.035 * math.sin(3 * a + 0.7) + 0.03 * math.sin(5 * a + 2.1) + 0.02 * math.sin(8 * a + 0.4))
+	return d - r
+end
+
+-- A ridged mountain height for the backdrop beyond the edge: higher the
+-- further out, broken into peaks and saddles, lower in a few passes so the
+-- world seems to carry on past them.
+local function mountain(x: number, z: number, out: number): number
+	local ridge = 1 - math.abs(math.sin(x * 0.011 + z * 0.007 + 1.3) * math.cos(x * 0.006 - z * 0.013 + 0.4))
+	local fine = math.sin(x * 0.031 + 0.4) * math.sin(z * 0.027 - 0.8)
+	local a = math.atan2(z, x)
+	local pass = 0.62 + 0.38 * smooth((math.cos(2 * a + 0.9) + 0.3) / 0.9)
+	return (62 + 100 * smooth(out / 180) + 58 * ridge + 16 * fine) * pass
+end
 
 -- distance from (x, z) to a polyline, and how far along it (studs) the closest point is
 local function alongPolyline(points: { { number } }, x: number, z: number): (number, number, number)
@@ -81,7 +133,7 @@ end
 MapGen.alongPolyline = alongPolyline
 
 --- The analytic height at a point. Everything else samples this.
-function MapGen.rawHeight(x: number, z: number, half: number, wall: number): number
+function MapGen.rawHeight(x: number, z: number, _half: number, wall: number): number
 	local F = MapGen.Features
 	-- rolling ground, plus a long low swell that gives a run of hops a rhythm
 	local h = 8
@@ -94,6 +146,23 @@ function MapGen.rawHeight(x: number, z: number, half: number, wall: number): num
 	local d0 = math.sqrt(x * x + z * z)
 	h = lerp(h, 6, smooth(1 - d0 / 130) * 0.9)
 
+	-- the wider world: broad, gentle hills that fade out towards the heart
+	local out = MapGen.outside(x, z)
+	local wide = smooth((d0 - 280) / 120)
+	h += wide * (9 * math.sin(x * 0.012 + 0.6) * math.cos(z * 0.014 - 1.1) + 5 * math.sin((x - z) * 0.019 + 2) + 5)
+	for _, hill in F.hills do
+		local dh = math.sqrt((x - hill[1]) ^ 2 + (z - hill[2]) ^ 2)
+		h += hill[4] * smooth(1 - dh / hill[3]) ^ 1.2
+	end
+	-- Sunspire Hill: a flat summit and long even slopes on every side
+	local ss = F.sunspire
+	local dsun = math.sqrt((x - ss.x) ^ 2 + (z - ss.z) ^ 2)
+	h += ss.rise * smooth(1 - (dsun - ss.top) / (ss.r - ss.top)) ^ 1.1
+	-- Stoneglen: a shallow bowl
+	local gl = F.glen
+	local dgl = math.sqrt((x - gl.x) ^ 2 + (z - gl.z) ^ 2)
+	h -= gl.depth * smooth(1 - dgl / gl.r)
+
 	-- the Elder Hill: a broad round rise south-west of spawn
 	local eh = F.elderHill
 	local de = math.sqrt((x - eh.x) ^ 2 + (z - eh.z) ^ 2)
@@ -103,8 +172,11 @@ function MapGen.rawHeight(x: number, z: number, half: number, wall: number): num
 	-- face is a known landmark), it has rounded flanks, and two long ramps; ramp A
 	-- stays dead straight along x = -95.
 	local wander = 13 * math.sin(x * 0.021 + 0.6) * smooth((math.abs(x) - 30) / 50)
-	local inX = smooth((232 + 9 * math.sin(z * 0.031) - math.abs(x)) / 16)
-	local inZNorth = smooth((335 - z) / 22)
+	-- its east and west flanks steep in the south, a broad bank in the north;
+	-- its north side one long slope down to the North Vale
+	local fall = lerp(16, 64, smooth((z - 230) / 70))
+	local inX = smooth((232 + 9 * math.sin(z * 0.031) - math.abs(x) + (fall - 16) / 2) / fall)
+	local inZNorth = smooth((432 - z) / 100)
 	local edge = smooth((z - 150 - wander) / 14)
 	-- broad shoulders, so a ramp reads as a slope up the hill, not a causeway
 	local rampA = smooth(1 - (math.abs(x + 95) - 8) / 26) * smooth((z - 70) / 88)
@@ -131,7 +203,8 @@ function MapGen.rawHeight(x: number, z: number, half: number, wall: number): num
 		local steps = math.min(whole + smooth(frac / 0.3), 4)
 		local ramp = smooth(1 - math.abs(x - F.gardenRampX) / F.gardenRampHalf)
 		steps = lerp(steps, math.min(t, 4), ramp)
-		h += 9 * steps * smooth((270 - math.abs(x)) / 40)
+		-- gentle flanks east and west, and a long descent south to Stoneglen
+		h += 9 * steps * smooth((290 - math.abs(x)) / 80) * smooth((z + 452) / 110)
 	end
 
 	-- the Mirewood dell: a shallow bowl...
@@ -157,17 +230,25 @@ function MapGen.rawHeight(x: number, z: number, half: number, wall: number): num
 		-- steep enough to build a slide's speed (over about 0.2 the slide gains),
 		-- then a gentler run-out that carries it into the basin
 		local t = sc / lc
-		local fall = if t < ch.steep then t / ch.steep * 0.6 else 0.6 + (t - ch.steep) / (1 - ch.steep) * 0.4
-		local grade = lerp(ch.top, ch.bottom, fall)
+		local drop = if t < ch.steep then t / ch.steep * 0.6 else 0.6 + (t - ch.steep) / (1 - ch.steep) * 0.4
+		local grade = lerp(ch.top, ch.bottom, drop)
 		local pipe = 2.2 * (math.min(dc, ch.core) / ch.core) ^ 2 -- banked: the edges ride higher
 		local w = 1 - smooth((dc - ch.core) / ch.shoulder)
 		h = lerp(h, grade + pipe, w)
 	end
 
-	-- the rim: a broken mountain skyline rather than a wall
-	local e = math.max(math.abs(x), math.abs(z))
-	local peaks = 10 * math.sin(x * 0.019 + z * 0.023) + 7 * math.sin(x * 0.051 - z * 0.044 + 1.7)
-	h = lerp(h, wall + peaks, smooth((e - (half - 36)) / 24))
+	-- the Fallen Giant's gully: a valley with walkable banks
+	local gu = F.gully
+	local dg = alongPolyline(gu.points, x, z)
+	if dg < gu.core + gu.bank then
+		h -= gu.depth * (1 - smooth((dg - gu.core) / gu.bank))
+	end
+
+	-- the mountains: rising straight from the playable edge, so there is no
+	-- reachable shelf between the world and the backdrop
+	if out > 0 then
+		h = lerp(h, mountain(x, z, out), smooth(out / 46))
+	end
 
 	return math.clamp(h, 2, wall)
 end
@@ -177,14 +258,16 @@ function MapGen.build(size: number, cell: number, wall: number): Map
 	local half = size / 2
 	local n = math.floor(size / cell) + 1
 	local heights = table.create(n * n, 0)
+	local play = table.create(n * n, false)
 	for iz = 0, n - 1 do
 		local z = -half + iz * cell
 		for ix = 0, n - 1 do
 			local x = -half + ix * cell
 			heights[iz * n + ix + 1] = MapGen.rawHeight(x, z, half, wall)
+			play[iz * n + ix + 1] = MapGen.outside(x, z) < -MapGen.PLAY_MARGIN
 		end
 	end
-	return { size = size, half = half, cell = cell, n = n, heights = heights, wall = wall }
+	return { size = size, half = half, cell = cell, n = n, heights = heights, wall = wall, play = play }
 end
 
 --- Height at a point, bilinear over the sampled grid, clamped to the map.
@@ -223,8 +306,10 @@ end
 --- Can a ground enemy step from (x, z) to (nx, nz)? Not up or down a cliff,
 --- and not out of the playable area.
 function MapGen.canStep(map: Map, x: number, z: number, nx: number, nz: number, cliffSlope: number): boolean
-	local limit = map.half - 30
-	if math.abs(nx) > limit or math.abs(nz) > limit then
+	-- nothing walks within 12 studs of the playable edge, let alone past it
+	local px = math.clamp(math.floor((nx + map.half) / map.cell + 0.5), 0, map.n - 1)
+	local pz = math.clamp(math.floor((nz + map.half) / map.cell + 0.5), 0, map.n - 1)
+	if not map.play[pz * map.n + px + 1] then
 		return false
 	end
 	local run = math.sqrt((nx - x) ^ 2 + (nz - z) ^ 2)
@@ -279,14 +364,14 @@ end
 --- on a jittered lattice. `d` is the distance from the spawn point (0, 0).
 function MapGen.anchors(map: Map, spacing: number, maxSlope: number): { Anchor }
 	local out: { Anchor } = {}
-	local limit = map.half - 50
+	local limit = map.half
 	local steps = math.floor(limit / spacing)
 	for iz = -steps, steps do
 		for ix = -steps, steps do
 			local x = ix * spacing + (hash(ix, iz, 1) - 0.5) * spacing * 0.6
 			local z = iz * spacing + (hash(ix, iz, 2) - 0.5) * spacing * 0.6
 			local d = math.sqrt(x * x + z * z)
-			if d > 22 and math.abs(x) < limit and math.abs(z) < limit and MapGen.slopeAt(map, x, z) <= maxSlope then
+			if d > 22 and MapGen.outside(x, z) < -40 and MapGen.slopeAt(map, x, z) <= maxSlope then
 				table.insert(out, { x = x, z = z, d = d })
 			end
 		end

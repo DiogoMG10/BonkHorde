@@ -14,6 +14,7 @@ local Wardwood = {
 		Rock = { material = "Rock", color = { 132, 128, 116 } },
 		Slate = { material = "Slate", color = { 104, 106, 106 } },
 		Sand = { material = "Sand", color = { 202, 186, 138 } },
+		Snow = { material = "Snow", color = { 236, 242, 246 } },
 	},
 }
 

@@ -101,13 +101,85 @@ return {
 		end
 	end,
 
+	["a horde can follow a hero to every landmark, the Sun Temple's summit too"] = function()
+		local reach = MapGen.reachable(map, 0, 0, GameConfig.CliffSlope)
+		for _, site in World.Sites do
+			-- the site itself may be a pond or a dais: somewhere within a few studs is enough
+			local found = false
+			for dx = -12, 12, 4 do
+				for dz = -12, 12, 4 do
+					if MapGen.isReachable(map, reach, site.x + dx, site.z + dz) then
+						found = true
+					end
+				end
+			end
+			assert(found, `{site.name} cannot be walked to`)
+		end
+		-- Sunspire from three sides, not one
+		local ss = F.sunspire
+		local sides = 0
+		for _, a in { 0, 90, 180, 270 } do
+			local r = math.rad(a)
+			if MapGen.isReachable(map, reach, ss.x + math.cos(r) * 60, ss.z + math.sin(r) * 60) then
+				sides += 1
+			end
+		end
+		assert(sides >= 3, `Sunspire can be climbed from only {sides} sides`)
+	end,
+
+	["the barrier is a closed ring just outside the playable edge"] = function()
+		local segs = world.barrier
+		assert(#segs >= 120, "too few barrier segments")
+		for i, seg in segs do
+			local nextSeg = segs[i % #segs + 1]
+			assert(seg[3] == nextSeg[1] and seg[4] == nextSeg[2], "the ring has a gap")
+			local len = math.sqrt((seg[3] - seg[1]) ^ 2 + (seg[4] - seg[2]) ^ 2)
+			assert(len < 30, `a segment {len} studs long`)
+			local o = MapGen.outside(seg[1], seg[2])
+			assert(o > 2 and o < 9, `a barrier post {o} studs from the edge`)
+		end
+	end,
+
+	["the world is bigger, and the forest is never a wall"] = function()
+		assert(map.size >= 1100, "the world did not grow")
+		-- sample the playable world: deep forest (density over 0.7) stays a small share
+		local deep, total = 0, 0
+		for x = -440, 440, 10 do
+			for z = -440, 440, 10 do
+				if MapGen.outside(x, z) < -20 then
+					total += 1
+					if World.forest(x, z) > 0.7 then
+						deep += 1
+					end
+				end
+			end
+		end
+		assert(deep / total < 0.12, `{deep / total * 100} % of the world is deep forest`)
+	end,
+
 	["every landmark is dressed"] = function()
 		local kinds = {}
 		for _, p in world.props do
 			kinds[p.kind] = true
 		end
 		for _, k in
-			{ "Ward", "Gate", "RuinTower", "ElderRoots", "MoonStone", "Cairn", "RuneStone", "Brazier", "Spruce", "Birch", "Flowers" }
+			{
+				"Ward",
+				"Gate",
+				"RuinTower",
+				"ElderRoots",
+				"MoonStone",
+				"Cairn",
+				"RuneStone",
+				"Brazier",
+				"Spruce",
+				"Birch",
+				"Flowers",
+				"SunTemple",
+				"FallenGiant",
+				"AncientOak",
+				"AncientPine",
+			}
 		do
 			assert(kinds[k], `no {k} in the world`)
 		end
@@ -119,7 +191,7 @@ return {
 			local parts = World.parts(world, p)
 			instances += if parts then #parts else 1
 		end
-		assert(instances < 13000, `{instances} scenery instances`)
+		assert(instances < 14000, `{instances} scenery instances`)
 	end,
 
 	["spruce grows where it is cool, oak and birch where it is warm"] = function()
@@ -139,6 +211,10 @@ return {
 		for _, kind in
 			{
 				"Paving",
+				"AncientOak",
+				"AncientPine",
+				"FallenGiant",
+				"SunTemple",
 				"Spruce",
 				"SpruceFar",
 				"Birch",
@@ -165,7 +241,7 @@ return {
 			assert(#parts > 0, `{kind} has no parts`)
 			for _, p in parts do
 				for _, v in p.size do
-					assert(v > 0.05 and v < 80, `{kind} has a part of size {v}`)
+					assert(v > 0.05 and v < 120, `{kind} has a part of size {v}`)
 				end
 			end
 		end

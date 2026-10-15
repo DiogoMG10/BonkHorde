@@ -212,6 +212,37 @@ local function water(w, parent: Instance)
 	CollectionService:AddTag(glow, "WWGlow")
 end
 
+-- The invisible wall at the mountains' foot: one tall, thick, unseen part per
+-- segment, overlapping its neighbours so there is never a seam to slip
+-- through, tall enough that no jump clears it. Players only: enemies are held
+-- inside by MapGen.canStep.
+local function barrier(segments, map, parent: Instance)
+	local folder = Instance.new("Folder")
+	folder.Name = "Boundary"
+	for _, seg in segments do
+		local a = Vector3.new(seg[1], 0, seg[2])
+		local b = Vector3.new(seg[3], 0, seg[4])
+		local mid = (a + b) / 2
+		local len = (b - a).Magnitude + 6
+		local ground = math.min(MapGen.heightAt(map, seg[1], seg[2]), MapGen.heightAt(map, seg[3], seg[4]))
+		local wall = Instance.new("Part")
+		wall.Name = "Wall"
+		wall.Anchored = true
+		wall.CanCollide = true
+		wall.CanQuery = false
+		wall.CanTouch = false
+		wall.CastShadow = false
+		wall.Transparency = 1
+		wall.Size = Vector3.new(len, 400, 6)
+		wall.CFrame = CFrame.lookAt(
+			Vector3.new(mid.X, ground + 180, mid.Z),
+			Vector3.new(mid.X, ground + 180, mid.Z) + (b - a).Unit:Cross(Vector3.yAxis)
+		)
+		wall.Parent = folder
+	end
+	folder.Parent = parent
+end
+
 --- Build every prop of the world into a fresh Workspace.Map. Yields now and
 --- then so the server never stalls; returns how many props were built.
 function Builder.build(world): number
@@ -263,6 +294,7 @@ function Builder.build(world): number
 	for _, w in world.water do
 		water(w, folder)
 	end
+	barrier(world.barrier, world.map, folder)
 	folder.Parent = Workspace
 	print(`[Wardwood] {built} props, about {parts} parts`)
 	return built

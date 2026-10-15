@@ -33,19 +33,17 @@ explicit decision by Tiago and Diogo.
 
 ## M3 Art Direction & Wardwood — in progress
 
-- **State:** M3.A (`bonk-0.9.0-m3a`, branch `feat/m3a-wardwood`) turns the map into the
-  Wardwood, golden-hour Meadows look, built for hops and slides: reshaped landforms (Thunder
-  Chute slide run, Elder Hill, curved Terraced Gardens, the Moonwell wading pond, the falls
-  down the Highwatch's face, a mountain rim), landmarks (the Ward, the Runic Gate, the
-  Highwatch ruins, the Elder tree, the Moonwell stones, ridge standing stones), cool spruce
-  forest and warm oak/birch groves, paths, lighting, ambient effects. Pure layout in
-  `Core/World` + `Core/Blueprints`; offline previews from `tools/map/export_world.luau` and
-  `preview_blender.py`. Offline checks only: **not yet seen in Studio**. Supersedes the
-  `proto/wardwood` greybox (its ward platform, paths and golden/teal looks were reused; its
-  ProtoPull tooling was not).
-- **Next playable result:** Studio playtest of M3.A: the look (lighting, haze, terrain
-  colours, grass), the first view and the lobby, chute/ridge/garden slides, frame rate with a
-  horde. `site <name>` in Workspace.BonkDev jumps to each landmark.
+- **State:** M3.A on branch `feat/m3a-wardwood`. `bonk-0.9.0-m3a` playtested in Studio: the
+  heart (clearing, ruins, golden-hour light) was liked; grass hid enemies, the outer forest
+  was a dense belt and the rim could be climbed to camp. `bonk-0.10.0-m3a` answers that:
+  1200-stud terrain with a ~940-stud rounded playable world (the heart unchanged), new regions
+  (Sunspire Hill and its Sun Temple, the Old Grove, the Fallen Giant's gully, Stoneglen,
+  the North Vale and its long slope, Windhill, Thornwood), part-built ancient oaks and pines,
+  dense forest only in patches, mountains rising straight from the edge behind an invisible
+  barrier, shorter grass, interactable counts scaled to the area. Offline checks only.
+- **Next playable result:** Studio playtest of `bonk-0.10.0-m3a`: grass readability, the new
+  regions and routes (`site <name>` in Workspace.BonkDev), the boundary, frame rate with a
+  horde across the larger world, how long the boss portal takes to find.
 - **Blockers:** none.
 
 ## M4 Horde & Performance — not started

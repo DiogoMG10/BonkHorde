@@ -73,7 +73,18 @@ check(
 )
 
 -- the boundary holds
-check("boundary_wall", not MapGen.isReachable(map, reach, map.half - 4, 0) and not MapGen.isReachable(map, reach, 0, -(map.half - 4)), "nothing walks out of the map")
+-- nothing reaches the mountains: not the foot of them, not their slopes
+local escaped = 0
+for k = 0, 71 do
+	local a = k / 72 * math.pi * 2
+	for r = 300, map.half - 4, 8 do
+		local x, z = math.cos(a) * r, math.sin(a) * r
+		if MapGen.outside(x, z) > 0 and MapGen.isReachable(map, reach, x, z) then
+			escaped += 1
+		end
+	end
+end
+check("boundary_wall", escaped == 0, `{escaped} points beyond the playable edge can be walked to`)
 
 -- walkable share, slide runs and cliffs
 local n = map.n
@@ -81,7 +92,7 @@ local walk, slide, cliff, inside = 0, 0, 0, 0
 for iz = 0, n - 1 do
 	for ix = 0, n - 1 do
 		local x, z = -map.half + ix * map.cell, -map.half + iz * map.cell
-		if math.abs(x) < map.half - 30 and math.abs(z) < map.half - 30 then
+		if map.play[iz * n + ix + 1] then
 			inside += 1
 			if reach[iz * n + ix + 1] then
 				walk += 1

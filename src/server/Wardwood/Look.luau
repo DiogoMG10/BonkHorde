@@ -95,7 +95,9 @@ function Look.apply()
 		terrain:SetMaterialColor(entry[1], entry[2])
 	end
 	pcall(function()
-		terrain.GrassLength = 0.35 -- some movement in the meadows; gems and feet stay visible
+		-- short enough that enemies, gems and coins are never lost in it (0.35 hid
+		-- enemies in the first Studio playtest), long enough to stir in the meadows
+		terrain.GrassLength = 0.15
 	end)
 	pcall(function()
 		terrain.WaterColor = rgb(52, 120, 128)

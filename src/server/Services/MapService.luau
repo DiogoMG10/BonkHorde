@@ -93,8 +93,6 @@ function MapService:_writeTerrain()
 	local map = self._map
 	local world = self._world
 	local half = map.half
-	local topY = GameConfig.WallHeight + VOXEL
-	local layers = math.floor((topY - FLOOR_Y) / VOXEL)
 	local chunk = 32 -- columns per side per write
 	local columns = math.floor(map.size / VOXEL)
 	local air = Enum.Material.Air
@@ -103,6 +101,17 @@ function MapService:_writeTerrain()
 		for cz = 0, columns - 1, chunk do
 			local nx = math.min(chunk, columns - cx)
 			local nz = math.min(chunk, columns - cz)
+			-- only as many layers as this chunk's highest column needs: the
+			-- mountains are tall, the playable world mostly is not
+			local topH = 0
+			for ix = 1, nx do
+				for iz = 1, nz do
+					local x = -half + (cx + ix - 1) * VOXEL + VOXEL / 2
+					local z = -half + (cz + iz - 1) * VOXEL + VOXEL / 2
+					topH = math.max(topH, MapGen.heightAt(map, x, z))
+				end
+			end
+			local layers = math.ceil((topH + VOXEL - FLOOR_Y) / VOXEL)
 			local materials = table.create(nx)
 			local occupancy = table.create(nx)
 			for ix = 1, nx do

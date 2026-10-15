@@ -194,8 +194,20 @@ return {
 	end,
 
 	["nothing walks out through the boundary wall"] = function()
-		assert(not MapGen.canStep(map, 328, 0, 340, 0, GameConfig.CliffSlope))
-		assert(not MapGen.isReachable(map, reach, 356, 0))
+		-- in every direction: no step across the playable edge, nothing reachable beyond it
+		for k = 0, 35 do
+			local a = k / 36 * math.pi * 2
+			local c, s = math.cos(a), math.sin(a)
+			local edge = 100
+			while MapGen.outside(c * edge, s * edge) < 0 do
+				edge += 1
+			end
+			assert(
+				not MapGen.canStep(map, c * (edge - 14), s * (edge - 14), c * (edge - 6), s * (edge - 6), 99),
+				`walked to the edge at {k * 10} deg`
+			)
+			assert(not MapGen.isReachable(map, reach, c * (edge + 20), s * (edge + 20)), `the mountains at {k * 10} deg can be reached`)
+		end
 	end,
 
 	["every anchor can be walked to from spawn"] = function()

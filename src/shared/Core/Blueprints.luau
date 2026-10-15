@@ -197,6 +197,138 @@ function Blueprints.Birch(seed: number, _g): { Prim }
 	return out
 end
 
+-- ------------------------------------------------------------------ the ancients
+
+local OAK_LEAVES = { { 118, 168, 62 }, { 96, 150, 54 }, { 140, 182, 74 }, { 162, 178, 72 } }
+
+-- An ancient oak, some 95 studs at scale 1: a massive, slightly wandering
+-- trunk on buttress roots, five great limbs, a crown of leaf masses that
+-- begins far overhead so it never crowds a fight. Only the trunk's foot is solid.
+function Blueprints.AncientOak(seed: number, _g): { Prim }
+	local out = {}
+	local segs = { { 14, 15 }, { 12, 14 }, { 10, 13 }, { 8.2, 11 } }
+	local y, ox, oz = -2.5, 0, 0
+	for k, seg in segs do
+		ox += (hash(seed, k, 403) - 0.5) * 1.6
+		oz += (hash(seed, k, 407) - 0.5) * 1.6
+		local part = column(seg[2] + 1.2, seg[1], { ox, y, oz }, k * 17, shade(C.bark, 0.9 + k * 0.04), "Wood")
+		if k <= 2 then
+			part.collide = true
+		end
+		table.insert(out, part)
+		y += seg[2]
+	end
+	local top = { ox, y, oz }
+	-- buttress roots fanning into the ground
+	for k = 0, 5 do
+		local a = k * 60 + hash(seed, k, 409) * 30
+		local r = math.rad(a)
+		table.insert(
+			out,
+			prim("cylinder", { 17, 4.2, 4.2 }, { math.cos(r) * 7.5, 1.4, math.sin(r) * 7.5 }, { -a, 0, -24 }, C.barkDark, "Wood")
+		)
+	end
+	-- moss on the trunk's foot
+	table.insert(out, flat(column(5, 14.3, { 0, 4, 0.6 }, 0, C.moss, "Grass")))
+	-- five limbs reaching up and out, each ending in leaf masses
+	for k = 1, 5 do
+		local a = k * 72 + hash(seed, k, 411) * 30
+		local tilt = 26 + hash(seed, k, 413) * 22
+		local len = 28 + hash(seed, k, 417) * 9
+		local by = top[2] - 16 + hash(seed, k, 419) * 10
+		local r, t = math.rad(a), math.rad(tilt)
+		local dx, dy, dz = math.cos(r) * math.cos(t), math.sin(t), math.sin(r) * math.cos(t)
+		local cx, cy, cz = top[1] + dx * len / 2, by + dy * len / 2, top[3] + dz * len / 2
+		local limb = 5.4 - k * 0.25
+		table.insert(out, prim("cylinder", { len, limb, limb }, { cx, cy, cz }, { -a, 0, tilt }, C.bark, "Wood"))
+		local ex, ey, ez = top[1] + dx * len, by + dy * len, top[3] + dz * len
+		for j = 1, 3 do
+			local d = 22 + hash(seed, k * 3 + j, 421) * 10
+			local jx = (hash(seed, k * 3 + j, 423) - 0.5) * 14
+			local jz = (hash(seed, k * 3 + j, 427) - 0.5) * 14
+			local col = OAK_LEAVES[1 + (k + j) % #OAK_LEAVES]
+			table.insert(out, prim("ball", { d, d, d }, { ex + jx, ey + 3 + j * 3, ez + jz }, nil, col, "SmoothPlastic"))
+		end
+	end
+	-- the crown over the trunk
+	for k = 1, 5 do
+		local a = math.rad(k * 72 + hash(seed, k, 431) * 40)
+		local d = 32 + hash(seed, k, 433) * 10
+		local at = { top[1] + math.cos(a) * 12, top[2] + 16 + k * 2.5, top[3] + math.sin(a) * 12 }
+		table.insert(out, prim("ball", { d, d, d }, at, nil, OAK_LEAVES[1 + k % #OAK_LEAVES], "SmoothPlastic"))
+	end
+	return out
+end
+
+-- An ancient pine, some 105 studs at scale 1: a tall bare trunk, then five
+-- tiers of crossed gables; the lowest branches start 25 studs up.
+function Blueprints.AncientPine(seed: number, _g): { Prim }
+	local out = {}
+	local h = 105
+	table.insert(out, solid(column(h * 0.6, 6.4, { 0, -2, 0 }, 0, C.bark, "Wood")))
+	table.insert(out, column(h * 0.3, 4.6, { 0, h * 0.56, 0 }, 30, C.bark, "Wood"))
+	for k = 0, 3 do
+		local a = k * 90 + hash(seed, k, 441) * 40
+		local r = math.rad(a)
+		table.insert(out, prim("cylinder", { 10, 2.8, 2.8 }, { math.cos(r) * 4, 1, math.sin(r) * 4 }, { -a, 0, -26 }, C.barkDark, "Wood"))
+	end
+	local widths = { 0.4, 0.34, 0.27, 0.2, 0.13 }
+	local bottoms = { 0.24, 0.38, 0.52, 0.66, 0.78 }
+	local tint = 0.92 + hash(seed, 9, 443) * 0.14
+	for k = 1, 5 do
+		local w = widths[k] * h
+		local th = 0.23 * h
+		local col = shade(C.spruce[math.min(k, 3)], tint)
+		local yaw = k * 37 + hash(seed, k, 447) * 20
+		gable(out, w, w, th, bottoms[k] * h, yaw, col, "SmoothPlastic")
+		gable(out, w, w, th, bottoms[k] * h, yaw + 90, shade(col, 0.93), "SmoothPlastic")
+	end
+	return out
+end
+
+-- The Fallen Giant: an ancient trunk come down across its gully, resting bank
+-- to bank (it lies along local x), its root plate reared up at one end, broken
+-- limbs and moss along it. The trunk is solid: run along it, jump off it.
+function Blueprints.FallenGiant(seed: number, g): { Prim }
+	local out = {}
+	local half = 33
+	local yA, yB = g(-half, 0), g(half, 0)
+	local d = 9.5
+	local rise = math.deg(math.atan((yB - yA) / (2 * half)))
+	local cy = (yA + yB) / 2 + d / 2 - 0.8
+	table.insert(out, solid(prim("cylinder", { 2 * half + 6, d, d }, { 0, cy, 0 }, { 0, 0, rise }, C.bark, "Wood")))
+	table.insert(out, flat(prim("cylinder", { 2 * half - 10, d * 1.03, d * 1.03 }, { -4, cy + 0.3, 0.6 }, { 0, 0, rise }, C.moss, "Grass")))
+	-- the root plate, reared up at the +x end
+	local rx = half + 5
+	local ry = yB + d / 2 + 4
+	table.insert(out, prim("cylinder", { 3.5, 26, 26 }, { rx, ry, 0 }, { 0, 0, rise }, C.barkDark, "Wood"))
+	for k = 0, 6 do
+		local a = k / 7 * 360 + hash(seed, k, 451) * 30
+		local r = math.rad(a)
+		table.insert(
+			out,
+			prim("cylinder", { 12, 2.6, 2.6 }, { rx + 4, ry + math.sin(r) * 10, math.cos(r) * 10 }, { 0, 0, rise + 20 }, C.barkDark, "Wood")
+		)
+	end
+	table.insert(out, flat(prim("cylinder", { 3.6, 22, 22 }, { rx - 0.4, ry - 1.5, 0 }, { 0, 0, rise }, { 96, 78, 56 }, "Ground")))
+	-- broken limbs along the trunk
+	for k = 1, 3 do
+		local lx = -half + 10 + k * 14
+		local ly = cy + (lx / (2 * half)) * (yB - yA)
+		local a = (hash(seed, k, 453) - 0.5) * 60
+		table.insert(
+			out,
+			prim("cylinder", { 11, 3.2, 3.2 }, { lx, ly + d / 2 + 3.5, (hash(seed, k, 457) - 0.5) * 3 }, { a, 0, 70 }, C.bark, "Wood")
+		)
+	end
+	-- the splintered crown end
+	table.insert(
+		out,
+		prim("cylinder", { 6, d * 0.8, d * 0.8 }, { -half - 5, yA + d / 2 - 0.6, 0 }, { 14, 0, rise - 8 }, C.barkDark, "Wood")
+	)
+	return out
+end
+
 -- ------------------------------------------------------------------ stones
 
 -- A standing stone, leaning a little, with a pointed top and a moss band.
@@ -386,6 +518,75 @@ function Blueprints.Ward(seed: number, g): { Prim }
 			"Cobblestone"
 		)
 	)
+	return out
+end
+
+-- The Sun Temple on Sunspire's summit: a ring of twelve columns (two long
+-- fallen, two broken) carrying lintels, round a two-step dais and its great
+-- brazier, runes glowing on the dais rim. Open enough to fight in and run through.
+function Blueprints.SunTemple(seed: number, g): { Prim }
+	local out = {}
+	local ring = 20
+	local g0 = g(0, 0)
+	table.insert(out, solid(column(1.6, 28, { 0, g0 - 1.1, 0 }, 0, shade(C.stoneLight, 0.94), "Slate")))
+	table.insert(out, solid(column(1.4, 17, { 0, g0 + 0.4, 0 }, 15, C.stoneLight, "Slate")))
+	brazier(out, { 0, g0 + 1.6, 0 }, 1.7)
+	for k = 0, 3 do
+		local a = math.rad(k * 90 + 45)
+		local strip = prim(
+			"block",
+			{ 3.2, 0.2, 0.6 },
+			{ math.cos(a) * 12.4, g0 + 0.55, math.sin(a) * 12.4 },
+			{ -k * 90 - 45, 0, 0 },
+			C.rune,
+			"Neon"
+		)
+		strip.neon = true
+		strip.shadow = false
+		strip.tag = "Rune"
+		table.insert(out, strip)
+	end
+	local tops = {}
+	for k = 0, 11 do
+		local a = math.rad(k * 30)
+		local x, z = math.cos(a) * ring, math.sin(a) * ring
+		if k == 2 or k == 7 then
+			-- long fallen: its drums lie in the grass outside the ring
+			local fa = math.rad(k * 30 + 12)
+			for j = 0, 1 do
+				local fx, fz = math.cos(fa) * (ring + 6 + j * 5), math.sin(fa) * (ring + 6 + j * 5)
+				table.insert(
+					out,
+					prim("cylinder", { 4.8, 3.8, 3.8 }, { fx, g(fx, fz) + 1.5, fz }, { k * 30 + 60 * j, 0, 0 }, C.stoneLight, "Cobblestone")
+				)
+			end
+		else
+			local count = if k == 5 or k == 10 then 2 else 4
+			tops[k] = drums(out, seed + k, { x, g(x, z), z }, count, 3.8, 5)
+			if count == 4 then
+				table.insert(out, prim("block", { 5, 1.5, 5 }, { x, tops[k] + 0.75, z }, { -k * 30, 0, 0 }, C.stoneLight, "Cobblestone"))
+			end
+		end
+	end
+	-- lintels between neighbouring whole columns
+	for k = 0, 11 do
+		local j = (k + 1) % 12
+		local tk, tj = tops[k], tops[j]
+		local whole = tk and tj and not (k == 5 or k == 10 or j == 5 or j == 10)
+		if whole and hash(seed, k, 461) < 0.8 then
+			local a = math.rad(k * 30 + 15)
+			local y = math.min(tk, tj) + 2.2
+			local lintel = prim(
+				"block",
+				{ 13, 1.9, 3.8 },
+				{ math.cos(a) * ring, y, math.sin(a) * ring },
+				{ 90 - (k * 30 + 15), 0, 0 },
+				C.stone,
+				"Slate"
+			)
+			table.insert(out, solid(lintel))
+		end
+	end
 	return out
 end
 

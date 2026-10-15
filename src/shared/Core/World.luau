@@ -48,7 +48,36 @@ export type World = {
 	water: { any },
 	paths: { any },
 	sites: { any },
+	barrier: { { number } }, -- segments { x1, z1, x2, z2 } of the invisible wall at the mountains' foot
 }
+
+--- The invisible wall round the playable world: a closed ring of segments a
+--- few studs past the edge, where the mountains have only just begun to rise.
+function World.barrier(): { { number } }
+	local points = {}
+	local count = 180
+	for k = 0, count - 1 do
+		local a = k / count * math.pi * 2
+		local c, s = math.cos(a), math.sin(a)
+		-- walk out along the ray to where the edge is 5 studs behind
+		local lo, hi = 100, 900
+		for _ = 1, 30 do
+			local mid = (lo + hi) / 2
+			if MapGen.outside(c * mid, s * mid) < 5 then
+				lo = mid
+			else
+				hi = mid
+			end
+		end
+		table.insert(points, { c * lo, s * lo })
+	end
+	local segments = {}
+	for k = 1, count do
+		local a, b = points[k], points[k % count + 1]
+		table.insert(segments, { a[1], a[2], b[1], b[2] })
+	end
+	return segments
+end
 
 local F = MapGen.Features
 
@@ -72,6 +101,13 @@ World.Sites = {
 	{ name = "Moonwell", x = F.pond.x, z = F.pond.z, clear = 40 },
 	{ name = "GardenTop", x = F.gardenRampX, z = -306, clear = 14 },
 	{ name = "Falls", x = F.falls.x, z = F.falls.z, clear = 20 },
+	-- the wider world
+	{ name = "SunTemple", x = F.sunspire.x, z = F.sunspire.z, clear = 34 },
+	{ name = "OldGrove", x = -392, z = -34, clear = 22 },
+	{ name = "FallenGiant", x = 318, z = -276, clear = 24 },
+	{ name = "Stoneglen", x = F.glen.x, z = F.glen.z, clear = 40 },
+	{ name = "Windhill", x = 330, z = 340, clear = 22 },
+	{ name = "NorthVale", x = -56, z = 404, clear = 26 },
 }
 
 -- Paths: dirt tracks between the landmarks, kept clear of trunks and rocks.
@@ -100,6 +136,16 @@ World.Paths = {
 	{ name = "to the Elder", half = 3, points = { { 0, 0 }, { -44, -42 }, { -92, -82 } } },
 	{ name = "to the Gardens", half = 3.2, points = { { -100, -104 }, { -72, -130 }, { -58, -176 }, { -58, -300 } } },
 	{ name = "to the Moonwell", half = 2.8, points = { { 0, 0 }, { -58, 10 }, { -128, 20 }, { -190, 28 } } },
+	{ name = "to Sunspire", half = 3.4, points = { { 196, -30 }, { 238, -14 }, { 296, 2 }, { 336, 14 }, { 352, 20 } } },
+	{ name = "to the North Vale", half = 3.2, points = { { -95, 176 }, { -76, 262 }, { -56, 330 }, { -50, 380 } } },
+	{ name = "to Windhill", half = 3, points = { { 226, 252 }, { 252, 298 }, { 300, 330 }, { 316, 336 } } },
+	{ name = "to the Old Grove", half = 3, points = { { -190, 28 }, { -196, -16 }, { -250, -32 }, { -326, -34 }, { -368, -34 } } },
+	{ name = "to Stoneglen", half = 3.2, points = { { -72, -296 }, { -110, -334 }, { -186, -354 }, { -250, -366 } } },
+	{
+		name = "to the Fallen Giant",
+		half = 3,
+		points = { { 138, -38 }, { 168, -110 }, { 194, -170 }, { 228, -206 }, { 266, -228 }, { 294, -250 } },
+	},
 }
 
 -- Groves of broadleaf and birch out in the meadows (the rest of the forest is
@@ -115,6 +161,18 @@ local GROVES = {
 	{ -196, -64, 30, 0.65, 0.7 },
 	{ 120, 214, 26, 0.6, 0.2 },
 	{ 156, 70, 18, 0.5, 0.6 },
+	-- the wider world: groves on the slopes and in the vales
+	{ -150, 400, 40, 0.6, 0.6 },
+	{ 40, 430, 36, 0.55, 0.7 },
+	{ 230, 400, 34, 0.6, 0.3 },
+	{ 290, 110, 40, 0.55, 0.3 },
+	{ 300, -80, 34, 0.55, 0.5 },
+	{ 420, 120, 34, 0.6, 0.3 },
+	{ 120, -380, 44, 0.6, 0.6 },
+	{ -60, -420, 36, 0.55, 0.7 },
+	{ -390, -230, 40, 0.5, 0.4 },
+	{ -430, 70, 36, 0.45, 0.3 },
+	{ 380, -260, 36, 0.55, 0.3 },
 }
 
 -- Lone great oaks: the meadow's silhouettes. { x, z, scale, kind }
@@ -129,6 +187,31 @@ local OAKS = {
 	{ -150, -118, 2.3, "TreeTwin" },
 	{ 100, 168, 2.3, "TreeLeaning" },
 	{ -84, 238, 2.4, "TreeTwin" },
+	{ 256, 64, 2.6, "TreeLeaning" },
+	{ 330, -40, 2.7, "TreeTwin" },
+	{ -40, 362, 2.5, "TreeTwin" },
+	{ 110, 330, 2.6, "TreeLeaning" },
+	{ -240, -300, 2.6, "TreeTwin" },
+	{ 70, -330, 2.4, "TreeLeaning" },
+	{ 200, -350, 2.7, "TreeTwin" },
+	{ -360, 230, 2.5, "TreeLeaning" },
+}
+
+-- The ancients: a handful of enormous trees, each the mark of its region.
+-- { x, z, kind, scale }
+local ANCIENTS = {
+	{ -420, 46, "AncientOak", 1.05 }, -- the Old Grove
+	{ -348, -96, "AncientOak", 0.95 },
+	{ -436, -130, "AncientOak", 1.1 },
+	{ -398, -34, "AncientOak", 1.2 }, -- over the grove's shrine
+	{ 318, 86, "AncientOak", 1 }, -- framing Sunspire from below
+	{ 432, -44, "AncientOak", 0.9 },
+	{ 352, 372, "AncientPine", 1 }, -- Windhill
+	{ -318, 352, "AncientPine", 1.05 }, -- Thornwood
+	{ -252, 420, "AncientPine", 0.9 },
+	{ -252, -414, "AncientOak", 1 }, -- above Stoneglen
+	{ 74, 404, "AncientOak", 0.9 }, -- the North Vale
+	{ 176, -262, "AncientPine", 0.85 }, -- by the gully
 }
 
 -- Rock outcrops: a big boulder, a couple of smaller ones, loose stones.
@@ -153,6 +236,16 @@ local OUTCROPS = {
 	{ -30, 62 },
 	{ 150, 110 },
 	{ -200, 210 },
+	{ 280, 180 },
+	{ -300, 140 },
+	{ 410, -90 },
+	{ 240, -320 },
+	{ -120, -440 },
+	{ 20, 440 },
+	{ -440, -40 },
+	{ 400, 260 },
+	{ -360, 410 },
+	{ 330, -370 },
 }
 
 -- Small ruins found out in the open: { x, z, yaw }
@@ -165,6 +258,12 @@ local RUINS = {
 	{ 132, 196, -30 },
 	{ -268, -118, 15 },
 	{ 18, 302, 0 },
+	{ 250, 250, 40 },
+	{ -260, 280, -20 },
+	{ 200, -420, 10 },
+	{ -420, -300, 30 },
+	{ 420, 200, -15 },
+	{ 120, 440, 0 },
 }
 
 -- ------------------------------------------------------------------ fields
@@ -214,6 +313,7 @@ local function openness(x: number, z: number): number
 	end
 	keep = math.min(keep, smooth((World.pathDistance(x, z) - 2) / 5))
 	keep = math.min(keep, smooth((chuteDistance(x, z) - F.chute.core - 4) / 6))
+	keep = math.min(keep, smooth(((MapGen.alongPolyline(F.gully.points, x, z)) - F.gully.core - 3) / 6))
 	if z > 56 and z < 182 then
 		keep = math.min(keep, smooth((math.abs(x + 95) - 24) / 6))
 		keep = math.min(keep, smooth((math.abs(x - 115 - 10 * math.sin(z * 0.03)) - 24) / 6))
@@ -221,29 +321,54 @@ local function openness(x: number, z: number): number
 	return keep
 end
 
+-- Mirewood's extent, 0..1: a ragged blob round the dell and the Moonwell, its
+-- edge wandering with the noise, never a straight band
+local function mirewood(x: number, z: number): number
+	local d = math.sqrt((x + 228) ^ 2 + (z - 18) ^ 2)
+	local reach = 118 + 34 * (noise(x * 0.6 + 50, z * 0.6 - 20) - 0.5) * 2
+	return smooth((reach - d) / 36)
+end
+
 -- How much colder (spruce) than warmer (oak, birch) the forest is here, 0..1.
 local function coolness(x: number, z: number): number
-	local e = math.max(math.abs(x), math.abs(z))
-	local c = smooth((-120 - x) / 70) -- the west: Mirewood
-	c = math.max(c, smooth((e - 262) / 30) * 0.9) -- the rim
-	c = math.max(c, smooth((z - 268) / 30) * 0.85) -- the back of the plateau
-	c = math.max(c, smooth((-110 - x) / 40) * smooth((z - 160) / 30)) -- the plateau's west woods
-	c = math.max(c, smooth((x - 256) / 24) * 0.8) -- behind the ridge
+	local out = MapGen.outside(x, z)
+	local c = 0
+	c = math.max(c, mirewood(x, z)) -- Mirewood
+	c = math.max(c, smooth((-110 - x) / 40) * smooth((z - 160) / 30) * smooth((330 - z) / 40)) -- the plateau's west woods
+	c = math.max(c, smooth((-150 - x) / 80) * smooth((z - 210) / 60)) -- Thornwood, north-west
+	c = math.max(c, smooth(1 - math.sqrt((x - 330) ^ 2 + (z - 340) ^ 2) / 130) * 0.85) -- Windhill
+	c = math.max(c, smooth((out + 70) / 50) * 0.85) -- the foothills, and the mountains beyond
 	return c
 end
 World.coolness = coolness
 
---- Forest density, 0 (open meadow) to 1 (deep forest).
+-- dense patches where the noise runs high, open glades between them
+local function patches(x: number, z: number): number
+	return smooth((noise(x * 1.4 + 31, z * 1.4 - 17) - 0.5) / 0.14)
+end
+
+--- Forest density, 0 (open meadow) to 1 (deep forest). Dense forest is kept
+--- to chosen places, Mirewood and Thornwood's patches; the rest of the world
+--- is meadow, groves and open woodland, so a hero can always see and move.
 function World.forest(x: number, z: number): number
 	local n = noise(x, z)
-	local e = math.max(math.abs(x), math.abs(z))
+	local out = MapGen.outside(x, z)
 	local f = 0.1 * n -- the meadows: a tree here and there
-	f = math.max(f, smooth((-150 - x) / 60) * (0.62 + 0.3 * n)) -- Mirewood
-	f = math.max(f, smooth((-112 - x) / 36) * smooth((z - 172) / 30) * 0.78) -- plateau's west woods
-	f = math.max(f, smooth((z - 286) / 22) * 0.72) -- the north rim
-	f = math.max(f, smooth((e - 268) / 26) * 0.95) -- the rim all round
-	f = math.max(f, smooth((x - 262) / 20) * 0.75) -- behind the ridge
-	f = math.max(f, smooth((-270 - z) / 30) * 0.7) -- below the top terrace
+	-- Mirewood: dark and close, broken by glades
+	f = math.max(f, mirewood(x, z) * (0.4 + 0.45 * patches(x, z)) * (0.75 + 0.3 * n))
+	-- the plateau's west woods: stands of spruce along its bank, not a block
+	local westWoods = smooth((-112 - x) / 36) * smooth((z - 172) / 30) * smooth((330 - z) / 40)
+	f = math.max(f, westWoods * (0.2 + 0.5 * patches(x, z)))
+	-- the wider world: open woodland in drifts between the meadows
+	local wider = smooth((math.sqrt(x * x + z * z) - 290) / 90)
+	f = math.max(f, wider * (0.06 + 0.42 * smooth((noise(x * 0.8 - 40, z * 0.8 + 70) - 0.48) / 0.18)))
+	-- Thornwood: dense stands round clearings
+	local thorn = smooth((-150 - x) / 80) * smooth((z - 220) / 50)
+	f = math.max(f, thorn * (0.2 + 0.6 * patches(x, z)))
+	-- the Old Grove: open woodland under the ancients
+	f = math.max(f, smooth((-316 - x) / 30) * (0.16 + 0.1 * n))
+	-- the foothills: a loose fringe of forest at the mountains' feet, never a wall
+	f = math.max(f, smooth((out + 60) / 40) * (0.3 + 0.25 * patches(x, z)))
 	for _, g in GROVES do
 		local d = math.sqrt((x - g[1]) ^ 2 + (z - g[2]) ^ 2)
 		f = math.max(f, g[4] * smooth(1 - d / g[3]) * (0.75 + 0.5 * n))
@@ -266,8 +391,20 @@ function World.surface(world: World, x: number, z: number): string
 			return if dp > pond.r - 5 then "Sand" else "Mud"
 		end
 	end
+	-- the mountains: alpine grass low down, rock and slate above, snow on the tops
+	local out = MapGen.outside(x, z)
+	if out > 2 then
+		if h > 185 and slope < 1.1 then
+			return "Snow"
+		elseif slope > 1.0 then
+			return if n > 0.5 then "Slate" else "Rock"
+		elseif h > 120 then
+			return if n > 0.45 then "Rock" else "Slate"
+		end
+		return if n > 0.42 then "Lush" else "Rock"
+	end
 	if slope > 1.25 then
-		return if h > map.wall - 24 then "Slate" else "Rock"
+		return "Rock"
 	end
 	-- paths: worn earth with a ragged edge, fading out inside the spawn clearing
 	local edge = World.pathDistance(x, z) + (n - 0.5) * 2.4
@@ -827,33 +964,179 @@ local function placeNature(ctx)
 	end
 end
 
+-- The wider world's landmarks and its ancient trees.
+local function placeWider(ctx)
+	local add, free, sink = ctx.add, ctx.free, ctx.sink
+	local function site(name: string)
+		for _, s in World.Sites do
+			if s.name == name then
+				return s
+			end
+		end
+		error(name)
+	end
+
+	-- the Sun Temple on Sunspire's summit: a ring of columns round a dais and
+	-- its great brazier, an open circle a fight can sweep through
+	do
+		local s = site("SunTemple")
+		local blocks = {}
+		for k = 0, 11 do
+			if k ~= 2 and k ~= 7 then -- two columns long fallen: gaps to run through
+				local a = k / 12 * math.pi * 2
+				table.insert(blocks, { s.x + math.cos(a) * 20, s.z + math.sin(a) * 20, 2.2 })
+			end
+		end
+		table.insert(blocks, { s.x, s.z, 3 })
+		local temple: Prop = { kind = "SunTemple", x = s.x, z = s.z, yaw = 0, scale = 1, radius = 0, seed = 1001, blocks = blocks }
+		add(temple)
+	end
+
+	-- the Fallen Giant: an ancient tree come down across its gully, a trunk you
+	-- can run along, its root plate reared up on the far bank
+	do
+		local s = site("FallenGiant")
+		-- across the gully: the gully runs roughly east-south-east here
+		local yaw = math.rad(-58)
+		local c, sn = math.cos(yaw), math.sin(yaw)
+		-- solid where the trunk rests on each bank; the gully under it stays open
+		local blocks = {}
+		for _, lx in { -28, 28 } do
+			table.insert(blocks, { s.x + lx * c, s.z - lx * sn, 4.5 })
+		end
+		local giant: Prop = { kind = "FallenGiant", x = s.x, z = s.z, yaw = yaw, scale = 1, radius = 0, seed = 1002, blocks = blocks }
+		add(giant)
+	end
+
+	-- Stoneglen: a great circle of standing stones in its bowl, a flat altar
+	do
+		local s = site("Stoneglen")
+		for k = 0, 11 do
+			local a = k / 12 * math.pi * 2 + 0.2
+			local x, z = s.x + math.cos(a) * 31, s.z + math.sin(a) * 31
+			if World.pathDistance(x, z) > 4 then
+				local stone: Prop = {
+					kind = if k % 3 == 0 then "RuneStone" else "Menhir",
+					x = x,
+					z = z,
+					yaw = -a + math.pi / 2,
+					scale = 1.35,
+					radius = 2.4,
+					seed = 1010 + k,
+				}
+				add(stone)
+			end
+		end
+		local altar: Prop = { kind = "Paving", x = s.x, z = s.z, yaw = 0.3, scale = 1.6, radius = 0, seed = 1030 }
+		add(altar)
+		local brazier: Prop = { kind = "Brazier", x = s.x, z = s.z + 2, yaw = 0, scale = 1.2, radius = 2.2, seed = 1031 }
+		add(brazier)
+	end
+
+	-- Windhill: a cairn and its stones on the crown of the hill
+	do
+		local s = site("Windhill")
+		local cairn: Prop = { kind = "Cairn", x = s.x, z = s.z, yaw = 0.7, scale = 1.6, radius = 3, seed = 1040 }
+		add(cairn)
+		for k = 0, 2 do
+			local a = k / 3 * math.pi * 2 + 0.5
+			local stone: Prop = {
+				kind = "RuneStone",
+				x = s.x + math.cos(a) * 12,
+				z = s.z + math.sin(a) * 12,
+				yaw = -a,
+				scale = 1.1,
+				radius = 2.2,
+				seed = 1041 + k,
+			}
+			add(stone)
+		end
+	end
+
+	-- the North Vale: a broken wall and old columns in the long grass
+	do
+		local s = site("NorthVale")
+		for k, piece in
+			{ { "RuinWall", -14, 4 }, { "RuinWall", -2, 10 }, { "Pillar", 12, -2 }, { "PillarBroken", 18, 10 }, { "RuinArch", 0, -12 } }
+		do
+			local x, z = s.x + piece[2], s.z + piece[3]
+			local kind = piece[1]
+			local r = if kind == "RuinArch" then 0 else 2.4
+			local ruin: Prop = { kind = kind, x = x, z = z, yaw = 0.25 * k, scale = 1.3, radius = r, seed = 1050 + k, lift = sink(x, z, 2) }
+			if kind == "RuinArch" then
+				ruin.blocks = { { x - 7, z, 2 }, { x + 7, z, 2 } }
+			end
+			add(ruin)
+		end
+	end
+
+	-- the ancients: each the mark of its region. Their trunks are the only
+	-- solid part, their crowns begin far overhead.
+	for i, a in ANCIENTS do
+		local x, z = a[1], a[2]
+		if free(x, z, 6, true) then
+			local tree: Prop = {
+				kind = a[3],
+				x = x,
+				z = z,
+				yaw = hash(i, 1, 331) * math.pi * 2,
+				scale = a[4],
+				radius = 6 * a[4],
+				seed = 1100 + i,
+				lift = sink(x, z, 5),
+			}
+			add(tree)
+		end
+	end
+
+	-- the Old Grove's shrine, round the foot of the greatest of its ancients
+	do
+		local s = site("OldGrove")
+		for k, piece in
+			{ { "RuneStone", 17, 8 }, { "PillarBroken", -16, 12 }, { "Pillar", 12, -18 }, { "Glowcaps", -8, -15 }, { "Glowcaps", 19, -6 } }
+		do
+			local x, z = s.x + piece[2], s.z + piece[3]
+			local solid = piece[1] ~= "Glowcaps"
+			local bit: Prop =
+				{ kind = piece[1], x = x, z = z, yaw = k * 1.1, scale = 1.1, radius = if solid then 2.2 else 0, seed = 1060 + k }
+			add(bit)
+		end
+	end
+end
+
 local function placeForest(ctx)
 	local add, free, sink, map, limit = ctx.add, ctx.free, ctx.sink, ctx.map, ctx.limit
 	-- the forest: a jittered lattice, thinned by the forest field; spruce where
-	-- it is cool, oak, birch and saplings where it is warm
+	-- it is cool, oak, birch and saplings where it is warm. Sizes vary: mostly
+	-- young and middling trees, about one in eight grown large.
 	local step = 8.5
 	local count = math.floor(limit / step)
 	for iz = -count, count do
 		for ix = -count, count do
 			local x = ix * step + (hash(ix, iz, 131) - 0.5) * step * 0.9
 			local z = iz * step + (hash(ix, iz, 137) - 0.5) * step * 0.9
+			local out = MapGen.outside(x, z)
+			if out > -8 then
+				continue -- the mountains are dressed separately
+			end
 			local f = World.forest(x, z)
 			if hash(ix, iz, 139) >= f * 0.9 then
 				continue
 			end
-			local slope = MapGen.slopeAt(map, x, z)
-			local e = math.max(math.abs(x), math.abs(z))
-			if slope > (if e > 290 then 1.7 else 1.0) then
+			if MapGen.slopeAt(map, x, z) > 1.0 then
 				continue
 			end
 			local cool = coolness(x, z)
 			local roll = hash(ix, iz, 149)
+			local mature = hash(ix, iz, 151) < 0.12
+			local grow = hash(ix, iz, 153)
 			local kind, scale, r
-			local grown = 0.8 + hash(ix, iz, 151) * 0.6 + smooth((e - 260) / 60) * 0.35
 			if roll < cool or cool > 0.9 then
-				kind, scale = if e > 292 then "SpruceFar" else "Spruce", grown
-				-- on the far rim, fewer and larger: only the silhouette is seen there
-				r = if e > 292 then 2.4 * scale else 1.0 * scale
+				scale = if mature then 1.5 + grow * 0.4 else 0.8 + grow * 0.6
+				-- three tiers near the heart; two taller ones out in the wider world
+				local near = math.sqrt(x * x + z * z) < 330 and scale < 1.5
+				kind = if near then "Spruce" else "SpruceFar"
+				r = 1.0 * scale
 			else
 				local w = hash(ix, iz, 157)
 				local birchShare = 0.35
@@ -864,20 +1147,26 @@ local function placeForest(ctx)
 					end
 				end
 				if w < birchShare then
-					kind, scale = "Birch", 0.85 + hash(ix, iz, 163) * 0.5
+					kind, scale = "Birch", 0.85 + grow * 0.5 + (if mature then 0.35 else 0)
 					r = 0.6 * scale
 				elseif f < 0.35 and w > 0.82 then
-					kind, scale = "TreeSapling", 1.2 + hash(ix, iz, 167) * 0.6
+					kind, scale = "TreeSapling", 1.2 + grow * 0.6
 					r = 0.6 * scale
 				elseif w > 0.6 then
-					kind, scale = "TreeLeaning", 1.35 + hash(ix, iz, 173) * 0.75
+					kind, scale = "TreeLeaning", if mature then 2.2 + grow * 0.6 else 1.4 + grow * 0.8
 					r = 1.0 * scale
 				else
-					kind, scale = "TreeTwin", 1.4 + hash(ix, iz, 179) * 0.8
+					kind, scale = "TreeTwin", if mature then 2.3 + grow * 0.7 else 1.5 + grow * 0.9
 					r = 1.1 * scale
 				end
 			end
-			if free(x, z, r) then
+			-- the crown must clear a route, not only the trunk: a spruce's lowest
+			-- tier hangs at head height and would close over a path at speed
+			local crown = if kind == "Spruce" or kind == "SpruceFar" then 8.2 * scale elseif kind == "Birch" then 4 * scale else 4.5 * scale
+			local clearOfRoutes = World.pathDistance(x, z) > crown * 0.85
+				and chuteDistance(x, z) > F.chute.core + crown * 0.85
+				and (MapGen.alongPolyline(F.gully.points, x, z)) > F.gully.core + crown * 0.85
+			if clearOfRoutes and free(x, z, r) then
 				local p: Prop = {
 					kind = kind,
 					x = x,
@@ -897,17 +1186,50 @@ local function placeForest(ctx)
 	end
 end
 
+-- The mountains' lower slopes, beyond the barrier: a thinning forest climbing
+-- them, scenery only (no anchors, no solid footprint: nothing walks there).
+local function placeMountainTrees(ctx)
+	local add, map = ctx.add, ctx.map
+	local step = 19
+	local count = math.floor(map.half / step)
+	for iz = -count, count do
+		for ix = -count, count do
+			local x = ix * step + (hash(ix, iz, 301) - 0.5) * step * 0.8
+			local z = iz * step + (hash(ix, iz, 307) - 0.5) * step * 0.8
+			local out = MapGen.outside(x, z)
+			if out < 10 or out > 175 or math.abs(x) > map.half - 6 or math.abs(z) > map.half - 6 then
+				continue
+			end
+			local h = MapGen.heightAt(map, x, z)
+			-- thinner as it climbs, in stands rather than evenly
+			local chance = 0.62 * smooth((140 - h) / 60) * (0.35 + 0.65 * patches(x, z))
+			if hash(ix, iz, 311) < chance and MapGen.slopeAt(map, x, z) < 1.3 then
+				local tree: Prop = {
+					kind = "SpruceFar",
+					x = x,
+					z = z,
+					yaw = hash(ix, iz, 313) * math.pi * 2,
+					scale = 1.1 + hash(ix, iz, 317) * 0.8,
+					radius = 0,
+					seed = seedOf(x, z),
+					lift = -MapGen.slopeAt(map, x, z) * 1.5,
+				}
+				add(tree)
+			end
+		end
+	end
+end
+
 -- low teal mist in the cold forest: invisible hosts the client fills with
 -- slow, faint drifts (the one place the Wardwood's air turns cool)
 local function placeMist(ctx)
 	local add = ctx.add
 	local count = 0
-	for iz = -7, 7 do
-		for ix = -7, 7 do
+	for iz = -11, 11 do
+		for ix = -11, 11 do
 			local x = ix * 44 + (hash(ix, iz, 271) - 0.5) * 20
 			local z = iz * 44 + (hash(ix, iz, 277) - 0.5) * 20
-			local e = math.max(math.abs(x), math.abs(z))
-			if e < 300 and World.forest(x, z) > 0.55 and coolness(x, z) > 0.7 and hash(ix, iz, 281) < 0.75 then
+			if MapGen.outside(x, z) < -20 and World.forest(x, z) > 0.55 and coolness(x, z) > 0.7 and hash(ix, iz, 281) < 0.75 then
 				count += 1
 				add({ kind = "Mist", x = x, z = z, yaw = 0, scale = 1, radius = 0, seed = 900 + count })
 			end
@@ -937,7 +1259,7 @@ local function placeCover(ctx)
 		for ix = -cn, cn do
 			local x = ix * cover + (hash(ix, iz, 191) - 0.5) * cover
 			local z = iz * cover + (hash(ix, iz, 193) - 0.5) * cover
-			if x * x + z * z < 46 * 46 or MapGen.slopeAt(map, x, z) > 0.7 then
+			if x * x + z * z < 46 * 46 or MapGen.slopeAt(map, x, z) > 0.7 or MapGen.outside(x, z) > -6 then
 				continue
 			end
 			local f = World.forest(x, z)
@@ -983,6 +1305,7 @@ function World.build(cfg: any): World
 	local anchors = World.anchors(map)
 	local ctx = newContext(map, anchors)
 	placeLandmarks(ctx)
+	placeWider(ctx)
 	placeGardens(ctx)
 	placeRuins(ctx)
 	placeLanterns(ctx)
@@ -990,6 +1313,7 @@ function World.build(cfg: any): World
 	placeForest(ctx)
 	placeCover(ctx)
 	placeMist(ctx)
+	placeMountainTrees(ctx)
 	local props = ctx.props
 	MapGen.block(map, props)
 	-- landmark pieces were placed without regard to anchors: drop any anchor a
@@ -1020,6 +1344,7 @@ function World.build(cfg: any): World
 		},
 		paths = paths,
 		sites = sites,
+		barrier = World.barrier(),
 	}
 end
 
