@@ -13,10 +13,14 @@ explicit decision by Tiago and Diogo.
   been tested in Studio on its own; M2.A rebuilds player pause on top of it.
 - **Blockers:** none.
 
-## M2 Movement & Game Feel — not started
+## M2 Movement & Game Feel — in progress
 
 - **Scope:** momentum, bunny hop, slide, camera, impact, animation and audio.
-- **Next playable result:** a run where moving and hitting feel better than now.
+- **State:** M2.A (real player pause solo and co-op vote, master/music/SFX volumes kept in the
+  profile, edge hit flash, low-HP vignette, health bar at the hero's feet) on branch
+  `feat/m2a-player-feedback`, build `bonk-0.5.0-m2a`: offline checks only.
+- **Next playable result:** Studio playtest of M2.A by Tiago and Diogo (checklist in its PR),
+  then merge; then M2.B (bunny hop, movement, difficulty balance).
 - **Blockers:** none.
 
 ## M3 Art Direction & Wardwood — prototype

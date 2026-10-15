@@ -1,6 +1,7 @@
 --!nonstrict
 -- RunDirectorService - owns the run state machine (Lobby, Intro, Playing,
--- Overtime, Victory, Wipe, Results), the stage clock, the pause flag and the
+-- Overtime, Victory, Wipe, Results), the stage clock, the pause flag (one
+-- reason each: "levelup", "panel", "player") and the
 -- difficulty value. It also drives the one simulation tick every other service
 -- steps on, so the order things happen in is written down in one place.
 
@@ -62,6 +63,7 @@ function RunDirectorService:KnitStart()
 	self._xp = Knit.GetService("XPService")
 	self._data = Knit.GetService("DataService")
 	self._mapService = Knit.GetService("MapService")
+	self._pause = Knit.GetService("PauseService")
 
 	self._enemies.Killed:Connect(function()
 		self._kills += 1
@@ -125,7 +127,10 @@ function RunDirectorService:SetPause(reason: string, on: boolean)
 	local paused = next(self._pauses) ~= nil
 	if paused ~= self._paused then
 		self._paused = paused
-		self._players:SetFrozen(paused)
+		if RunState.isLive(self._phase) then
+			-- outside a live run the phase owns whether heroes are frozen
+			self._players:SetFrozen(paused)
+		end
 		self:_sendClock()
 		if paused then
 			self._combat:ReleaseInputs() -- nobody is holding an attack through a pause
@@ -347,6 +352,7 @@ function RunDirectorService:_frame(dt: number)
 	-- choices time out and tidy up whether or not the simulation is paused
 	self._upgrades:Step(now)
 	self._interactables:StepPanels(now)
+	self._pause:Step(now)
 
 	if phase == RunState.Lobby then
 		if self._party:AllReady() then

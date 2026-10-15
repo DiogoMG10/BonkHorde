@@ -3,8 +3,10 @@
 -- ambience, and the sound for each gameplay event the server replays.
 --
 -- It only listens. Nothing else in the game waits on a sound, and every play
--- goes through Sfx, which fails inert. Volumes follow the pause-menu sliders
--- (PlayerGui attributes MusicVolume and SfxVolume).
+-- goes through Sfx, which fails inert. Volumes follow the settings sliders
+-- (PlayerGui attributes MasterVolume, MusicVolume and SfxVolume): each group is
+-- master x its own slider, never above 1, so 100% is the level the SoundBank
+-- was mixed at and nothing is ever amplified past it.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -157,15 +159,19 @@ function AudioController:KnitStart()
 	local state = self._state
 	local playerGui = player:WaitForChild("PlayerGui")
 
+	local function level(name: string, default: number): number
+		local value = playerGui:GetAttribute(name)
+		return math.clamp(if typeof(value) == "number" then value else default, 0, 1)
+	end
 	local function volumes()
-		local music = playerGui:GetAttribute("MusicVolume")
-		local sfx = playerGui:GetAttribute("SfxVolume")
-		self._musicGroup.Volume = if typeof(music) == "number" then music * 1.4 else 1
-		self._sfxGroup.Volume = if typeof(sfx) == "number" then sfx * 1.25 else 1
+		local master = level("MasterVolume", 0.7)
+		self._musicGroup.Volume = master * level("MusicVolume", 0.45)
+		self._sfxGroup.Volume = master * level("SfxVolume", 0.55)
 	end
 	volumes()
-	playerGui:GetAttributeChangedSignal("MusicVolume"):Connect(volumes)
-	playerGui:GetAttributeChangedSignal("SfxVolume"):Connect(volumes)
+	for _, name in { "MasterVolume", "MusicVolume", "SfxVolume" } do
+		playerGui:GetAttributeChangedSignal(name):Connect(volumes)
+	end
 
 	task.spawn(Sfx.preload)
 	self:_hookButtons(playerGui)

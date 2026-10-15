@@ -6,7 +6,7 @@
 -- what makes a balance pass a data edit.
 
 local GameConfig = {
-	BuildStamp = "bonk-0.4.1-m1d",
+	BuildStamp = "bonk-0.5.0-m2a",
 
 	-- squad
 	MaxPlayers = 3,
@@ -75,6 +75,12 @@ local GameConfig = {
 	PrimaryInputRate = 20, -- attack-button messages accepted per second, per player
 	PrimaryInputBurst = 20,
 	PrimaryReachY = 9, -- how far above or below the hero a primary melee swing can touch
+
+	-- player pause (P / Start)
+	PauseVoteSeconds = 15, -- a co-op request lapses after this unless everyone agrees
+	PauseCoopSeconds = 60, -- the longest an agreed co-op pause lasts
+	PauseResumeSeconds = 3, -- countdown after anyone resumes a co-op pause early
+	PauseAskCooldown = 30, -- seconds between two co-op requests from the same player
 
 	-- XP and offers
 	XPBase = 4,

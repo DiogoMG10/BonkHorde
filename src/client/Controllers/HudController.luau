@@ -247,16 +247,7 @@ function HudController:_wireEvents()
 		end)
 	end)
 
-	on("Hurt", function(amount, dodged, shieldBroke)
-		local flash = e.hurt
-		if dodged or not flash or not flash:IsA("GuiObject") or (tonumber(amount) or 0) <= 0 then
-			return
-		end
-		flash.BackgroundColor3 = if shieldBroke then UiKit.Colours.shield else UiKit.Colours.red
-		flash.BackgroundTransparency = 0.62
-		TweenService:Create(flash, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { BackgroundTransparency = 1 })
-			:Play()
-	end)
+	-- the hurt flash, low-HP vignette and the bar at the hero's feet: VitalsController
 
 	on("Fx", function(name, a, b)
 		if name == "LevelUp" then

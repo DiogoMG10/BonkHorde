@@ -518,6 +518,7 @@ function PlayerStateService:Hurt(rec, amount: number, sourceSlot: number?, now: 
 		return
 	end
 	local hp, shield, broke = Damage.applyToPlayer(rec.hp, rec.shield, landed)
+	local hpLost = math.max(0, rec.hp - hp) -- the rest went into the shield
 	rec.hp, rec.shield = hp, shield
 	rec.lastHitAt = now
 	rec.invulnUntil = now + GameConfig.InvulnAfterHit
@@ -547,7 +548,7 @@ function PlayerStateService:Hurt(rec, amount: number, sourceSlot: number?, now: 
 			self:_down(rec)
 		end
 	end
-	self._hurtEvent:FireClient(rec.player, landed, false, broke)
+	self._hurtEvent:FireClient(rec.player, landed, false, broke, hpLost)
 end
 
 function PlayerStateService:_down(rec)
