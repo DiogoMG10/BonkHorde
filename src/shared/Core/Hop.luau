@@ -1,0 +1,158 @@
+--!strict
+-- Hop - the rules of bunny-hop momentum. Pure.
+--
+-- Momentum is one multiplier on the hero's own base speed. A jump made soon
+-- after landing (a hop), while really moving, raises it a step towards a cap;
+-- staying on the ground past that window, or letting go of the stick, bleeds
+-- it back to 1. A slide and a hop hand each other the speed actually earned
+-- (never a product of the two); anything above the hop cap drains away
+-- smoothly, even in the air, and nothing exceeds the slide's own maximum.
+--
+-- Air steering keeps speed and heading apart. Input up to a wide angle off the
+-- heading turns it at a limited rate and keeps the speed (strafing curves the
+-- run instead of eating it); input pulling back against the run brakes without
+-- turning, so a reversal takes a moment; no input slows gently.
+
+local Hop = {}
+
+export type Config = {
+	gain: number, -- added to the multiplier per chained hop
+	cap: number, -- chained hops never take it above this
+	window: number, -- seconds on the ground after a landing that a jump still chains
+	minSpeed: number, -- a hop only counts when moving at this share of the current target speed
+	groundDecay: number, -- multiplier lost per second on the ground once the window has passed
+	stopDecay: number, -- ...and per second with no movement input at all
+	overCapDecay: number, -- multiplier lost per second above the cap, in the air too
+	carryMax: number, -- the most a slide can hand to a hop
+	keep: number, -- a take-off keeps the multiplier while real speed x this (+0.1) reaches it
+}
+
+export type State = {
+	mult: number,
+	hops: number, -- hops chained so far (for feedback)
+}
+
+function Hop.new(): State
+	return { mult = 1, hops = 0 }
+end
+
+--- Back to standing: respawn, a freeze, a downed hero.
+function Hop.reset(s: State)
+	s.mult = 1
+	s.hops = 0
+end
+
+--- A slide begins: it starts at least as fast as the hop it came from, and
+--- owns the speed while it lasts. Returns the slide's starting multiplier.
+function Hop.slideStart(s: State, boost: number): number
+	local start = math.max(boost, s.mult)
+	s.mult = 1
+	s.hops = 0
+	return start
+end
+
+--- A slide ended on the ground (key let go, or run out): its speed is handed
+--- back to be bled off, instead of dropping to walking pace at once.
+function Hop.slideEnd(s: State, cfg: Config, slideMult: number)
+	s.mult = math.clamp(slideMult, 1, cfg.carryMax)
+	s.hops = 0
+end
+
+--- A jump from the ground. `groundFor` is how long the hero stood before it,
+--- `speed` the horizontal speed at take-off, `base` the hero's base speed,
+--- `moving` whether there is movement input. `carry` is a slide's multiplier
+--- when the jump leaves a slide. Returns whether it counted as a chained hop.
+function Hop.takeoff(s: State, cfg: Config, groundFor: number, speed: number, base: number, moving: boolean, carry: number?): boolean
+	if carry then
+		s.mult = math.clamp(carry, 1, cfg.carryMax) -- the slide's speed, not added to anything
+	end
+	-- Drop momentum the hero is plainly not carrying (stopped by a wall or a
+	-- crowd), but not the ordinary gap between the speed asked for and the
+	-- speed the body has reached: that gap must never eat the gain.
+	s.mult = math.max(1, math.min(s.mult, speed / math.max(base, 1e-3) * cfg.keep + 0.1))
+	local chained = moving and groundFor <= cfg.window and speed >= cfg.minSpeed * base * math.min(s.mult, cfg.cap)
+	if not chained then
+		s.hops = 0
+		return false
+	end
+	-- the jump from a run starts a chain (it is not chained itself); each quick
+	-- re-jump after it adds a step
+	s.hops += 1
+	if s.mult < cfg.cap then
+		s.mult = math.min(s.mult + cfg.gain, cfg.cap)
+	end
+	return true
+end
+
+--- One frame on the ground.
+function Hop.ground(s: State, cfg: Config, dt: number, groundFor: number, moving: boolean)
+	if not moving then
+		s.mult = math.max(1, s.mult - cfg.stopDecay * dt)
+		s.hops = 0
+	elseif groundFor > cfg.window then
+		s.mult = math.max(1, s.mult - cfg.groundDecay * dt)
+		s.hops = 0
+	end
+	if s.mult > cfg.cap then
+		s.mult = math.max(cfg.cap, s.mult - cfg.overCapDecay * dt)
+	end
+end
+
+--- One frame in the air: only what is above the cap drains.
+function Hop.air(s: State, cfg: Config, dt: number)
+	if s.mult > cfg.cap then
+		s.mult = math.max(cfg.cap, s.mult - cfg.overCapDecay * dt)
+	end
+end
+
+export type Air = {
+	accel: number, -- studs/s^2 gained towards the hop speed
+	brake: number, -- studs/s^2 lost with no input
+	turn: number, -- radians/s the heading can turn while steering
+	reverse: number, -- studs/s^2 lost while pulling back against the run
+	reverseDot: number, -- input this far behind the heading (cosine) is pulling back
+}
+
+--- One frame of air control. (vx, vz) is the current horizontal velocity,
+--- (dx, dz) the unit input direction or (0, 0) for none, `target` the hop speed.
+--- Returns the new velocity.
+function Hop.airStep(vx: number, vz: number, dx: number, dz: number, target: number, air: Air, dt: number): (number, number)
+	local speed = math.sqrt(vx * vx + vz * vz)
+	if dx == 0 and dz == 0 then
+		-- no input: keep the heading, slow gently
+		if speed < 1e-6 then
+			return 0, 0
+		end
+		local left = math.max(0, speed - air.brake * dt)
+		return vx / speed * left, vz / speed * left
+	end
+	if speed < 0.5 then
+		-- next to no momentum: just go where the input says
+		local s = math.min(target, speed + air.accel * dt)
+		return dx * s, dz * s
+	end
+	local hx, hz = vx / speed, vz / speed
+	local dot = hx * dx + hz * dz
+	if dot < air.reverseDot then
+		-- pulling back against the run: brake along the heading, then turn round
+		local left = speed - air.reverse * dt
+		if left <= 0.5 then
+			return dx * 0.5, dz * 0.5
+		end
+		return hx * left, hz * left
+	end
+	-- turn the heading towards the input, at most `turn` this frame
+	local angle = math.atan2(hx * dz - hz * dx, dot)
+	local step = math.clamp(angle, -air.turn * dt, air.turn * dt)
+	local c, sn = math.cos(step), math.sin(step)
+	hx, hz = hx * c - hz * sn, hx * sn + hz * c
+	-- the speed follows the hop's speed, up quickly, down gently
+	if speed < target then
+		speed = math.min(target, speed + air.accel * dt)
+	else
+		speed = math.max(target, speed - air.brake * dt)
+	end
+	return hx * speed, hz * speed
+end
+
+return Hop

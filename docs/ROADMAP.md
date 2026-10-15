@@ -16,16 +16,15 @@ explicit decision by Tiago and Diogo.
 ## M2 Movement & Game Feel — in progress
 
 - **Scope:** momentum, bunny hop, slide, camera, impact, animation and audio.
-- **State:** M2.A (real player pause solo and co-op vote, master/music/SFX volumes kept in the
-  profile, edge hit flash, low-HP vignette, health bar at the hero's feet) on branch
-  `feat/m2a-player-feedback`. `bonk-0.5.0-m2a` validated in Studio by Tiago and Diogo.
-  Polish `bonk-0.5.1-m2a` playtested: pause flow and countdown fine; regressions fixed in
-  `bonk-0.5.2-m2a` (Sword slash as a blade trail plus a reach flash, pause menu no longer a
-  black box). Follow-up `bonk-0.5.3-m2a`: no countdown after co-op level-ups (play resumes
-  on the last choice), Sword reach flash replaced by an anime-style crescent cut after the
-  Plebarae reference. `bonk-0.5.3-m2a` playtested: pause and level-up flow validated.
-  `bonk-0.5.4-m2a`: slash made level (horizontal) and ~16 % thicker, offline checks only.
-- **Next playable result:** quick Studio look at the `bonk-0.5.4-m2a` slash, then merge; then M2.B (bunny hop, movement, difficulty balance).
+- **State:** M2.A (player pause, volume settings, damage feedback, Sword slash) validated in
+  Studio (`bonk-0.5.4-m2a`) and merged to `main` (PR #4). M2.B bunny hop and momentum
+  on branch `feat/m2b-bunny-hop`. `bonk-0.6.0-m2b` playtested: hops barely sped up and
+  slide/hop transitions lost speed. Fixed in `bonk-0.6.1-m2b` (speed written to the body,
+  looser take-off check, slide/hop hand-offs), validated in Studio. `bonk-0.6.2-m2b`: air
+  steering turns the heading and keeps the speed (A/D no longer brakes), gain 0.15 to a 2.5x
+  cap over ~10 hops, slides to 2.8x. Offline checks only; readout: `hop` in Workspace.BonkDev.
+- **Next playable result:** Studio playtest of `bonk-0.6.2-m2b` (W+Space chain to ~50,
+  W+A/W+D and A/D at speed, hop to slide to jump, stop and wall), then tune and merge.
 - **Blockers:** none.
 
 ## M3 Art Direction & Wardwood — prototype

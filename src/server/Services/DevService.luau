@@ -11,6 +11,7 @@
 -- From the lobby too:
 --   unlock Frostling   unlock a hero for this session only (no Silver, never saved)
 --   marker             show or hide the Sword's aim marker on the ground
+--   hop                show or hide real vs intended movement speed (M2.B playtest)
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -49,7 +50,7 @@ function DevService:KnitStart()
 
 	local commands = {}
 	-- these need no hero, so they also work in the lobby
-	local lobbyCommands = { clock = true, unlock = true, marker = true }
+	local lobbyCommands = { clock = true, unlock = true, marker = true, hop = true }
 
 	function commands.unlock(_, id)
 		local player = Players:GetPlayers()[1]
@@ -58,6 +59,11 @@ function DevService:KnitStart()
 		else
 			print(`[Dev] cannot unlock {id}`)
 		end
+	end
+	function commands.hop()
+		local on = Workspace:GetAttribute("BonkHopDebug") ~= true
+		Workspace:SetAttribute("BonkHopDebug", on)
+		print(`[Dev] hop speed readout {if on then "on" else "off"}`)
 	end
 	function commands.marker()
 		local on = Workspace:GetAttribute("BonkAimMarker") ~= true

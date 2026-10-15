@@ -48,6 +48,7 @@ end
 
 function CameraController:KnitStart()
 	self._state = Knit.GetController("StateController")
+	local movement = Knit.GetController("MovementController")
 	local sens = GameConfig.CameraSensitivity
 	local pitchLow, pitchHigh = math.rad(GameConfig.CameraPitchMin), math.rad(GameConfig.CameraPitchMax)
 
@@ -94,7 +95,8 @@ function CameraController:KnitStart()
 		if not camera then
 			return
 		end
-		camera.FieldOfView = GameConfig.CameraFOV
+		-- a touch wider at bunny-hop speed, so momentum can be felt
+		camera.FieldOfView = GameConfig.CameraFOV + movement:SpeedFeel() * GameConfig.SpeedFovKick
 		local root = self._state:Root()
 		local inRun = root ~= nil and self._state.phase ~= "Lobby"
 		local wantLock = inRun and self._uiOpen == 0 and not UserInputService.TouchEnabled
