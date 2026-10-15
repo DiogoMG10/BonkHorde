@@ -11,12 +11,13 @@ local serde = require("@lune/serde")
 
 local GameConfig = require("../../src/shared/Config/GameConfig")
 local MapGen = require("../../src/shared/Core/MapGen")
+local World = require("../../src/shared/Core/World")
 
 local c = GameConfig
-local map = MapGen.build(c.MapSizeStuds, c.HeightCellStuds, c.WallHeight)
-local anchors = MapGen.anchors(map, 26, 0.35)
-local props = MapGen.props(map, anchors)
-MapGen.block(map, props)
+local world = World.build(c)
+local map = world.map
+local anchors = world.anchors
+local props = world.props
 local reach = MapGen.reachable(map, 0, 0, c.CliffSlope)
 
 local checks = {}

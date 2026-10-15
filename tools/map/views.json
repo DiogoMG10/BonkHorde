@@ -1,0 +1,18 @@
+[
+  { "name": "01_spawn_north", "x": 0, "z": -6, "yaw": 180 },
+  { "name": "02_spawn_south", "x": 0, "z": 6, "yaw": 0 },
+  { "name": "03_spawn_west", "x": 6, "z": 0, "yaw": 90 },
+  { "name": "04_spawn_east", "x": -6, "z": 0, "yaw": 270 },
+  { "name": "05_ward_close", "x": -24, "z": 50, "yaw": 210 },
+  { "name": "06_rampA_to_gate", "x": -95, "z": 120, "yaw": 180 },
+  { "name": "07_highwatch", "x": 20, "z": 205, "yaw": 160 },
+  { "name": "08_chute_top", "x": 200, "z": 236, "yaw": 15 },
+  { "name": "09_chute_mid", "x": 172, "z": 136, "yaw": 25 },
+  { "name": "10_ridge_crest_west", "x": 236, "z": -20, "yaw": 90 },
+  { "name": "11_moonwell", "x": -180, "z": 28, "yaw": 90 },
+  { "name": "12_mirewood_path", "x": -150, "z": 22, "yaw": 95 },
+  { "name": "13_elder_approach", "x": -50, "z": -50, "yaw": 50 },
+  { "name": "14_garden_ramp_top", "x": -58, "z": -290, "yaw": 180 },
+  { "name": "15_plateau_south_view", "x": -60, "z": 182, "yaw": 20, "pitch": -12 },
+  { "name": "16_aerial", "eye": [260, 260, -330], "target": [0, 10, 40] }
+]

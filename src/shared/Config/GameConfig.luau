@@ -6,7 +6,7 @@
 -- what makes a balance pass a data edit.
 
 local GameConfig = {
-	BuildStamp = "bonk-0.8.1-m2d",
+	BuildStamp = "bonk-0.9.0-m3a",
 
 	-- squad
 	MaxPlayers = 3,
@@ -86,6 +86,7 @@ local GameConfig = {
 	AirReverseAngle = 120, -- input more than this many degrees off the heading is pulling back
 	SpeedFovKick = 10, -- extra degrees of FOV at the hop cap (less below, none at 1x)
 	CameraDistance = 18,
+	SpawnCameraYaw = 180, -- degrees; the first view looks north, past the Ward to the Highwatch
 	CameraHeight = 3.5,
 	CameraFOV = 80,
 	CameraSensitivity = 0.35,

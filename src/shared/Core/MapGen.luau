@@ -6,9 +6,13 @@
 -- written from it. Nothing about the layout is random per run; only what gets
 -- PLACED on the anchors is. Pure.
 --
--- Layout (north is +z): a central basin with the spawn clearing, a plateau to
--- the north reached by two ramps, a long ridge to the east, stepped terraces
--- to the south, a sunken dell to the west, and a cliff wall round the edge.
+-- Layout (north is +z), the Wardwood: a meadow basin round the spawn
+-- clearing; the Highwatch plateau to the north, reached by two ramps and the
+-- long curving Thunder Chute down its north-east shoulder; the Ridge Run to
+-- the east; the Elder Hill to the south-west; the curved Terraced Gardens to
+-- the south with one smooth ramp through them; the Mirewood dell to the west
+-- round the shallow Moonwell pond; a broken, mountainous rim round the edge.
+-- Core/World dresses it; the features below are shared with it.
 
 local MapGen = {}
 
@@ -33,50 +37,135 @@ local function lerp(a: number, b: number, t: number): number
 	return a + (b - a) * t
 end
 
+-- The landforms that dressing and terrain painting need to know about.
+MapGen.Features = {
+	-- the Moonwell: a shallow wading pond in the Mirewood dell
+	pond = { x = -232, z = 30, r = 26, level = 6, depth = 2.4 },
+	-- the Elder Hill and the knoll the Highwatch tower stands on
+	elderHill = { x = -112, z = -96, r = 62, rise = 14 },
+	watchKnoll = { x = 40, z = 252, r = 46, rise = 9 },
+	-- the Thunder Chute: a graded half-pipe from the plateau to the basin
+	chute = {
+		points = { { 204, 246 }, { 188, 180 }, { 168, 124 }, { 140, 72 }, { 124, 48 } },
+		top = 52, -- a raised drop-in above the plateau...
+		bottom = 8, -- ...down to the basin floor
+		steep = 0.45, -- the first 45 % of the run takes 60 % of the drop
+		core = 13, -- half-width of the running surface
+		shoulder = 24, -- and of the bank blending it into the ground
+	},
+	-- the garden ramp: one smooth slope through the terrace risers
+	gardenRampX = -58,
+	gardenRampHalf = 15,
+}
+
+-- distance from (x, z) to a polyline, and how far along it (studs) the closest point is
+local function alongPolyline(points: { { number } }, x: number, z: number): (number, number, number)
+	local best, bestS, total = math.huge, 0, 0
+	for i = 1, #points - 1 do
+		local a, b = points[i], points[i + 1]
+		local dx, dz = b[1] - a[1], b[2] - a[2]
+		local len = math.sqrt(dx * dx + dz * dz)
+		local t = math.clamp(((x - a[1]) * dx + (z - a[2]) * dz) / (len * len), 0, 1)
+		local cx, cz = a[1] + dx * t, a[2] + dz * t
+		local d = math.sqrt((x - cx) ^ 2 + (z - cz) ^ 2)
+		if d < best then
+			best, bestS = d, total + len * t
+		end
+		total += len
+	end
+	return best, bestS, total
+end
+MapGen.alongPolyline = alongPolyline
+
 --- The analytic height at a point. Everything else samples this.
 function MapGen.rawHeight(x: number, z: number, half: number, wall: number): number
-	-- rolling ground
+	local F = MapGen.Features
+	-- rolling ground, plus a long low swell that gives a run of hops a rhythm
 	local h = 8
 		+ 4.5 * math.sin(x * 0.021 + 1.3) * math.cos(z * 0.017 - 0.4)
 		+ 2.5 * math.sin((x + z) * 0.043)
 		+ 1.8 * math.cos((x - 2 * z) * 0.031)
+		+ 1.4 * math.sin(x * 0.068 + 0.5) * math.sin(z * 0.061 + 1.1)
 
 	-- central basin: flatten towards the spawn clearing
 	local d0 = math.sqrt(x * x + z * z)
 	h = lerp(h, 6, smooth(1 - d0 / 130) * 0.9)
 
-	-- north plateau, with a hard southern edge and two long ramps cut into it
-	local inX = smooth((235 - math.abs(x)) / 14)
+	-- the Elder Hill: a broad round rise south-west of spawn
+	local eh = F.elderHill
+	local de = math.sqrt((x - eh.x) ^ 2 + (z - eh.z) ^ 2)
+	h += eh.rise * smooth(1 - de / eh.r) ^ 1.3
+
+	-- the Highwatch plateau. Its south edge wanders (but not at x = 0, where the
+	-- face is a known landmark), it has rounded flanks, and two long ramps; ramp A
+	-- stays dead straight along x = -95.
+	local wander = 13 * math.sin(x * 0.021 + 0.6) * smooth((math.abs(x) - 30) / 50)
+	local inX = smooth((232 + 9 * math.sin(z * 0.031) - math.abs(x)) / 16)
 	local inZNorth = smooth((335 - z) / 22)
-	local edge = smooth((z - 150) / 14)
-	local rampA = smooth(1 - math.abs(x + 95) / 20) * smooth((z - 70) / 88)
-	local rampB = smooth(1 - math.abs(x - 115) / 20) * smooth((z - 70) / 88)
+	local edge = smooth((z - 150 - wander) / 14)
+	-- broad shoulders, so a ramp reads as a slope up the hill, not a causeway
+	local rampA = smooth(1 - (math.abs(x + 95) - 8) / 26) * smooth((z - 70) / 88)
+	local rampB = smooth(1 - (math.abs(x - 115 - 10 * math.sin(z * 0.03)) - 8) / 26) * smooth((z - 70) / 88)
 	local plateau = math.max(edge, rampA, rampB) * inX * inZNorth
-	h += 34 * plateau
+	local top = 36 + 2.2 * math.sin(x * 0.047 + 0.3) * math.cos(z * 0.041)
+	local wk = F.watchKnoll
+	local dk = math.sqrt((x - wk.x) ^ 2 + (z - wk.z) ^ 2)
+	top += wk.rise * smooth(1 - dk / wk.r) ^ 1.5
+	h += top * plateau
 
-	-- east ridge: a long gaussian spine with a slideable western face
-	local rx = (x - 235) / 40
-	h += 26 * math.exp(-rx * rx) * smooth((300 - math.abs(z + 20)) / 70)
+	-- the Ridge Run: a sinuous spine with a long slideable western face
+	local spine = 235 + 16 * math.sin(z * 0.013 + 0.8)
+	local rx = (x - spine) / 42
+	h += (26 + 4 * math.sin(z * 0.037)) * math.exp(-rx * rx) * smooth((300 - math.abs(z + 20)) / 70)
 
-	-- south terraces: four steps, each riser steep but walkable
-	if z < -130 then
-		local t = (-z - 130) / 42
+	-- the Terraced Gardens: four curved steps, each riser steep but walkable,
+	-- with one smooth ramp running straight through them all
+	local tz = -z - 130 + 16 * math.sin(x * 0.018 + 0.4)
+	if tz > 0 then
+		local t = tz / 42
 		local whole = math.floor(t)
 		local frac = t - whole
 		local steps = math.min(whole + smooth(frac / 0.3), 4)
+		local ramp = smooth(1 - math.abs(x - F.gardenRampX) / F.gardenRampHalf)
+		steps = lerp(steps, math.min(t, 4), ramp)
 		h += 9 * steps * smooth((270 - math.abs(x)) / 40)
 	end
 
-	-- west dell: a shallow bowl
+	-- the Mirewood dell: a shallow bowl...
 	local dx, dz = x + 225, z - 25
 	local dd = math.sqrt(dx * dx + dz * dz)
 	h -= 7 * smooth(1 - dd / 75)
+	-- ...with the Moonwell in it: a shallow pond you can wade across. A low lip
+	-- keeps the ground round it above the water, so the surface never shows
+	-- outside the shore.
+	local pond = F.pond
+	local dp = math.sqrt((x - pond.x) ^ 2 + (z - pond.z) ^ 2)
+	if dp < pond.r + 20 then
+		h = math.max(h, lerp(pond.level + 1.2, h, smooth((dp - pond.r) / 20)))
+	end
+	local floor = pond.level - pond.depth * smooth(1 - dp / pond.r) - 0.3
+	h = lerp(h, floor, smooth(1 - (dp - pond.r + 3) / 6))
 
-	-- boundary wall
+	-- the Thunder Chute: a graded half-pipe cut down the plateau's shoulder
+	local ch = F.chute
+	local dc, sc, lc = alongPolyline(ch.points, x, z)
+	if dc < ch.core + ch.shoulder then
+		-- steep enough to build a slide's speed (over about 0.2 the slide gains),
+		-- then a gentler run-out that carries it into the basin
+		local t = sc / lc
+		local fall = if t < ch.steep then t / ch.steep * 0.6 else 0.6 + (t - ch.steep) / (1 - ch.steep) * 0.4
+		local grade = lerp(ch.top, ch.bottom, fall)
+		local pipe = 2.2 * (math.min(dc, ch.core) / ch.core) ^ 2 -- banked: the edges ride higher
+		local w = 1 - smooth((dc - ch.core) / ch.shoulder)
+		h = lerp(h, grade + pipe, w)
+	end
+
+	-- the rim: a broken mountain skyline rather than a wall
 	local e = math.max(math.abs(x), math.abs(z))
-	h = lerp(h, wall, smooth((e - (half - 34)) / 22))
+	local peaks = 10 * math.sin(x * 0.019 + z * 0.023) + 7 * math.sin(x * 0.051 - z * 0.044 + 1.7)
+	h = lerp(h, wall + peaks, smooth((e - (half - 36)) / 24))
 
-	return math.max(h, 2)
+	return math.clamp(h, 2, wall)
 end
 
 --- Sample the whole map once.
@@ -201,91 +290,37 @@ function MapGen.anchors(map: Map, spacing: number, maxSlope: number): { Anchor }
 	return out
 end
 
--- what the forest is dressed with: kind, how many per 10,000 square studs, the
--- radius an enemy must walk round (0 = walk through), and the scale range
-local SCATTER = {
-	{ kind = "TreeLeaning", density = 2.4, radius = 2.5, min = 0.85, max = 1.25 },
-	{ kind = "TreeTwin", density = 1.8, radius = 3, min = 0.85, max = 1.2 },
-	{ kind = "TreeSapling", density = 1.6, radius = 1.5, min = 0.8, max = 1.3 },
-	{ kind = "Bush", density = 2.2, radius = 0, min = 0.8, max = 1.4 },
-	{ kind = "BoulderLarge", density = 0.7, radius = 5, min = 0.7, max = 1.3 },
-	{ kind = "BoulderFlat", density = 0.5, radius = 0, min = 0.8, max = 1.3 },
-	{ kind = "RockSmall", density = 1.4, radius = 0, min = 0.7, max = 1.5 },
-	{ kind = "FallenLog", density = 0.35, radius = 0, min = 0.9, max = 1.2 },
-	{ kind = "Stump", density = 0.5, radius = 0, min = 0.8, max = 1.2 },
-	{ kind = "LanternPost", density = 0.25, radius = 0, min = 1, max = 1 },
-	{ kind = "RuinWall", density = 0.12, radius = 0, min = 0.9, max = 1.1 },
-	{ kind = "RuinArch", density = 0.06, radius = 0, min = 1, max = 1 },
-	{ kind = "RuinTower", density = 0.05, radius = 9, min = 0.9, max = 1.1 },
-}
-
---- Where the scenery goes. Deterministic. Keeps clear of the spawn clearing, of
---- every anchor (so nothing grows through a chest) and of steep ground.
-function MapGen.props(map: Map, anchors: { Anchor }): { Prop }
-	local out: { Prop } = {}
-	local limit = map.half - 44
-	local area = (2 * limit) * (2 * limit) / 10000
-	for index, row in SCATTER do
-		local count = math.floor(row.density * area + 0.5)
-		local placed, tries = 0, 0
-		while placed < count and tries < count * 12 do
-			tries += 1
-			local x = (hash(tries, index, 11) * 2 - 1) * limit
-			local z = (hash(tries, index, 23) * 2 - 1) * limit
-			if x * x + z * z < 42 * 42 or MapGen.slopeAt(map, x, z) > 0.45 then
-				continue
-			end
-			local clear = true
-			for _, a in anchors do
-				if (a.x - x) ^ 2 + (a.z - z) ^ 2 < (9 + row.radius) ^ 2 then
-					clear = false
-					break
-				end
-			end
-			if clear and row.radius > 0 then
-				-- solid props keep their distance from each other so there is always a way through
-				for _, other in out do
-					if other.radius > 0 and (other.x - x) ^ 2 + (other.z - z) ^ 2 < (other.radius + row.radius + 7) ^ 2 then
-						clear = false
-						break
-					end
-				end
-			end
-			if clear then
-				placed += 1
-				table.insert(out, {
-					kind = row.kind,
-					x = x,
-					z = z,
-					yaw = hash(tries, index, 37) * math.pi * 2,
-					scale = row.min + hash(tries, index, 41) * (row.max - row.min),
-					radius = row.radius * (row.min + hash(tries, index, 41) * (row.max - row.min)),
-				})
-			end
-		end
-	end
-	return out
-end
-
 --- Mark the samples under solid props so `canStep` refuses them.
 function MapGen.block(map: Map, props: { Prop })
 	local n = map.n
 	local blocked: { boolean } = table.create(n * n, false)
-	for _, prop in props do
-		if prop.radius > 0 then
-			local r = prop.radius
-			local x0 = math.floor((prop.x - r + map.half) / map.cell + 0.5)
-			local x1 = math.floor((prop.x + r + map.half) / map.cell + 0.5)
-			local z0 = math.floor((prop.z - r + map.half) / map.cell + 0.5)
-			local z1 = math.floor((prop.z + r + map.half) / map.cell + 0.5)
-			for iz = math.max(z0, 0), math.min(z1, n - 1) do
-				for ix = math.max(x0, 0), math.min(x1, n - 1) do
-					local sx, sz = -map.half + ix * map.cell, -map.half + iz * map.cell
-					if (sx - prop.x) ^ 2 + (sz - prop.z) ^ 2 <= r * r then
-						blocked[iz * n + ix + 1] = true
-					end
+	local function mark(px: number, pz: number, r: number)
+		-- the nearest sample always: a slim trunk can sit between samples
+		local cx = math.clamp(math.floor((px + map.half) / map.cell + 0.5), 0, n - 1)
+		local cz = math.clamp(math.floor((pz + map.half) / map.cell + 0.5), 0, n - 1)
+		blocked[cz * n + cx + 1] = true
+		local x0 = math.floor((px - r + map.half) / map.cell + 0.5)
+		local x1 = math.floor((px + r + map.half) / map.cell + 0.5)
+		local z0 = math.floor((pz - r + map.half) / map.cell + 0.5)
+		local z1 = math.floor((pz + r + map.half) / map.cell + 0.5)
+		for iz = math.max(z0, 0), math.min(z1, n - 1) do
+			for ix = math.max(x0, 0), math.min(x1, n - 1) do
+				local sx, sz = -map.half + ix * map.cell, -map.half + iz * map.cell
+				if (sx - px) ^ 2 + (sz - pz) ^ 2 <= r * r then
+					blocked[iz * n + ix + 1] = true
 				end
 			end
+		end
+	end
+	for _, prop in props do
+		local blocks = (prop :: any).blocks
+		if blocks then
+			-- a landmark made of several solid pieces (columns round a platform)
+			for _, b in blocks do
+				mark(b[1], b[2], b[3])
+			end
+		elseif prop.radius > 0 then
+			mark(prop.x, prop.z, prop.radius)
 		end
 	end
 	map.blocked = blocked

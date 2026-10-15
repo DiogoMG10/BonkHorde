@@ -567,8 +567,8 @@ function WeaponFxController:KnitStart()
 		end
 	end)
 
-	-- slow red embers drifting through the forest, carried along with the camera
-	local embers = Vfx.place("Embers", CFrame.new(0, 20, 0), 110, folder)
+	-- golden pollen and the odd leaf drifting through the Wardwood, carried along with the camera
+	local embers = Vfx.place("Pollen", CFrame.new(0, 20, 0), 110, folder)
 	task.spawn(function()
 		while embers.Parent do
 			local camera = Workspace.CurrentCamera

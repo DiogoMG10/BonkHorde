@@ -4,6 +4,7 @@
 local GameConfig = require("../src/shared/Config/GameConfig")
 local Grid = require("../src/shared/Core/Grid")
 local MapGen = require("../src/shared/Core/MapGen")
+local World = require("../src/shared/Core/World")
 local Offers = require("../src/shared/Core/Offers")
 local Roster = require("../src/shared/Config/Roster")
 local Snapshot = require("../src/shared/Core/Snapshot")
@@ -33,10 +34,10 @@ local function levelUp(loadout: any, rnd: () -> number)
 	)
 end
 
-local map = MapGen.build(GameConfig.MapSizeStuds, GameConfig.HeightCellStuds, GameConfig.WallHeight)
-local anchors = MapGen.anchors(map, 26, 0.35)
-local props = MapGen.props(map, anchors)
-MapGen.block(map, props)
+local world = World.build(GameConfig)
+local map = world.map
+local anchors = world.anchors
+local props = world.props
 local reach = MapGen.reachable(map, 0, 0, GameConfig.CliffSlope)
 
 return {
@@ -189,9 +190,10 @@ return {
 	end,
 
 	["an enemy cannot walk into a tree but can still walk out of one"] = function()
+		-- a tree standing on its own (landmark pieces stand close to each other on purpose)
 		local tree
 		for _, prop in props do
-			if prop.radius > 0 then
+			if prop.kind == "Spruce" and MapGen.canStep(map, prop.x + prop.radius + 6, prop.z, prop.x + prop.radius + 7, prop.z, 99) then
 				tree = prop
 				break
 			end

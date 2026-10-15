@@ -18,7 +18,7 @@ local CameraController = Knit.CreateController({ Name = "CameraController" })
 local player = Players.LocalPlayer
 
 function CameraController:KnitInit()
-	self._yaw = 0
+	self._yaw = math.rad(GameConfig.SpawnCameraYaw)
 	self._pitch = math.rad(-18)
 	self._uiOpen = 0
 	self._lookTouch = nil
@@ -131,7 +131,7 @@ function CameraController:KnitStart()
 	end)
 
 	player.CharacterAdded:Connect(function()
-		self._yaw = 0
+		self._yaw = math.rad(GameConfig.SpawnCameraYaw)
 		self._pitch = math.rad(-18)
 	end)
 end

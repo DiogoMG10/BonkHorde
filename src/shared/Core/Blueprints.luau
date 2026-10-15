@@ -1,0 +1,551 @@
+--!strict
+-- Blueprints - the Wardwood's part-built scenery, as data. Pure.
+--
+-- Each blueprint returns the primitives of one prop in its own space: +y up,
+-- origin on the ground at the prop's position, before the prop's yaw and scale.
+-- MapService turns them into Parts; tools/map/export_world.luau hands the same
+-- list to the Blender preview, so the two cannot drift apart.
+--
+-- A primitive:
+--   shape     "block" | "ball" | "cylinder" (axis along local x) | "wedge"
+--             (vertical face at local +z, slope rising from -z to +z: measured
+--             in Studio, see the roblox-map skill); no corner wedges, whose
+--             orientation was never measured
+--   size      { x, y, z }
+--   pos       { x, y, z }        centre
+--   rot       { yaw, pitch, roll } in degrees, applied yaw (about y) first,
+--             then pitch (about x), then roll (about z)
+--   color     { r, g, b }        0..255
+--   material  a Roblox material name
+--   collide   the hero bumps into it (default false: scenery is walked through)
+--   shadow    casts a shadow (default true)
+--   neon      glows
+--   light     { color, brightness, range }
+--   tag       "Flame" | "Rune" | "Glow" | "Pollen": the client adds the effect
+--
+-- `g(lx, lz)` gives the ground height under a local point relative to the
+-- prop's own ground, for the pieces that have to follow the slope.
+
+export type Prim = {
+	shape: string,
+	size: { number },
+	pos: { number },
+	rot: { number }?,
+	color: { number },
+	material: string,
+	collide: boolean?,
+	shadow: boolean?,
+	neon: boolean?,
+	light: any?,
+	tag: string?,
+}
+
+local Blueprints = {}
+
+-- ------------------------------------------------------------------ palette
+
+local C = {
+	bark = { 104, 76, 56 },
+	barkDark = { 74, 56, 44 },
+	birch = { 232, 228, 212 },
+	birchMark = { 52, 50, 48 },
+	spruce = { { 30, 70, 56 }, { 36, 82, 62 }, { 46, 96, 70 } },
+	birchLeaf = { { 156, 194, 74 }, { 136, 182, 66 }, { 176, 204, 88 } },
+	stone = { 128, 128, 120 },
+	stoneLight = { 150, 148, 136 },
+	stoneDark = { 96, 100, 98 },
+	moss = { 96, 134, 58 },
+	ember = { 255, 150, 60 },
+	rune = { 255, 176, 92 },
+	runeTeal = { 96, 230, 210 },
+	fern = { 74, 122, 56 },
+	fernLight = { 98, 146, 66 },
+	stem = { 236, 226, 200 },
+	iron = { 58, 56, 54 },
+}
+
+-- a stable hash in [0, 1) for per-prop variation
+local function hash(a: number, b: number, salt: number): number
+	local v = math.sin(a * 12.9898 + b * 78.233 + salt * 37.719) * 43758.5453
+	return v - math.floor(v)
+end
+Blueprints.hash = hash
+
+-- R = Ry * Rx * Rz for yaw, pitch, roll in degrees (row-major, 9 numbers)
+local function matrix(yaw: number, pitch: number, roll: number): { number }
+	local y, p, r = math.rad(yaw), math.rad(pitch), math.rad(roll)
+	local cy, sy = math.cos(y), math.sin(y)
+	local cp, sp = math.cos(p), math.sin(p)
+	local cr, sr = math.cos(r), math.sin(r)
+	local Ry = { cy, 0, sy, 0, 1, 0, -sy, 0, cy }
+	local Rx = { 1, 0, 0, 0, cp, -sp, 0, sp, cp }
+	local Rz = { cr, -sr, 0, sr, cr, 0, 0, 0, 1 }
+	local function mul(a: { number }, b: { number }): { number }
+		local m = table.create(9, 0)
+		for i = 0, 2 do
+			for j = 0, 2 do
+				local acc = 0
+				for k = 0, 2 do
+					acc += a[i * 3 + k + 1] * b[k * 3 + j + 1]
+				end
+				m[i * 3 + j + 1] = acc
+			end
+		end
+		return m
+	end
+	return mul(mul(Ry, Rx), Rz)
+end
+
+-- `base` + the offset (x, y, z) turned by the rotation `rot`: how a piece rides
+-- on a tilted body, so the two stay joined however the body leans
+local function onBody(base: { number }, rot: { number }, x: number, y: number, z: number): { number }
+	local m = matrix(rot[1], rot[2], rot[3])
+	return {
+		base[1] + m[1] * x + m[2] * y + m[3] * z,
+		base[2] + m[4] * x + m[5] * y + m[6] * z,
+		base[3] + m[7] * x + m[8] * y + m[9] * z,
+	}
+end
+
+local function prim(shape: string, size: { number }, pos: { number }, rot: { number }?, color: { number }, material: string): Prim
+	return { shape = shape, size = size, pos = pos, rot = rot, color = color, material = material }
+end
+
+local function solid(p: Prim): Prim
+	p.collide = true
+	return p
+end
+
+local function flat(p: Prim): Prim
+	p.shadow = false
+	return p
+end
+
+local function shade(c: { number }, k: number): { number }
+	return { math.clamp(c[1] * k, 0, 255), math.clamp(c[2] * k, 0, 255), math.clamp(c[3] * k, 0, 255) }
+end
+
+-- an upright cylinder (Roblox cylinders run along local x)
+local function column(height: number, diameter: number, base: { number }, yaw: number, color: { number }, material: string): Prim
+	return prim("cylinder", { height, diameter, diameter }, { base[1], base[2] + height / 2, base[3] }, { yaw, 0, 90 }, color, material)
+end
+
+-- a gable: two wedges back to back, ridge along local x, `w` wide, `h` tall
+local function gable(out: { Prim }, w: number, len: number, h: number, y0: number, yaw: number, color: { number }, material: string)
+	local c, s = math.cos(math.rad(yaw)), math.sin(math.rad(yaw))
+	local function at(lz: number): { number }
+		-- rotate the local offset (0, lz) by yaw about y
+		return { lz * s, y0 + h / 2, lz * c }
+	end
+	table.insert(out, prim("wedge", { len, h, w / 2 }, at(-w / 4), { yaw, 0, 0 }, color, material))
+	table.insert(out, prim("wedge", { len, h, w / 2 }, at(w / 4), { yaw + 180, 0, 0 }, color, material))
+end
+
+-- ------------------------------------------------------------------ trees
+
+-- A spruce: a short trunk under three tiers, each tier two crossed gables, so
+-- from any side the silhouette is a stack of triangles. Only the trunk collides.
+local function spruce(seed: number, tiers: number): { Prim }
+	local out = {}
+	local h = 34
+	local jitter = hash(seed, 1, 3)
+	local tint = 0.9 + hash(seed, 2, 5) * 0.22
+	local trunkD = h * 0.055
+	table.insert(out, solid(column(h * 0.36, trunkD, { 0, -0.6, 0 }, 0, C.bark, "Wood")))
+	-- three tiers near the play area; two taller ones on the distant rim, where
+	-- only the silhouette is seen and the part count matters more
+	local widths = if tiers == 3 then { 0.48, 0.36, 0.24 } else { 0.46, 0.3 }
+	local heights = if tiers == 3 then { 0.38, 0.34, 0.34 } else { 0.5, 0.48 }
+	local bottoms = if tiers == 3 then { 0.15, 0.39, 0.62 } else { 0.15, 0.5 }
+	for k = 1, tiers do
+		local w = widths[k] * h * (0.94 + hash(seed, k, 7) * 0.12)
+		local th = heights[k] * h
+		local y0 = bottoms[k] * h
+		local col = shade(C.spruce[k], tint)
+		local yaw = k * 31 + jitter * 90
+		gable(out, w, w, th, y0, yaw, col, "SmoothPlastic")
+		gable(out, w, w, th, y0, yaw + 90, shade(col, 0.93), "SmoothPlastic")
+	end
+	return out
+end
+
+function Blueprints.Spruce(seed: number, _g): { Prim }
+	return spruce(seed, 3)
+end
+
+function Blueprints.SpruceFar(seed: number, _g): { Prim }
+	return spruce(seed, 2)
+end
+
+-- A birch: a pale trunk with dark marks, a light crown of three puffs.
+function Blueprints.Birch(seed: number, _g): { Prim }
+	local out = {}
+	local h = 26
+	local lean = (hash(seed, 1, 11) - 0.5) * 6
+	table.insert(out, solid(prim("cylinder", { h * 0.78, 1.1, 1.1 }, { 0, h * 0.39 - 0.5, 0 }, { 0, lean, 90 }, C.birch, "SmoothPlastic")))
+	for k = 1, 3 do
+		local y = h * (0.18 + 0.17 * k) + hash(seed, k, 13) * 2
+		table.insert(out, flat(column(0.5, 1.18, { 0, y - h * 0.01, 0 }, 0, C.birchMark, "SmoothPlastic")))
+	end
+	for k = 1, 3 do
+		local a = math.rad(k * 120 + hash(seed, k, 17) * 60)
+		local r = 2.4
+		local d = h * (0.36 - k * 0.04)
+		local col = C.birchLeaf[k]
+		table.insert(out, prim("ball", { d, d, d }, { math.cos(a) * r, h * (0.7 + k * 0.07), math.sin(a) * r }, nil, col, "SmoothPlastic"))
+	end
+	return out
+end
+
+-- ------------------------------------------------------------------ stones
+
+-- A standing stone, leaning a little, with a pointed top and a moss band.
+function Blueprints.Menhir(seed: number, _g, rune: { number }?): { Prim }
+	local out = {}
+	local h = 9 + hash(seed, 1, 19) * 4
+	local w, d = 3.2, 2.2
+	local rot = { 0, (hash(seed, 2, 23) - 0.5) * 8, (hash(seed, 4, 31) - 0.5) * 10 }
+	local foot = { 0, -1, 0 }
+	local col = shade(C.stone, 0.88 + hash(seed, 3, 29) * 0.2)
+	table.insert(out, solid(prim("block", { w, h, d }, onBody(foot, rot, 0, h / 2, 0), rot, col, "Slate")))
+	local point = w * 0.7
+	table.insert(out, prim("block", { point, point, d * 0.98 }, onBody(foot, rot, 0, h, 0), { rot[1], rot[2], rot[3] + 45 }, col, "Slate"))
+	table.insert(out, flat(prim("block", { w * 1.02, 0.6, d * 1.04 }, onBody(foot, rot, 0, h * 0.58, 0), rot, C.moss, "Grass")))
+	if rune then
+		local strip = prim("block", { 0.5, h * 0.5, 0.12 }, onBody(foot, rot, 0, h * 0.42, -d / 2 - 0.04), rot, rune, "Neon")
+		strip.neon = true
+		strip.shadow = false
+		strip.tag = "Rune"
+		table.insert(out, strip)
+	end
+	return out
+end
+
+function Blueprints.RuneStone(seed: number, g)
+	return Blueprints.Menhir(seed, g, C.rune)
+end
+
+function Blueprints.MoonStone(seed: number, g)
+	return Blueprints.Menhir(seed, g, C.runeTeal)
+end
+
+-- drums of a ruined column, each a little off true, with a moss cap on top
+local function drums(out: { Prim }, seed: number, at: { number }, count: number, diameter: number, drumH: number): number
+	local top = at[2] - 0.5
+	for k = 1, count do
+		local ox = (hash(seed, k, 31) - 0.5) * 0.35
+		local oz = (hash(seed, k, 37) - 0.5) * 0.35
+		local col = shade(C.stoneLight, 0.88 + hash(seed, k, 41) * 0.16)
+		table.insert(out, solid(column(drumH, diameter, { at[1] + ox, top, at[3] + oz }, k * 23, col, "Cobblestone")))
+		top += drumH
+	end
+	table.insert(out, flat(column(0.5, diameter * 1.04, { at[1], top, at[3] }, 0, C.moss, "Grass")))
+	return top
+end
+
+-- A ruined column: whole (with a capital) or broken (a drum fallen beside it).
+function Blueprints.Pillar(seed: number, _g): { Prim }
+	local out = {}
+	local top = drums(out, seed, { 0, 0, 0 }, 4, 3.4, 4.4)
+	table.insert(out, prim("block", { 4.6, 1.4, 4.6 }, { 0, top + 0.7, 0 }, { 45, 0, 0 }, C.stoneLight, "Cobblestone"))
+	return out
+end
+
+function Blueprints.PillarBroken(seed: number, _g): { Prim }
+	local out = {}
+	drums(out, seed, { 0, 0, 0 }, 1 + math.floor(hash(seed, 1, 43) * 2), 3.4, 4.4)
+	local a = hash(seed, 2, 47) * 360
+	table.insert(
+		out,
+		prim(
+			"cylinder",
+			{ 4.4, 3.4, 3.4 },
+			{ math.cos(math.rad(a)) * 4.5, 1.3, math.sin(math.rad(a)) * 4.5 },
+			{ a + 90, 0, 0 },
+			C.stoneLight,
+			"Cobblestone"
+		)
+	)
+	return out
+end
+
+-- A brazier: a squat stone plinth, an iron bowl, embers, a warm light.
+local function brazier(out: { Prim }, at: { number }, scale: number)
+	table.insert(
+		out,
+		solid(
+			prim(
+				"block",
+				{ 3 * scale, 2.4 * scale, 3 * scale },
+				{ at[1], at[2] + 1.2 * scale - 0.4, at[3] },
+				{ 45, 0, 0 },
+				C.stone,
+				"Slate"
+			)
+		)
+	)
+	table.insert(out, column(1.1 * scale, 4.4 * scale, { at[1], at[2] + 2.0 * scale, at[3] }, 0, C.iron, "Metal"))
+	local embers = column(0.4 * scale, 3.6 * scale, { at[1], at[2] + 3.0 * scale, at[3] }, 0, C.ember, "Neon")
+	embers.neon = true
+	embers.shadow = false
+	embers.tag = "Flame"
+	embers.light = { color = { 255, 168, 90 }, brightness = 2.2, range = 34 }
+	table.insert(out, embers)
+end
+
+function Blueprints.Brazier(_seed: number, _g): { Prim }
+	local out = {}
+	brazier(out, { 0, 0, 0 }, 1)
+	return out
+end
+
+-- ------------------------------------------------------------------ landmarks
+
+-- The Ward: a ruined platform of slabs round a brazier, four columns at its
+-- corners (one broken), the ward stone on the far side, a drum fallen across
+-- the slabs. Local -z faces the spawn clearing. The slabs follow the ground.
+function Blueprints.Ward(seed: number, g): { Prim }
+	local out = {}
+	local n, size = 5, 6.2
+	local half = (n - 1) * size / 2
+	for iz = 0, n - 1 do
+		for ix = 0, n - 1 do
+			local centre = ix == 2 and iz == 2
+			if not centre and hash(ix, iz, seed + 3) < 0.14 then
+				continue -- a ruin: a few slabs are gone
+			end
+			local lx, lz = -half + ix * size, -half + iz * size
+			local y = g(lx, lz)
+			local sx = (g(lx + size / 2, lz) - g(lx - size / 2, lz)) / size
+			local sz = (g(lx, lz + size / 2) - g(lx, lz - size / 2)) / size
+			local pitch = -math.deg(math.atan(sz))
+			local roll = math.deg(math.atan(sx))
+			local mossy = hash(ix, iz, seed + 5) > 0.62
+			local col = if mossy then { 112, 128, 92 } else shade(C.stoneLight, 0.86 + hash(ix, iz, seed + 7) * 0.18)
+			local sink = hash(ix, iz, seed + 9) * 0.25
+			table.insert(
+				out,
+				solid(
+					prim(
+						"block",
+						{ size - 0.35, 1.2, size - 0.35 },
+						{ lx, y - 0.25 - sink, lz },
+						{ hash(ix, iz, seed + 11) * 3 - 1.5, pitch, roll },
+						col,
+						"Slate"
+					)
+				)
+			)
+		end
+	end
+	local corners = { { -1, -1 }, { 1, -1 }, { -1, 1 }, { 1, 1 } }
+	for i, c in corners do
+		local lx, lz = c[1] * (half + 1.5), c[2] * (half + 1.5)
+		local base = { lx, g(lx, lz), lz }
+		if i == 2 then
+			drums(out, seed + i, base, 2, 3.6, 4.6)
+		else
+			local top = drums(out, seed + i, base, 4, 3.6, 4.6)
+			table.insert(out, prim("block", { 4.8, 1.4, 4.8 }, { lx, top + 0.7, lz }, { 45, 0, 0 }, C.stoneLight, "Cobblestone"))
+		end
+	end
+	brazier(out, { 0, g(0, 0), 0 }, 1)
+	-- the ward stone, its runes facing the clearing
+	local sz = half + size + 1
+	local foot = { 0, g(0, sz) - 0.8, sz }
+	local lean = { 0, 4, 0 } -- leaning back, away from the clearing
+	table.insert(out, solid(prim("block", { 5.4, 12, 1.8 }, onBody(foot, lean, 0, 6, 0), lean, C.stoneDark, "Slate")))
+	table.insert(out, prim("block", { 3.8, 3.8, 1.78 }, onBody(foot, lean, 0, 12, 0), { 0, 4, 45 }, C.stoneDark, "Slate"))
+	for k = 0, 2 do
+		local strip = prim(
+			"block",
+			{ 0.55, 2.4, 0.14 },
+			onBody(foot, lean, (k - 1) * 1.4, 6.2 + k * 0.6, -0.95),
+			{ 0, 4, (k - 1) * 12 },
+			C.rune,
+			"Neon"
+		)
+		strip.neon = true
+		strip.shadow = false
+		strip.tag = "Rune"
+		table.insert(out, strip)
+	end
+	local glow = prim("block", { 0.2, 0.2, 0.2 }, onBody(foot, lean, 0, 7, -1.6), nil, C.rune, "Neon")
+	glow.shadow = false
+	glow.light = { color = { 255, 176, 100 }, brightness = 1.3, range = 18 }
+	table.insert(out, glow)
+	-- a drum fallen across the slabs
+	table.insert(
+		out,
+		prim(
+			"cylinder",
+			{ 4.6, 3.6, 3.6 },
+			{ half - 3, g(half - 3, -half + 2) + 1.6, -half + 2 },
+			{ 70, 0, 0 },
+			C.stoneLight,
+			"Cobblestone"
+		)
+	)
+	return out
+end
+
+-- The Runic Gate: two great columns and a lintel over the top of ramp A, a
+-- rune keystone facing down the ramp, lanterns hanging from the lintel. The
+-- opening is 24 studs wide and 17 high: crowds and heroes pass under it.
+function Blueprints.Gate(seed: number, g): { Prim }
+	local out = {}
+	local gap = 24
+	local tops = {}
+	for side = -1, 1, 2 do
+		local lx = side * (gap / 2 + 2.6)
+		tops[side] = drums(out, seed + side, { lx, g(lx, 0), 0 }, 4, 5.2, 4.6)
+	end
+	local y = math.min(tops[-1], tops[1]) + 0.2
+	table.insert(out, solid(prim("block", { gap + 11, 3.6, 5.6 }, { 0, y + 1.8, 0 }, { 0, 0, 1.5 }, C.stone, "Slate")))
+	table.insert(out, prim("block", { gap + 6, 1.4, 4.6 }, { 0, y + 4.3, 0 }, { 0, 0, -1 }, C.stoneDark, "Slate"))
+	table.insert(out, flat(prim("block", { gap + 10, 0.4, 5.7 }, { 0, y + 3.7, 0 }, { 0, 0, 1.5 }, C.moss, "Grass")))
+	local key = prim("block", { 3.2, 3.4, 0.3 }, { 0, y + 1.8, -2.95 }, { 0, 0, 45 }, C.rune, "Neon")
+	key.neon = true
+	key.shadow = false
+	key.tag = "Rune"
+	key.light = { color = { 255, 176, 100 }, brightness = 1.6, range = 22 }
+	table.insert(out, key)
+	for side = -1, 1, 2 do
+		local lx = side * 7
+		table.insert(out, flat(prim("block", { 0.2, 2.6, 0.2 }, { lx, y - 1.3, 0 }, nil, C.iron, "Metal")))
+		local lamp = prim("block", { 1.1, 1.4, 1.1 }, { lx, y - 3.2, 0 }, { 45, 0, 0 }, { 255, 196, 120 }, "Neon")
+		lamp.neon = true
+		lamp.shadow = false
+		lamp.tag = "Flame"
+		lamp.light = { color = { 255, 186, 110 }, brightness = 1.4, range = 20 }
+		table.insert(out, lamp)
+	end
+	return out
+end
+
+-- A cairn: flat stones stacked off true, a rune on the top one.
+function Blueprints.Cairn(seed: number, _g): { Prim }
+	local out = {}
+	local y = -0.3
+	for k = 1, 5 do
+		local w = 5.2 - k * 0.75
+		local th = 1.3 - k * 0.08
+		local col = shade(C.stone, 0.85 + hash(seed, k, 53) * 0.25)
+		table.insert(
+			out,
+			solid(
+				prim(
+					"block",
+					{ w, th, w * 0.85 },
+					{ (hash(seed, k, 59) - 0.5) * 0.6, y + th / 2, 0 },
+					{ k * 37, (hash(seed, k, 61) - 0.5) * 6, 0 },
+					col,
+					"Slate"
+				)
+			)
+		)
+		y += th * 0.92
+	end
+	local rune = prim("ball", { 0.9, 0.9, 0.9 }, { 0, y + 0.3, 0 }, nil, C.rune, "Neon")
+	rune.neon = true
+	rune.shadow = false
+	rune.tag = "Rune"
+	table.insert(out, rune)
+	return out
+end
+
+-- The Elder's roots: great roots spreading from the foot of the elder tree,
+-- reaching down into the hill. The tree itself is the TreeTwin mesh, scaled.
+function Blueprints.ElderRoots(seed: number, g): { Prim }
+	local out = {}
+	-- a broad flare at the foot of the trunk...
+	table.insert(out, column(4, 15, { 0, -1.5, 0 }, 0, C.barkDark, "Wood"))
+	table.insert(out, column(3, 11, { 0, 1.5, 0 }, 20, C.bark, "Wood"))
+	-- ...and great roots reaching out and down into the hill
+	for k = 0, 7 do
+		local a = k / 8 * 360 + hash(seed, k, 67) * 25
+		local len = 16 + hash(seed, k, 71) * 9
+		local r = math.rad(a)
+		local reach = len * 0.5 + 3
+		local cx, cz = math.cos(r) * reach, math.sin(r) * reach
+		local thick = 3.6 + hash(seed, k, 73) * 1.6
+		table.insert(out, prim("cylinder", { len, thick, thick }, { cx, g(cx, cz) + 0.9, cz }, { -a, 0, -10 }, C.barkDark, "Wood"))
+	end
+	return out
+end
+
+-- ------------------------------------------------------------------ ground cover
+
+-- A fern: fronds fanned round the root, curling up and out.
+function Blueprints.Fern(seed: number, _g): { Prim }
+	local out = {}
+	local count = 5
+	for k = 1, count do
+		local a = k / count * 360 + hash(seed, k, 73) * 30
+		local len = 2.8 + hash(seed, k, 79) * 1.2
+		local col = if k % 2 == 0 then C.fern else C.fernLight
+		local r = math.rad(a)
+		local p = prim(
+			"wedge",
+			{ 0.9, 0.18, len },
+			{ math.sin(r) * len * 0.42, 0.75, math.cos(r) * len * 0.42 },
+			{ a, -32, 0 },
+			col,
+			"SmoothPlastic"
+		)
+		p.shadow = false
+		table.insert(out, p)
+	end
+	return out
+end
+
+-- A tuft of meadow flowers.
+local FLOWERS = { { 255, 214, 74 }, { 246, 244, 232 }, { 176, 126, 226 }, { 236, 92, 76 }, { 255, 168, 60 } }
+function Blueprints.Flowers(seed: number, _g): { Prim }
+	local out = {}
+	local col = FLOWERS[1 + math.floor(hash(seed, 1, 83) * #FLOWERS)]
+	local count = 4 + math.floor(hash(seed, 2, 89) * 4)
+	for k = 1, count do
+		local a = math.rad(hash(seed, k, 97) * 360)
+		local r = hash(seed, k, 101) * 2.2
+		local d = 0.5 + hash(seed, k, 103) * 0.35
+		local y = 0.7 + hash(seed, k, 107) * 0.6
+		table.insert(out, flat(prim("ball", { d, d, d }, { math.cos(a) * r, y, math.sin(a) * r }, nil, col, "SmoothPlastic")))
+	end
+	return out
+end
+
+-- Glowcaps: a cluster of pale mushrooms with softly glowing caps (Mirewood).
+function Blueprints.Glowcaps(seed: number, _g): { Prim }
+	local out = {}
+	for k = 1, 3 do
+		local a = math.rad(k * 120 + hash(seed, k, 109) * 40)
+		local r = 0.9 + hash(seed, k, 113)
+		local h = 0.9 + hash(seed, k, 127) * 1.1
+		local x, z = math.cos(a) * r, math.sin(a) * r
+		table.insert(out, flat(column(h, 0.4, { x, -0.1, z }, 0, C.stem, "SmoothPlastic")))
+		local cap = column(0.35, 1.3 + h * 0.4, { x, h - 0.15, z }, 0, C.runeTeal, "Neon")
+		cap.neon = true
+		cap.shadow = false
+		cap.tag = "Glow"
+		table.insert(out, cap)
+	end
+	return out
+end
+
+--- The blueprint for a prop kind, if it is part-built.
+function Blueprints.get(kind: string): ((number, any) -> { Prim })?
+	local fn = (Blueprints :: any)[kind]
+	if type(fn) == "function" and kind ~= "get" and kind ~= "hash" then
+		return fn
+	end
+	return nil
+end
+
+-- ------------------------------------------------------------------ space
+
+--- A rotation matrix (row-major, 9 numbers) for yaw, pitch, roll in degrees:
+--- yaw about y first, then pitch about x, then roll about z (R = Ry * Rx * Rz).
+Blueprints.matrix = matrix
+
+return Blueprints
