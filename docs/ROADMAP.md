@@ -16,15 +16,12 @@ explicit decision by Tiago and Diogo.
 ## M2 Movement & Game Feel — in progress
 
 - **Scope:** momentum, bunny hop, slide, camera, impact, animation and audio.
-- **State:** M2.A (player pause, volume settings, damage feedback, Sword slash) validated in
-  Studio (`bonk-0.5.4-m2a`) and merged to `main` (PR #4). M2.B bunny hop and momentum
-  on branch `feat/m2b-bunny-hop`. `bonk-0.6.0-m2b` playtested: hops barely sped up and
-  slide/hop transitions lost speed. Fixed in `bonk-0.6.1-m2b` (speed written to the body,
-  looser take-off check, slide/hop hand-offs), validated in Studio. `bonk-0.6.2-m2b`: air
-  steering turns the heading and keeps the speed (A/D no longer brakes), gain 0.15 to a 2.5x
-  cap over ~10 hops, slides to 2.8x. Offline checks only; readout: `hop` in Workspace.BonkDev.
-- **Next playable result:** Studio playtest of `bonk-0.6.2-m2b` (W+Space chain to ~50,
-  W+A/W+D and A/D at speed, hop to slide to jump, stop and wall), then tune and merge.
+- **State:** M2.A (player pause, volume settings, damage feedback, Sword slash,
+  `bonk-0.5.4-m2a`, PR #4) and M2.B (bunny hop to 2.5x base over ~10 hops, speed-keeping air
+  steering, slide/hop momentum hand-offs, slides to 2.8x, `bonk-0.6.2-m2b`) validated in
+  Studio by Tiago and Diogo and merged to `main`. Studio speed readout: `hop` in
+  Workspace.BonkDev.
+- **Next playable result:** Minty's Frost Ring freezing (individual 25 % chance per enemy).
 - **Blockers:** none.
 
 ## M3 Art Direction & Wardwood — prototype
