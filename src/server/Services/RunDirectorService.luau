@@ -1,7 +1,7 @@
 --!nonstrict
 -- RunDirectorService - owns the run state machine (Lobby, Intro, Playing,
 -- Overtime, Victory, Wipe, Results), the stage clock, the pause flag (one
--- reason each: "levelup", "panel", "player", "countdown") and the
+-- reason each: "levelup", "panel", "player") and the
 -- difficulty value. It also drives the one simulation tick every other service
 -- steps on, so the order things happen in is written down in one place.
 
@@ -112,11 +112,6 @@ end
 
 function RunDirectorService:IsPaused(): boolean
 	return self._paused
-end
-
---- Is the run held by this pause reason?
-function RunDirectorService:HasPause(reason: string): boolean
-	return self._pauses[reason] == true
 end
 
 --- Gameplay time in seconds. Anything that acts outside the simulation tick

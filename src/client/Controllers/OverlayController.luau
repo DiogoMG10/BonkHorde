@@ -219,8 +219,6 @@ function OverlayController:_countdownEnd(): number?
 	local info = self._info
 	if info.mode == "paused" and info.resuming then
 		return self._infoAt + math.max(0, tonumber(info.seconds) or 0)
-	elseif info.mode ~= "paused" and typeof(info.countdown) == "number" then
-		return self._infoAt + info.countdown -- after a co-op level-up
 	end
 	return nil
 end

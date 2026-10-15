@@ -21,9 +21,11 @@ explicit decision by Tiago and Diogo.
   `feat/m2a-player-feedback`. `bonk-0.5.0-m2a` validated in Studio by Tiago and Diogo.
   Polish `bonk-0.5.1-m2a` playtested: pause flow and countdown fine; regressions fixed in
   `bonk-0.5.2-m2a` (Sword slash as a blade trail plus a reach flash, pause menu no longer a
-  black box): offline checks only.
-- **Next playable result:** quick Studio check of `bonk-0.5.2-m2a` (checklist in PR #4),
-  then merge; then M2.B (bunny hop, movement, difficulty balance).
+  black box). Follow-up `bonk-0.5.3-m2a`: no countdown after co-op level-ups (play resumes
+  on the last choice), Sword reach flash replaced by an anime-style crescent cut after the
+  Plebarae reference. Offline checks only.
+- **Next playable result:** quick Studio check of `bonk-0.5.3-m2a` (slash look, co-op
+  level-up resume), then merge; then M2.B (bunny hop, movement, difficulty balance).
 - **Blockers:** none.
 
 ## M3 Art Direction & Wardwood — prototype

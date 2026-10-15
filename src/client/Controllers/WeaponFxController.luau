@@ -91,10 +91,15 @@ end
 
 local SLASH_CORE = Color3.fromRGB(255, 255, 255)
 local SLASH_GLOW = Color3.fromRGB(150, 210, 255)
+local SLASH_INK = Color3.fromRGB(22, 34, 62) -- the dark edge that makes the white read
 local TRAIL_ON = 0.28 -- seconds the blade leaves a trail: the swing animation's length
-local ARC_DELAY = 0.06 -- the reach flash lands as the cut passes the middle...
-local ARC_LIFE = 0.2 -- ...and is gone this soon after
-
+local CUT_LIFE = 0.32 -- the crescent's whole life...
+local CUT_DRAW = 0.45 -- ...the share of it the head takes to cross the arc
+local CUT_SEGMENTS = 20
+local CUT_RADIUS = 0.85 -- the centre line, as a share of the hit range
+local CUT_WIDTH = 1.9 -- studs at the thickest point, for a 13-stud reach
+local CUT_TILT = math.rad(14) -- the cut runs high on the right, low on the left...
+local CUT_BANK = math.rad(16) -- ...and its middle rises, so from behind it reads as a curve
 -- A ribbon behind the hero's own blade, from just above the grip to the tip.
 -- It follows whatever the swing animation does, so it can never point the
 -- wrong way. The held weapon is welded with its length along its Y axis
@@ -137,46 +142,135 @@ local function bladeTrail(character: Model): Trail?
 	return t
 end
 
--- The reach of the swing as one bright crescent in the air at waist height,
--- on the edge of the hit area: thick in the middle, thin at the ends, pushed
--- out a little as it fades. Symmetric, so it needs no idea of which way the
--- blade travels.
-local function reachFlash(at: Vector3, forward: Vector3, range: number, arcDeg: number)
-	local right = Vector3.new(-forward.Z, 0, forward.X)
-	local half = math.rad(arcDeg) / 2
-	local count = math.max(5, math.ceil(arcDeg / 10))
-	local pieces = {}
-	for i = 1, count do
-		local p = Instance.new("Part")
+-- Pooled ribbon pieces for the crescent: a slash every second must not churn
+-- a hundred new parts each time.
+local piecePool: { Part } = {}
+
+local function piece(colour: Color3, neon: boolean): Part
+	local p = table.remove(piecePool)
+	if not p then
+		p = Instance.new("Part")
 		p.Anchored, p.CanCollide, p.CanQuery, p.CanTouch = true, false, false, false
 		p.CastShadow = false
-		p.Material = Enum.Material.Neon
-		p.Color = SLASH_GLOW
-		p.Transparency = 1
 		p.Parent = folder
-		local u = (i - 0.5) / count -- 0 at the hero's right end, 1 at the left
-		table.insert(pieces, { part = p, a0 = half - (i - 1) / count * 2 * half, a1 = half - i / count * 2 * half, u = u })
 	end
-	local born = os.clock() + ARC_DELAY
+	p.Color = colour
+	p.Material = if neon then Enum.Material.Neon else Enum.Material.SmoothPlastic
+	p.Transparency = 1
+	return p
+end
+
+local function release(p: Part)
+	p.Transparency = 1
+	p.CFrame = CFrame.new(0, -500, 0)
+	table.insert(piecePool, p)
+end
+
+-- Width along the visible stroke, s = 0 at the tail to 1 at the head: a hair at
+-- the tail, swelling to full at 80 %, a blunt point at the head.
+local function strokeWidth(s: number): number
+	if s < 0.8 then
+		return 0.06 + 0.94 * (s / 0.8) ^ 1.5
+	end
+	return 1 - 0.55 * (s - 0.8) / 0.2
+end
+
+-- The cut itself, after the reference slash: an anime crescent drawn in the
+-- air on the edge of the hit area (range x arc around the swing direction, the
+-- same area CombatService Fire.Arc tests). Its head races from the hero's right
+-- to their left with the blade; the stroke behind it is thick and white near
+-- the head and thins to a hair at the tail, with a dark ink edge and two thin
+-- brush streaks; then the tail eats the stroke up to the head and it is gone.
+-- Every piece is a ribbon turned to face the camera, so it reads as a drawn
+-- stroke from any angle and never as a mark on the floor.
+local function crescent(at: Vector3, forward: Vector3, range: number, arcDeg: number)
+	local right = Vector3.new(-forward.Z, 0, forward.X)
+	local half = math.rad(arcDeg) / 2
+	local radius0 = range * CUT_RADIUS
+	local width0 = CUT_WIDTH * math.clamp(range / 13, 0.7, 1.6)
+	local centre = at + Vector3.new(0, 0.4, 0)
+
+	-- a point on the arc at radius r: v = 0 at the right end, 1 at the left
+	local function point(v: number, r: number): Vector3
+		local a = half - v * 2 * half
+		local rise = r * (math.sin(a) * math.sin(CUT_TILT) + (math.cos(a) - math.cos(half)) * math.sin(CUT_BANK))
+		return centre + (forward * math.cos(a) + right * math.sin(a)) * r + Vector3.new(0, rise, 0)
+	end
+
+	-- strokes: the main one with its ink edge, and two thin streaks beside it
+	local strokes = {
+		{ offset = 0, scale = 1, lead = 0, lag = 0, ink = true, colour = SLASH_CORE },
+		{ offset = 0.75, scale = 0.12, lead = 0.04, lag = 0.25, colour = SLASH_GLOW },
+		{ offset = -0.6, scale = 0.09, lead = -0.06, lag = 0.4, colour = SLASH_GLOW },
+	}
+	local parts = {}
+	for _, stroke in strokes do
+		stroke.core = {}
+		stroke.edge = {}
+		for i = 1, CUT_SEGMENTS do
+			stroke.core[i] = piece(stroke.colour, true)
+			table.insert(parts, stroke.core[i])
+			if stroke.ink then
+				stroke.edge[i] = piece(SLASH_INK, false)
+				table.insert(parts, stroke.edge[i])
+			end
+		end
+	end
+
+	local born = os.clock()
 	local conn
 	conn = RunService.RenderStepped:Connect(function()
-		local t = (os.clock() - born) / ARC_LIFE
-		if t >= 1 then
+		local u = (os.clock() - born) / CUT_LIFE
+		local camera = Workspace.CurrentCamera
+		if u >= 1 or not camera then
 			conn:Disconnect()
-			for _, piece in pieces do
-				piece.part:Destroy()
+			for _, p in parts do
+				release(p)
 			end
 			return
 		end
-		local shown = if t < 0 then 0 else (1 - t) ^ 1.6
-		local radius = range * (0.88 + 0.12 * math.max(t, 0))
-		for _, piece in pieces do
-			local p0 = at + (forward * math.cos(piece.a0) + right * math.sin(piece.a0)) * radius
-			local p1 = at + (forward * math.cos(piece.a1) + right * math.sin(piece.a1)) * radius
-			local width = 0.15 + 0.85 * math.sin(math.pi * piece.u) -- a crescent
-			piece.part.Size = Vector3.new(width, 0.1, (p1 - p0).Magnitude + 0.1)
-			piece.part.CFrame = CFrame.lookAt((p0 + p1) / 2, p1)
-			piece.part.Transparency = 1 - 0.85 * shown
+		local eye = camera.CFrame.Position
+		-- the head is already a little way in when it appears, and slows as it lands
+		local drawn = math.min(u / CUT_DRAW, 1)
+		local head = 0.12 + 0.88 * (1 - (1 - drawn) ^ 3)
+		local tail = math.max(0, (u - 0.12) / 0.88) ^ 2 * head
+		local fade = if u < 0.6 then 0 else (u - 0.6) / 0.4
+		local thin = 1 - 0.55 * u * u -- the remaining head thins as it goes
+		local radius = radius0 * (0.96 + 0.08 * u)
+
+		for _, stroke in strokes do
+			local h = math.clamp(head + stroke.lead, 0, 1)
+			local t = math.clamp(tail + stroke.lag * (head - tail), 0, h)
+			local r = radius + stroke.offset * width0
+			for i = 1, CUT_SEGMENTS do
+				local v0 = math.max((i - 1) / CUT_SEGMENTS, t)
+				local v1 = math.min(i / CUT_SEGMENTS, h)
+				local core = stroke.core[i]
+				local edge = stroke.edge[i]
+				if v1 - v0 <= 1e-3 or h - t <= 1e-3 then
+					core.Transparency = 1
+					if edge then
+						edge.Transparency = 1
+					end
+					continue
+				end
+				local p0, p1 = point(v0, r), point(v1, r)
+				local mid = (p0 + p1) / 2
+				local length = (p1 - p0).Magnitude + 0.06
+				local s = ((v0 + v1) / 2 - t) / (h - t)
+				local width = width0 * stroke.scale * strokeWidth(s) * thin
+				local toEye = eye - mid
+				local cf = CFrame.lookAt(mid, p1, toEye) -- width across the arc, face to the camera
+				core.Size = Vector3.new(width, 0.05, length)
+				core.CFrame = cf
+				core.Color = SLASH_CORE:Lerp(stroke.colour, 1 - s) -- white at the head, blue to the tail
+				core.Transparency = 0.05 + 0.95 * fade
+				if edge then
+					edge.Size = Vector3.new(width * 1.55 + 0.12, 0.05, length + 0.1)
+					edge.CFrame = cf - toEye.Unit * 0.15 -- just behind the white, as seen
+					edge.Transparency = 0.2 + 0.8 * fade
+				end
+			end
 		end
 	end)
 end
@@ -196,15 +290,15 @@ function WeaponFxController:KnitStart()
 	local Effects = self.Effects
 
 	function Effects.Slash(index, x, y, z, dx, dz, range, arcDeg)
-		-- The blade's own trail sells the swing; the flash at the edge of the
-		-- hit area (range x arc, as CombatService Fire.Arc tests it) shows its
-		-- reach. Both on the hero as this client sees them.
+		-- The blade's own trail follows the arm; the crescent at the edge of the
+		-- hit area is the cut and shows its reach. Both on the hero as this
+		-- client sees them.
 		if dx * dx + dz * dz < 1e-6 then
 			return
 		end
 		local root = state:RootOfIndex(index)
 		local at = if root then root.Position else Vector3.new(x, y, z)
-		reachFlash(at, Vector3.new(dx, 0, dz).Unit, range, math.clamp(arcDeg, 20, 360))
+		crescent(at, Vector3.new(dx, 0, dz).Unit, range, math.clamp(arcDeg, 20, 360))
 		local trail = root and root.Parent and bladeTrail(root.Parent)
 		if trail then
 			trail:Clear()

@@ -30,7 +30,6 @@ end
 function UpgradeService:KnitStart()
 	self._players = Knit.GetService("PlayerStateService")
 	self._director = Knit.GetService("RunDirectorService")
-	self._pause = Knit.GetService("PauseService")
 
 	Net.server("ChooseOffer").OnServerEvent:Connect(function(player: Player, id: unknown, action: unknown, index: unknown)
 		if typeof(id) ~= "number" or typeof(action) ~= "string" then
@@ -186,11 +185,12 @@ function UpgradeService:_resolve(rec)
 	rec.dirty = true
 	self._offersEvent:FireClient(rec.player, nil) -- close the panel
 	if self._pending[rec] > 0 then
-		self:_present(rec) -- the next card follows at once: no countdown in between
+		self:_present(rec) -- the next card follows at once
 	end
 	if not self:HasOpen() then
-		-- the last choice of the squad: co-op gets a short countdown back into the fight
-		self._pause:ResumeWithCountdown("levelup")
+		-- the last choice of the squad: straight back into the fight (level-ups are
+		-- too frequent for a countdown; the paused-world colour eases back on its own)
+		self._director:SetPause("levelup", false)
 	end
 end
 
