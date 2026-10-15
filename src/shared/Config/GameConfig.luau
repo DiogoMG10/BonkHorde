@@ -6,7 +6,7 @@
 -- what makes a balance pass a data edit.
 
 local GameConfig = {
-	BuildStamp = "bonk-0.5.4-m2a",
+	BuildStamp = "bonk-0.6.0-m2b",
 
 	-- squad
 	MaxPlayers = 3,
@@ -54,6 +54,17 @@ local GameConfig = {
 	SlideDownhillAccel = 34,
 	SlideMaxMultiplier = 2.4,
 	SlideMinSeconds = 0.3,
+	-- bunny hop (Core/Hop): momentum is a multiplier on the hero's base speed
+	HopGain = 0.1, -- per chained hop: from a run, the cap is reached on the 6th jump
+	HopMaxMultiplier = 1.5, -- chained hops never go faster than this x base speed
+	HopWindow = 0.2, -- seconds on the ground after landing that a jump still chains
+	HopMinSpeed = 0.7, -- a hop only counts when moving at this share of the current speed
+	HopGroundDecay = 1.5, -- multiplier lost per second on the ground after the window
+	HopStopDecay = 4, -- ...and with no movement input
+	HopOverCapDecay = 0.5, -- slide speed carried above the cap drains this fast, in the air too
+	AirAccel = 90, -- studs/s^2 the hero can change air velocity by while steering
+	AirBrake = 20, -- studs/s^2 of slowdown in the air with no input (momentum mostly kept)
+	SpeedFovKick = 10, -- extra degrees of FOV at 1.5x base speed (less below, none at 1x)
 	CameraDistance = 18,
 	CameraHeight = 3.5,
 	CameraFOV = 80,
