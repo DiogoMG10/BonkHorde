@@ -436,10 +436,11 @@ function WeaponFxController:KnitStart()
 
 	local telegraph = Net.client("Telegraph")
 	if telegraph then
-		telegraph.OnClientEvent:Connect(function(x, z, radius, delay, _kind)
+		telegraph.OnClientEvent:Connect(function(x, z, radius, delay, _kind, y)
 			local ok, err = pcall(function()
-				local ground = state:HeightAt(x, z)
-				local at = Vector3.new(x, ground + 0.4, z)
+				-- on the ground, or at the height it was aimed at (a hero up a tree)
+				local floor = if typeof(y) == "number" then y else state:HeightAt(x, z)
+				local at = Vector3.new(x, floor + 0.4, z)
 				-- the rim shows where it lands, the fill grows to meet it as the hit arrives
 				Vfx.ground(at, "ring", Color3.fromRGB(255, 50, 50), radius, radius, delay + 0.05, { alpha = 0.1, hold = 0.95 })
 				Vfx.ground(at, "dot", Color3.fromRGB(255, 60, 60), 0.5, radius * 0.94, delay + 0.05, { alpha = 0.55, hold = 0.95 })

@@ -11,6 +11,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
+local Contact = require(ReplicatedStorage.Shared.Core.Contact)
 local Grid = require(ReplicatedStorage.Shared.Core.Grid)
 local MapGen = require(ReplicatedStorage.Shared.Core.MapGen)
 local Net = require(ReplicatedStorage.Shared.Net)
@@ -50,7 +51,10 @@ local poisonOwner = table.create(MAX, false)
 local contactAt = table.create(MAX, 0)
 local kbx = table.create(MAX, 0)
 local kbz = table.create(MAX, 0)
-local radius = table.create(MAX, 1)
+local radius = table.create(MAX, 1) -- movement and spacing
+local body = table.create(MAX, 1) -- visible body radius: contact reach
+local sentX = table.create(MAX, 0) -- where the last snapshot put it (what clients draw)
+local sentZ = table.create(MAX, 0)
 local speed = table.create(MAX, 0)
 local dmg = table.create(MAX, 0)
 local bossKind = table.create(MAX, 0) -- 0 regular, 1 miniboss, 2 stage boss
@@ -125,6 +129,11 @@ end
 --- Elites and bosses: what "Damage to Elites" applies to.
 function EnemyService:IsTough(slot: number): boolean
 	return elite[slot] == true or bossKind[slot] > 0
+end
+
+--- Contact damage of an enemy (as its touch deals it).
+function EnemyService:ContactDamage(slot: number): number
+	return dmg[slot] * (if elite[slot] then 1.5 else 1)
 end
 
 --- How tall an enemy stands, in studs.
@@ -223,6 +232,8 @@ function EnemyService:Spawn(typeName: string, x: number, z: number, opts): numbe
 	contactAt[slot] = 0
 	kbx[slot], kbz[slot] = 0, 0
 	radius[slot] = d.radius * (if isElite then GameConfig.EliteScale else 1)
+	body[slot] = (d.body or d.radius) * (if isElite then GameConfig.EliteScale else 1)
+	sentX[slot], sentZ[slot] = x, z
 	speed[slot] = d.speed * GameConfig.EnemySpeedScale * (0.92 + rng:NextNumber() * 0.16)
 	dmg[slot] = d.dmg * GameConfig.EnemyDamageScale * (opts.dmgMult or 1)
 	bossKind[slot] = if d.boss == "stage" then 2 elseif d.boss == "mini" then 1 else 0
@@ -429,7 +440,10 @@ function EnemyService:Step(dt: number, now: number)
 	local players = self._players
 	local recs = players:All()
 	local cliff = GameConfig.CliffSlope
-	local playerRadius = GameConfig.PlayerRadius
+	local heroBody = GameConfig.HeroBodyRadius
+	local heroHeight = GameConfig.HeroHeight
+	local margin = GameConfig.ContactMargin
+	local tolY = GameConfig.ContactHeightTolerance
 	local leash2 = GameConfig.LeashDistance ^ 2
 	local kbDecay = math.exp(-9 * dt)
 	local scratch = {}
@@ -483,16 +497,17 @@ function EnemyService:Step(dt: number, now: number)
 		local dist = math.sqrt(dx * dx + dz * dz)
 		local frozen = frozenUntil[slot] > now
 		local mx, mz = 0, 0
-		local touch = radius[slot] + playerRadius
+		-- contact is body to body; the approach stops just inside it
+		local reach = Contact.reach(body[slot], heroBody, margin)
 
 		if not frozen then
 			local sp = speed[slot]
 			if dashUntil[slot] > now then
 				mx, mz = dashX[slot] * sp * 4, dashZ[slot] * sp * 4
 			else
-				if dist > touch * 0.8 then
+				if dist > reach * 0.85 then
 					mx, mz = dx / dist * sp, dz / dist * sp
-				elseif dist < touch * 0.6 and dist > 1e-3 then
+				elseif dist < reach * 0.55 and dist > 1e-3 then
 					-- standing inside the hero: back out, so a pack rings him instead of burying him
 					mx, mz = -dx / dist * sp * 0.7, -dz / dist * sp * 0.7
 				end
@@ -547,12 +562,27 @@ function EnemyService:Step(dt: number, now: number)
 			ex[slot], ez[slot] = x, z
 		end
 
-		if not frozen and dist < touch + 0.6 and now >= contactAt[slot] then
-			local groundY = MapGen.heightAt(map, x, z)
-			-- a hero well above an enemy (mid-jump) is out of its reach
-			if t.y - groundY < def[slot].height + 4 then
-				players:Hurt(t, dmg[slot] * (if elite[slot] then 1.5 else 1), slot, now)
-				contactAt[slot] = now + GameConfig.ContactCooldown
+		if not frozen and now >= contactAt[slot] then
+			-- in reach where the server has it now AND where clients are drawing it,
+			-- so a chasing enemy never hits from ground it has not been seen to cover
+			local nowDist = math.sqrt((t.x - x) ^ 2 + (t.z - z) ^ 2)
+			local drawnDist = math.sqrt((t.x - sentX[slot]) ^ 2 + (t.z - sentZ[slot]) ^ 2)
+			if Contact.touches(nowDist, drawnDist, reach) then
+				-- and the bodies overlap in height: a hero jumping over it is not touched
+				local low = MapGen.heightAt(map, x, z) + (if def[slot].flying then 1.9 else 0)
+				local feet = t.y - (t.rootHeight or 3)
+				if
+					Contact.overlapsY(
+						feet,
+						heroHeight,
+						low,
+						low + def[slot].height * (if elite[slot] then GameConfig.EliteScale else 1),
+						tolY
+					)
+				then
+					players:Hurt(t, self:ContactDamage(slot), slot, now)
+					contactAt[slot] = now + GameConfig.ContactCooldown
+				end
 			end
 		end
 
@@ -578,6 +608,7 @@ function EnemyService:_sendSnapshot(now: number)
 		if alive[slot] then
 			count += 1
 			slots[count], xs[count], zs[count] = slot, ex[slot], ez[slot]
+			sentX[slot], sentZ[slot] = ex[slot], ez[slot]
 		end
 	end
 	self._snapEvent:FireAllClients(Snapshot.encode(count, slots, xs, zs, self._map.half, now % 4096))

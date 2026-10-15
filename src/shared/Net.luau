@@ -53,7 +53,7 @@ export type EventName =
 	| "Hits" -- S>C all: buffer of (u16 slot, u16 damage, u8 flags)
 	| "EnemyFrozen" -- S>C all: buffer of (u16 slot, u8 tenths of a second left frozen)
 	| "Boss" -- S>C all: { { slot, name, hp, maxHp, kind } }
-	| "Telegraph" -- S>C all: x, z, radius, delay, kind
+	| "Telegraph" -- S>C all: x, z, radius, delay, kind, y? (drawn at that height, else on the ground)
 	-- weapons and world
 	| "Fx" -- S>C all: name, ...
 	| "Proj" -- S>C all: op ("spawn" | "turn" | "end"), id, ...

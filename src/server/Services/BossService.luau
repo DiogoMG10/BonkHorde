@@ -5,10 +5,15 @@
 -- A boss is an enemy slot in EnemyService with an attack script here. Every
 -- attack is telegraphed: the client is told where and when, the damage lands
 -- on the server when the delay is up.
+--
+-- It also answers camping (Core/Contact): a hero who stays up a tree or on a
+-- roof, out of every regular enemy's reach, with enemies waiting below, gets
+-- the same kind of telegraphed root strike, drawn at their height.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
+local Contact = require(ReplicatedStorage.Shared.Core.Contact)
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Roster = require(ReplicatedStorage.Shared.Config.Roster)
@@ -22,6 +27,7 @@ function BossService:KnitInit()
 	self._bosses = {} -- slot -> { type, name, timers }
 	self._pending = {} -- telegraphed attacks waiting to land
 	self._thorns = {}
+	self._camp = {} -- rec -> Contact.CampState
 	self._nextThorn = 61000
 	self._barsAt = 0
 	self._bossEvent = Net.server("Boss")
@@ -51,6 +57,7 @@ function BossService:Reset()
 	table.clear(self._bosses)
 	table.clear(self._pending)
 	table.clear(self._thorns)
+	table.clear(self._camp)
 	self._bossEvent:FireAllClients({})
 end
 
@@ -104,10 +111,37 @@ function BossService:SpawnMini(typeName: string, now: number)
 	end
 end
 
--- Warn now, land later.
-function BossService:_strike(x: number, z: number, radius: number, delay: number, damage: number, kind: string, now: number)
-	table.insert(self._pending, { x = x, z = z, r = radius, at = now + delay, dmg = damage, kind = kind })
-	self._telegraph:FireAllClients(x, z, radius, delay, kind)
+-- Warn now, land later. `y` draws the warning at that height (a hero up a
+-- tree) instead of on the ground; the hit itself is the same circle.
+function BossService:_strike(x: number, z: number, radius: number, delay: number, damage: number, kind: string, now: number, y: number?)
+	table.insert(self._pending, { x = x, z = z, y = y, r = radius, at = now + delay, dmg = damage, kind = kind })
+	self._telegraph:FireAllClients(x, z, radius, delay, kind, y)
+end
+
+local CAMP: Contact.Camp = { seconds = GameConfig.CampSeconds, every = GameConfig.CampEvery }
+
+-- Heroes out of every regular enemy's reach, with enemies waiting below: after
+-- CampSeconds, a root strike at their feet, telegraphed and dodged by moving.
+function BossService:_camping(dt: number, now: number)
+	local enemies = self._enemies
+	for _, rec in self._players:All() do
+		local state = self._camp[rec]
+		if not state then
+			state = Contact.newCamp()
+			self._camp[rec] = state
+		end
+		if rec.downed or not rec.active or rec.frozen or rec.inMenu then
+			state.elevated = 0
+			continue
+		end
+		local feet = rec.y - (rec.rootHeight or 3)
+		local high = feet - rec.groundY > GameConfig.CampHeight
+		local below = if high then enemies:Nearest(rec.x, rec.z, GameConfig.CampWatchRange) else nil
+		if Contact.campStep(state, CAMP, high, below ~= nil, dt, now) and below then
+			local damage = enemies:ContactDamage(below) * GameConfig.CampStrikeDamage
+			self:_strike(rec.x, rec.z, GameConfig.CampStrikeRadius, GameConfig.CampStrikeDelay, damage, "root", now, feet)
+		end
+	end
 end
 
 --- Called when a pause ends. The warning for a strike that was already on its
@@ -115,7 +149,7 @@ end
 --- gameplay time the strike still has left.
 function BossService:Resync(now: number)
 	for _, s in self._pending do
-		self._telegraph:FireAllClients(s.x, s.z, s.r, math.max(s.at - now, 0.05), s.kind)
+		self._telegraph:FireAllClients(s.x, s.z, s.r, math.max(s.at - now, 0.05), s.kind, s.y)
 	end
 end
 
@@ -218,6 +252,8 @@ function BossService:Step(dt: number, now: number)
 		end
 	end
 
+	self:_camping(dt, now)
+
 	local pending = self._pending
 	for i = #pending, 1, -1 do
 		local s = pending[i]
@@ -227,7 +263,10 @@ function BossService:Step(dt: number, now: number)
 				if not rec.downed and (rec.x - s.x) ^ 2 + (rec.z - s.z) ^ 2 <= s.r * s.r then
 					-- a ground shock is jumped; a root or a rock is not
 					local airborne = rec.y - rec.groundY > 6.5
-					if not (airborne and (s.kind == "stomp" or s.kind == "slam")) then
+					-- a strike aimed at a height (anti-camping) only reaches that height
+					local level = not s.y
+						or Contact.inStrikeBand(rec.y - (rec.rootHeight or 3), s.y, GameConfig.CampStrikeBelow, GameConfig.CampStrikeAbove)
+					if level and not (airborne and (s.kind == "stomp" or s.kind == "slam")) then
 						players:Hurt(rec, s.dmg, nil, now)
 					end
 				end
