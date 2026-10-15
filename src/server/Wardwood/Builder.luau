@@ -120,24 +120,86 @@ local function meshProp(world, prop, templates: Instance): Model?
 	return model
 end
 
--- the Moonwell's surface: a still glassy disc over its shallow floor, and a
--- faint teal glow beneath it
+-- the falls: two scrolling ribbons from the spring down the face (a body of
+-- water and a wider, fainter veil of spray), mist rising where they land. The
+-- texture is the effect kit's own streak (client/Vfx Tex.streak): nothing new
+-- uploaded. FaceCamera keeps the ribbon turned to the viewer from any angle.
+local STREAK = "rbxassetid://105801032795942"
+
+local function waterfall(prop, parent: Instance): Model
+	local model = Instance.new("Model")
+	local host = Instance.new("Part")
+	host.Name = "FallsHost"
+	host.Anchored = true
+	host.CanCollide = false
+	host.CanQuery = false
+	host.CanTouch = false
+	host.CastShadow = false
+	host.Transparency = 1
+	host.Size = Vector3.new(6, 1, 6)
+	local bottom = Vector3.new(prop.bottom[1], prop.bottom[2], prop.bottom[3])
+	local top = Vector3.new(prop.top[1], prop.top[2], prop.top[3])
+	host.CFrame = CFrame.new(bottom)
+	host.Parent = model
+	local a0 = Instance.new("Attachment")
+	a0.WorldPosition = top
+	a0.Parent = host
+	local a1 = Instance.new("Attachment")
+	a1.WorldPosition = bottom
+	a1.Parent = host
+	local function ribbon(width0: number, width1: number, alpha: number, speed: number, colour: Color3)
+		local beam = Instance.new("Beam")
+		beam.Attachment0 = a0
+		beam.Attachment1 = a1
+		beam.Texture = STREAK
+		beam.TextureMode = Enum.TextureMode.Wrap
+		beam.TextureLength = 7
+		beam.TextureSpeed = speed
+		beam.FaceCamera = true
+		beam.Segments = 12
+		beam.Width0 = width0
+		beam.Width1 = width1
+		beam.LightEmission = 0.35
+		beam.LightInfluence = 0.7
+		beam.Color = ColorSequence.new(colour, Color3.fromRGB(200, 236, 236))
+		beam.Transparency = NumberSequence.new({
+			NumberSequenceKeypoint.new(0, alpha + 0.15),
+			NumberSequenceKeypoint.new(0.15, alpha),
+			NumberSequenceKeypoint.new(0.9, alpha),
+			NumberSequenceKeypoint.new(1, alpha + 0.3),
+		})
+		beam.Parent = host
+	end
+	ribbon(5.5, 8, 0.12, 1.4, Color3.fromRGB(236, 250, 250))
+	ribbon(9, 13, 0.6, 1.0, Color3.fromRGB(214, 240, 240))
+	CollectionService:AddTag(host, "WWMist")
+	model.Name = "Waterfall"
+	model.Parent = parent
+	return model
+end
+
+-- the Moonwell's surface: a still, reflective disc over its shallow floor,
+-- and a faint teal glow beneath it. Part water, because terrain water lives on
+-- a 4-stud voxel grid and cannot be a 2-stud wading pond.
 local function water(w, parent: Instance)
 	local surface = Instance.new("Part")
 	surface.Name = "MoonwellSurface"
 	surface.Shape = Enum.PartType.Cylinder
 	surface.Size = Vector3.new(0.3, w.r * 2, w.r * 2)
 	surface.CFrame = CFrame.new(w.x, w.level, w.z) * CFrame.Angles(0, 0, math.rad(90))
-	surface.Material = Enum.Material.Glass
-	surface.Color = Color3.fromRGB(62, 136, 146)
-	surface.Transparency = 0.45
-	surface.Reflectance = 0.2
+	surface.Material = Enum.Material.SmoothPlastic
+	surface.Color = Color3.fromRGB(58, 128, 138)
+	surface.Transparency = 0.35
+	surface.Reflectance = 0.3
 	surface.Anchored = true
 	surface.CanCollide = false
 	surface.CanQuery = false
 	surface.CanTouch = false
 	surface.CastShadow = false
 	surface.Parent = parent
+	if not w.glow then
+		return
+	end
 	local glow = surface:Clone()
 	glow.Name = "MoonwellGlow"
 	glow.Size = Vector3.new(0.2, w.r * 1.6, w.r * 1.6)
@@ -165,7 +227,21 @@ function Builder.build(world): number
 	for i, prop in world.props do
 		local prims = World.parts(world, prop)
 		local model: Model? = nil
-		if prims then
+		if prop.kind == "Waterfall" then
+			model = waterfall(prop, folder)
+		elseif prop.kind == "Mist" then
+			-- an invisible host the client fills with low drifting mist
+			model = Instance.new("Model")
+			local host = Instance.new("Part")
+			host.Name = "MistHost"
+			host.Anchored, host.CanCollide, host.CanQuery, host.CanTouch = true, false, false, false
+			host.CastShadow = false
+			host.Transparency = 1
+			host.Size = Vector3.new(30 * prop.scale, 2, 30 * prop.scale)
+			host.CFrame = CFrame.new(prop.x, MapGen.heightAt(world.map, prop.x, prop.z) + 1.5, prop.z)
+			host.Parent = model
+			CollectionService:AddTag(host, "WWForestMist")
+		elseif prims then
 			model = Instance.new("Model")
 			for _, p in prims do
 				makePart(p, model)

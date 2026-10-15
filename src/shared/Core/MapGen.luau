@@ -40,7 +40,10 @@ end
 -- The landforms that dressing and terrain painting need to know about.
 MapGen.Features = {
 	-- the Moonwell: a shallow wading pond in the Mirewood dell
-	pond = { x = -232, z = 30, r = 26, level = 6, depth = 2.4 },
+	pond = { x = -232, z = 30, r = 26, level = 6, depth = 2.4, lip = 20 },
+	-- the falls: a spring spilling over the Highwatch's face into a small pool,
+	-- straight ahead of the first view from the spawn
+	falls = { x = 0, z = 138, r = 9, level = 5.4, depth = 1.5, lip = 10, topZ = 163 },
 	-- the Elder Hill and the knoll the Highwatch tower stands on
 	elderHill = { x = -112, z = -96, r = 62, rise = 14 },
 	watchKnoll = { x = 40, z = 252, r = 46, rise = 9 },
@@ -135,16 +138,17 @@ function MapGen.rawHeight(x: number, z: number, half: number, wall: number): num
 	local dx, dz = x + 225, z - 25
 	local dd = math.sqrt(dx * dx + dz * dz)
 	h -= 7 * smooth(1 - dd / 75)
-	-- ...with the Moonwell in it: a shallow pond you can wade across. A low lip
-	-- keeps the ground round it above the water, so the surface never shows
-	-- outside the shore.
-	local pond = F.pond
-	local dp = math.sqrt((x - pond.x) ^ 2 + (z - pond.z) ^ 2)
-	if dp < pond.r + 20 then
-		h = math.max(h, lerp(pond.level + 1.2, h, smooth((dp - pond.r) / 20)))
+	-- ...with the Moonwell in it, and the falls' pool at the foot of the
+	-- Highwatch: shallow pools you wade across. A low lip keeps the ground round
+	-- each above its water, so the surface never shows outside the shore.
+	for _, pond in { F.pond, F.falls } do
+		local dp = math.sqrt((x - pond.x) ^ 2 + (z - pond.z) ^ 2)
+		if dp < pond.r + pond.lip then
+			h = math.max(h, lerp(pond.level + 1.2, h, smooth((dp - pond.r) / pond.lip)))
+		end
+		local floor = pond.level - pond.depth * smooth(1 - dp / pond.r) - 0.3
+		h = lerp(h, floor, smooth(1 - (dp - pond.r + 3) / 6))
 	end
-	local floor = pond.level - pond.depth * smooth(1 - dp / pond.r) - 0.3
-	h = lerp(h, floor, smooth(1 - (dp - pond.r + 3) / 6))
 
 	-- the Thunder Chute: a graded half-pipe cut down the plateau's shoulder
 	local ch = F.chute

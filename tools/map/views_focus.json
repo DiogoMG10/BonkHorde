@@ -1,0 +1,6 @@
+[
+  { "name": "f01_spawn_north", "x": 0, "z": -6, "yaw": 180 },
+  { "name": "f02_falls_close", "x": 6, "z": 104, "yaw": 185, "pitch": -4 },
+  { "name": "f03_ward_to_falls", "x": -50, "z": 52, "yaw": 210 },
+  { "name": "f04_lobby", "eye": [-1.5, 13.5, -12], "target": [0, 12, 0], "fov": 50 }
+]

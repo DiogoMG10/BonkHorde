@@ -304,6 +304,8 @@ def proxy(prop):
 
 
 for prop in W["props"]:
+    if prop["kind"] == "Mist":
+        continue  # client particles; the preview does not draw them
     if prop.get("parts"):
         for p in prop["parts"]:
             add_part(p)
@@ -416,6 +418,7 @@ else:
 # a stand-in hero at each gameplay view, for scale
 hero_mat = mat("Hero", (0.85, 0.3, 0.25))
 for v in views:
+    cam_data.angle_y = math.radians(v.get("fov", 80))
     if "eye" in v:
         aim(v["eye"], v["target"])
         hero = None

@@ -42,7 +42,22 @@ for _, prop in world.props do
 	local ground = MapGen.heightAt(map, prop.x, prop.z)
 	local entry = { kind = prop.kind, x = prop.x, z = prop.z, y = ground + (prop.lift or 0), yaw = prop.yaw, scale = prop.scale }
 	local parts = World.parts(world, prop)
-	if parts then
+	if prop.kind == "Waterfall" then
+		-- the preview draws the falling water as a thin pale slab from spring to pool
+		local t, b = prop.top, prop.bottom
+		local dy, dz = t[2] - b[2], t[3] - b[3]
+		local len = math.sqrt(dy * dy + dz * dz)
+		local uy, uz = dy / len, dz / len
+		entry.parts = {
+			{
+				shape = "block",
+				size = { 7, len, 0.6 },
+				cf = { (t[1] + b[1]) / 2, (t[2] + b[2]) / 2, (t[3] + b[3]) / 2, 1, 0, 0, 0, uy, -uz, 0, uz, uy },
+				color = { 230, 246, 246 },
+				mat = "Water",
+			},
+		}
+	elseif parts then
 		entry.parts = parts
 	else
 		local m = manifest[prop.kind]

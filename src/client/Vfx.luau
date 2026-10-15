@@ -702,6 +702,41 @@ local ATTACHED: { [string]: { any } } = {
 			alpha = grow(0.1, 1),
 		},
 	},
+	-- low teal mist hanging in the cold forest: huge, faint, slow
+	ForestMist = {
+		{
+			tex = "puff",
+			rate = 1.2,
+			colour = ColorSequence.new(rgb(150, 198, 196), rgb(176, 214, 210)),
+			size = grow(10, 18),
+			life = { 7, 11 },
+			speed = { 0.3, 0.9 },
+			up = true,
+			drag = 0.4,
+			rot = { 0, 360 },
+			spin = { -6, 6 },
+			alpha = NumberSequence.new({
+				NumberSequenceKeypoint.new(0, 1),
+				NumberSequenceKeypoint.new(0.3, 0.86),
+				NumberSequenceKeypoint.new(0.7, 0.88),
+				NumberSequenceKeypoint.new(1, 1),
+			}),
+		},
+	},
+	-- the foot of the falls: spray rising and drifting off
+	FallsMist = {
+		{
+			tex = "puff",
+			rate = 14,
+			colour = rgb(236, 248, 248),
+			size = grow(2.4, 6),
+			life = { 1.2, 2 },
+			speed = { 2, 5 },
+			up = true,
+			rot = { 0, 360 },
+			alpha = grow(0.55, 1),
+		},
+	},
 	-- the Moonwell: teal motes drifting up off the water
 	MoonMotes = {
 		{

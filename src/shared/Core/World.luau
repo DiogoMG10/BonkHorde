@@ -68,6 +68,7 @@ World.Sites = {
 	{ name = "ChuteTop", x = 204, z = 252, clear = 14 },
 	{ name = "Moonwell", x = F.pond.x, z = F.pond.z, clear = 40 },
 	{ name = "GardenTop", x = F.gardenRampX, z = -306, clear = 14 },
+	{ name = "Falls", x = F.falls.x, z = F.falls.z, clear = 20 },
 }
 
 -- Paths: dirt tracks between the landmarks, kept clear of trunks and rocks.
@@ -257,12 +258,13 @@ function World.surface(world: World, x: number, z: number): string
 	local h = MapGen.heightAt(map, x, z)
 	local slope = MapGen.slopeAt(map, x, z)
 	local n = noise(x * 1.7, z * 1.7)
-	local pond = F.pond
-	local dp = math.sqrt((x - pond.x) ^ 2 + (z - pond.z) ^ 2)
-	if dp < pond.r + 4 then
-		return if dp > pond.r - 6 then "Sand" else "Mud"
+	for _, pond in { F.pond, F.falls } do
+		local dp = math.sqrt((x - pond.x) ^ 2 + (z - pond.z) ^ 2)
+		if dp < pond.r + 4 then
+			return if dp > pond.r - 5 then "Sand" else "Mud"
+		end
 	end
-	if slope > 1.05 then
+	if slope > 1.25 then
 		return if h > map.wall - 24 then "Slate" else "Rock"
 	end
 	-- paths: worn earth with a ragged edge, fading out inside the spawn clearing
@@ -275,7 +277,8 @@ function World.surface(world: World, x: number, z: number): string
 		return "Path" -- a worn line down the middle of the chute
 	end
 	if slope > 0.82 then
-		return if n > 0.5 then "Rock" else "Ground"
+		-- a weathered face: bare stone, moss clinging in patches, a little earth
+		return if n > 0.58 then "Lush" elseif n > 0.3 then "Rock" else "Ground"
 	end
 	local f = World.forest(x, z)
 	local cool = coolness(x, z)
@@ -568,6 +571,53 @@ local function placeLandmarks(ctx)
 		end
 	end
 
+	-- the falls: a spring over the Highwatch's face, its pool at the foot with
+	-- rocks and ferns round it, a rune stone marking the spring on the top
+	do
+		local f = F.falls
+		local topY = MapGen.heightAt(ctx.map, f.x, f.topZ)
+		local fall: Prop = {
+			kind = "Waterfall",
+			x = f.x,
+			z = f.z + f.r,
+			yaw = 0,
+			scale = 1,
+			radius = 0,
+			seed = 120,
+			-- from just in front of the lip, landing well out in the pool: the face is
+			-- convex at the top, so a ribbon from the very lip would run through it
+			top = { f.x, topY + 1.5, f.topZ },
+			bottom = { f.x, f.level + 0.2, f.z + 3 },
+		}
+		add(fall)
+		for k, spot in { { -13, 6, 1.5 }, { 12, 8, 1.2 }, { -9, -12, 0.9 }, { 14, -6, 0.8 } } do
+			local x, z = f.x + spot[1], f.z + spot[2]
+			add({
+				kind = "BoulderLarge",
+				x = x,
+				z = z,
+				yaw = k * 1.7,
+				scale = spot[3],
+				radius = 4.2 * spot[3],
+				seed = 121 + k,
+				lift = -0.5 * spot[3],
+			})
+		end
+		for k = 0, 5 do
+			local a = k / 6 * math.pi * 2 + 0.5
+			add({
+				kind = "Fern",
+				x = f.x + math.cos(a) * (f.r + 4),
+				z = f.z + math.sin(a) * (f.r + 4),
+				yaw = a,
+				scale = 1.3,
+				radius = 0,
+				seed = 126 + k,
+			})
+		end
+		add({ kind = "RuneStone", x = f.x + 8, z = f.topZ + 6, yaw = 0.3, scale = 0.9, radius = 2, seed = 133 })
+	end
+
 	-- the Ridge Run: standing stones along the spine
 	for i = 0, 8 do
 		local z = -170 + i * 36
@@ -828,6 +878,37 @@ local function placeForest(ctx)
 	end
 end
 
+-- low teal mist in the cold forest: invisible hosts the client fills with
+-- slow, faint drifts (the one place the Wardwood's air turns cool)
+local function placeMist(ctx)
+	local add = ctx.add
+	local count = 0
+	for iz = -7, 7 do
+		for ix = -7, 7 do
+			local x = ix * 44 + (hash(ix, iz, 271) - 0.5) * 20
+			local z = iz * 44 + (hash(ix, iz, 277) - 0.5) * 20
+			local e = math.max(math.abs(x), math.abs(z))
+			if e < 300 and World.forest(x, z) > 0.55 and coolness(x, z) > 0.7 and hash(ix, iz, 281) < 0.75 then
+				count += 1
+				add({ kind = "Mist", x = x, z = z, yaw = 0, scale = 1, radius = 0, seed = 900 + count })
+			end
+		end
+	end
+	local pond = F.pond
+	for k = 0, 3 do
+		local a = k / 4 * math.pi * 2 + 0.4
+		add({
+			kind = "Mist",
+			x = pond.x + math.cos(a) * 16,
+			z = pond.z + math.sin(a) * 16,
+			yaw = 0,
+			scale = 0.8,
+			radius = 0,
+			seed = 960 + k,
+		})
+	end
+end
+
 local function placeCover(ctx)
 	local add, map, solids, limit = ctx.add, ctx.map, ctx.solids, ctx.limit
 	-- ground cover, walked through: ferns, glowcaps, bushes, logs, stumps, flowers
@@ -889,6 +970,7 @@ function World.build(cfg: any): World
 	placeNature(ctx)
 	placeForest(ctx)
 	placeCover(ctx)
+	placeMist(ctx)
 	local props = ctx.props
 	MapGen.block(map, props)
 	-- landmark pieces were placed without regard to anchors: drop any anchor a
@@ -913,7 +995,10 @@ function World.build(cfg: any): World
 		map = map,
 		anchors = anchors,
 		props = props,
-		water = { { x = pond.x, z = pond.z, r = pond.r + 2, level = pond.level } },
+		water = {
+			{ x = pond.x, z = pond.z, r = pond.r + 2, level = pond.level, glow = true },
+			{ x = F.falls.x, z = F.falls.z, r = F.falls.r + 2, level = F.falls.level, glow = false },
+		},
 		paths = paths,
 		sites = sites,
 	}

@@ -78,7 +78,10 @@ return {
 	["a banished weapon never comes back"] = function()
 		local rnd = lcg(3)
 		for _ = 1, 200 do
-			local offers = levelUp({ weapons = { Sword = 1 }, tomes = {}, banished = { ["weapon:Axe"] = true }, luck = 0, weaponSlots = 4, tomeSlots = 4 }, rnd)
+			local offers = levelUp(
+				{ weapons = { Sword = 1 }, tomes = {}, banished = { ["weapon:Axe"] = true }, luck = 0, weaponSlots = 4, tomeSlots = 4 },
+				rnd
+			)
 			for _, o in offers do
 				assert(not (o.kind == "weapon" and o.id == "Axe"), "banished Axe was offered")
 			end
@@ -87,7 +90,14 @@ return {
 
 	["full weapon slots stop new weapons being offered"] = function()
 		local rnd = lcg(11)
-		local loadout = { weapons = { Sword = 1, Axe = 1, Bone = 1, FireStaff = 1 }, tomes = {}, banished = {}, luck = 0, weaponSlots = 4, tomeSlots = 4 }
+		local loadout = {
+			weapons = { Sword = 1, Axe = 1, Bone = 1, FireStaff = 1 },
+			tomes = {},
+			banished = {},
+			luck = 0,
+			weaponSlots = 4,
+			tomeSlots = 4,
+		}
 		for _ = 1, 200 do
 			for _, o in levelUp(loadout, rnd) do
 				assert(not (o.kind == "weapon" and o.isNew), "offered a fifth weapon: " .. o.id)
@@ -98,7 +108,9 @@ return {
 	["a new pick is marked New and an upgrade carries stat lines"] = function()
 		local rnd = lcg(5)
 		for _ = 1, 100 do
-			for _, o in levelUp({ weapons = { Sword = 3 }, tomes = { Damage = 2 }, banished = {}, luck = 0, weaponSlots = 4, tomeSlots = 4 }, rnd) do
+			for _, o in
+				levelUp({ weapons = { Sword = 3 }, tomes = { Damage = 2 }, banished = {}, luck = 0, weaponSlots = 4, tomeSlots = 4 }, rnd)
+			do
 				if o.isNew then
 					assert(o.rarity == "New" and o.level == 1)
 				else
@@ -118,14 +130,25 @@ return {
 	end,
 
 	["the vendor can be forced to Legendary stock"] = function()
-		local ids = Offers.items(Roster.ItemOrder, Roster.Items, Roster.ItemRarityOrder, Roster.ItemRarityWeights, {}, 0, 3, "Legendary", lcg(1))
+		local ids =
+			Offers.items(Roster.ItemOrder, Roster.Items, Roster.ItemRarityOrder, Roster.ItemRarityWeights, {}, 0, 3, "Legendary", lcg(1))
 		for _, id in ids do
 			assert(Roster.Items[id].rarity == "Legendary")
 		end
 	end,
 
 	["a shrine offers three different boosts"] = function()
-		local picks = Offers.shrine(Roster.ShrineBoosts, Roster.RarityOrder, Roster.RarityWeights, Roster.RarityLuckFactor, Roster.RarityMultiplier, 0, 0, 3, lcg(2))
+		local picks = Offers.shrine(
+			Roster.ShrineBoosts,
+			Roster.RarityOrder,
+			Roster.RarityWeights,
+			Roster.RarityLuckFactor,
+			Roster.RarityMultiplier,
+			0,
+			0,
+			3,
+			lcg(2)
+		)
 		assert(#picks == 3 and picks[1].index ~= picks[2].index and picks[2].index ~= picks[3].index)
 		for _, p in picks do
 			assert(Roster.Stats[Roster.ShrineBoosts[p.index].stat] ~= nil, "shrine boosts an unknown stat")

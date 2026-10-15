@@ -83,6 +83,24 @@ return {
 		assert(MapGen.sightClear(map, 0, y0, -6, ward.x, y1, ward.z), "the ground hides the Ward from the spawn")
 	end,
 
+	["the falls run in front of the cliff all the way down, never through it"] = function()
+		local fall
+		for _, p in world.props do
+			if p.kind == "Waterfall" then
+				fall = p
+			end
+		end
+		assert(fall, "no waterfall")
+		local t, b = (fall :: any).top, (fall :: any).bottom
+		assert(t[2] - b[2] > 30, "the falls should be a long drop")
+		for k = 1, 19 do
+			local f = k / 20
+			local x, y, z = b[1] + (t[1] - b[1]) * f, b[2] + (t[2] - b[2]) * f, b[3] + (t[3] - b[3]) * f
+			local ground = MapGen.heightAt(map, x, z)
+			assert(y > ground + 0.5, `the water runs inside the rock {f * 100} % of the way up ({y} vs {ground})`)
+		end
+	end,
+
 	["every landmark is dressed"] = function()
 		local kinds = {}
 		for _, p in world.props do
