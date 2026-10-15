@@ -18,11 +18,12 @@ explicit decision by Tiago and Diogo.
 - **Scope:** momentum, bunny hop, slide, camera, impact, animation and audio.
 - **State:** M2.A (player pause, volume settings, damage feedback, Sword slash) validated in
   Studio (`bonk-0.5.4-m2a`) and merged to `main` (PR #4). M2.B bunny hop and momentum
-  (`bonk-0.6.0-m2b`) built on branch `feat/m2b-bunny-hop`: chained hops build speed to 1.5x
-  base, momentum carried and steered in the air, slide and hop hand speed over without
-  stacking, slight FOV widening with speed. Offline checks only.
-- **Next playable result:** Studio playtest of M2.B (hop feel, cap, slide combo, co-op),
-  then tune `Hop*`/`Air*` in `GameConfig` and merge.
+  on branch `feat/m2b-bunny-hop`. `bonk-0.6.0-m2b` playtested: hops barely sped up and
+  slide/hop transitions lost speed. Fixed in `bonk-0.6.1-m2b` (speed written to the body,
+  looser take-off check, slide/hop hand-offs, gain 0.2 to a 1.75x cap). Offline checks only;
+  Studio readout: `hop` in Workspace.BonkDev.
+- **Next playable result:** Studio playtest of `bonk-0.6.1-m2b` (1/3/5 hops, hop to slide,
+  downhill slide to jump, slide to hops, wall and restart), then tune and merge.
 - **Blockers:** none.
 
 ## M3 Art Direction & Wardwood — prototype

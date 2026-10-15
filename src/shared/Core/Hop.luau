@@ -4,8 +4,9 @@
 -- Momentum is one multiplier on the hero's own base speed. A jump made soon
 -- after landing (a hop), while really moving, raises it a step towards a cap;
 -- staying on the ground past that window, or letting go of the stick, bleeds
--- it back to 1. A slide's speed can be carried into a hop above the cap, but
--- anything above the cap drains away even in the air, so nothing stacks.
+-- it back to 1. A slide and a hop hand each other the speed actually earned
+-- (never a product of the two); anything above the hop cap drains away
+-- smoothly, even in the air, and nothing exceeds the slide's own maximum.
 --
 -- Air steering is a velocity chased at a limited acceleration: the hero can
 -- turn and brake in the air, but cannot reverse a full-speed run in an instant.
@@ -21,6 +22,7 @@ export type Config = {
 	stopDecay: number, -- ...and per second with no movement input at all
 	overCapDecay: number, -- multiplier lost per second above the cap, in the air too
 	carryMax: number, -- the most a slide can hand to a hop
+	keep: number, -- a take-off keeps the multiplier while real speed x this (+0.1) reaches it
 }
 
 export type State = {
@@ -38,16 +40,34 @@ function Hop.reset(s: State)
 	s.hops = 0
 end
 
+--- A slide begins: it starts at least as fast as the hop it came from, and
+--- owns the speed while it lasts. Returns the slide's starting multiplier.
+function Hop.slideStart(s: State, boost: number): number
+	local start = math.max(boost, s.mult)
+	s.mult = 1
+	s.hops = 0
+	return start
+end
+
+--- A slide ended on the ground (key let go, or run out): its speed is handed
+--- back to be bled off, instead of dropping to walking pace at once.
+function Hop.slideEnd(s: State, cfg: Config, slideMult: number)
+	s.mult = math.clamp(slideMult, 1, cfg.carryMax)
+	s.hops = 0
+end
+
 --- A jump from the ground. `groundFor` is how long the hero stood before it,
 --- `speed` the horizontal speed at take-off, `base` the hero's base speed,
 --- `moving` whether there is movement input. `carry` is a slide's multiplier
 --- when the jump leaves a slide. Returns whether it counted as a chained hop.
 function Hop.takeoff(s: State, cfg: Config, groundFor: number, speed: number, base: number, moving: boolean, carry: number?): boolean
 	if carry then
-		s.mult = math.clamp(math.max(s.mult, carry), 1, cfg.carryMax)
+		s.mult = math.clamp(carry, 1, cfg.carryMax) -- the slide's speed, not added to anything
 	end
-	-- never keep momentum the hero is not actually carrying (a wall, a crowd)
-	s.mult = math.max(1, math.min(s.mult, speed / math.max(base, 1e-3) + 0.15))
+	-- Drop momentum the hero is plainly not carrying (stopped by a wall or a
+	-- crowd), but not the ordinary gap between the speed asked for and the
+	-- speed the body has reached: that gap must never eat the gain.
+	s.mult = math.max(1, math.min(s.mult, speed / math.max(base, 1e-3) * cfg.keep + 0.1))
 	local chained = moving and groundFor <= cfg.window and speed >= cfg.minSpeed * base * math.min(s.mult, cfg.cap)
 	if not chained then
 		s.hops = 0

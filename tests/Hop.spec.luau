@@ -15,6 +15,7 @@ local CFG: Hop.Config = {
 	stopDecay = GameConfig.HopStopDecay,
 	overCapDecay = GameConfig.HopOverCapDecay,
 	carryMax = GameConfig.SlideMaxMultiplier,
+	keep = GameConfig.HopKeep,
 }
 local BASE = GameConfig.PlayerWalkSpeed
 local DT = 1 / 60
@@ -23,8 +24,10 @@ local function near(a: number, b: number, eps: number?): boolean
 	return math.abs(a - b) <= (eps or 1e-6)
 end
 
--- one clean hop: fly for `air` seconds, touch down for `down` seconds, jump
-local function hop(s: Hop.State, down: number, air: number?)
+-- one clean hop: fly for `air` seconds, touch down for `down` seconds, jump.
+-- `reached` is the share of the intended speed the body really has at take-off
+-- (Studio showed it lagging; 1 is a body that keeps up perfectly).
+local function hop(s: Hop.State, down: number, air: number?, reached: number?)
 	for _ = 1, math.floor((air or 0.5) / DT) do
 		Hop.air(s, CFG, DT)
 	end
@@ -33,7 +36,7 @@ local function hop(s: Hop.State, down: number, air: number?)
 		t += DT
 		Hop.ground(s, CFG, DT, t, true)
 	end
-	return Hop.takeoff(s, CFG, down, BASE * s.mult, BASE, true)
+	return Hop.takeoff(s, CFG, down, BASE * s.mult * (reached or 1), BASE, true)
 end
 
 return {
@@ -46,7 +49,7 @@ return {
 			hop(s, 0.05)
 			table.insert(seen, s.mult)
 		end
-		assert(seen[2] > 1 and seen[2] < 1.2, "one hop is not instant speed")
+		assert(seen[2] > 1 and seen[2] <= 1 + CFG.gain + 1e-9 and seen[2] < CFG.cap, "one hop is one step, not instant speed")
 		for i = 2, #seen do
 			assert(seen[i] >= seen[i - 1] - 1e-9, "never slower while hopping well")
 		end
@@ -111,8 +114,88 @@ return {
 		for _ = 1, 8 do
 			hop(s, 0.05)
 		end
-		Hop.takeoff(s, CFG, 0.05, BASE * 0.5, BASE, true) -- slowed by a crowd
-		assert(s.mult <= 0.5 + 0.15 + 1e-9 or near(s.mult, 1))
+		Hop.takeoff(s, CFG, 0.05, BASE * 0.5, BASE, true) -- stopped half dead by a crowd
+		assert(near(s.mult, 1), "half speed at take-off is not carrying hop momentum")
+	end,
+
+	-- ------------------------------------------------------------ the M2.B playtest findings
+
+	["a body that lags the asked speed still builds to the cap (the Studio bug)"] = function()
+		-- the old rule capped the multiplier at real speed + 0.15 every jump, so a
+		-- body at 85-90 % of the asked speed could never climb
+		for _, reached in { 0.85, 0.9, 1 } do
+			local s = Hop.new()
+			Hop.takeoff(s, CFG, 5, BASE * reached, BASE, true)
+			for _ = 1, 8 do
+				hop(s, 0.02, 0.5, reached)
+			end
+			assert(near(s.mult, CFG.cap), `reached {reached}: only x{s.mult}`)
+		end
+		-- and a single jump made at 85 % of the earned speed does not shave it
+		local s = Hop.new()
+		s.mult = 1.6
+		Hop.takeoff(s, CFG, 5, BASE * 1.6 * 0.85, BASE, true)
+		assert(s.mult >= 1.6 - 1e-9, `a lagging body lost earned speed: x{s.mult}`)
+	end,
+
+	["running, then 1, 3 and 5 hops: a clear step each time"] = function()
+		local s = Hop.new()
+		Hop.takeoff(s, CFG, 5, BASE, BASE, true) -- the jump from a run
+		local at = {}
+		for n = 1, 5 do
+			hop(s, 0.02)
+			at[n] = s.mult
+		end
+		assert(near(at[1], 1 + CFG.gain), "one hop is one step")
+		assert(at[3] >= 1 + 2.5 * CFG.gain - 1e-9 or near(at[3], CFG.cap), "three hops are well above a run")
+		assert(near(at[5], CFG.cap), "five hops reach the cap")
+		assert(at[1] * BASE - BASE >= 3, "even one hop is a speed difference you can feel (3+ studs/s)")
+	end,
+
+	["hop speed goes into a slide, and a slide's speed comes back out"] = function()
+		local s = Hop.new()
+		for _ = 1, 8 do
+			hop(s, 0.02)
+		end
+		local slide = Hop.slideStart(s, GameConfig.SlideBoost)
+		assert(near(slide, CFG.cap), "the slide starts at the hop's speed, not the slide boost")
+		Hop.slideEnd(s, CFG, slide - 0.1) -- let go after a little flat sliding
+		assert(near(s.mult, CFG.cap - 0.1), "letting go keeps the speed, to bleed off")
+		local t = 0
+		while s.mult > 1 + 1e-9 and t < 5 do
+			Hop.ground(s, CFG, DT, 1, true)
+			t += DT
+		end
+		assert(t > 0.25, "bled off smoothly, not snapped to walking pace")
+	end,
+
+	["a fast downhill slide jumped out of keeps its speed, then hops on without a reset"] = function()
+		local s = Hop.new()
+		local fast = 2.2
+		Hop.takeoff(s, CFG, 3, BASE * fast * 0.9, BASE, true, fast) -- body a little behind the slide
+		assert(near(s.mult, fast), "the jump carries the slide's speed")
+		local seen = s.mult
+		for _ = 1, 6 do
+			hop(s, 0.02)
+			assert(s.mult <= seen + 1e-9, "above the cap it only drains...")
+			assert(s.mult >= CFG.cap - 1e-9, "...and never drops below the cap while hopping well")
+			seen = s.mult
+		end
+		assert(near(s.mult, CFG.cap), "and settles at the cap, still hopping")
+	end,
+
+	["stop, wall, restart: momentum gone, then it builds again"] = function()
+		local s = Hop.new()
+		for _ = 1, 8 do
+			hop(s, 0.02)
+		end
+		Hop.takeoff(s, CFG, 0.02, 0, BASE, true) -- into a wall
+		assert(near(s.mult, 1))
+		Hop.takeoff(s, CFG, 5, BASE, BASE, true)
+		for _ = 1, 3 do
+			hop(s, 0.02)
+		end
+		assert(s.mult > 1.4, "a fresh chain builds as before")
 	end,
 
 	["a slide's speed carries into a hop, then drains back to the cap"] = function()
