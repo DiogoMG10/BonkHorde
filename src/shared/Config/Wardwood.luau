@@ -4,6 +4,9 @@
 -- tint. Plain numbers, so the headless tools can load it.
 
 local Wardwood = {
+	-- the sky a run starts with: "golden" (the baseline), "clear" or "dusk"
+	-- (server/Wardwood/Look; `sky <name>` in BonkDev compares them live)
+	Sky = "golden",
 	Surfaces = {
 		Meadow = { material = "Grass", color = { 128, 162, 62 } },
 		Lush = { material = "LeafyGrass", color = { 86, 130, 56 } },

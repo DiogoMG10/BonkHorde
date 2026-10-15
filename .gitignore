@@ -25,3 +25,6 @@ work/map/world*.json
 work/map/preview*/
 work/map/preview_v*_sheet.jpg
 work/map/preview_gallery_sheet.jpg
+work/map/trees*.json
+work/map/views_trees.json
+work/tmp/

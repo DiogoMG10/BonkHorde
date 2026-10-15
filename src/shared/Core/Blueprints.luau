@@ -11,6 +11,8 @@
 --             (vertical face at local +z, slope rising from -z to +z: measured
 --             in Studio, see the roblox-map skill); no corner wedges, whose
 --             orientation was never measured
+--             | "ellipsoid": a sphere stretched to `size` (a block Part with a
+--             sphere SpecialMesh), for foliage
 --   size      { x, y, z }
 --   pos       { x, y, z }        centre
 --   rot       { yaw, pitch, roll } in degrees, applied yaw (about y) first,
@@ -47,10 +49,10 @@ local Blueprints = {}
 local C = {
 	bark = { 104, 76, 56 },
 	barkDark = { 74, 56, 44 },
+	barkGrey = { 118, 108, 96 },
+	pineBark = { 138, 92, 64 },
 	birch = { 232, 228, 212 },
 	birchMark = { 52, 50, 48 },
-	spruce = { { 30, 70, 56 }, { 36, 82, 62 }, { 46, 96, 70 } },
-	birchLeaf = { { 156, 194, 74 }, { 136, 182, 66 }, { 176, 204, 88 } },
 	stone = { 128, 128, 120 },
 	stoneLight = { 150, 148, 136 },
 	stoneDark = { 96, 100, 98 },
@@ -130,159 +132,429 @@ local function column(height: number, diameter: number, base: { number }, yaw: n
 	return prim("cylinder", { height, diameter, diameter }, { base[1], base[2] + height / 2, base[3] }, { yaw, 0, 90 }, color, material)
 end
 
--- a gable: two wedges back to back, ridge along local x, `w` wide, `h` tall
-local function gable(out: { Prim }, w: number, len: number, h: number, y0: number, yaw: number, color: { number }, material: string)
-	local c, s = math.cos(math.rad(yaw)), math.sin(math.rad(yaw))
-	local function at(lz: number): { number }
-		-- rotate the local offset (0, lz) by yaw about y
-		return { lz * s, y0 + h / 2, lz * c }
+-- ------------------------------------------------------------------ trees
+--
+-- Every tree is built from the same few pieces, so the forest reads as one
+-- world: a trunk of tapering segments that wanders a little, limbs that carry
+-- the foliage out, and foliage in clumps - a flattened mass in the shade
+-- colour with lit lobes riding on top where the sun catches - in a leafy
+-- material. Only trunks collide, and every crown starts above a hero's head.
+
+local LEAF = "LeafyGrass" -- broadleaf foliage: its texture reads as leaves
+local NEEDLE = "Grass" -- conifer boughs: a finer, needled texture
+
+-- foliage palettes, { shade, middle, lit }
+local LEAVES = {
+	beech = { { 70, 118, 50 }, { 100, 150, 58 }, { 146, 186, 74 } },
+	oak = { { 64, 106, 46 }, { 92, 134, 52 }, { 134, 168, 66 } },
+	birch = { { 108, 150, 58 }, { 140, 178, 70 }, { 184, 206, 94 } },
+	golden = { { 150, 128, 54 }, { 188, 158, 62 }, { 226, 192, 90 } },
+	ancient = { { 56, 98, 48 }, { 86, 132, 56 }, { 140, 176, 78 } },
+	elder = { { 84, 114, 50 }, { 132, 160, 64 }, { 208, 196, 104 } },
+	pine = { { 36, 72, 48 }, { 48, 90, 56 }, { 76, 116, 64 } },
+	spruce = { { 28, 64, 50 }, { 36, 80, 58 }, { 54, 100, 68 } },
+}
+
+-- a palette nudged per tree: a little lighter or darker, warmer or cooler
+local function tinted(pal: { { number } }, seed: number): { { number } }
+	local k = 0.9 + hash(seed, 1, 491) * 0.18
+	local warm = (hash(seed, 2, 493) - 0.5) * 16
+	local out = {}
+	for i, c in pal do
+		out[i] = { math.clamp(c[1] * k + warm, 0, 255), math.clamp(c[2] * k, 0, 255), math.clamp(c[3] * k - warm * 0.5, 0, 255) }
 	end
-	table.insert(out, prim("wedge", { len, h, w / 2 }, at(-w / 4), { yaw, 0, 0 }, color, material))
-	table.insert(out, prim("wedge", { len, h, w / 2 }, at(w / 4), { yaw + 180, 0, 0 }, color, material))
+	return out
 end
 
--- ------------------------------------------------------------------ trees
+local function along(a: { number }, b: { number }, t: number): { number }
+	return { a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t, a[3] + (b[3] - a[3]) * t }
+end
 
--- A spruce: a short trunk under three tiers, each tier two crossed gables, so
--- from any side the silhouette is a stack of triangles. Only the trunk collides.
-local function spruce(seed: number, tiers: number): { Prim }
+-- a round limb from `a` to `b`, `d` thick (Roblox cylinders run along local
+-- x), overrunning both ends a little so the joints between segments close
+local function limb(a: { number }, b: { number }, d: number, color: { number }, material: string): Prim
+	local dx, dy, dz = b[1] - a[1], b[2] - a[2], b[3] - a[3]
+	local len = math.sqrt(dx * dx + dy * dy + dz * dz)
+	local yaw = math.deg(math.atan2(-dz, dx))
+	local roll = math.deg(math.asin(math.clamp(dy / len, -1, 1)))
+	return prim("cylinder", { len + d * 0.5, d, d }, along(a, b, 0.5), { yaw, 0, roll }, color, material)
+end
+
+-- A bough of a conifer: a wedge from the trunk out to `reach`, thick at the
+-- trunk and thinning to its tip, drooping by `droop` degrees. Its tall face
+-- (local +z) is turned back to the trunk; `top` is its height there.
+local function bough(
+	out: { Prim },
+	a: number,
+	reach: number,
+	thick: number,
+	width: number,
+	top: number,
+	droop: number,
+	twist: number,
+	color: { number }
+)
+	local c, s = math.cos(a), math.sin(a)
+	local yaw = math.deg(math.atan2(-c, -s))
+	local drop = math.sin(math.rad(droop)) * reach / 2
+	local r = reach / 2 - 0.25
+	table.insert(
+		out,
+		prim("wedge", { width, thick, reach }, { c * r, top - thick / 2 + drop, s * r }, { yaw, droop, twist }, color, NEEDLE)
+	)
+end
+
+-- A spruce (Valheim's firs): a straight trunk and layered whorls of thin,
+-- drooping boughs, three to a whorl, each whorl turned from the one below and
+-- a gap of shade between them, so the outline steps and frays instead of
+-- drawing one hard triangle. Five whorls near the heart, three (thicker) where
+-- mostly the silhouette is seen.
+local function spruce(seed: number, tiers: number, boughs: number, solidTrunk: boolean, leader: boolean): { Prim }
 	local out = {}
 	local h = 34
-	local jitter = hash(seed, 1, 3)
-	local tint = 0.9 + hash(seed, 2, 5) * 0.22
-	local trunkD = h * 0.055
-	table.insert(out, solid(column(h * 0.36, trunkD, { 0, -0.6, 0 }, 0, C.bark, "Wood")))
-	-- three tiers near the play area; two taller ones on the distant rim, where
-	-- only the silhouette is seen and the part count matters more
-	local widths = if tiers == 3 then { 0.48, 0.36, 0.24 } else { 0.46, 0.3 }
-	local heights = if tiers == 3 then { 0.38, 0.34, 0.34 } else { 0.5, 0.48 }
-	local bottoms = if tiers == 3 then { 0.15, 0.39, 0.62 } else { 0.15, 0.5 }
-	for k = 1, tiers do
-		local w = widths[k] * h * (0.94 + hash(seed, k, 7) * 0.12)
-		local th = heights[k] * h
-		local y0 = bottoms[k] * h
-		local col = shade(C.spruce[k], tint)
-		local yaw = k * 31 + jitter * 90
-		gable(out, w, w, th, y0, yaw, col, "SmoothPlastic")
-		gable(out, w, w, th, y0, yaw + 90, shade(col, 0.93), "SmoothPlastic")
+	local pal = tinted(LEAVES.spruce, seed)
+	local trunk = column(h * 0.62, h * 0.05, { 0, -0.6, 0 }, 0, C.bark, "Wood")
+	table.insert(out, if solidTrunk then solid(trunk) else trunk)
+	local turn = hash(seed, 1, 581) * 120
+	local thin = (6 / tiers) ^ 0.6
+	local spread = 360 / boughs
+	for k = 0, tiers - 1 do
+		local t = k / (tiers - 1)
+		local top = h * (0.36 + 0.56 * t)
+		local reach = h * (0.27 - 0.18 * t) * (0.9 + hash(seed, k, 583) * 0.2)
+		local thick = h * (0.085 - 0.03 * t) * thin
+		local col = if k == 0 then pal[1] elseif k == tiers - 1 then pal[3] else pal[2]
+		for j = 0, boughs - 1 do
+			local i = k * 3 + j
+			local a = math.rad(turn + k * spread * 0.5 + j * spread + (hash(seed, i, 587) - 0.5) * 30)
+			local droop = -12 - hash(seed, i, 589) * 10 + t * 6
+			local twist = (hash(seed, i, 591) - 0.5) * 12
+			local width = reach * (if boughs == 2 then 1.35 else 1.05)
+			bough(out, a, reach, thick, width, top, droop, twist, shade(col, 0.92 + hash(seed, i, 593) * 0.16))
+		end
+	end
+	-- the leader
+	if leader then
+		local tip = column(h * 0.1, h * 0.025, { 0, h * 0.9, 0 }, 0, pal[3], NEEDLE)
+		tip.shadow = false
+		table.insert(out, tip)
 	end
 	return out
 end
 
 function Blueprints.Spruce(seed: number, _g): { Prim }
-	return spruce(seed, 3)
+	return spruce(seed, 5, 3, true, true)
 end
 
 function Blueprints.SpruceFar(seed: number, _g): { Prim }
-	return spruce(seed, 2)
+	return spruce(seed, 5, 2, true, true)
 end
 
--- A birch: a pale trunk with dark marks, a light crown of three puffs.
+-- on the mountains, beyond the barrier: seen only from afar, nothing collides
+function Blueprints.SpruceRidge(seed: number, _g): { Prim }
+	return spruce(seed, 5, 2, false, false)
+end
+
+-- A pine: a tall, bare, reddish trunk with a kink in it, and a few limbs near
+-- the top holding flat, dark clumps - a column with a ragged canopy rather
+-- than a cone, so the cool woods are not all one shape.
+function Blueprints.Pine(seed: number, _g): { Prim }
+	local out = {}
+	local h = 34
+	local pal = tinted(LEAVES.pine, seed)
+	local la = hash(seed, 1, 595) * math.pi * 2
+	local lean = 0.8 + hash(seed, 2, 597) * 1.4
+	local top = { math.cos(la) * lean, h * 0.8, math.sin(la) * lean }
+	local mid = { top[1] * 0.3 - math.sin(la) * 0.5, h * 0.42, top[3] * 0.3 + math.cos(la) * 0.5 }
+	table.insert(out, solid(limb({ 0, -0.6, 0 }, mid, h * 0.05, C.pineBark, "Wood")))
+	table.insert(out, limb(mid, top, h * 0.038, C.pineBark, "Wood"))
+	local turn = hash(seed, 3, 599) * 360
+	for k = 1, 3 do
+		local a = math.rad(turn + k * 120 + (hash(seed, k, 601) - 0.5) * 50)
+		local from = along(mid, top, 0.45 + k * 0.15)
+		local reach = h * (0.13 + hash(seed, k, 603) * 0.06)
+		local tip = { from[1] + math.cos(a) * reach, from[2] + h * 0.06, from[3] + math.sin(a) * reach }
+		table.insert(out, limb(from, tip, h * 0.017, C.pineBark, "Wood"))
+		local w = h * (0.26 + hash(seed, k, 605) * 0.06)
+		local spot = { tip[1], tip[2] + 0.6, tip[3] }
+		table.insert(out, prim("ellipsoid", { w, w * 0.4, w * 0.86 }, spot, { hash(seed, k, 607) * 180, 0, 0 }, pal[1], NEEDLE))
+		local d = w * 0.48
+		local lobe = { tip[1] - math.cos(a) * w * 0.12, tip[2] + w * 0.16, tip[3] - math.sin(a) * w * 0.12 }
+		table.insert(out, prim("ball", { d, d, d }, lobe, nil, pal[2], NEEDLE))
+	end
+	local w = h * 0.3
+	table.insert(out, prim("ellipsoid", { w, w * 0.46, w * 0.9 }, { top[1], top[2] + 1.2, top[3] }, { turn, 0, 0 }, pal[2], NEEDLE))
+	local d = w * 0.5
+	table.insert(out, prim("ball", { d, d, d }, { top[1], top[2] + 1.2 + w * 0.2, top[3] }, nil, pal[3], NEEDLE))
+	return out
+end
+
+-- A crown of foliage at `at`, `rx` in radius and `ry` tall: one broad mass in
+-- the shade colour, so the whole canopy reads as one volume, broken by
+-- `bumps` lobes - lit ones high where the sun catches, middle-toned ones round
+-- the rim - so its outline is ragged and no two crowns match. The last lobe
+-- caps the top.
+local function crown(out: { Prim }, seed: number, k0: number, at: { number }, rx: number, ry: number, pal: { { number } }, bumps: number)
+	table.insert(out, prim("ellipsoid", { rx * 2, ry * 2, rx * 1.8 }, at, { hash(seed, k0, 701) * 180, 0, 0 }, pal[1], LEAF))
+	local turn = hash(seed, k0, 703) * math.pi * 2
+	for b = 1, bumps do
+		local i = k0 * 16 + b
+		local az = turn + b / bumps * math.pi * 2 + (hash(seed, i, 705) - 0.5) * 0.9
+		local cap = b == bumps
+		local high = cap or b % 2 == 0
+		local el = if cap
+			then 1.25 + hash(seed, i, 707) * 0.3
+			elseif high then 0.6 + hash(seed, i, 709) * 0.4
+			else 0.02 + hash(seed, i, 711) * 0.3
+		local d = rx * (if high then 0.86 + hash(seed, i, 713) * 0.26 else 0.72 + hash(seed, i, 717) * 0.26)
+		local pos = {
+			at[1] + math.cos(az) * math.cos(el) * rx * 0.8,
+			at[2] + math.sin(el) * ry * 0.8,
+			at[3] + math.sin(az) * math.cos(el) * rx * 0.72,
+		}
+		local lobe = prim("ball", { d, d, d }, pos, nil, if high then pal[3] else pal[2], LEAF)
+		-- the rim's lobes add little to a crown's shadow: they cast none, which
+		-- spares the shadow pass a good share of the forest
+		lobe.shadow = high
+		table.insert(out, lobe)
+	end
+end
+
+-- A beech, the woods' broadleaf: some 18 studs at scale 1. A grey trunk
+-- climbing into a rounded crown, a couple of limbs showing beneath it. One
+-- in fourteen has already turned golden.
+function Blueprints.Beech(seed: number, _g): { Prim }
+	local out = {}
+	local pal = tinted(if hash(seed, 1, 511) < 0.07 then LEAVES.golden else LEAVES.beech, seed)
+	local lx, lz = (hash(seed, 2, 513) - 0.5) * 1.4, (hash(seed, 3, 517) - 0.5) * 1.4
+	local mid, top = { lx * 0.4, 4.6, lz * 0.4 }, { lx, 10, lz }
+	table.insert(out, solid(limb({ 0, -0.8, 0 }, mid, 1.6, C.barkGrey, "Wood")))
+	table.insert(out, solid(limb(mid, top, 1.15, C.barkGrey, "Wood")))
+	local turn = hash(seed, 4, 519) * 360
+	for k = 1, 2 do
+		local a = math.rad(turn + k * 150 + (hash(seed, k, 521) - 0.5) * 40)
+		local tip = { mid[1] + math.cos(a) * 3.6, 8.6 + hash(seed, k, 527) * 1.2, mid[3] + math.sin(a) * 3.6 }
+		table.insert(out, limb(along(mid, top, 0.15), tip, 0.6, C.barkGrey, "Wood"))
+	end
+	local rx = 6.4 + hash(seed, 5, 529) * 1.2
+	crown(out, seed, 1, { lx * 1.1, 11.4, lz * 1.1 }, rx, rx * 0.68, pal, 5)
+	-- a lower clump off to one side, so the crown is never a lollipop
+	local a = math.rad(turn + 150 + hash(seed, 6, 531) * 60)
+	local side = { lx + math.cos(a) * rx * 0.85, 9.4, lz + math.sin(a) * rx * 0.85 }
+	table.insert(out, prim("ellipsoid", { rx * 1.1, rx * 0.66, rx * 0.95 }, side, { math.deg(a), 0, 0 }, pal[2], LEAF))
+	return out
+end
+
+-- An oak, the meadow's tree: some 15 studs at scale 1 and wider than tall. A
+-- short thick trunk splitting low into spreading limbs under a broad, uneven
+-- dome, one limb reaching out beyond it with a clump of its own. `lean` tips
+-- the whole tree off its foot.
+local function oak(seed: number, lean: number): { Prim }
+	local out = {}
+	local pal = tinted(LEAVES.oak, seed)
+	local la = hash(seed, 1, 541) * math.pi * 2
+	local lx, lz = math.cos(la) * lean, math.sin(la) * lean
+	local fork = { lx * 3.8, 3.8, lz * 3.8 }
+	local cx, cz = fork[1] + lx * 3, fork[3] + lz * 3
+	table.insert(out, solid(limb({ 0, -0.8, 0 }, fork, 2.1, C.bark, "Wood")))
+	-- the trunk climbs on into the crown, solid, so its top is never a perch
+	table.insert(out, solid(limb(fork, { cx, 8.6, cz }, 1.4, C.bark, "Wood")))
+	local turn = hash(seed, 2, 543) * 360
+	for k = 1, 3 do
+		local a = math.rad(turn + k * 120 + (hash(seed, k, 547) - 0.5) * 40)
+		local reach = if k == 1 then 8.4 else 4.4 + hash(seed, k, 549) * 1.4
+		local tip = { cx + math.cos(a) * reach, fork[2] + 2.8 + hash(seed, k, 551) * 1.2, cz + math.sin(a) * reach }
+		table.insert(out, limb(fork, tip, 1.0 - k * 0.1, C.bark, "Wood"))
+		if k == 1 then
+			-- the long limb's own clump, pushing the outline out on one side
+			local spot = { tip[1], tip[2] + 1.6, tip[3] }
+			table.insert(out, prim("ellipsoid", { 6.4, 3.6, 5.6 }, spot, { math.deg(a), 0, 0 }, pal[2], LEAF))
+		end
+	end
+	local rx = 7 + hash(seed, 3, 553) * 1.2
+	crown(out, seed, 1, { cx, 9.2, cz }, rx, rx * 0.5, pal, 6)
+	return out
+end
+
+function Blueprints.Oak(seed: number, _g): { Prim }
+	return oak(seed, 0.1)
+end
+
+function Blueprints.OakLeaning(seed: number, _g): { Prim }
+	return oak(seed, 0.4)
+end
+
+-- A sapling: a slim stem and a small crown.
+function Blueprints.Sapling(seed: number, _g): { Prim }
+	local out = {}
+	local pal = tinted(LEAVES.beech, seed + 7)
+	local lx, lz = (hash(seed, 1, 561) - 0.5) * 0.8, (hash(seed, 2, 563) - 0.5) * 0.8
+	table.insert(out, solid(limb({ 0, -0.5, 0 }, { lx, 6.4, lz }, 0.5, C.barkGrey, "Wood")))
+	crown(out, seed, 1, { lx, 7, lz }, 2.6, 2.2, pal, 2)
+	return out
+end
+
+-- A birch: a slender white stem (one in four a twin), dark marks on it, and
+-- a light, open crown - an upright oval up the top of the stem.
 function Blueprints.Birch(seed: number, _g): { Prim }
 	local out = {}
 	local h = 26
-	local lean = (hash(seed, 1, 11) - 0.5) * 6
-	table.insert(out, solid(prim("cylinder", { h * 0.78, 1.1, 1.1 }, { 0, h * 0.39 - 0.5, 0 }, { 0, lean, 90 }, C.birch, "SmoothPlastic")))
-	for k = 1, 3 do
-		local y = h * (0.18 + 0.17 * k) + hash(seed, k, 13) * 2
-		table.insert(out, flat(column(0.5, 1.18, { 0, y - h * 0.01, 0 }, 0, C.birchMark, "SmoothPlastic")))
-	end
-	for k = 1, 3 do
-		local a = math.rad(k * 120 + hash(seed, k, 17) * 60)
-		local r = 2.4
-		local d = h * (0.36 - k * 0.04)
-		local col = C.birchLeaf[k]
-		table.insert(out, prim("ball", { d, d, d }, { math.cos(a) * r, h * (0.7 + k * 0.07), math.sin(a) * r }, nil, col, "SmoothPlastic"))
+	local pal = tinted(LEAVES.birch, seed)
+	local stems = if hash(seed, 1, 571) < 0.25 then 2 else 1
+	for s = 1, stems do
+		local a = hash(seed, s, 573) * math.pi * 2
+		local lean = (if stems == 2 then 2.4 else 0.9) * (0.6 + hash(seed, s, 577) * 0.6)
+		local foot = { (s - 1) * 0.7, -0.5, 0 }
+		local tip = { foot[1] + math.cos(a) * lean, h * (if s == 1 then 0.74 else 0.6), math.sin(a) * lean }
+		local d = if s == 1 then 1.05 else 0.85
+		local stem = limb(foot, tip, d, C.birch, "SmoothPlastic")
+		table.insert(out, if s == 1 then solid(stem) else stem)
+		for m = 1, 2 - s + (if stems == 1 then 1 else 0) do
+			local t = 0.2 + m * 0.2 + hash(seed, s * 3 + m, 579) * 0.08
+			table.insert(out, flat(limb(along(foot, tip, t), along(foot, tip, t + 0.02), d * 1.08, C.birchMark, "SmoothPlastic")))
+		end
+		if s == 1 then
+			local w = 4.6 + hash(seed, s, 581) * 0.8
+			local low = along(foot, tip, 0.66)
+			local side = a + math.pi / 2
+			crown(out, seed, 1, { low[1] + math.cos(side) * 1.2, low[2], low[3] + math.sin(side) * 1.2 }, w, w * 0.95, pal, 3)
+			crown(out, seed, 2, along(foot, tip, 0.95), w * 0.82, w * 1.05, pal, 2)
+		else
+			crown(out, seed, 3, along(foot, tip, 0.88), 3.6, 4.4, pal, 2)
+		end
 	end
 	return out
 end
 
 -- ------------------------------------------------------------------ the ancients
 
-local OAK_LEAVES = { { 118, 168, 62 }, { 96, 150, 54 }, { 140, 182, 74 }, { 162, 178, 72 } }
-
--- An ancient oak, some 95 studs at scale 1: a massive, slightly wandering
--- trunk on buttress roots, five great limbs, a crown of leaf masses that
--- begins far overhead so it never crowds a fight. Only the trunk's foot is solid.
+-- An ancient oak, some 85 studs at scale 1 and wider than it is tall: a
+-- massive, wandering trunk on buttress roots, five great elbowed limbs
+-- spreading low and far, each carrying a crown of its own, and a high crown
+-- over the trunk - all of it far overhead, so it never crowds a fight. Only
+-- the trunk's foot is solid.
 function Blueprints.AncientOak(seed: number, _g): { Prim }
 	local out = {}
-	local segs = { { 14, 15 }, { 12, 14 }, { 10, 13 }, { 8.2, 11 } }
-	local y, ox, oz = -2.5, 0, 0
+	local pal = tinted(LEAVES.ancient, seed)
+	local segs = { { 15, 13 }, { 12.5, 12 }, { 10, 11 } }
+	local at = { 0, -2.5, 0 }
 	for k, seg in segs do
-		ox += (hash(seed, k, 403) - 0.5) * 1.6
-		oz += (hash(seed, k, 407) - 0.5) * 1.6
-		local part = column(seg[2] + 1.2, seg[1], { ox, y, oz }, k * 17, shade(C.bark, 0.9 + k * 0.04), "Wood")
-		if k <= 2 then
-			part.collide = true
-		end
-		table.insert(out, part)
-		y += seg[2]
+		local nxt = { at[1] + (hash(seed, k, 403) - 0.5) * 3.6, at[2] + seg[2], at[3] + (hash(seed, k, 407) - 0.5) * 3.6 }
+		local part = limb(at, nxt, seg[1], shade(C.bark, 0.88 + k * 0.05), "Wood")
+		table.insert(out, if k <= 2 then solid(part) else part)
+		at = nxt
 	end
-	local top = { ox, y, oz }
+	local top = at
 	-- buttress roots fanning into the ground
 	for k = 0, 5 do
-		local a = k * 60 + hash(seed, k, 409) * 30
-		local r = math.rad(a)
-		table.insert(
-			out,
-			prim("cylinder", { 17, 4.2, 4.2 }, { math.cos(r) * 7.5, 1.4, math.sin(r) * 7.5 }, { -a, 0, -24 }, C.barkDark, "Wood")
+		local a = math.rad(k * 60 + hash(seed, k, 409) * 30)
+		local reach = 14 + hash(seed, k, 410) * 5
+		local root = limb(
+			{ math.cos(a) * 3, 9, math.sin(a) * 3 },
+			{ math.cos(a) * reach, -0.8, math.sin(a) * reach },
+			5.4,
+			C.barkDark,
+			"Wood"
 		)
+		table.insert(out, root)
 	end
-	-- moss on the trunk's foot
-	table.insert(out, flat(column(5, 14.3, { 0, 4, 0.6 }, 0, C.moss, "Grass")))
-	-- five limbs reaching up and out, each ending in leaf masses
+	-- five great limbs, each with an elbow, each ending in a crown
 	for k = 1, 5 do
-		local a = k * 72 + hash(seed, k, 411) * 30
-		local tilt = 26 + hash(seed, k, 413) * 22
-		local len = 28 + hash(seed, k, 417) * 9
-		local by = top[2] - 16 + hash(seed, k, 419) * 10
-		local r, t = math.rad(a), math.rad(tilt)
-		local dx, dy, dz = math.cos(r) * math.cos(t), math.sin(t), math.sin(r) * math.cos(t)
-		local cx, cy, cz = top[1] + dx * len / 2, by + dy * len / 2, top[3] + dz * len / 2
-		local limb = 5.4 - k * 0.25
-		table.insert(out, prim("cylinder", { len, limb, limb }, { cx, cy, cz }, { -a, 0, tilt }, C.bark, "Wood"))
-		local ex, ey, ez = top[1] + dx * len, by + dy * len, top[3] + dz * len
-		for j = 1, 3 do
-			local d = 22 + hash(seed, k * 3 + j, 421) * 10
-			local jx = (hash(seed, k * 3 + j, 423) - 0.5) * 14
-			local jz = (hash(seed, k * 3 + j, 427) - 0.5) * 14
-			local col = OAK_LEAVES[1 + (k + j) % #OAK_LEAVES]
-			table.insert(out, prim("ball", { d, d, d }, { ex + jx, ey + 3 + j * 3, ez + jz }, nil, col, "SmoothPlastic"))
-		end
+		local a = math.rad(k * 72 + hash(seed, k, 411) * 30)
+		local c, s = math.cos(a), math.sin(a)
+		local from = { top[1], top[2] - 8 + hash(seed, k, 419) * 8, top[3] }
+		local reach = 24 + hash(seed, k, 417) * 8
+		local elbow = { from[1] + c * reach * 0.5, from[2] + reach * 0.3, from[3] + s * reach * 0.5 }
+		local tip = { from[1] + c * reach, from[2] + reach * 0.46, from[3] + s * reach }
+		local d = 5.6 - k * 0.25
+		table.insert(out, limb(from, elbow, d, C.bark, "Wood"))
+		table.insert(out, limb(elbow, tip, d * 0.7, C.bark, "Wood"))
+		local rx = 14 + hash(seed, k, 421) * 3.5
+		crown(out, seed, k, { tip[1] + c * 2, tip[2] + 3.5, tip[3] + s * 2 }, rx, rx * 0.56, pal, 4)
 	end
-	-- the crown over the trunk
-	for k = 1, 5 do
-		local a = math.rad(k * 72 + hash(seed, k, 431) * 40)
-		local d = 32 + hash(seed, k, 433) * 10
-		local at = { top[1] + math.cos(a) * 12, top[2] + 16 + k * 2.5, top[3] + math.sin(a) * 12 }
-		table.insert(out, prim("ball", { d, d, d }, at, nil, OAK_LEAVES[1 + k % #OAK_LEAVES], "SmoothPlastic"))
-	end
+	-- the high crown over the trunk
+	crown(out, seed, 9, { top[1], top[2] + 26, top[3] }, 22, 12, pal, 7)
 	return out
 end
 
--- An ancient pine, some 105 studs at scale 1: a tall bare trunk, then five
--- tiers of crossed gables; the lowest branches start 25 studs up.
+-- An ancient fir, some 110 studs at scale 1: a great straight trunk on its
+-- roots, bare for the first forty studs, then eight whorls of five drooping
+-- boughs climbing to a spire.
 function Blueprints.AncientPine(seed: number, _g): { Prim }
 	local out = {}
-	local h = 105
-	table.insert(out, solid(column(h * 0.6, 6.4, { 0, -2, 0 }, 0, C.bark, "Wood")))
-	table.insert(out, column(h * 0.3, 4.6, { 0, h * 0.56, 0 }, 30, C.bark, "Wood"))
-	for k = 0, 3 do
-		local a = k * 90 + hash(seed, k, 441) * 40
-		local r = math.rad(a)
-		table.insert(out, prim("cylinder", { 10, 2.8, 2.8 }, { math.cos(r) * 4, 1, math.sin(r) * 4 }, { -a, 0, -26 }, C.barkDark, "Wood"))
+	local h = 110
+	local pal = tinted(LEAVES.spruce, seed)
+	table.insert(out, solid(column(h * 0.45, 7.2, { 0, -2, 0 }, 0, C.bark, "Wood")))
+	table.insert(out, column(h * 0.45, 4.8, { 0, h * 0.42, 0 }, 30, C.bark, "Wood"))
+	for k = 0, 4 do
+		local a = math.rad(k * 72 + hash(seed, k, 441) * 30)
+		table.insert(
+			out,
+			limb({ math.cos(a) * 2, 5, math.sin(a) * 2 }, { math.cos(a) * 8.5, -0.6, math.sin(a) * 8.5 }, 3, C.barkDark, "Wood")
+		)
 	end
-	local widths = { 0.4, 0.34, 0.27, 0.2, 0.13 }
-	local bottoms = { 0.24, 0.38, 0.52, 0.66, 0.78 }
-	local tint = 0.92 + hash(seed, 9, 443) * 0.14
-	for k = 1, 5 do
-		local w = widths[k] * h
-		local th = 0.23 * h
-		local col = shade(C.spruce[math.min(k, 3)], tint)
-		local yaw = k * 37 + hash(seed, k, 447) * 20
-		gable(out, w, w, th, bottoms[k] * h, yaw, col, "SmoothPlastic")
-		gable(out, w, w, th, bottoms[k] * h, yaw + 90, shade(col, 0.93), "SmoothPlastic")
+	local tiers = 8
+	local turn = hash(seed, 9, 443) * 72
+	for k = 0, tiers - 1 do
+		local t = k / (tiers - 1)
+		local top = h * (0.4 + 0.54 * t)
+		local reach = h * (0.24 - 0.17 * t) * (0.92 + hash(seed, k, 445) * 0.16)
+		local thick = h * (0.06 - 0.02 * t)
+		local col = if k < 2 then pal[1] elseif k < tiers - 1 then pal[2] else pal[3]
+		for j = 0, 4 do
+			local i = k * 5 + j
+			local a = math.rad(turn + k * 36 + j * 72 + (hash(seed, i, 447) - 0.5) * 24)
+			local droop = -14 - hash(seed, i, 449) * 10 + t * 8
+			bough(
+				out,
+				a,
+				reach,
+				thick,
+				reach * 0.72,
+				top,
+				droop,
+				(hash(seed, i, 451) - 0.5) * 14,
+				shade(col, 0.92 + hash(seed, i, 453) * 0.16)
+			)
+		end
 	end
+	local tip = column(h * 0.08, 1.6, { 0, h * 0.93, 0 }, 0, pal[3], NEEDLE)
+	tip.shadow = false
+	table.insert(out, tip)
+	return out
+end
+
+-- The Elder: the old tree on its hill at the heart of the Wardwood, some 70
+-- studs at scale 1. A short, immense trunk that twists as it climbs, six limbs
+-- spreading wide and low, each crowned, and a broad high crown touched with
+-- gold, the warmest green in the forest. Its roots are ElderRoots; only the
+-- trunk is solid.
+function Blueprints.Elder(seed: number, _g): { Prim }
+	local out = {}
+	local pal = tinted(LEAVES.elder, seed)
+	local at = { 0, -2, 0 }
+	local segs = { { 12, 9 }, { 10.5, 9 }, { 9, 8 } }
+	for k, seg in segs do
+		local a = math.rad(k * 110)
+		local nxt = { math.cos(a) * 1.8, at[2] + seg[2], math.sin(a) * 1.8 }
+		local part = limb(at, nxt, seg[1], shade(C.bark, 0.86 + k * 0.05), "Wood")
+		table.insert(out, if k == 1 then solid(part) else part)
+		at = nxt
+	end
+	local top = at
+	for k = 1, 6 do
+		local a = math.rad(k * 60 + hash(seed, k, 461) * 24)
+		local c, s = math.cos(a), math.sin(a)
+		local from = { top[1], top[2] - 5 + (k % 2) * 4, top[3] }
+		local reach = 22 + hash(seed, k, 463) * 7
+		local elbow = { from[1] + c * reach * 0.55, from[2] + reach * 0.3, from[3] + s * reach * 0.55 }
+		local tip = { from[1] + c * reach, from[2] + reach * 0.44, from[3] + s * reach }
+		table.insert(out, limb(from, elbow, 4.4, C.bark, "Wood"))
+		table.insert(out, limb(elbow, tip, 3, C.bark, "Wood"))
+		local rx = 12 + hash(seed, k, 467) * 3
+		crown(out, seed, k, { tip[1] + c * 2, tip[2] + 3.5, tip[3] + s * 2 }, rx, rx * 0.58, pal, 3)
+	end
+	crown(out, seed, 9, { top[1], top[2] + 22, top[3] }, 21, 11, pal, 7)
 	return out
 end
 
@@ -681,7 +953,7 @@ function Blueprints.Cairn(seed: number, _g): { Prim }
 end
 
 -- The Elder's roots: great roots spreading from the foot of the elder tree,
--- reaching down into the hill. The tree itself is the TreeTwin mesh, scaled.
+-- reaching down into the hill. The tree itself is the Elder blueprint.
 function Blueprints.ElderRoots(seed: number, g): { Prim }
 	local out = {}
 	-- a broad flare at the foot of the trunk...
@@ -705,9 +977,9 @@ end
 -- A fern: fronds fanned round the root, curling up and out.
 function Blueprints.Fern(seed: number, _g): { Prim }
 	local out = {}
-	local count = 5
+	local count = 4
 	for k = 1, count do
-		local a = k / count * 360 + hash(seed, k, 73) * 30
+		local a = k / count * 360 + hash(seed, k, 73) * 40
 		local len = 2.8 + hash(seed, k, 79) * 1.2
 		local col = if k % 2 == 0 then C.fern else C.fernLight
 		local r = math.rad(a)
@@ -730,7 +1002,7 @@ local FLOWERS = { { 255, 214, 74 }, { 246, 244, 232 }, { 176, 126, 226 }, { 236,
 function Blueprints.Flowers(seed: number, _g): { Prim }
 	local out = {}
 	local col = FLOWERS[1 + math.floor(hash(seed, 1, 83) * #FLOWERS)]
-	local count = 4 + math.floor(hash(seed, 2, 89) * 4)
+	local count = 3 + math.floor(hash(seed, 2, 89) * 3)
 	for k = 1, count do
 		local a = math.rad(hash(seed, k, 97) * 360)
 		local r = hash(seed, k, 101) * 2.2

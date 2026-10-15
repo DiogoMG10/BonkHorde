@@ -38,7 +38,7 @@ export type Prop = {
 	seed: number,
 	blocks: { { number } }?, -- several solid footprints { x, z, r } instead of one
 	lift: number?, -- raise (or sink) from the ground
-	collider: number?, -- mesh trees: an invisible trunk of this radius is the only solid part
+	collider: number?, -- a mesh tree: an invisible trunk of this radius is its only solid part
 }
 
 export type World = {
@@ -175,26 +175,27 @@ local GROVES = {
 	{ 380, -260, 36, 0.55, 0.3 },
 }
 
--- Lone great oaks: the meadow's silhouettes. { x, z, scale, kind }
+-- Lone great oaks: the meadow's silhouettes. { x, z, scale, kind }; an oak is
+-- wider than it is tall, so these are scaled a little under the old meshes
 local OAKS = {
-	{ 72, 56, 2.5, "TreeTwin" },
-	{ -64, -6, 2.2, "TreeLeaning" },
-	{ 128, -118, 2.6, "TreeTwin" },
-	{ -150, 96, 2.4, "TreeLeaning" },
-	{ 38, -92, 2.2, "TreeLeaning" },
-	{ 170, 6, 2.4, "TreeTwin" },
-	{ -24, 128, 2.1, "TreeTwin" },
-	{ -150, -118, 2.3, "TreeTwin" },
-	{ 100, 168, 2.3, "TreeLeaning" },
-	{ -84, 238, 2.4, "TreeTwin" },
-	{ 256, 64, 2.6, "TreeLeaning" },
-	{ 330, -40, 2.7, "TreeTwin" },
-	{ -40, 362, 2.5, "TreeTwin" },
-	{ 110, 330, 2.6, "TreeLeaning" },
-	{ -240, -300, 2.6, "TreeTwin" },
-	{ 70, -330, 2.4, "TreeLeaning" },
-	{ 200, -350, 2.7, "TreeTwin" },
-	{ -360, 230, 2.5, "TreeLeaning" },
+	{ 72, 56, 2.5, "Oak" },
+	{ -64, -6, 2.2, "OakLeaning" },
+	{ 128, -118, 2.6, "Oak" },
+	{ -150, 96, 2.4, "OakLeaning" },
+	{ 38, -92, 2.2, "OakLeaning" },
+	{ 170, 6, 2.4, "Oak" },
+	{ -24, 128, 2.1, "Oak" },
+	{ -150, -118, 2.3, "Oak" },
+	{ 100, 168, 2.3, "OakLeaning" },
+	{ -84, 238, 2.4, "Oak" },
+	{ 256, 64, 2.6, "OakLeaning" },
+	{ 330, -40, 2.7, "Oak" },
+	{ -40, 362, 2.5, "Oak" },
+	{ 110, 330, 2.6, "OakLeaning" },
+	{ -240, -300, 2.6, "Oak" },
+	{ 70, -330, 2.4, "OakLeaning" },
+	{ 200, -350, 2.7, "Oak" },
+	{ -360, 230, 2.5, "OakLeaning" },
 }
 
 -- The ancients: a handful of enormous trees, each the mark of its region.
@@ -632,7 +633,7 @@ local function placeLandmarks(ctx)
 	-- the Elder: a giant tree on its hill, roots spreading into the slope
 	do
 		local s = World.Sites[3]
-		add({ kind = "TreeTwin", x = s.x, z = s.z, yaw = 2.2, scale = 5.4, radius = 6.5, seed = 41, collider = 6, lift = -1.5 })
+		add({ kind = "Elder", x = s.x, z = s.z, yaw = 2.2, scale = 1.15, radius = 7, seed = 41, lift = -1.5 })
 		add({ kind = "ElderRoots", x = s.x, z = s.z, yaw = 0, scale = 1.25, radius = 0, seed = 42 })
 		for k = 0, 5 do
 			local a = k / 6 * math.pi * 2 + 0.4
@@ -812,7 +813,8 @@ local function placeGardens(ctx)
 			end
 		end
 	end
-	for k = 0, 5 do
+	-- a pair of lanterns at the foot of the ramp and a pair at its head
+	for _, k in { 0, 5 } do
 		local z = -150 - k * 30
 		for side = -1, 1, 2 do
 			local x = F.gardenRampX + side * 12
@@ -869,36 +871,106 @@ local function placeRuins(ctx)
 	end
 end
 
+-- Lanterns where they mean something, not every few strides: where one path
+-- leaves another, on the approach to a landmark, at a sharp bend, and now and
+-- then along a long stretch, at uneven gaps, so the warm pools of light lead
+-- the way without lining a path like a street. Never two close together.
+local LANTERN_GAP = 34
+
 local function placeLanterns(ctx)
 	local add, free = ctx.add, ctx.free
-	-- lanterns along the paths, alternating sides, every so often
+	local placed = {}
+	for _, p in ctx.props do
+		if p.kind == "LanternPost" then
+			table.insert(placed, { p.x, p.z })
+		end
+	end
+	local function clearOfLanterns(x: number, z: number): boolean
+		for _, l in placed do
+			if (l[1] - x) ^ 2 + (l[2] - z) ^ 2 < LANTERN_GAP * LANTERN_GAP then
+				return false
+			end
+		end
+		return true
+	end
+	-- a lantern beside `path` at (x, z), on `side` of the way it runs (dx, dz)
+	local function beside(pi: number, path, x: number, z: number, dx: number, dz: number, side: number, seed: number)
+		local len = math.sqrt(dx * dx + dz * dz)
+		if len < 1e-3 then
+			return
+		end
+		local nx, nz = -dz / len * side, dx / len * side
+		local lx, lz = x + nx * (path.half + 2.5), z + nz * (path.half + 2.5)
+		if lx * lx + lz * lz > 60 * 60 and clearOfLanterns(lx, lz) and free(lx, lz, 0.8, true) then
+			table.insert(placed, { lx, lz })
+			add({ kind = "LanternPost", x = lx, z = lz, yaw = math.atan2(-nx, -nz), scale = 1.25, radius = 0, seed = 500 + pi * 40 + seed })
+		end
+	end
+	local function pointAt(pts, along: number): (number, number, number, number)
+		for i = 1, #pts - 1 do
+			local p, q = pts[i], pts[i + 1]
+			local dx, dz = q[1] - p[1], q[2] - p[2]
+			local len = math.sqrt(dx * dx + dz * dz)
+			if along <= len or i == #pts - 1 then
+				local t = math.clamp(along / len, 0, 1)
+				return p[1] + dx * t, p[2] + dz * t, dx, dz
+			end
+			along -= len
+		end
+		return pts[1][1], pts[1][2], 1, 0
+	end
+	local function length(pts): number
+		local total = 0
+		for i = 1, #pts - 1 do
+			total += math.sqrt((pts[i + 1][1] - pts[i][1]) ^ 2 + (pts[i + 1][2] - pts[i][2]) ^ 2)
+		end
+		return total
+	end
+
+	-- 1. where a path branches off another: a lantern just along the branch
+	for pi, path in World.Paths do
+		local x, z, dx, dz = pointAt(path.points, path.half + 10)
+		beside(pi, path, x, z, dx, dz, if hash(pi, 1, 521) < 0.5 then 1 else -1, 1)
+	end
+	-- 2. the approach to a landmark at a path's end
 	for pi, path in World.Paths do
 		local pts = path.points
-		local carry = 20
-		for i = 1, #pts - 1 do
-			local a, b = pts[i], pts[i + 1]
-			local dx, dz = b[1] - a[1], b[2] - a[2]
-			local len = math.sqrt(dx * dx + dz * dz)
-			local t = carry
-			while t < len do
-				local x, z = a[1] + dx * t / len, a[2] + dz * t / len
-				local side = if (math.floor(t) + pi) % 2 == 0 then 1 else -1
-				local nx, nz = -dz / len * side, dx / len * side
-				local lx, lz = x + nx * (path.half + 2.5), z + nz * (path.half + 2.5)
-				if lx * lx + lz * lz > 60 * 60 and free(lx, lz, 0.8, true) then
-					add({
-						kind = "LanternPost",
-						x = lx,
-						z = lz,
-						yaw = math.atan2(-nx, -nz),
-						scale = 1.25,
-						radius = 0,
-						seed = 500 + pi * 40 + i,
-					})
-				end
-				t += 46
+		local last = pts[#pts]
+		for _, site in World.Sites do
+			local d = math.sqrt((site.x - last[1]) ^ 2 + (site.z - last[2]) ^ 2)
+			if d < site.clear + 24 then
+				local total = length(pts)
+				local x, z, dx, dz = pointAt(pts, total - math.max(0, site.clear + 8 - d))
+				beside(pi, path, x, z, dx, dz, if hash(pi, 2, 523) < 0.5 then 1 else -1, 2)
+				break
 			end
-			carry = t - len
+		end
+	end
+	-- 3. a sharp bend, on its outer side
+	for pi, path in World.Paths do
+		local pts = path.points
+		for i = 2, #pts - 1 do
+			local ax, az = pts[i][1] - pts[i - 1][1], pts[i][2] - pts[i - 1][2]
+			local bx, bz = pts[i + 1][1] - pts[i][1], pts[i + 1][2] - pts[i][2]
+			local la, lb = math.sqrt(ax * ax + az * az), math.sqrt(bx * bx + bz * bz)
+			local turn = math.acos(math.clamp((ax * bx + az * bz) / (la * lb), -1, 1))
+			if turn > math.rad(35) then
+				-- the outer side is away from the turn
+				local cross = ax * bz - az * bx
+				beside(pi, path, pts[i][1], pts[i][2], ax + bx, az + bz, if cross > 0 then -1 else 1, 2 + i)
+			end
+		end
+	end
+	-- 4. now and then along a long stretch, at uneven gaps
+	for pi, path in World.Paths do
+		local total = length(path.points)
+		local at = 60 + hash(pi, 3, 527) * 30
+		local k = 0
+		while at < total - 20 do
+			k += 1
+			local x, z, dx, dz = pointAt(path.points, at)
+			beside(pi, path, x, z, dx, dz, if hash(pi, k, 529) < 0.5 then 1 else -1, 10 + k)
+			at += 85 + hash(pi, k, 531) * 55
 		end
 	end
 end
@@ -909,17 +981,17 @@ local function placeNature(ctx)
 
 	-- the lone great oaks
 	for i, o in OAKS do
-		local r = 1.15 * o[3]
+		local scale = o[3] * 0.85
+		local r = 1.15 * scale
 		if openness(o[1], o[2]) > 0.9 and free(o[1], o[2], r) then
 			add({
 				kind = o[4],
 				x = o[1],
 				z = o[2],
 				yaw = hash(i, 1, 97) * math.pi * 2,
-				scale = o[3],
+				scale = scale,
 				radius = r,
 				seed = 600 + i,
-				collider = r,
 				lift = sink(o[1], o[2], r),
 			})
 		end
@@ -1107,8 +1179,9 @@ end
 local function placeForest(ctx)
 	local add, free, sink, map, limit = ctx.add, ctx.free, ctx.sink, ctx.map, ctx.limit
 	-- the forest: a jittered lattice, thinned by the forest field; spruce where
-	-- it is cool, oak, birch and saplings where it is warm. Sizes vary: mostly
-	-- young and middling trees, about one in eight grown large.
+	-- it is cool (pines along its warmer edges), beech, oak, birch and saplings
+	-- where it is warm. Sizes vary: mostly young and middling trees, about one
+	-- in eight grown large.
 	local step = 8.5
 	local count = math.floor(limit / step)
 	for iz = -count, count do
@@ -1133,9 +1206,18 @@ local function placeForest(ctx)
 			local kind, scale, r
 			if roll < cool or cool > 0.9 then
 				scale = if mature then 1.5 + grow * 0.4 else 0.8 + grow * 0.6
-				-- three tiers near the heart; two taller ones out in the wider world
-				local near = math.sqrt(x * x + z * z) < 330 and scale < 1.5
-				kind = if near then "Spruce" else "SpruceFar"
+				if cool < 0.85 and hash(ix, iz, 155) < 0.3 then
+					-- a pine among the firs: a tall column with a high, ragged crown
+					kind, scale = "Pine", 0.95 + grow * 0.6
+				else
+					-- fuller firs near the heart; lighter ones, standing a little more
+					-- apart, out in the wider world
+					local near = math.sqrt(x * x + z * z) < 330 and scale < 1.5
+					if not near and hash(ix, iz, 154) < 0.3 then
+						continue
+					end
+					kind = if near then "Spruce" else "SpruceFar"
+				end
 				r = 1.0 * scale
 			else
 				local w = hash(ix, iz, 157)
@@ -1150,20 +1232,23 @@ local function placeForest(ctx)
 					kind, scale = "Birch", 0.85 + grow * 0.5 + (if mature then 0.35 else 0)
 					r = 0.6 * scale
 				elseif f < 0.35 and w > 0.82 then
-					kind, scale = "TreeSapling", 1.2 + grow * 0.6
+					kind, scale = "Sapling", 1.2 + grow * 0.6
 					r = 0.6 * scale
 				elseif w > 0.6 then
-					kind, scale = "TreeLeaning", if mature then 2.2 + grow * 0.6 else 1.4 + grow * 0.8
-					r = 1.0 * scale
-				else
-					kind, scale = "TreeTwin", if mature then 2.3 + grow * 0.7 else 1.5 + grow * 0.9
+					kind = if hash(ix, iz, 159) < 0.6 then "Oak" else "OakLeaning"
+					scale = if mature then 1.9 + grow * 0.5 else 1.3 + grow * 0.6
 					r = 1.1 * scale
+				else
+					kind, scale = "Beech", if mature then 2.3 + grow * 0.6 else 1.5 + grow * 0.8
+					r = 0.9 * scale
 				end
 			end
 			-- the crown must clear a route, not only the trunk: a spruce's lowest
-			-- tier hangs at head height and would close over a path at speed
-			local crown = if kind == "Spruce" or kind == "SpruceFar" then 8.2 * scale elseif kind == "Birch" then 4 * scale else 4.5 * scale
-			local clearOfRoutes = World.pathDistance(x, z) > crown * 0.85
+			-- whorl hangs at head height and would close over a path at speed (a
+			-- broadleaf's crown and a pine's stand well overhead)
+			local spruce = kind == "Spruce" or kind == "SpruceFar"
+			local crown = if spruce then 9.2 * scale elseif kind == "Pine" then 2 * scale else 4.5 * scale
+			local clearOfRoutes = World.pathDistance(x, z) > crown * (if spruce then 1 else 0.85)
 				and chuteDistance(x, z) > F.chute.core + crown * 0.85
 				and (MapGen.alongPolyline(F.gully.points, x, z)) > F.gully.core + crown * 0.85
 			if clearOfRoutes and free(x, z, r) then
@@ -1177,9 +1262,6 @@ local function placeForest(ctx)
 					seed = seedOf(x, z),
 					lift = sink(x, z, r),
 				}
-				if kind ~= "Spruce" and kind ~= "SpruceFar" and kind ~= "Birch" then
-					p.collider = r
-				end
 				add(p)
 			end
 		end
@@ -1190,7 +1272,7 @@ end
 -- them, scenery only (no anchors, no solid footprint: nothing walks there).
 local function placeMountainTrees(ctx)
 	local add, map = ctx.add, ctx.map
-	local step = 19
+	local step = 23
 	local count = math.floor(map.half / step)
 	for iz = -count, count do
 		for ix = -count, count do
@@ -1202,14 +1284,14 @@ local function placeMountainTrees(ctx)
 			end
 			local h = MapGen.heightAt(map, x, z)
 			-- thinner as it climbs, in stands rather than evenly
-			local chance = 0.62 * smooth((140 - h) / 60) * (0.35 + 0.65 * patches(x, z))
+			local chance = 0.5 * smooth((140 - h) / 60) * (0.35 + 0.65 * patches(x, z))
 			if hash(ix, iz, 311) < chance and MapGen.slopeAt(map, x, z) < 1.3 then
 				local tree: Prop = {
-					kind = "SpruceFar",
+					kind = "SpruceRidge",
 					x = x,
 					z = z,
 					yaw = hash(ix, iz, 313) * math.pi * 2,
-					scale = 1.1 + hash(ix, iz, 317) * 0.8,
+					scale = 1.2 + hash(ix, iz, 317) * 0.8,
 					radius = 0,
 					seed = seedOf(x, z),
 					lift = -MapGen.slopeAt(map, x, z) * 1.5,

@@ -173,7 +173,15 @@ return {
 				"RuneStone",
 				"Brazier",
 				"Spruce",
+				"SpruceFar",
+				"SpruceRidge",
+				"Pine",
+				"Beech",
+				"Oak",
+				"OakLeaning",
+				"Sapling",
 				"Birch",
+				"Elder",
 				"Flowers",
 				"SunTemple",
 				"FallenGiant",
@@ -186,12 +194,55 @@ return {
 	end,
 
 	["the scenery stays inside its part budget"] = function()
-		local instances = 0
+		-- every Part counts, and so does the sphere mesh inside each ellipsoid
+		local parts, meshes = 0, 0
 		for _, p in world.props do
-			local parts = World.parts(world, p)
-			instances += if parts then #parts else 1
+			local prims = World.parts(world, p)
+			parts += if prims then #prims else 1
+			for _, q in prims or {} do
+				if q.shape == "ellipsoid" then
+					meshes += 1
+				end
+			end
 		end
-		assert(instances < 14000, `{instances} scenery instances`)
+		assert(parts < 15500, `{parts} scenery parts`)
+		assert(parts + meshes < 17000, `{parts + meshes} scenery instances`)
+	end,
+
+	["no tree is a perch and no crown is solid"] = function()
+		local trees = {
+			Beech = true,
+			Oak = true,
+			OakLeaning = true,
+			Sapling = true,
+			Birch = true,
+			Spruce = true,
+			SpruceFar = true,
+			Pine = true,
+			AncientOak = true,
+			AncientPine = true,
+			Elder = true,
+		}
+		for _, p in world.props do
+			if trees[p.kind] then
+				local ground = MapGen.heightAt(map, p.x, p.z) + (p.lift or 0)
+				local top, thick = -math.huge, 0
+				for _, q in World.parts(world, p) :: any do
+					if q.collide then
+						assert(q.shape == "cylinder", `{p.kind} has a solid {q.shape}`)
+						-- a cylinder's axis is its local x: the matrix's first column
+						local up = math.abs(q.cf[7])
+						local y = q.cf[2] + up * q.size[1] / 2 + math.sqrt(1 - up * up) * q.size[2] / 2 - ground
+						if y > top then
+							top, thick = y, q.size[2]
+						end
+					end
+				end
+				-- the trunk's top is out of a jump's reach, or too thin to stand on
+				local perch = top < GameConfig.PlayerJumpHeight + 2 and thick > 1.4
+				assert(not perch, `a {p.kind} at {p.x}, {p.z} has a solid top {top} studs up`)
+			end
+		end
 	end,
 
 	["spruce grows where it is cool, oak and birch where it is warm"] = function()
@@ -199,7 +250,7 @@ return {
 		for _, p in world.props do
 			if p.kind == "Spruce" and World.coolness(p.x, p.z) < 0.05 and math.abs(p.z - 165) > 40 then
 				warmSpruce += 1 -- (the escarpment's lip is dressed with spruce on purpose)
-			elseif (p.kind == "TreeTwin" or p.kind == "Birch") and World.coolness(p.x, p.z) > 0.97 then
+			elseif (p.kind == "Beech" or p.kind == "Oak" or p.kind == "Birch") and World.coolness(p.x, p.z) > 0.97 then
 				coolOak += 1
 			end
 		end
@@ -217,7 +268,14 @@ return {
 				"SunTemple",
 				"Spruce",
 				"SpruceFar",
+				"SpruceRidge",
+				"Pine",
+				"Beech",
+				"Oak",
+				"OakLeaning",
+				"Sapling",
 				"Birch",
+				"Elder",
 				"Menhir",
 				"RuneStone",
 				"MoonStone",

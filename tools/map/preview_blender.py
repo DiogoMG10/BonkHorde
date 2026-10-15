@@ -85,6 +85,48 @@ def mat(name, color, emit=0.0, rough=0.85, alpha=1.0):
     return m
 
 
+_obj_mats = {}
+
+
+def obj_mat(name, emit):
+    """A material that takes its colour from the object, so thousands of tinted
+    parts share a handful of shaders (one per tint took minutes to compile)."""
+    key = (name, emit)
+    if key in _obj_mats:
+        return _obj_mats[key]
+    m = bpy.data.materials.new("obj_" + name)
+    m.use_nodes = True
+    nt = m.node_tree
+    bsdf = nt.nodes["Principled BSDF"]
+    info = nt.nodes.new("ShaderNodeObjectInfo")
+    bsdf.inputs["Roughness"].default_value = 0.85
+    base = info.outputs["Color"]
+    if name in ("LeafyGrass", "Grass"):
+        # foliage: a rough, clumpy surface and a little colour break-up, a stand-in
+        # for the leafy material Roblox draws (the preview has no Roblox textures)
+        tex = nt.nodes.new("ShaderNodeTexNoise")
+        tex.inputs["Scale"].default_value = 0.9 if name == "LeafyGrass" else 1.6
+        tex.inputs["Detail"].default_value = 6
+        coord = nt.nodes.new("ShaderNodeTexCoord")
+        nt.links.new(coord.outputs["Object"], tex.inputs["Vector"])
+        bump = nt.nodes.new("ShaderNodeBump")
+        bump.inputs["Strength"].default_value = 0.6
+        nt.links.new(tex.outputs["Fac"], bump.inputs["Height"])
+        nt.links.new(bump.outputs["Normal"], bsdf.inputs["Normal"])
+        mix = nt.nodes.new("ShaderNodeMixRGB")
+        mix.blend_type = "MULTIPLY"
+        mix.inputs["Fac"].default_value = 0.35
+        nt.links.new(info.outputs["Color"], mix.inputs["Color1"])
+        nt.links.new(tex.outputs["Color"], mix.inputs["Color2"])
+        base = mix.outputs["Color"]
+    nt.links.new(base, bsdf.inputs["Base Color"])
+    if emit:
+        nt.links.new(info.outputs["Color"], bsdf.inputs["Emission Color"])
+        bsdf.inputs["Emission Strength"].default_value = 4.0
+    _obj_mats[key] = m
+    return m
+
+
 # ------------------------------------------------------------------ scene
 bpy.ops.wm.read_factory_settings(use_empty=True)
 scene = bpy.context.scene
@@ -225,6 +267,8 @@ def add_part(p):
     if shape == "ball":
         d = min(sx, sy, sz)
         sx = sy = sz = d
+    elif shape == "ellipsoid":
+        shape = "ball"  # a sphere SpecialMesh: stretched to the part's size
     elif shape == "cylinder":
         d = min(sy, sz)
         sy = sz = d
@@ -236,11 +280,13 @@ def add_part(p):
     o = bpy.data.objects.new(p.get("mat", "part"), me)
     o.matrix_world = Matrix.Translation(pos) @ (Rb @ S).to_4x4()
     col = tuple(v / 255 for v in p.get("color", (163, 162, 165)))
-    m = mat(p.get("mat", "part"), col, emit=4.0 if p.get("neon") else 0.0)
+    m = obj_mat(p.get("mat", "part"), bool(p.get("neon")))
     link(o)
-    # meshes are shared between parts, so the colour goes on the object
+    # meshes are shared between parts, so the material goes on the object, and
+    # its colour on the object too
     o.material_slots[0].link = "OBJECT"
     o.material_slots[0].material = m
+    o.color = (*srgb(col), 1)
     if p.get("light"):
         L = p["light"]
         ld = bpy.data.lights.new("pl", "POINT")

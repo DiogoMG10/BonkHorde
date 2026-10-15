@@ -54,6 +54,12 @@ local function makePart(p, parent: Instance): BasePart
 	part.CFrame = CFrame.new(cf[1], cf[2], cf[3], cf[4], cf[5], cf[6], cf[7], cf[8], cf[9], cf[10], cf[11], cf[12])
 	part.Color = Color3.fromRGB(p.color[1], p.color[2], p.color[3])
 	part.Material = if p.neon then Enum.Material.Neon else material(p.mat)
+	if p.shape == "ellipsoid" then
+		-- a sphere stretched to the part's size: Ball parts are always round
+		local mesh = Instance.new("SpecialMesh")
+		mesh.MeshType = Enum.MeshType.Sphere
+		mesh.Parent = part
+	end
 	if p.light then
 		local l = Instance.new("PointLight")
 		l.Color = Color3.fromRGB(p.light.color[1], p.light.color[2], p.light.color[3])

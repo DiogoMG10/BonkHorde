@@ -41,9 +41,15 @@ explicit decision by Tiago and Diogo.
   the North Vale and its long slope, Windhill, Thornwood), part-built ancient oaks and pines,
   dense forest only in patches, mountains rising straight from the edge behind an invisible
   barrier, shorter grass, interactable counts scaled to the area. Offline checks only.
-- **Next playable result:** Studio playtest of `bonk-0.10.0-m3a`: grass readability, the new
-  regions and routes (`site <name>` in Workspace.BonkDev), the boundary, frame rate with a
-  horde across the larger world, how long the boss portal takes to find.
+  `bonk-0.11.0-m3a` (after a second playtest with screenshots): every tree family remodelled
+  as part-built stylized trees from one kit (beech, oak, leaning oak, sapling, birch, spruce,
+  pine, ancient oak, ancient fir, the Elder; no mesh trees left, nothing uploaded), foliage
+  fades when it stands between the camera and the hero, lanterns at junctions, landmark
+  approaches and bends instead of every 46 studs (60 -> 34), three skies to compare
+  (`sky golden|clear|dusk`), foliage material A/B (`leaves <material>`), grass at Roblox's
+  minimum 0.1. Offline checks only; the tree direction awaits human review in Studio.
+- **Next playable result:** Studio review of `bonk-0.11.0-m3a`: the trees up close and at
+  range, the three skies from the same spots, foliage material, frame rate in the woods.
 - **Blockers:** none.
 
 ## M4 Horde & Performance — not started

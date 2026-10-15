@@ -108,7 +108,11 @@ for iz = 0, n - 1 do
 end
 local share = walk / inside
 check("walkable_share", share >= 0.7, `{string.format("%.0f", share * 100)}% of the playfield is walkable from spawn`)
-check("slide_runs", slide / inside >= 0.03, `{string.format("%.1f", slide / inside * 100)}% of the playfield is 20 to 40 degree slide ground`)
+check(
+	"slide_runs",
+	slide / inside >= 0.03,
+	`{string.format("%.1f", slide / inside * 100)}% of the playfield is 20 to 40 degree slide ground`
+)
 
 -- no solid prop traps an anchor, no two solid props touch
 local touching = 0
@@ -177,7 +181,11 @@ for iz = 0, n - 1, step do
 end
 fs.writeFile(
 	"work/map/layout.json",
-	serde.encode("json", { half = map.half, cell = map.cell * step, heights = rows, reach = reachRows, anchors = anchors, props = props }, false)
+	serde.encode(
+		"json",
+		{ half = map.half, cell = map.cell * step, heights = rows, reach = reachRows, anchors = anchors, props = props },
+		false
+	)
 )
 
 for _, ch in checks do

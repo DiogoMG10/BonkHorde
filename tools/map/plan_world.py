@@ -55,8 +55,9 @@ for w in W.get("water") or []:
     d.ellipse((x - r, y - r, x + r, y + r), outline=(80, 170, 220), width=2)
 
 KIND = {
-    "Spruce": (25, 70, 55), "Birch": (230, 230, 210), "TreeTwin": (150, 210, 70), "TreeLeaning": (150, 210, 70),
-    "TreeSapling": (170, 220, 90), "ElderTree": (255, 230, 90),
+    "Spruce": (25, 70, 55), "SpruceFar": (25, 70, 55), "SpruceRidge": (25, 70, 55), "Pine": (60, 110, 70),
+    "Birch": (230, 230, 210), "Beech": (150, 210, 70), "Oak": (120, 180, 60), "OakLeaning": (120, 180, 60),
+    "Sapling": (170, 220, 90), "Elder": (255, 230, 90), "AncientOak": (255, 230, 90), "AncientPine": (255, 230, 90),
 }
 for p in W["props"]:
     x, y = to_px(p["x"], p["z"])
