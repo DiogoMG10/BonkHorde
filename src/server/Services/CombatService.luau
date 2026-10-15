@@ -173,7 +173,7 @@ function CombatService:_hit(rec, w, slot: number, base: number, now: number, isP
 			enemies:Knock(slot, dirx, dirz, s.Knockback * stats.Knockback * 0.5)
 		end
 		if freezeChance > 0 and rng:NextNumber() < freezeChance then
-			enemies:Freeze(slot, 1.5, now)
+			enemies:Freeze(slot, s.FreezeSeconds or 1.5, now)
 		end
 		if items.StinkyCheese and rng:NextNumber() < ITEMS.StinkyCheese.n.chance then
 			local n = ITEMS.StinkyCheese.n

@@ -40,6 +40,7 @@ function EnemyRenderController:KnitInit()
 	self._numbers = {}
 	self._numberPool = {}
 	self._slots, self._xs, self._zs = {}, {}, {}
+	self._icePool = {} -- spare ice shells for frozen enemies
 	local folder = Instance.new("Folder")
 	folder.Name = "Enemies"
 	folder.Parent = Workspace
@@ -180,8 +181,46 @@ end
 
 function EnemyRenderController:_clear()
 	for slot, e in self._active do
+		self:_thaw(e)
 		self:_release(e.visual)
 		self._active[slot] = nil
+	end
+end
+
+-- ------------------------------------------------------------------ frozen look
+
+-- A frozen enemy is encased in one translucent block of ice, sized to its
+-- height. One pooled part per frozen enemy, placed in the same BulkMoveTo as
+-- the body, so a crowd of frozen enemies costs a few parts and no extra loop.
+local ICE_COLOUR = Color3.fromRGB(175, 225, 255)
+
+function EnemyRenderController:_freeze(e, seconds: number)
+	e.frozenUntil = math.max(e.frozenUntil or 0, os.clock() + seconds)
+	if e.ice then
+		return
+	end
+	local ice = table.remove(self._icePool)
+	if not ice then
+		ice = Instance.new("Part")
+		ice.Name = "Ice"
+		ice.Anchored, ice.CanCollide, ice.CanQuery, ice.CanTouch = true, false, false, false
+		ice.CastShadow = false
+		ice.Material = Enum.Material.Ice
+		ice.Color = ICE_COLOUR
+		ice.Transparency = 0.4
+		ice.Parent = self._folder
+	end
+	local h = e.height
+	ice.Size = Vector3.new(h * 0.75, h * 1.05, h * 0.75)
+	e.ice = ice
+end
+
+function EnemyRenderController:_thaw(e)
+	local ice = e.ice
+	if ice then
+		e.ice = nil
+		ice.CFrame = CFrame.new(0, -500, 0)
+		table.insert(self._icePool, ice)
 	end
 end
 
@@ -278,6 +317,7 @@ function EnemyRenderController:KnitStart()
 			local elite = buffer.readu8(b, o + 3) == 1
 			local old = self._active[slot]
 			if old then
+				self:_thaw(old)
 				self:_release(old.visual)
 			end
 			if typeName then
@@ -322,8 +362,18 @@ function EnemyRenderController:KnitStart()
 				if buffer.readu8(b, i * 3 + 2) == GONE_KILLED and e.x then
 					pcall(Vfx.burst, "DeathPoof", Vector3.new(e.x, e.y + e.height * 0.5, e.z))
 				end
+				self:_thaw(e)
 				self:_release(e.visual)
 				self._active[slot] = nil
+			end
+		end
+	end)
+
+	on("EnemyFrozen", function(b: buffer)
+		for i = 0, buffer.len(b) / 3 - 1 do
+			local e = self._active[buffer.readu16(b, i * 3)]
+			if e then
+				self:_freeze(e, buffer.readu8(b, i * 3 + 2) / 10)
 			end
 		end
 	end)
@@ -366,6 +416,7 @@ function EnemyRenderController:_frame(dt: number)
 	local parts, cframes = self._parts, self._cframes
 	local n = 0
 	local white = Color3.new(1, 1, 1)
+	local paused = state.paused
 
 	for _, e in self._active do
 		if not e.tx then
@@ -410,6 +461,19 @@ function EnemyRenderController:_frame(dt: number)
 				cframes[n] = root * off * CFrame.new(0, topY, 0) * CFrame.Angles(swing * limb, 0, 0) * CFrame.new(0, -topY, 0)
 			else
 				cframes[n] = root * offsets[i]
+			end
+		end
+
+		if e.ice then
+			if paused then
+				e.frozenUntil += dt -- the server's freeze clock stops while paused too
+			end
+			if now >= e.frozenUntil then
+				self:_thaw(e)
+			else
+				n += 1
+				parts[n] = e.ice
+				cframes[n] = root
 			end
 		end
 

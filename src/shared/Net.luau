@@ -51,6 +51,7 @@ export type EventName =
 	| "EnemySnap" -- S>C all: Snapshot buffer
 	| "EnemyGone" -- S>C all: buffer of (u16 slot, u8 reason)
 	| "Hits" -- S>C all: buffer of (u16 slot, u16 damage, u8 flags)
+	| "EnemyFrozen" -- S>C all: buffer of (u16 slot, u8 tenths of a second left frozen)
 	| "Boss" -- S>C all: { { slot, name, hp, maxHp, kind } }
 	| "Telegraph" -- S>C all: x, z, radius, delay, kind
 	-- weapons and world
@@ -134,6 +135,7 @@ Net.All = {
 	"EnemySnap",
 	"EnemyGone",
 	"Hits",
+	"EnemyFrozen",
 	"Boss",
 	"Telegraph",
 	"Fx",
