@@ -97,9 +97,9 @@ local CUT_LIFE = 0.32 -- the crescent's whole life...
 local CUT_DRAW = 0.45 -- ...the share of it the head takes to cross the arc
 local CUT_SEGMENTS = 20
 local CUT_RADIUS = 0.85 -- the centre line, as a share of the hit range
-local CUT_WIDTH = 1.9 -- studs at the thickest point, for a 13-stud reach
-local CUT_TILT = math.rad(14) -- the cut runs high on the right, low on the left...
-local CUT_BANK = math.rad(16) -- ...and its middle rises, so from behind it reads as a curve
+local CUT_WIDTH = 2.2 -- studs at the thickest point, for a 13-stud reach
+local CUT_TILT = 0 -- a level, horizontal cut: no side runs higher than the other...
+local CUT_BANK = math.rad(10) -- ...but its middle rises a little, so from behind it reads as a curve
 -- A ribbon behind the hero's own blade, from just above the grip to the tip.
 -- It follows whatever the swing animation does, so it can never point the
 -- wrong way. The held weapon is welded with its length along its Y axis

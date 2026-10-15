@@ -23,9 +23,9 @@ explicit decision by Tiago and Diogo.
   `bonk-0.5.2-m2a` (Sword slash as a blade trail plus a reach flash, pause menu no longer a
   black box). Follow-up `bonk-0.5.3-m2a`: no countdown after co-op level-ups (play resumes
   on the last choice), Sword reach flash replaced by an anime-style crescent cut after the
-  Plebarae reference. Offline checks only.
-- **Next playable result:** quick Studio check of `bonk-0.5.3-m2a` (slash look, co-op
-  level-up resume), then merge; then M2.B (bunny hop, movement, difficulty balance).
+  Plebarae reference. `bonk-0.5.3-m2a` playtested: pause and level-up flow validated.
+  `bonk-0.5.4-m2a`: slash made level (horizontal) and ~16 % thicker, offline checks only.
+- **Next playable result:** quick Studio look at the `bonk-0.5.4-m2a` slash, then merge; then M2.B (bunny hop, movement, difficulty balance).
 - **Blockers:** none.
 
 ## M3 Art Direction & Wardwood — prototype
