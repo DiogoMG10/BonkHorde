@@ -138,6 +138,7 @@ return {
 	["every part-built kind builds, and every part has a sane size"] = function()
 		for _, kind in
 			{
+				"Paving",
 				"Spruce",
 				"SpruceFar",
 				"Birch",

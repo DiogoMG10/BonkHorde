@@ -423,6 +423,31 @@ function Blueprints.Gate(seed: number, g): { Prim }
 	return out
 end
 
+-- A paving fragment of the old circle round the spawn: three worn slabs set
+-- flush in the ground, following its slope, so a hero at full speed never trips.
+function Blueprints.Paving(seed: number, g): { Prim }
+	local out = {}
+	for k = 0, 2 do
+		local lx = (k - 1) * 4.2 + (hash(seed, k, 251) - 0.5)
+		local lz = (hash(seed, k, 257) - 0.5) * 1.6
+		local y = g(lx, lz)
+		local sx = (g(lx + 2, lz) - g(lx - 2, lz)) / 4
+		local sz = (g(lx, lz + 2) - g(lx, lz - 2)) / 4
+		local col = shade(C.stoneLight, 0.82 + hash(seed, k, 263) * 0.2)
+		local slab = prim(
+			"block",
+			{ 3.8, 0.8, 3.4 + hash(seed, k, 269) },
+			{ lx, y - 0.25, lz },
+			{ (hash(seed, k, 271) - 0.5) * 14, -math.deg(math.atan(sz)), math.deg(math.atan(sx)) },
+			col,
+			"Slate"
+		)
+		slab.shadow = false
+		table.insert(out, slab)
+	end
+	return out
+end
+
 -- A cairn: flat stones stacked off true, a rune on the top one.
 function Blueprints.Cairn(seed: number, _g): { Prim }
 	local out = {}

@@ -1,9 +1,9 @@
 {
-  "anchors": 220,
+  "anchors": 219,
   "cell_studs": 4,
   "checks": [
     {
-      "detail": "220 of 220 anchors can be walked to from spawn",
+      "detail": "219 of 219 anchors can be walked to from spawn",
       "name": "anchors_reachable",
       "pass": true
     },
@@ -43,43 +43,46 @@
       "pass": true
     },
     {
-      "detail": "1008 solid props, 0 pairs closer than 4 studs apart",
+      "detail": "1013 solid props, 0 pairs closer than 4 studs apart",
       "name": "prop_gaps",
       "pass": true
     }
   ],
   "map": "ForestGrove",
-  "props": 1666,
+  "props": 1724,
   "props_by_kind": {
     "Birch": 60,
-    "BoulderLarge": 24,
+    "BoulderLarge": 27,
     "Brazier": 2,
-    "Bush": 71,
+    "Bush": 70,
     "Cairn": 1,
     "ElderRoots": 1,
     "FallenLog": 50,
-    "Fern": 238,
+    "Fern": 244,
     "Flowers": 143,
     "Gate": 1,
     "Glowcaps": 41,
     "LanternPost": 33,
     "Menhir": 11,
+    "Mist": 32,
     "MoonStone": 4,
+    "Paving": 15,
     "Pillar": 11,
-    "PillarBroken": 9,
+    "PillarBroken": 11,
     "RockSmall": 39,
     "RuinArch": 1,
     "RuinTower": 1,
     "RuinWall": 40,
-    "RuneStone": 5,
-    "Spruce": 365,
+    "RuneStone": 6,
+    "Spruce": 364,
     "SpruceFar": 393,
     "StoneSteps": 2,
     "Stump": 37,
     "TreeLeaning": 41,
     "TreeSapling": 10,
     "TreeTwin": 31,
-    "Ward": 1
+    "Ward": 1,
+    "Waterfall": 1
   },
   "size_studs": 720,
   "source": "tools/map/prove.luau over src/shared/Core/MapGen.luau (the module the server runs)",

@@ -178,12 +178,12 @@ local function waterfall(prop, parent: Instance): Model
 	return model
 end
 
--- the Moonwell's surface: a still, reflective disc over its shallow floor,
--- and a faint teal glow beneath it. Part water, because terrain water lives on
+-- a pool's surface (the Moonwell, the falls): a still, reflective disc over
+-- its shallow floor; the Moonwell also has a faint teal glow beneath it. Part water, because terrain water lives on
 -- a 4-stud voxel grid and cannot be a 2-stud wading pond.
 local function water(w, parent: Instance)
 	local surface = Instance.new("Part")
-	surface.Name = "MoonwellSurface"
+	surface.Name = "PoolSurface"
 	surface.Shape = Enum.PartType.Cylinder
 	surface.Size = Vector3.new(0.3, w.r * 2, w.r * 2)
 	surface.CFrame = CFrame.new(w.x, w.level, w.z) * CFrame.Angles(0, 0, math.rad(90))

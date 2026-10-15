@@ -7,8 +7,11 @@
 -- offline previews from it, so the three can never disagree.
 --
 -- Composition (north is +z; the lobby and the first gameplay camera look north):
---   Sunmeadow   the open basin round the spawn clearing, scattered oaks and birch
+--   Sunmeadow   the open basin round the spawn clearing (ringed by the paving
+--               of an old ward circle), scattered oaks and birch
 --   the Ward    a ruined rune platform north-west of spawn, the first landmark
+--   the falls   a spring spilling down the Highwatch's face into a wading pool,
+--               dead ahead of the first view
 --   Highwatch   the plateau: the ruined tower on its knoll, behind the Runic Gate
 --               at the top of ramp A
 --   the Chute   the long half-pipe from the plateau's shoulder into the basin
@@ -195,8 +198,7 @@ function World.pathDistance(x: number, z: number): number
 end
 
 local function chuteDistance(x: number, z: number): number
-	local d = MapGen.alongPolyline(F.chute.points, x, z)
-	return d
+	return (MapGen.alongPolyline(F.chute.points, x, z))
 end
 
 -- 1 where the ground must stay open: the spawn clearing, round landmarks, on
@@ -568,6 +570,23 @@ local function placeLandmarks(ctx)
 				}
 				add(tree)
 			end
+		end
+	end
+
+	-- the old ward circle round the spawn clearing: paving set flush in the
+	-- ground (never a trip at speed) and three broken columns in its gaps
+	for k = 0, 23 do
+		local a = k / 24 * math.pi * 2 + 0.13
+		local gap = k % 8 == 3
+		local x, z = math.cos(a) * 58, math.sin(a) * 58
+		if gap then
+			if World.pathDistance(x, z) > 4 and free(x, z, 2.2, true) then
+				local stump: Prop = { kind = "PillarBroken", x = x, z = z, yaw = a, scale = 0.9, radius = 2.2, seed = 180 + k }
+				add(stump)
+			end
+		elseif World.pathDistance(x, z) > 1 and hash(k, 1, 279) < 0.8 then
+			local slab: Prop = { kind = "Paving", x = x, z = z, yaw = -a + math.pi / 2, scale = 1, radius = 0, seed = 190 + k }
+			add(slab)
 		end
 	end
 

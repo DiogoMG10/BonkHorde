@@ -1,0 +1,18 @@
+[
+  { "name": "t01_chute_dropin", "x": 202, "z": 238, "yaw": 195, "pitch": -14 },
+  { "name": "t02_chute_run", "x": 186, "z": 170, "yaw": 200, "pitch": -12 },
+  { "name": "t03_chute_exit", "x": 140, "z": 76, "yaw": 215, "pitch": -12 },
+  { "name": "t04_ridge_slide", "x": 225, "z": -40, "yaw": 85, "pitch": -14 },
+  { "name": "t05_ridge_crest_north", "x": 238, "z": -120, "yaw": 180, "pitch": -10 },
+  { "name": "t06_mirewood_inside", "x": -210, "z": -40, "yaw": 160, "pitch": -8 },
+  { "name": "t07_moonwell_ring", "x": -200, "z": 40, "yaw": 100, "pitch": -10 },
+  { "name": "t08_gardens_from_foot", "x": -58, "z": -140, "yaw": 0, "pitch": -4 },
+  { "name": "t09_gardens_terrace", "x": 60, "z": -230, "yaw": 270, "pitch": -10 },
+  { "name": "t10_elder_hill", "x": -60, "z": -60, "yaw": 50, "pitch": 4 },
+  { "name": "t11_plateau_top", "x": -40, "z": 260, "yaw": 270, "pitch": -10 },
+  { "name": "t12_rim_from_inside", "x": 0, "z": -250, "yaw": 0, "pitch": 0 },
+  { "name": "t13_basin_east", "x": 120, "z": -40, "yaw": 240, "pitch": -10 },
+  { "name": "t14_highwatch_gate", "x": 38, "z": 196, "yaw": 180, "pitch": -2 },
+  { "name": "t15_west_meadow", "x": -120, "z": 40, "yaw": 300, "pitch": -10 },
+  { "name": "t16_terraces_ramp_slide", "x": -58, "z": -280, "yaw": 0, "pitch": -16 }
+]
