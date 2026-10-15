@@ -6,7 +6,7 @@
 -- what makes a balance pass a data edit.
 
 local GameConfig = {
-	BuildStamp = "bonk-0.7.0-m2c",
+	BuildStamp = "bonk-0.8.0-m2d",
 
 	-- squad
 	MaxPlayers = 3,
@@ -39,6 +39,19 @@ local GameConfig = {
 	EnemyDamageScale = 0.7,
 	EnemySeparation = 3.2,
 	ContactCooldown = 0.8,
+	-- contact reach (Core/Contact): enemy body radius (roster `body`) + hero body + margin
+	HeroBodyRadius = 1.2, -- the hero model's torso half-width; arms and ears do not count
+	HeroHeight = 5.4, -- every hero model is fitted to this height
+	ContactMargin = 0.15, -- was 0.6 on top of the movement radii
+	ContactHeightTolerance = 0.3, -- a hero's feet this far above an enemy's head still touch it
+	-- camping out of reach (a tree, a roof): a telegraphed root strike from below
+	CampHeight = 6.5, -- feet this far above the terrain are out of every regular enemy's reach
+	CampSeconds = 4, -- that long, with enemies below, before the first strike
+	CampEvery = 3.5, -- then at most one strike this often
+	CampWatchRange = 14, -- an enemy within this (horizontally) counts as waiting below
+	CampStrikeDelay = 1.2, -- the warning before it lands: move to dodge it
+	CampStrikeRadius = 4.5,
+	CampStrikeDamage = 1.5, -- x the contact damage of the enemy below that calls it
 	EliteHPMultiplier = 8,
 	EliteScale = 1.5,
 	EliteBaseChance = 0.02,

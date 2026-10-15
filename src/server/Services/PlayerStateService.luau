@@ -88,6 +88,7 @@ local function newRecord(player: Player, index: number, heroId: string)
 		fz = -1,
 		speed = 0,
 		groundY = 0,
+		rootHeight = 3, -- root above feet; measured from the rig when the hero is dressed
 		frenzyUntil = 0,
 		hitCounter = 0,
 		mirrorAt = 0,
@@ -238,10 +239,11 @@ function PlayerStateService:_dress(rec, character: Model, humanoid: Humanoid, ro
 
 	local hero = template:Clone()
 	local _, size = hero:GetBoundingBox()
-	hero:ScaleTo(5.4 / math.max(size.Y, 0.1))
+	hero:ScaleTo(GameConfig.HeroHeight / math.max(size.Y, 0.1))
 	local _, scaled = hero:GetBoundingBox()
 	-- stand the model where the avatar stands: feet on the floor under the root
 	local feet = root.Position.Y - humanoid.HipHeight - root.Size.Y / 2
+	rec.rootHeight = humanoid.HipHeight + root.Size.Y / 2 -- root above feet, for contact and camping
 	hero:PivotTo(CFrame.new(root.Position.X, feet + scaled.Y / 2, root.Position.Z) * root.CFrame.Rotation)
 	for _, part in hero:GetChildren() do
 		if part:IsA("BasePart") and part.Name ~= "Root" then
