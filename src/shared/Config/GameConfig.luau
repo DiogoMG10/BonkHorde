@@ -6,7 +6,7 @@
 -- what makes a balance pass a data edit.
 
 local GameConfig = {
-	BuildStamp = "bonk-0.4.0-m1d",
+	BuildStamp = "bonk-0.4.1-m1d",
 
 	-- squad
 	MaxPlayers = 3,
@@ -58,6 +58,8 @@ local GameConfig = {
 	CameraHeight = 3.5,
 	CameraFOV = 80,
 	CameraSensitivity = 0.35,
+	CameraPitchMin = -75, -- degrees; how far the camera (and a hand-aimed shot) can look down...
+	CameraPitchMax = 45, -- ...and up
 	ShieldRegenDelay = 4,
 	ShieldRegenPerSecond = 0.2, -- fraction of max shield
 	InvulnAfterHit = 0.25,

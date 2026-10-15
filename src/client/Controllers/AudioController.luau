@@ -226,7 +226,8 @@ function AudioController:KnitStart()
 		local _ = a1
 	end)
 
-	on("Proj", function(op, _id, kind, _a2, _a3, boom)
+	-- spawn: id, kind, ...; end: id, x, z, boom, ...
+	on("Proj", function(op, _id, kind, _z, boom)
 		if op == "spawn" then
 			local role = PROJ_SOUND[kind]
 			if role then

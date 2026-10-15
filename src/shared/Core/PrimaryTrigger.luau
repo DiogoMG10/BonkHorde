@@ -3,7 +3,7 @@
 -- client may say about its attack button, how one click is remembered, and
 -- when the weapon fires. Pure.
 --
--- The client sends a STATE (button held or not, and the yaw it is aiming at),
+-- The client sends a STATE (button held or not, and the yaw and pitch it is aiming at),
 -- never a request per attack. The server keeps one Input per hero and asks
 -- `step` once a tick, so the cadence is the server's and clicking faster buys
 -- nothing. At most ONE click is ever remembered.
@@ -13,6 +13,7 @@ local PrimaryTrigger = {}
 export type Input = {
 	held: boolean,
 	yaw: number, -- the aim the next attack uses, radians, camera convention
+	pitch: number, -- up (+) or down (-) from level, radians; only a shot that flies uses it
 	heardAt: number, -- real time of the last accepted message, for the stale check
 	clickAt: number?, -- gameplay time of the one remembered click
 	tokens: number, -- rate limit
@@ -22,20 +23,33 @@ export type Input = {
 local MAX_YAW = 1e4 -- far beyond any real camera; rejects garbage
 
 function PrimaryTrigger.new(): Input
-	return { held = false, yaw = 0, heardAt = 0, clickAt = nil, tokens = 0, tokenAt = -math.huge }
+	return { held = false, yaw = 0, pitch = 0, heardAt = 0, clickAt = nil, tokens = 0, tokenAt = -math.huge }
 end
 
---- Check what a client sent. Returns ok, held, yaw wrapped to (-pi, pi].
-function PrimaryTrigger.parse(held: unknown, yaw: unknown): (boolean, boolean, number)
+--- Check what a client sent. Returns ok, held, yaw wrapped to (-pi, pi], and
+--- pitch held inside [low, high] (default: straight down to straight up). A
+--- missing pitch is level; a pitch that is not a real number refuses the message.
+function PrimaryTrigger.parse(held: unknown, yaw: unknown, pitch: unknown?, low: number?, high: number?): (boolean, boolean, number, number)
 	if type(held) ~= "boolean" or type(yaw) ~= "number" then
-		return false, false, 0
+		return false, false, 0, 0
 	end
 	local y = (yaw :: any) :: number
 	if y ~= y or math.abs(y) > MAX_YAW then
-		return false, false, 0 -- NaN, infinite or absurd
+		return false, false, 0, 0 -- NaN, infinite or absurd
 	end
 	y = (y + math.pi) % (2 * math.pi) - math.pi
-	return true, (held :: any) :: boolean, y
+	local p = 0
+	if pitch ~= nil then
+		if type(pitch) ~= "number" then
+			return false, false, 0, 0
+		end
+		p = (pitch :: any) :: number
+		if p ~= p or math.abs(p) > MAX_YAW then
+			return false, false, 0, 0
+		end
+		p = math.clamp(p, low or -math.pi / 2, high or math.pi / 2)
+	end
+	return true, (held :: any) :: boolean, y, p
 end
 
 --- Rate limit: a bucket of `burst` messages refilled at `rate` a second.
@@ -56,12 +70,13 @@ end
 
 --- The button is down. A press that follows a release is a click: it is
 --- remembered, replacing any click already remembered (never added to it).
-function PrimaryTrigger.press(input: Input, yaw: number, simNow: number, realNow: number)
+function PrimaryTrigger.press(input: Input, yaw: number, simNow: number, realNow: number, pitch: number?)
 	if not input.held then
 		input.clickAt = simNow
 	end
 	input.held = true
 	input.yaw = yaw
+	input.pitch = pitch or 0
 	input.heardAt = realNow
 end
 

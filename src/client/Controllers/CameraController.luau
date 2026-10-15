@@ -40,13 +40,20 @@ function CameraController:Yaw(): number
 	return self._yaw
 end
 
+--- Up (+) or down (-) from level, radians. With the yaw this is the camera's
+--- look, which passes through the focus point above the hero.
+function CameraController:Pitch(): number
+	return self._pitch
+end
+
 function CameraController:KnitStart()
 	self._state = Knit.GetController("StateController")
 	local sens = GameConfig.CameraSensitivity
+	local pitchLow, pitchHigh = math.rad(GameConfig.CameraPitchMin), math.rad(GameConfig.CameraPitchMax)
 
 	local function turn(dx: number, dy: number)
 		self._yaw -= math.rad(dx * sens)
-		self._pitch = math.clamp(self._pitch - math.rad(dy * sens), math.rad(-75), math.rad(25))
+		self._pitch = math.clamp(self._pitch - math.rad(dy * sens), pitchLow, pitchHigh)
 	end
 
 	UserInputService.InputChanged:Connect(function(input, processed)

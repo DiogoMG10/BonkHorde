@@ -106,10 +106,12 @@ function WeaponFxController:KnitStart()
 		local yaw = math.atan2(-dx, -dz)
 		local sweep = math.clamp(arcDeg, 60, 200)
 		local at = Vector3.new(x, y + 0.6, z)
-		-- The crescent texture's body sits clockwise of its top edge, and the
-		-- swoosh is seen mostly near the end of its spin; this start angle puts
-		-- what is on screen across the swing direction. (+45 drew it well left.)
-		local turn = yaw + math.rad(sweep / 2 - 45)
+		-- Measured, not guessed: the texture's mass sits 37 degrees clockwise of
+		-- its top edge; on a Top-face SurfaceGui that top edge points 90 degrees
+		-- left of the part's look; and with the eased spin and the fade, what is
+		-- seen averages 0.62 of the way through the spin. This start angle puts
+		-- that average on the swing direction. (sweep/2 - 45 sat ~8 degrees right.)
+		local turn = yaw + math.rad(sweep * 0.62 + 37 - 90)
 		Vfx.ground(
 			at,
 			"crescent",
@@ -274,15 +276,15 @@ function WeaponFxController:KnitStart()
 	local projs = self._projs
 	local proj = Net.client("Proj")
 	if proj then
-		proj.OnClientEvent:Connect(function(op, id, a1, a2, a3, a4, a5, a6, a7, a8, a9)
+		proj.OnClientEvent:Connect(function(op, id, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11)
 			if op == "spawn" then
-				local kind, owner, x, z, dx, dz, speed, extraA, _extraB = a1, a2, a3, a4, a5, a6, a7, a8, a9
+				local kind, owner, x, z, dx, dz, speed, extraA, _extraB, y, dy = a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11
 				local look = PROJ_LOOK[kind]
 				if not look then
 					return
 				end
 				local p = (look.model and model(look.model))
-					or part(look.size, look.colour, CFrame.new(x, state:HeightAt(x, z) + 3, z), 0, look.neon)
+					or part(look.size, look.colour, CFrame.new(x, y or state:HeightAt(x, z) + 3, z), 0, look.neon)
 				if look.shape and p:IsA("Part") then
 					p.Shape = look.shape
 				end
@@ -294,8 +296,10 @@ function WeaponFxController:KnitStart()
 					kind = kind,
 					owner = owner,
 					x = x,
+					y = typeof(y) == "number" and y or nil, -- a shot at its own height, not following the ground
 					z = z,
 					dx = dx,
+					dy = typeof(dy) == "number" and dy or 0,
 					dz = dz,
 					speed = speed,
 					target = extraA,
@@ -318,8 +322,17 @@ function WeaponFxController:KnitStart()
 					projs[id] = nil
 					p.part:Destroy()
 				end
-				local x, z, boom = a1, a2, a3
-				if boom and boom > 0 then
+				local x, z, boom, y = a1, a2, a3, a4
+				if boom and boom > 0 and typeof(y) == "number" then
+					-- burst where it really went off, ring on the ground only if that is near
+					pcall(function()
+						local ground = state:HeightAt(x, z)
+						Vfx.burst("FireExplosion", Vector3.new(x, math.max(y, ground + 2), z))
+						if y - ground < boom then
+							Vfx.ground(Vector3.new(x, ground + 0.35, z), "ring", Color3.fromRGB(255, 170, 60), boom * 0.25, boom, 0.32)
+						end
+					end)
+				elseif boom and boom > 0 then
 					pcall(Effects.Burst, x, 0, z, boom, if p and p.kind == P_ROCKET then "rocket" else "fire")
 				end
 			end
@@ -357,8 +370,14 @@ function WeaponFxController:KnitStart()
 			end
 			p.x += p.dx * p.speed * dt
 			p.z += p.dz * p.speed * dt
-			local pos = Vector3.new(p.x, state:HeightAt(p.x, p.z) + 3, p.z)
-			local cf = CFrame.lookAt(pos, pos + Vector3.new(p.dx, 0, p.dz))
+			local pos, dir
+			if p.y then
+				p.y += p.dy * p.speed * dt
+				pos, dir = Vector3.new(p.x, p.y, p.z), Vector3.new(p.dx, p.dy, p.dz)
+			else
+				pos, dir = Vector3.new(p.x, state:HeightAt(p.x, p.z) + 3, p.z), Vector3.new(p.dx, 0, p.dz)
+			end
+			local cf = CFrame.lookAt(pos, pos + dir)
 			if p.spin then
 				cf *= CFrame.Angles(0, 0, p.age * p.spin)
 			end
