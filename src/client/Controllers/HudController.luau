@@ -15,6 +15,7 @@ local Knit = require(ReplicatedStorage.Packages.Knit)
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Roster = require(ReplicatedStorage.Shared.Config.Roster)
+local Spawn = require(ReplicatedStorage.Shared.Core.Spawn)
 local Stats = require(ReplicatedStorage.Shared.Core.Stats)
 local UiKit = require(script.Parent.Parent.UiKit)
 
@@ -386,7 +387,7 @@ function HudController:_loadout(key: string, row: Instance?, template: Instance?
 		local slot = template:Clone()
 		slot.LayoutOrder = i
 		UiKit.setIcon(UiKit.find(slot, "Icon"), prefix .. tostring(entry.id))
-		UiKit.text(UiKit.find(slot, "Level"), `LVL {entry.level}`)
+		UiKit.text(UiKit.find(slot, "Level"), if entry.level >= GameConfig.UpgradeMaxLevel then "MAX" else `LVL {entry.level}`)
 		slot.Parent = row
 		table.insert(clones, slot)
 	end
@@ -589,7 +590,9 @@ function HudController:_tick(dt: number)
 		local names = GameConfig.OvertimeNames
 		local tier = math.max(state.tier, 1)
 		UiKit.text(e.tierName, names[math.clamp(tier, 1, #names)])
-		UiKit.text(e.tierMult, "x" .. Stats.format("int", 1 + tier * GameConfig.OvertimeSilverStep))
+		-- how much tougher the horde now is than when overtime began
+		local power = Spawn.overtimeHP(tier, GameConfig.OvertimeHPGrowth) / 1.5
+		UiKit.text(e.tierMult, "x" .. Stats.format("int", math.floor(power * 10 + 0.5) / 10))
 	else
 		local live = state.phase == "Playing" or state.phase == "Intro"
 		UiKit.text(e.stageTimer, if live then UiKit.clock(math.max(0, state.stage - clock)) else "")

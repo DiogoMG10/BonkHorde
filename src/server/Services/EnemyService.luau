@@ -295,8 +295,8 @@ function EnemyService:Direct(dt: number, clock: number, tier: number, difficulty
 		then Roster.OvertimeTypes
 		elseif bossActive then Roster.BossSpawnTypes
 		else Spawn.typesAt(Roster.SpawnTimeline, clock)
-	local hpMult = Spawn.hpMult(clock, difficulty, tier, c.EnemyHPPerMinute)
-	local dmgMult = 1 + c.EnemyDamagePerMinute * (clock / 60)
+	local hpMult = Spawn.hpMult(clock, difficulty, tier, c.EnemyHPPerMinute, c.OvertimeHPGrowth)
+	local dmgMult = (1 + c.EnemyDamagePerMinute * (clock / 60)) * Spawn.overtimeDamage(tier, c.OvertimeDamageGrowth)
 	while self._budget >= 1 do
 		self._budget -= 1
 		if self._regular >= cap then
@@ -304,7 +304,8 @@ function EnemyService:Direct(dt: number, clock: number, tier: number, difficulty
 		end
 		local rec = standing[rng:NextInteger(1, #standing)]
 		local name = types[rng:NextInteger(1, #types)]
-		local chance = Spawn.eliteChance(c.EliteBaseChance, rec.stats.EliteSpawnIncrease, clock)
+		local chance =
+			Spawn.eliteChance(c.EliteBaseChance, rec.stats.EliteSpawnIncrease, clock, tier, c.OvertimeElitePerTier, c.OvertimeEliteMax)
 		self:SpawnNear(rec, name, { elite = rng:NextNumber() < chance, hpMult = hpMult, dmgMult = dmgMult })
 	end
 end

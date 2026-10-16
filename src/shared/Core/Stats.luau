@@ -3,15 +3,13 @@
 --
 -- Everything is additive on the stat's default: a hero's base deltas, the hero
 -- passive (amount per level), and one running `bonus` table that tomes, items
--- and shrine boosts all add into. Pure: the stat definitions are passed in.
+-- and shrine boosts all add into, then held inside each stat's `min` and `max`.
+-- Pure: the stat definitions are passed in.
 
 local Stats = {}
 
-export type StatDef = { name: string, default: number, fmt: string, hidden: boolean? }
+export type StatDef = { name: string, default: number, fmt: string, hidden: boolean?, min: number?, max: number? }
 export type Block = { [string]: number }
-
-local CLAMP_MAX: { [string]: number } = { Armor = 0.8, Evasion = 0.75, CritChance = 1 }
-local CLAMP_MIN: { [string]: number } = { MaxHP = 1, AttackSpeed = 0.2, MoveSpeed = 0.4, Size = 0.3, PickupRange = 2, JumpHeight = 3 }
 
 --- A fresh block holding every stat's default.
 function Stats.defaults(defs: { [string]: StatDef }): Block
@@ -45,14 +43,12 @@ function Stats.compute(
 			out[key] = (out[key] or 0) + delta
 		end
 	end
-	for key, cap in CLAMP_MAX do
-		if out[key] and out[key] > cap then
-			out[key] = cap
-		end
-	end
-	for key, floor in CLAMP_MIN do
-		if out[key] and out[key] < floor then
-			out[key] = floor
+	for key, def in defs do
+		local v = out[key]
+		if def.max and v > def.max then
+			out[key] = def.max
+		elseif def.min and v < def.min then
+			out[key] = def.min
 		end
 	end
 	return out

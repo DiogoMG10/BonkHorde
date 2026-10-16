@@ -288,18 +288,16 @@ function RunDirectorService:_endRun(victory: boolean)
 	self._players:SetFrozen(true)
 	local rows = {}
 	local c = GameConfig
+	local run = {
+		stageSeconds = math.min(self._clock, c.StageSeconds),
+		overtimeSeconds = math.max(0, self._clock - c.StageSeconds),
+		kills = self._kills,
+		minibossKills = self._minibossKills,
+		bossKills = self._bossKills,
+		escaped = victory,
+	}
 	for _, rec in self._players:All() do
-		local silver = Progress.silver(
-			self._kills,
-			self._minibossKills,
-			self._bossKills,
-			c.SilverPerHundredKills,
-			c.SilverPerMinibossKill,
-			c.SilverPerBossKill,
-			rec.stats.SilverGain,
-			self._tier,
-			c.OvertimeSilverStep
-		)
+		local silver = Progress.silver(run, rec.stats.SilverGain, c)
 		self._data:AddSilver(rec.player, silver)
 		self._data:RecordRun(rec.player, rec.hero, self._kills, self._bossDeadAt)
 		table.insert(rows, {

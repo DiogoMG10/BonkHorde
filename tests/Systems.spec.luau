@@ -88,6 +88,37 @@ return {
 		end
 	end,
 
+	["a weapon or tome at the level cap is never offered, and a full maxed build has no offers"] = function()
+		local rnd = lcg(5)
+		local cap = GameConfig.UpgradeMaxLevel
+		local loadout = {
+			weapons = { Sword = cap, Axe = 7 },
+			tomes = { Damage = cap, Regen = 3 },
+			banished = {},
+			luck = 0,
+			weaponSlots = 4,
+			tomeSlots = 4,
+			maxLevel = cap,
+		}
+		for _ = 1, 200 do
+			for _, o in levelUp(loadout, rnd) do
+				assert(not (o.id == "Sword" or (o.kind == "tome" and o.id == "Damage")), `offered maxed {o.id}`)
+				assert(o.level <= cap, `offered level {o.level}`)
+			end
+		end
+		-- every slot full and every pick maxed: nothing to offer (the level pays gold)
+		local maxed = {
+			weapons = { Sword = cap, Axe = cap, Bone = cap, FireStaff = cap },
+			tomes = { Damage = cap, Regen = cap, Health = cap, Luck = cap },
+			banished = {},
+			luck = 0,
+			weaponSlots = 4,
+			tomeSlots = 4,
+			maxLevel = cap,
+		}
+		assert(#levelUp(maxed, rnd) == 0, "a maxed build was offered something")
+	end,
+
 	["full weapon slots stop new weapons being offered"] = function()
 		local rnd = lcg(11)
 		local loadout = {

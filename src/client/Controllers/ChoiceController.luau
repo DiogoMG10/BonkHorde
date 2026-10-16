@@ -401,7 +401,8 @@ function ChoiceController:_renderOffers()
 			UiKit.colour(UiKit.find(card, "IconTile"), UiKit.rarityColour(rarity))
 			UiKit.setIcon(UiKit.find(card, "IconTile.Icon"), (if offer.kind == "weapon" then "Icon" else "IconTome") .. tostring(offer.id))
 			UiKit.text(UiKit.find(card, "OfferName"), if def then def.name else tostring(offer.id))
-			UiKit.text(UiKit.find(card, "LevelTag"), if offer.isNew then "NEW" else `LVL {offer.level}`)
+			local levelTag = if offer.isNew then "NEW" elseif offer.level >= GameConfig.UpgradeMaxLevel then "MAX" else `LVL {offer.level}`
+			UiKit.text(UiKit.find(card, "LevelTag"), levelTag)
 
 			-- a new weapon explains itself; everything else shows what changes
 			local describe = offer.isNew == true and offer.kind == "weapon"
@@ -628,7 +629,8 @@ function ChoiceController:_renderSide()
 			if entry then
 				UiKit.setIcon(icon, prefix .. tostring(entry.id))
 			end
-			UiKit.text(UiKit.find(slot, "Level"), if entry then `LVL {entry.level}` else "")
+			local label = if not entry then "" elseif entry.level >= GameConfig.UpgradeMaxLevel then "MAX" else `LVL {entry.level}`
+			UiKit.text(UiKit.find(slot, "Level"), label)
 		end
 	end
 	fillSlots(self._weaponSlots, me and me.weapons or {}, "Icon")

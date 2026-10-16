@@ -20,6 +20,7 @@ export type Loadout = {
 	luck: number,
 	weaponSlots: number,
 	tomeSlots: number,
+	maxLevel: number?, -- a weapon or tome at this level is no longer offered
 }
 
 local function count(t: { [string]: number }): number
@@ -83,13 +84,16 @@ function Offers.levelUp(
 	local candidates: { { kind: string, id: string, isNew: boolean, weight: number } } = {}
 	local weaponFull = count(loadout.weapons) >= loadout.weaponSlots
 	local tomeFull = count(loadout.tomes) >= loadout.tomeSlots
+	local maxLevel = loadout.maxLevel or math.huge
 
 	for _, id in weaponOrder do
 		if loadout.banished["weapon:" .. id] then
 			continue
 		end
 		if loadout.weapons[id] then
-			table.insert(candidates, { kind = "weapon", id = id, isNew = false, weight = 3 })
+			if loadout.weapons[id] < maxLevel then
+				table.insert(candidates, { kind = "weapon", id = id, isNew = false, weight = 3 })
+			end
 		elseif not weaponFull then
 			table.insert(candidates, { kind = "weapon", id = id, isNew = true, weight = 1.4 })
 		end
@@ -99,7 +103,9 @@ function Offers.levelUp(
 			continue
 		end
 		if loadout.tomes[id] then
-			table.insert(candidates, { kind = "tome", id = id, isNew = false, weight = 2.5 })
+			if loadout.tomes[id] < maxLevel then
+				table.insert(candidates, { kind = "tome", id = id, isNew = false, weight = 2.5 })
+			end
 		elseif not tomeFull then
 			table.insert(candidates, { kind = "tome", id = id, isNew = true, weight = 1 })
 		end

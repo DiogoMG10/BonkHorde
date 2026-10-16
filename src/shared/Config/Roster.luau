@@ -33,31 +33,33 @@ Roster.StatGroups = {
 }
 
 Roster.Stats = {
-	MaxHP = { name = "Max HP", default = 100, fmt = "int" },
+	MaxHP = { name = "Max HP", default = 100, fmt = "int", min = 1 },
 	HPRegen = { name = "HP Regen", default = 10, fmt = "int" },
 	Overheal = { name = "Overheal", default = 0, fmt = "int" },
 	Shield = { name = "Shield", default = 0, fmt = "int" },
-	Armor = { name = "Armor", default = 0, fmt = "pct" },
-	Evasion = { name = "Evasion", default = 0, fmt = "pct" },
+	-- Armor and Evasion stop short of untouchable (they were 80% and 75%: with
+	-- regen and a shield on top, a hero could no longer be worn down)
+	Armor = { name = "Armor", default = 0, fmt = "pct", max = 0.7 },
+	Evasion = { name = "Evasion", default = 0, fmt = "pct", max = 0.6 },
 	Lifesteal = { name = "Lifesteal", default = 0, fmt = "pct" },
 	Thorns = { name = "Thorns", default = 0, fmt = "int" },
 	Damage = { name = "Damage", default = 1, fmt = "mult" },
-	CritChance = { name = "Crit Chance", default = 0.01, fmt = "pct" },
+	CritChance = { name = "Crit Chance", default = 0.01, fmt = "pct", max = 1 },
 	CritDamage = { name = "Crit Damage", default = 2, fmt = "mult" },
-	AttackSpeed = { name = "Attack Speed", default = 1, fmt = "pct" },
+	AttackSpeed = { name = "Attack Speed", default = 1, fmt = "pct", min = 0.2 },
 	ProjectileCount = { name = "Projectile Count", default = 0, fmt = "int" },
 	ProjectileBounces = { name = "Projectile Bounces", default = 0, fmt = "int" },
-	Size = { name = "Size", default = 1, fmt = "mult" },
+	Size = { name = "Size", default = 1, fmt = "mult", min = 0.3 },
 	ProjectileSpeed = { name = "Projectile Speed", default = 1, fmt = "mult" },
 	Duration = { name = "Duration", default = 1, fmt = "mult" },
 	DamageToElites = { name = "Damage to Elites", default = 1, fmt = "mult" },
 	Knockback = { name = "Knockback", default = 1, fmt = "mult" },
-	MoveSpeed = { name = "Movement Speed", default = 1, fmt = "mult" },
+	MoveSpeed = { name = "Movement Speed", default = 1, fmt = "mult", min = 0.4 },
 	ExtraJumps = { name = "Extra Jumps", default = 0, fmt = "int" },
-	JumpHeight = { name = "Jump Height", default = 7, fmt = "int" },
+	JumpHeight = { name = "Jump Height", default = 7, fmt = "int", min = 3 },
 	Luck = { name = "Luck", default = 0, fmt = "pct" },
 	Difficulty = { name = "Difficulty", default = 0, fmt = "pct" },
-	PickupRange = { name = "Pickup Range", default = 10, fmt = "int" },
+	PickupRange = { name = "Pickup Range", default = 10, fmt = "int", min = 2 },
 	XPGain = { name = "XP Gain", default = 1, fmt = "mult" },
 	GoldGain = { name = "Gold Gain", default = 1, fmt = "mult" },
 	SilverGain = { name = "Silver Gain", default = 1, fmt = "mult" },
@@ -65,7 +67,7 @@ Roster.Stats = {
 	PowerupMultiplier = { name = "Powerup Multiplier", default = 1, fmt = "mult" },
 	PowerupDropChance = { name = "Powerup Drop Chance", default = 1, fmt = "mult" },
 	-- hidden: not shown in the panel
-	FreezeChance = { name = "Freeze Chance", default = 0, fmt = "pct", hidden = true },
+	FreezeChance = { name = "Freeze Chance", default = 0, fmt = "pct", hidden = true, max = 0.5 },
 }
 
 -- ---------------------------------------------------------------- heroes

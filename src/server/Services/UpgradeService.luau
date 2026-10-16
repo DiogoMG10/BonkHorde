@@ -103,8 +103,9 @@ function UpgradeService:_present(rec)
 	end
 	local offers = self:_roll(rec)
 	if #offers == 0 then
-		-- nothing left to offer: pay the level out in gold instead of an empty panel
-		self._players:AddGold(rec, GameConfig.SkipGold * 3 * self._pending[rec])
+		-- nothing left to offer (every weapon and tome maxed, or banished): pay the
+		-- levels out in gold instead of an empty panel
+		self._players:MaxedOut(rec, self._pending[rec])
 		self._pending[rec] = 0
 		return
 	end
@@ -131,14 +132,32 @@ function UpgradeService:_send(rec, open, solo: boolean)
 end
 
 function UpgradeService:_apply(rec, offer)
+	local applied = true
 	if offer.kind == "weapon" then
 		if offer.isNew then
 			self._players:GrantWeapon(rec, offer.id)
 		else
-			self._players:UpgradeWeapon(rec, offer.id, offer.lines)
+			applied = self._players:UpgradeWeapon(rec, offer.id, offer.lines)
 		end
 	else
-		self._players:GrantTome(rec, offer.id, offer.lines)
+		applied = self._players:GrantTome(rec, offer.id, offer.lines)
+	end
+	if not applied then
+		-- the cap was reached since the offer was rolled: never apply it twice
+		self._players:MaxedOut(rec)
+	end
+end
+
+-- after a banish or a refresh: a fresh hand, or (with nothing left to offer)
+-- this level paid out in gold
+function UpgradeService:_reroll(rec, open, solo: boolean)
+	open.offers = self:_roll(rec)
+	rec.dirty = true
+	if #open.offers == 0 then
+		self._players:MaxedOut(rec)
+		self:_resolve(rec)
+	else
+		self:_send(rec, open, solo)
 	end
 end
 
@@ -165,17 +184,13 @@ function UpgradeService:_choose(rec, open, action: string, index: number)
 		end
 		rec.charges.banish -= 1
 		rec.banished[offer.kind .. ":" .. offer.id] = true
-		open.offers = self:_roll(rec)
-		rec.dirty = true
-		self:_send(rec, open, solo)
+		self:_reroll(rec, open, solo)
 	elseif action == "refresh" then
 		if rec.charges.refresh <= 0 then
 			return
 		end
 		rec.charges.refresh -= 1
-		open.offers = self:_roll(rec)
-		rec.dirty = true
-		self:_send(rec, open, solo)
+		self:_reroll(rec, open, solo)
 	end
 end
 

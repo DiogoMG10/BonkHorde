@@ -6,7 +6,7 @@
 -- what makes a balance pass a data edit.
 
 local GameConfig = {
-	BuildStamp = "bonk-0.11.0-m3a",
+	BuildStamp = "bonk-0.12.0-m5a",
 
 	-- squad
 	MaxPlayers = 3,
@@ -18,7 +18,12 @@ local GameConfig = {
 	StageSeconds = 600,
 	OvertimeTierSeconds = 30,
 	OvertimeNames = { "Easy", "Normal", "Hard", "Brutal", "Insane", "Unfair", "Why" },
-	OvertimeSilverStep = 0.15,
+	-- past the stage clock every tier compounds on the last (Core/Spawn): the first
+	-- minutes are a fight, ten minutes in it is a wall. Enemy counts stay capped.
+	OvertimeHPGrowth = 1.2, -- enemy health x this per tier (x3 after 2 min, x57 after 10)
+	OvertimeDamageGrowth = 1.13, -- enemy damage x this per tier (x1.8 after 2 min, x13 after 10)
+	OvertimeElitePerTier = 0.015, -- more of each wave are elites...
+	OvertimeEliteMax = 0.5, -- ...up to this share
 
 	-- simulation
 	SimHz = 20,
@@ -58,6 +63,10 @@ local GameConfig = {
 	EliteScale = 1.5,
 	EliteBaseChance = 0.02,
 	EliteXP = 10,
+	-- defence: Armor and Evasion are capped in Roster.Stats; lifesteal heals at most
+	-- this share of max HP per second however many enemies a weapon hits
+	LifestealPerSecond = 0.04,
+	FreezeChanceMax = 0.75, -- a hit's whole freeze chance (stat, weapon, items) stops here
 	OvertimeSpawnMultiplier = 1.6,
 
 	-- player
@@ -129,6 +138,8 @@ local GameConfig = {
 	RefreshCharges = 3,
 	WeaponSlots = 4,
 	TomeSlots = 4,
+	UpgradeMaxLevel = 20, -- every weapon and tome stops here, and every stackable item at this many
+	MaxedOutGold = 15, -- what a level-up, chest or pick with nothing left to give pays instead
 	SkipGold = 5,
 	LateJoinLevelFraction = 0.75,
 
@@ -139,9 +150,19 @@ local GameConfig = {
 	ChestPriceLinear = 40,
 	ChestPriceQuadratic = 3,
 	ShopPrice = { Common = 60, Rare = 120, Epic = 200, Legendary = 290 },
-	SilverPerHundredKills = 1,
-	SilverPerBossKill = 10,
+	-- Silver (Core/Progress.silver): every part of a run pays, each with diminishing
+	-- returns, and the run as a whole is capped, so no run is ever worth an unlock on
+	-- its own (Minty is 150). tests/Rules.spec.luau pins the reference payouts.
+	SilverPerStageMinute = 0.8, -- surviving the stage clock (up to its 10 minutes)
+	SilverKillMax = 35, -- kills pay towards this...
+	SilverKillScale = 2500, -- ...about two thirds of it by this many kills
 	SilverPerMinibossKill = 3,
+	SilverPerBossKill = 10,
+	SilverForEscape = 4, -- leaving through the portal after the boss
+	SilverOvertimeMax = 30, -- overtime survived pays towards this...
+	SilverOvertimeHalfLife = 240, -- ...half of it in this many seconds
+	SilverGainCap = 1.5, -- Silver Gain counts up to this multiplier
+	SilverRunCap = 120, -- the most one run can pay
 
 	-- interactables
 	InteractRange = 9,

@@ -35,9 +35,13 @@ return {
 		assert(near(s11.Armor, 0.25), "ten level-ups are ten percent")
 	end,
 
-	["armor is capped so a tank can still be hurt"] = function()
-		local s = Stats.compute(Roster.Stats, nil, nil, nil, 1, { Armor = 5 })
-		assert(near(s.Armor, 0.8))
+	["armor and evasion are capped so a tank can still be hurt"] = function()
+		local s = Stats.compute(Roster.Stats, nil, nil, nil, 1, { Armor = 5, Evasion = 5 })
+		assert(near(s.Armor, 0.7) and near(s.Evasion, 0.6), `{s.Armor} {s.Evasion}`)
+		-- the Knight's passive alone reaches the cap, and stops there
+		local hero = Roster.Heroes.Knight
+		local k = Stats.compute(Roster.Stats, hero.base, hero.passive.stat, hero.passive.perLevel, 200, nil)
+		assert(near(k.Armor, 0.7))
 	end,
 
 	["hero bases are deltas on the defaults"] = function()
@@ -113,10 +117,48 @@ return {
 		assert(Progress.chestPrice(2, c.ChestPriceBase, c.ChestPriceLinear, c.ChestPriceQuadratic) == 122)
 	end,
 
-	["silver pays for kills, bosses and overtime"] = function()
-		assert(Progress.silver(250, 0, 0, 1, 3, 10, 1, 0, 0.15) == 2)
-		assert(Progress.silver(1000, 2, 1, 1, 3, 10, 1, 0, 0.15) == 26)
-		assert(Progress.silver(1000, 2, 1, 1, 3, 10, 1, 2, 0.15) == 34)
+	["silver rewards a run in proportion, and never pays an unlock in one go"] = function()
+		local c = GameConfig
+		local function pay(stage, overtime, kills, minis, boss, escaped, gain)
+			local run = {
+				stageSeconds = stage,
+				overtimeSeconds = overtime,
+				kills = kills,
+				minibossKills = minis,
+				bossKills = boss,
+				escaped = escaped,
+			}
+			return (Progress.silver(run, gain, c))
+		end
+		local early = pay(180, 0, 250, 0, 0, false, 1) -- an early defeat
+		local mid = pay(480, 0, 1800, 2, 0, false, 1) -- a defeat before the boss
+		local normal = pay(600, 30, 2500, 2, 1, true, 1) -- a normal completed run
+		local strong = pay(600, 300, 6000, 2, 1, true, 1.16) -- a strong run with some overtime
+		local long = pay(600, 1500, 30000, 2, 1, false, 1.4) -- a very long, high-kill survival
+		local farmed = pay(600, 7200, 200000, 2, 1, true, 3) -- an absurd run with stacked Silver Gain
+		assert(early >= 4 and early <= 10, `early defeat paid {early}`)
+		assert(mid > early and mid <= 40, `mid defeat paid {mid}`)
+		-- a normal win is a solid step towards Minty (150), not most of it
+		assert(normal >= 45 and normal <= 60, `normal run paid {normal}`)
+		assert(strong > normal and strong <= 100, `strong run paid {strong}`)
+		assert(long > strong and long <= c.SilverRunCap, `long run paid {long}`)
+		assert(farmed == c.SilverRunCap and farmed < Roster.Heroes.Frostling.unlockSilver, `farmed run paid {farmed}`)
+	end,
+
+	["overtime grows enemies faster and faster, and elites with it"] = function()
+		local c = GameConfig
+		assert(Spawn.overtimeHP(0, c.OvertimeHPGrowth) == 1 and Spawn.overtimeDamage(0, c.OvertimeDamageGrowth) == 1)
+		assert(near(Spawn.overtimeHP(1, c.OvertimeHPGrowth), 1.5), "the first tier is as tough as it always was")
+		-- each step of a minute adds more than the one before it
+		local a, b, d =
+			Spawn.overtimeHP(3, c.OvertimeHPGrowth), Spawn.overtimeHP(5, c.OvertimeHPGrowth), Spawn.overtimeHP(7, c.OvertimeHPGrowth)
+		assert(d - b > b - a)
+		-- the early minutes stay a fight; ten minutes in, a hit is many times harder
+		assert(Spawn.overtimeDamage(4, c.OvertimeDamageGrowth) < 2.0)
+		assert(Spawn.overtimeDamage(20, c.OvertimeDamageGrowth) > 8)
+		local before = Spawn.eliteChance(c.EliteBaseChance, 1, 600)
+		local deep = Spawn.eliteChance(c.EliteBaseChance, 1, 1200, 20, c.OvertimeElitePerTier, c.OvertimeEliteMax)
+		assert(deep > before and deep <= c.OvertimeEliteMax)
 	end,
 
 	["spawn rate grows through the stage and with the squad"] = function()
