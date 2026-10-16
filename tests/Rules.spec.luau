@@ -23,7 +23,7 @@ return {
 				n += 1
 			end
 		end
-		assert(n == 31, "the stats panel shows 31 stats, got " .. n)
+		assert(n == 30, "the stats panel shows 30 stats, got " .. n)
 	end,
 
 	["a hero passive gives nothing at level 1"] = function()
@@ -33,6 +33,18 @@ return {
 		assert(near(s.Armor, 0.15), "knight starts at his base 15% armor, got " .. s.Armor)
 		local s11 = Stats.compute(Roster.Stats, hero.base, hero.passive.stat, hero.passive.perLevel, 11, nil)
 		assert(near(s11.Armor, 0.25), "ten level-ups are ten percent")
+	end,
+
+	["lifesteal cannot be had: no item, no shrine, and the stat holds at zero"] = function()
+		for _, id in Roster.ItemOrder do
+			local stats = Roster.Items[id].stats
+			assert(not (stats and stats.Lifesteal), id .. " still gives lifesteal")
+		end
+		for _, boost in Roster.ShrineBoosts do
+			assert(boost.stat ~= "Lifesteal", "a shrine still boosts lifesteal")
+		end
+		local s = Stats.compute(Roster.Stats, nil, nil, nil, 1, { Lifesteal = 0.5 })
+		assert(s.Lifesteal == 0, "lifesteal from a leftover source")
 	end,
 
 	["armor and evasion are capped so a tank can still be hurt"] = function()
@@ -159,6 +171,47 @@ return {
 		local before = Spawn.eliteChance(c.EliteBaseChance, 1, 600)
 		local deep = Spawn.eliteChance(c.EliteBaseChance, 1, 1200, 20, c.OvertimeElitePerTier, c.OvertimeEliteMax)
 		assert(deep > before and deep <= c.OvertimeEliteMax)
+		-- however long a run goes, the numbers stay finite
+		assert(Spawn.overtimeHP(500, c.OvertimeHPGrowth, c.OvertimeHPMax) == c.OvertimeHPMax)
+		assert(Spawn.overtimeDamage(500, c.OvertimeDamageGrowth, c.OvertimeDamageMax) == c.OvertimeDamageMax)
+	end,
+
+	["overtime pace: the horde quickens, and runners outgrow a walk and then a hop"] = function()
+		local c = GameConfig
+		local function at(minutes: number): (number, number, number)
+			local tier = Spawn.overtimeTier(minutes * 60, c.OvertimeTierSeconds)
+			local pace = Spawn.overtimeSpeed(tier, c.OvertimeSpeedPerTier, c.OvertimeSpeedMax)
+			local share, boost = Spawn.runners(
+				tier,
+				c.OvertimeRunnerPerTier,
+				c.OvertimeRunnerMax,
+				c.OvertimeRunnerBoost,
+				c.OvertimeRunnerBoostPerTier,
+				c.OvertimeRunnerBoostMax
+			)
+			return pace, share, pace * boost
+		end
+		-- the fastest overtime enemy at its top random roll, in studs/s
+		local fastest = 0
+		for _, name in Roster.OvertimeTypes do
+			fastest = math.max(fastest, Roster.Enemies[name].speed * c.EnemySpeedScale * 1.08)
+		end
+		local walk = c.PlayerWalkSpeed
+		local hop = walk * c.HopMaxMultiplier
+		local pace0, share0 = at(0.2)
+		assert(pace0 == 1 and share0 == 0, "the first tier has no runners and no extra pace")
+		-- the horde itself never outruns a walking hero by much: it can be kited
+		local paceMax = at(30)
+		assert(paceMax == c.OvertimeSpeedMax and fastest * paceMax < walk * 1.3)
+		-- two minutes in, a runner beats a walk but not a hop
+		local _, share2, run2 = at(2)
+		assert(share2 > 0 and share2 < 0.1, `share at 2 min {share2}`)
+		assert(fastest * run2 > walk and fastest * run2 < hop, `runner at 2 min {fastest * run2}`)
+		-- twelve minutes in, the fastest runner outpaces a full bunny hop
+		local _, share12, run12 = at(12)
+		assert(fastest * run12 > hop, `runner at 12 min {fastest * run12}`)
+		-- and never most of the horde
+		assert(share12 <= c.OvertimeRunnerMax and c.OvertimeRunnerMax <= 0.35)
 	end,
 
 	["spawn rate grows through the stage and with the squad"] = function()
@@ -221,7 +274,7 @@ return {
 		for _, id in Roster.ItemOrder do
 			assert(Roster.Items[id] ~= nil, "undefined item " .. id)
 		end
-		assert(#Roster.ItemOrder == 26)
+		assert(#Roster.ItemOrder == 25)
 		for _, id in Roster.WeaponOrder do
 			assert(Roster.Weapons[id] ~= nil, "undefined weapon " .. id)
 		end

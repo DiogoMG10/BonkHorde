@@ -16,6 +16,11 @@
 --   sky clear          switch the sky live: golden (the baseline), clear, dusk
 --   leaves Grass       re-material every tree's foliage live (LeafyGrass, Grass,
 --                      SmoothPlastic, Plastic...; `leaves` alone puts it back)
+--   font bangers       try a face on the damage numbers and popups (Config/Fonts);
+--                      `font bangers numbers` / `font fredoka popups` one of them
+-- In a run:
+--   maxbuild           fill every weapon and tome slot at the cap (LVL MAX);
+--                      `maxbuild 1` leaves the last one a level short
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -54,7 +59,7 @@ function DevService:KnitStart()
 
 	local commands = {}
 	-- these need no hero, so they also work in the lobby
-	local lobbyCommands = { clock = true, unlock = true, marker = true, hop = true, sky = true, leaves = true }
+	local lobbyCommands = { clock = true, unlock = true, marker = true, hop = true, sky = true, leaves = true, font = true }
 
 	function commands.unlock(_, id)
 		local player = Players:GetPlayers()[1]
@@ -110,6 +115,19 @@ function DevService:KnitStart()
 		end
 		print(`[Dev] leaves {if ok and material then name else "as built"} on {count} parts`)
 	end
+	function commands.font(_, name, role)
+		local Fonts = require(ReplicatedStorage.Shared.Config.Fonts)
+		if not Fonts.Faces[name or ""] then
+			print(`[Dev] fonts: {table.concat(Fonts.Order, ", ")} (default {Fonts.Default})`)
+			return
+		end
+		for key, attr in Fonts.Attributes do
+			if role == nil or role == key then
+				Workspace:SetAttribute(attr, name)
+			end
+		end
+		print(`[Dev] font {name} on {role or "numbers and popups"}`)
+	end
 	function commands.marker()
 		local on = Workspace:GetAttribute("BonkAimMarker") ~= true
 		Workspace:SetAttribute("BonkAimMarker", on)
@@ -147,6 +165,39 @@ function DevService:KnitStart()
 		if Roster.Items[id] then
 			players:GrantItem(rec, id)
 		end
+	end
+	-- a finished build, for the LVL MAX state: free slots filled in roster order,
+	-- then every weapon and tome levelled to the cap (`maxbuild 1`: the last one
+	-- stops a level short, so the next level-up finishes it)
+	function commands.maxbuild(rec, short)
+		local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
+		local cap = GameConfig.UpgradeMaxLevel
+		for _, id in Roster.WeaponOrder do
+			if #rec.weapons < GameConfig.WeaponSlots then
+				players:GrantWeapon(rec, id)
+			end
+		end
+		for _, id in Roster.TomeOrder do
+			if #rec.tomes < GameConfig.TomeSlots and not rec.tomeIndex[id] then
+				local def = Roster.Tomes[id]
+				players:GrantTome(rec, id, { { stat = def.stat, amount = def.perLevel } })
+			end
+		end
+		local last = if tonumber(short) then rec.tomes[#rec.tomes] else nil
+		for _, w in rec.weapons do
+			local pool = Roster.Weapons[w.id].pool
+			local key = next(pool)
+			while w.level < cap do
+				players:UpgradeWeapon(rec, w.id, if key then { { stat = key, amount = pool[key] } } else {})
+			end
+		end
+		for _, t in rec.tomes do
+			local def = Roster.Tomes[t.id]
+			while t.level < (if t == last then cap - 1 else cap) do
+				players:GrantTome(rec, t.id, { { stat = def.stat, amount = def.perLevel } })
+			end
+		end
+		print(`[Dev] maxbuild: complete={rec.complete}`)
 	end
 	function commands.weapon(rec, id)
 		if Roster.Weapons[id] then

@@ -117,6 +117,26 @@ return {
 			maxLevel = cap,
 		}
 		assert(#levelUp(maxed, rnd) == 0, "a maxed build was offered something")
+		-- that is what LVL MAX means: no level-up can offer it anything
+		assert(not Offers.canLevel(maxed, Roster.WeaponOrder, Roster.TomeOrder))
+		assert(Offers.canLevel(loadout, Roster.WeaponOrder, Roster.TomeOrder))
+		-- one weapon a level short is not finished; a free slot is not either
+		local short = table.clone(maxed)
+		short.weapons = table.clone(maxed.weapons)
+		short.weapons.Axe = cap - 1
+		assert(Offers.canLevel(short, Roster.WeaponOrder, Roster.TomeOrder))
+		local open = table.clone(maxed)
+		open.tomes = { Damage = cap, Regen = cap, Health = cap }
+		assert(Offers.canLevel(open, Roster.WeaponOrder, Roster.TomeOrder))
+		-- banishing every remaining choice finishes a build too
+		local banished = table.clone(open)
+		banished.banished = {}
+		for _, id in Roster.TomeOrder do
+			if not open.tomes[id] then
+				banished.banished["tome:" .. id] = true
+			end
+		end
+		assert(not Offers.canLevel(banished, Roster.WeaponOrder, Roster.TomeOrder))
 	end,
 
 	["full weapon slots stop new weapons being offered"] = function()

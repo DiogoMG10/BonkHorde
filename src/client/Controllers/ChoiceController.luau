@@ -170,7 +170,7 @@ function ChoiceController:_start()
 	buildSlots(e.weaponSlots, invSlot, GameConfig.WeaponSlots, self._weaponSlots)
 	buildSlots(e.tomeSlots, tomeSlot, GameConfig.TomeSlots, self._tomeSlots)
 
-	-- the 31 stat rows, in roster order, with a gap between groups
+	-- the 30 stat rows, in roster order, with a gap between groups
 	if e.statRows and statRow then
 		local order = 0
 		for groupIndex, group in Roster.StatGroups do

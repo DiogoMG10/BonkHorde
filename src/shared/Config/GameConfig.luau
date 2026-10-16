@@ -6,7 +6,7 @@
 -- what makes a balance pass a data edit.
 
 local GameConfig = {
-	BuildStamp = "bonk-0.13.1-m5a",
+	BuildStamp = "bonk-0.14.0-m5a",
 
 	-- squad
 	MaxPlayers = 3,
@@ -20,10 +20,23 @@ local GameConfig = {
 	OvertimeNames = { "Easy", "Normal", "Hard", "Brutal", "Insane", "Unfair", "Why" },
 	-- past the stage clock every tier compounds on the last (Core/Spawn): the first
 	-- minutes are a fight, ten minutes in it is a wall. Enemy counts stay capped.
-	OvertimeHPGrowth = 1.2, -- enemy health x this per tier (x3 after 2 min, x57 after 10)
-	OvertimeDamageGrowth = 1.13, -- enemy damage x this per tier (x1.8 after 2 min, x13 after 10)
+	OvertimeHPGrowth = 1.2, -- enemy health x this per tier (x3 after 2 min, x57 after 10)...
+	OvertimeHPMax = 50000, -- ...to this ceiling (about 28 min): finite, and long past survivable
+	OvertimeDamageGrowth = 1.13, -- enemy damage x this per tier (x1.8 after 2 min, x13 after 10)...
+	OvertimeDamageMax = 100, -- ...to this ceiling (about 18 min), where any hit is lethal anyway
 	OvertimeElitePerTier = 0.015, -- more of each wave are elites...
 	OvertimeEliteMax = 0.5, -- ...up to this share
+	-- speed: health alone lets a big build delete the horde before it arrives.
+	-- The whole horde quickens a little; a growing share comes frenzied (runners,
+	-- trailing embers) and outpaces a walking hero within a minute, a bunny hop
+	-- from about twelve minutes. Counts stay capped: the threat is pace, not mass.
+	OvertimeSpeedPerTier = 0.03, -- every enemy x(1 + this per tier after the first)...
+	OvertimeSpeedMax = 1.45, -- ...to this (8 min)
+	OvertimeRunnerPerTier = 0.015, -- the share of spawns that are runners grows by this per tier...
+	OvertimeRunnerMax = 0.3, -- ...to this (10 min): most of the horde can still be outrun
+	OvertimeRunnerBoost = 1.35, -- a runner is this much faster than the horde...
+	OvertimeRunnerBoostPerTier = 0.04, -- ...plus this per tier...
+	OvertimeRunnerBoostMax = 2.3, -- ...to this (12 min)
 
 	-- simulation
 	SimHz = 20,

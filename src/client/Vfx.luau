@@ -608,6 +608,18 @@ local ATTACHED: { [string]: { any } } = {
 	EliteGlint = {
 		{ tex = "star4", rate = 5, colour = rgb(255, 225, 90), size = grow(0.2, 1.1, 0), life = { 0.4, 0.6 }, speed = { 0, 1 }, glow = 1 },
 	},
+	RunnerEmbers = {
+		{
+			tex = "dot",
+			rate = 14,
+			colour = ColorSequence.new(rgb(255, 196, 70), rgb(255, 70, 30)),
+			size = grow(0.45, 0.1),
+			life = { 0.3, 0.5 },
+			speed = { 1, 3 },
+			up = true,
+			glow = 1,
+		},
+	},
 	GhostWisp = {
 		{
 			tex = "puff",

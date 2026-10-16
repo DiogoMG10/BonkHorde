@@ -7,9 +7,9 @@
 -- up and away for an instant, then homes in with ever-growing speed (it
 -- outruns a hero at full bunny-hop speed within half a second), and twinkles
 -- and chimes as it arrives. A magnet or vacuum shrine sweeps nearest first,
--- so the whole map's gems and coins stream in as a converging wave, with a
--- running "+XP" tally over the hero. Gems and coins near the camera bob and
--- turn while they wait. Parts are pooled and every frame's moves go out in one
+-- so the whole map's gems and coins stream in as a converging wave. No number
+-- is drawn for it: the XP bar says what it was worth. Gems and coins near the
+-- camera bob and turn while they wait. Parts are pooled and every frame's moves go out in one
 -- BulkMoveTo. A visual comes from ReplicatedStorage.Assets.Pickups.<Kind> when
 -- it exists and is a simple shape otherwise.
 
@@ -46,7 +46,6 @@ local LOOK = {
 local GOLD = Color3.fromRGB(255, 214, 90)
 local IDLE_RANGE = 140 -- gems and coins this close to the camera bob and turn
 local ARRIVE = 2.2 -- studs from the hero's chest that count as arrived
-local TALLY_MIN = 12 -- a tally shows once a sweep brings at least this many gems
 
 function PickupRenderController:KnitInit()
 	self._items = {} -- id -> { part, kind, value, at (resting CFrame), phase }
@@ -61,9 +60,6 @@ function PickupRenderController:KnitInit()
 	self._streak = 0
 	self._streakAt = 0
 	self._sparkAt = 0
-	self._tally = 0
-	self._tallyGems = 0
-	self._tallyAt = 0
 end
 
 function PickupRenderController:_make(kind: string): BasePart
@@ -136,7 +132,7 @@ function PickupRenderController:_clear()
 end
 
 -- a pickup reached its hero: for the local hero, a twinkle, a chime that
--- climbs in pitch through a run of them, and the sweep's tally
+-- climbs in pitch through a run of them
 function PickupRenderController:_arrived(f, at: Vector3)
 	if f.index ~= self._state:MyIndex() then
 		return
@@ -150,55 +146,8 @@ function PickupRenderController:_arrived(f, at: Vector3)
 		self._streak = if now - self._streakAt < 0.5 then math.min(self._streak + 1, 14) else 0
 		self._streakAt = now
 		self._audio:Play("xp_pickup", nil, 1 + self._streak * 0.045)
-		local me = self._state.me
-		self._tally += f.value * (if me and me.stats then me.stats.XPGain else 1)
-		self._tallyGems += 1
-		self._tallyAt = now
 	elseif f.kind == "GoldCoin" then
 		self._audio:Play("coin_pickup", 0.08)
-	end
-end
-
--- the "+XP" over the hero while a big haul streams in
-function PickupRenderController:_tallyGui(): TextLabel
-	if self._tallyLabel and self._tallyLabel.Parent then
-		return self._tallyLabel
-	end
-	local gui = Instance.new("BillboardGui")
-	gui.Name = "PickupTally"
-	gui.Size = UDim2.fromOffset(220, 46)
-	gui.StudsOffset = Vector3.new(0, 4.6, 0)
-	gui.AlwaysOnTop = true
-	gui.LightInfluence = 0
-	local text = Instance.new("TextLabel")
-	text.Size = UDim2.fromScale(1, 1)
-	text.BackgroundTransparency = 1
-	text.Font = Enum.Font.LuckiestGuy
-	text.TextScaled = true
-	text.TextColor3 = Color3.fromRGB(150, 210, 255)
-	text.TextStrokeTransparency = 0.1
-	text.TextStrokeColor3 = Color3.fromRGB(10, 30, 70)
-	text.Parent = gui
-	gui.Parent = self._folder
-	self._tallyLabel = text
-	return text
-end
-
-function PickupRenderController:_updateTally(roots: { [number]: BasePart })
-	local now = os.clock()
-	local label = self._tallyLabel
-	local root = roots[self._state:MyIndex()]
-	if self._tallyGems >= TALLY_MIN and root and now - self._tallyAt < 1.4 then
-		label = self:_tallyGui()
-		label.Parent.Adornee = root
-		label.Text = `+{math.floor(self._tally + 0.5)} XP`
-		label.TextTransparency = 0
-		label.TextStrokeTransparency = 0.1
-	elseif label and label.Parent then
-		label.Parent.Adornee = nil
-	end
-	if now - self._tallyAt >= 1.4 then
-		self._tally, self._tallyGems = 0, 0
 	end
 end
 
@@ -340,7 +289,6 @@ function PickupRenderController:KnitStart()
 		if #parts > 0 then
 			Workspace:BulkMoveTo(parts, frames, Enum.BulkMoveMode.FireCFrameChanged)
 		end
-		self:_updateTally(roots)
 	end)
 end
 

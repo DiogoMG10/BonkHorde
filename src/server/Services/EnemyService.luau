@@ -28,6 +28,7 @@ local rng = Random.new()
 
 -- flags sent with a spawn
 local FLAG_ELITE = 1
+local FLAG_RUNNER = 2
 -- reasons sent with a removal
 local GONE_KILLED = 1
 local GONE_CLEARED = 2
@@ -62,6 +63,7 @@ local dashUntil = table.create(MAX, 0)
 local dashX = table.create(MAX, 0)
 local dashZ = table.create(MAX, 0)
 local tag = table.create(MAX, false)
+local runner = table.create(MAX, false) -- an overtime runner: frenzied and fast
 
 local typeIndex = {}
 for i, name in Roster.EnemyOrder do
@@ -209,7 +211,7 @@ end
 
 -- ------------------------------------------------------------------ spawning
 
---- Put one enemy in the world. opts: elite, hpMult, dmgMult, tag.
+--- Put one enemy in the world. opts: elite, hpMult, dmgMult, speedMult, runner, tag.
 function EnemyService:Spawn(typeName: string, x: number, z: number, opts): number?
 	local d = Roster.Enemies[typeName]
 	local slot = table.remove(self._free)
@@ -238,7 +240,8 @@ function EnemyService:Spawn(typeName: string, x: number, z: number, opts): numbe
 	radius[slot] = d.radius * (if isElite then GameConfig.EliteScale else 1)
 	body[slot] = (d.body or d.radius) * (if isElite then GameConfig.EliteScale else 1)
 	sentX[slot], sentZ[slot] = x, z
-	speed[slot] = d.speed * GameConfig.EnemySpeedScale * (0.92 + rng:NextNumber() * 0.16)
+	speed[slot] = d.speed * GameConfig.EnemySpeedScale * (0.92 + rng:NextNumber() * 0.16) * (opts.speedMult or 1)
+	runner[slot] = opts.runner == true
 	dmg[slot] = d.dmg * GameConfig.EnemyDamageScale * (opts.dmgMult or 1)
 	bossKind[slot] = if d.boss == "stage" then 2 elseif d.boss == "mini" then 1 else 0
 	dashUntil[slot] = 0
@@ -299,8 +302,17 @@ function EnemyService:Direct(dt: number, clock: number, tier: number, difficulty
 		then Roster.OvertimeTypes
 		elseif bossActive then Roster.BossSpawnTypes
 		else Spawn.typesAt(Roster.SpawnTimeline, clock)
-	local hpMult = Spawn.hpMult(clock, difficulty, tier, c.EnemyHPPerMinute, c.OvertimeHPGrowth)
-	local dmgMult = (1 + c.EnemyDamagePerMinute * (clock / 60)) * Spawn.overtimeDamage(tier, c.OvertimeDamageGrowth)
+	local hpMult = Spawn.hpMult(clock, difficulty, tier, c.EnemyHPPerMinute, c.OvertimeHPGrowth, c.OvertimeHPMax)
+	local dmgMult = (1 + c.EnemyDamagePerMinute * (clock / 60)) * Spawn.overtimeDamage(tier, c.OvertimeDamageGrowth, c.OvertimeDamageMax)
+	local pace = Spawn.overtimeSpeed(tier, c.OvertimeSpeedPerTier, c.OvertimeSpeedMax)
+	local runShare, runBoost = Spawn.runners(
+		tier,
+		c.OvertimeRunnerPerTier,
+		c.OvertimeRunnerMax,
+		c.OvertimeRunnerBoost,
+		c.OvertimeRunnerBoostPerTier,
+		c.OvertimeRunnerBoostMax
+	)
 	while self._budget >= 1 do
 		self._budget -= 1
 		if self._regular >= cap then
@@ -310,7 +322,14 @@ function EnemyService:Direct(dt: number, clock: number, tier: number, difficulty
 		local name = types[rng:NextInteger(1, #types)]
 		local chance =
 			Spawn.eliteChance(c.EliteBaseChance, rec.stats.EliteSpawnIncrease, clock, tier, c.OvertimeElitePerTier, c.OvertimeEliteMax)
-		self:SpawnNear(rec, name, { elite = rng:NextNumber() < chance, hpMult = hpMult, dmgMult = dmgMult })
+		local run = runShare > 0 and rng:NextNumber() < runShare
+		self:SpawnNear(rec, name, {
+			elite = rng:NextNumber() < chance,
+			hpMult = hpMult,
+			dmgMult = dmgMult,
+			speedMult = if run then pace * runBoost else pace,
+			runner = run,
+		})
 	end
 end
 
@@ -511,7 +530,9 @@ function EnemyService:Step(dt: number, now: number)
 				mx, mz = dashX[slot] * sp * 4, dashZ[slot] * sp * 4
 			else
 				if dist > reach * 0.85 then
-					mx, mz = dx / dist * sp, dz / dist * sp
+					-- never past the stop point in one tick (a runner covers 2-3 studs a tick)
+					local go = math.min(sp, (dist - reach * 0.8) / math.max(dt, 1e-3))
+					mx, mz = dx / dist * go, dz / dist * go
 				elseif dist < reach * 0.55 and dist > 1e-3 then
 					-- standing inside the hero: back out, so a pack rings him instead of burying him
 					mx, mz = -dx / dist * sp * 0.7, -dz / dist * sp * 0.7
@@ -628,7 +649,7 @@ function EnemyService:FlushNet()
 			local o = (i - 1) * 4
 			buffer.writeu16(b, o, slot)
 			buffer.writeu8(b, o + 2, typeId[slot])
-			buffer.writeu8(b, o + 3, if elite[slot] then FLAG_ELITE else 0)
+			buffer.writeu8(b, o + 3, (if elite[slot] then FLAG_ELITE else 0) + (if runner[slot] then FLAG_RUNNER else 0))
 		end
 		table.clear(spawned)
 		self._spawnEvent:FireAllClients(b)
@@ -696,7 +717,7 @@ function EnemyService:SendAllTo(player: Player)
 		local o = (i - 1) * 4
 		buffer.writeu16(b, o, slot)
 		buffer.writeu8(b, o + 2, typeId[slot])
-		buffer.writeu8(b, o + 3, if elite[slot] then FLAG_ELITE else 0)
+		buffer.writeu8(b, o + 3, (if elite[slot] then FLAG_ELITE else 0) + (if runner[slot] then FLAG_RUNNER else 0))
 	end
 	self._spawnEvent:FireClient(player, b)
 end

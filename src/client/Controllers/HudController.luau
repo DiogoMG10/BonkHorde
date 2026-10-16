@@ -10,8 +10,10 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
+local Workspace = game:GetService("Workspace")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
+local Fonts = require(ReplicatedStorage.Shared.Config.Fonts)
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Roster = require(ReplicatedStorage.Shared.Config.Roster)
@@ -129,6 +131,20 @@ function HudController:_start()
 
 	UiKit.fillIcons(hud)
 	UiKit.setIcon(e.toastPortrait, "IconExclaim")
+
+	-- the big popups wear the face on trial (Config/Fonts; `font` in Studio)
+	local fontAttr = Fonts.Attributes.popups
+	local function popupFont()
+		local face = Fonts.face(Workspace:GetAttribute(fontAttr))
+		for _, key in { "levelUp", "bannerText", "stageName", "pickupToast" } do
+			local label = e[key]
+			if label and label:IsA("TextLabel") then
+				label.FontFace = face
+			end
+		end
+	end
+	popupFont()
+	Workspace:GetAttributeChangedSignal(fontAttr):Connect(popupFont)
 
 	-- everything that ships visible only as a mockup state starts hidden
 	for _, key in
@@ -287,6 +303,10 @@ end
 
 function HudController:_levelUpFx()
 	local e = self._e
+	local me = self._state.me
+	if me and me.complete then
+		return -- the server does not send it to a finished build; a late packet is ignored too
+	end
 	local stamp = os.clock()
 	self._levelStamp = stamp
 	UiKit.show(e.rainbow, true)
@@ -368,6 +388,12 @@ end
 
 function HudController:_renderXp()
 	local state = self._state
+	if state.me and state.me.complete then
+		-- a finished build: the squad's XP still runs for teammates, not for this bar
+		UiKit.fill(self._e.xpFill, 1)
+		UiKit.text(self._e.level, "LVL MAX")
+		return
+	end
 	UiKit.fill(self._e.xpFill, state.xp / math.max(state.need, 1))
 	UiKit.text(self._e.level, `LVL {state.level}`)
 end
@@ -397,6 +423,7 @@ function HudController:_renderMe()
 	local e = self._e
 	local me = self._state.me
 	self:_applyEnabled()
+	self:_renderXp() -- the level label turns to MAX with the build
 
 	UiKit.text(e.gold, UiKit.commas(me and me.gold or 0))
 	UiKit.text(e.chestPrice, UiKit.commas(me and me.chestPrice or 0))
@@ -591,7 +618,7 @@ function HudController:_tick(dt: number)
 		local tier = math.max(state.tier, 1)
 		UiKit.text(e.tierName, names[math.clamp(tier, 1, #names)])
 		-- how much tougher the horde now is than when overtime began
-		local power = Spawn.overtimeHP(tier, GameConfig.OvertimeHPGrowth) / 1.5
+		local power = Spawn.overtimeHP(tier, GameConfig.OvertimeHPGrowth, GameConfig.OvertimeHPMax) / 1.5
 		UiKit.text(e.tierMult, "x" .. Stats.format("int", math.floor(power * 10 + 0.5) / 10))
 	else
 		local live = state.phase == "Playing" or state.phase == "Intro"

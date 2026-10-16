@@ -62,6 +62,11 @@ function UpgradeService:QueueAll(levels: number)
 end
 
 function UpgradeService:QueueFor(rec, levels: number)
+	if rec.complete then
+		-- a finished build: the level pays quietly, nothing opens
+		self._players:MaxedOut(rec, levels)
+		return
+	end
 	self._pending[rec] = (self._pending[rec] or 0) + levels
 	self:_present(rec)
 end
@@ -184,6 +189,7 @@ function UpgradeService:_choose(rec, open, action: string, index: number)
 		end
 		rec.charges.banish -= 1
 		rec.banished[offer.kind .. ":" .. offer.id] = true
+		self._players:UpdateComplete(rec) -- banishing the last choices finishes a build too
 		self:_reroll(rec, open, solo)
 	elseif action == "refresh" then
 		if rec.charges.refresh <= 0 then

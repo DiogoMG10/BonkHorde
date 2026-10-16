@@ -67,21 +67,12 @@ local function sortedKeys(t: { [string]: any }): { string }
 	return keys
 end
 
---- Build up to `n` distinct level-up offers for a loadout.
-function Offers.levelUp(
-	loadout: Loadout,
-	weaponOrder: { string },
-	weapons: { [string]: any },
-	tomeOrder: { string },
-	tomes: { [string]: any },
-	rarityOrder: { string },
-	rarityWeights: { [string]: number },
-	rarityLuck: { [string]: number },
-	rarityMult: { [string]: number },
-	n: number,
-	rnd: () -> number
-): { Offer }
-	local candidates: { { kind: string, id: string, isNew: boolean, weight: number } } = {}
+type Candidate = { kind: string, id: string, isNew: boolean, weight: number }
+
+-- every weapon and tome a level-up could still bring: new ones while a slot is
+-- free, owned ones below the cap, none of them banished
+local function candidatesFor(loadout: Loadout, weaponOrder: { string }, tomeOrder: { string }): { Candidate }
+	local candidates: { Candidate } = {}
 	local weaponFull = count(loadout.weapons) >= loadout.weaponSlots
 	local tomeFull = count(loadout.tomes) >= loadout.tomeSlots
 	local maxLevel = loadout.maxLevel or math.huge
@@ -110,7 +101,30 @@ function Offers.levelUp(
 			table.insert(candidates, { kind = "tome", id = id, isNew = true, weight = 1 })
 		end
 	end
+	return candidates
+end
 
+--- Whether a level-up could still offer this loadout anything. False is a
+--- finished build: every slot filled and maxed (or the rest banished).
+function Offers.canLevel(loadout: Loadout, weaponOrder: { string }, tomeOrder: { string }): boolean
+	return #candidatesFor(loadout, weaponOrder, tomeOrder) > 0
+end
+
+--- Build up to `n` distinct level-up offers for a loadout.
+function Offers.levelUp(
+	loadout: Loadout,
+	weaponOrder: { string },
+	weapons: { [string]: any },
+	tomeOrder: { string },
+	tomes: { [string]: any },
+	rarityOrder: { string },
+	rarityWeights: { [string]: number },
+	rarityLuck: { [string]: number },
+	rarityMult: { [string]: number },
+	n: number,
+	rnd: () -> number
+): { Offer }
+	local candidates = candidatesFor(loadout, weaponOrder, tomeOrder)
 	local out: { Offer } = {}
 	while #out < n and #candidates > 0 do
 		local total = 0

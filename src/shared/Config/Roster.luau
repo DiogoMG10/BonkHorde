@@ -14,10 +14,10 @@ Roster.ItemRarityOrder = { "Common", "Rare", "Epic", "Legendary" }
 Roster.ItemRarityWeights = { Common = 60, Rare = 28, Epic = 9, Legendary = 3 }
 
 -- ---------------------------------------------------------------- stats
--- The 31 stats of the stats panel, in display order, with their defaults.
+-- The 30 stats of the stats panel, in display order, with their defaults.
 -- fmt: "int" plain number, "pct" value*100 + %, "mult" value + x, "permin" /min.
 Roster.StatGroups = {
-	{ "MaxHP", "HPRegen", "Overheal", "Shield", "Armor", "Evasion", "Lifesteal", "Thorns" },
+	{ "MaxHP", "HPRegen", "Overheal", "Shield", "Armor", "Evasion", "Thorns" },
 	{ "Damage", "CritChance", "CritDamage", "AttackSpeed", "ProjectileCount", "ProjectileBounces" },
 	{ "Size", "ProjectileSpeed", "Duration", "DamageToElites", "Knockback", "MoveSpeed" },
 	{ "ExtraJumps", "JumpHeight", "Luck", "Difficulty" },
@@ -41,7 +41,10 @@ Roster.Stats = {
 	-- regen and a shield on top, a hero could no longer be worn down)
 	Armor = { name = "Armor", default = 0, fmt = "pct", max = 0.7 },
 	Evasion = { name = "Evasion", default = 0, fmt = "pct", max = 0.6 },
-	Lifesteal = { name = "Lifesteal", default = 0, fmt = "pct" },
+	-- Lifesteal is out of the game: healing from every hit made a hero with an
+	-- area weapon unkillable whatever the cap. No item or shrine gives it, and the
+	-- ceiling of 0 keeps anything left over (an old item, a dev grant) from healing
+	Lifesteal = { name = "Lifesteal", default = 0, fmt = "pct", hidden = true, max = 0 },
 	Thorns = { name = "Thorns", default = 0, fmt = "int" },
 	Damage = { name = "Damage", default = 1, fmt = "mult" },
 	CritChance = { name = "Crit Chance", default = 0.01, fmt = "pct", max = 1 },
@@ -438,6 +441,7 @@ Roster.Items = {
 		proc = "AutoTrigger",
 		unique = true, -- a second one would do nothing, so it is never offered again
 	},
+	-- retired with Lifesteal: not in ItemOrder, so never offered, sold or dropped
 	VampireMitts = {
 		name = "Vampire Mitts",
 		rarity = "Epic",
@@ -513,7 +517,6 @@ Roster.ItemOrder = {
 	"StaticMitts",
 	"SkeletonKey",
 	"AutoTrigger",
-	"VampireMitts",
 	"Nightlight",
 	"CrackedGoggles",
 	"PanicMirror",
@@ -710,7 +713,6 @@ Roster.ShrineBoosts = {
 	{ stat = "Armor", amount = 0.03, text = "3% Armor" },
 	{ stat = "Size", amount = 0.05, text = "5% Size" },
 	{ stat = "Shield", amount = 10, text = "10 Shield" },
-	{ stat = "Lifesteal", amount = 0.01, text = "1% Lifesteal" },
 	{ stat = "Evasion", amount = 0.02, text = "2% Evasion" },
 	{ stat = "CritDamage", amount = 0.1, text = "10% Crit Damage" },
 	{ stat = "DamageToElites", amount = 0.08, text = "8% Damage to Elites" },

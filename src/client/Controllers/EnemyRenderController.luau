@@ -16,6 +16,7 @@ local Workspace = game:GetService("Workspace")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
 local Vfx = require(script.Parent.Parent.Vfx)
+local Fonts = require(ReplicatedStorage.Shared.Config.Fonts)
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Roster = require(ReplicatedStorage.Shared.Config.Roster)
@@ -39,6 +40,12 @@ function EnemyRenderController:KnitInit()
 	self._cframes = {}
 	self._numbers = {}
 	self._numberPool = {}
+	-- the numbers' face: the default, or one being tried in Studio (`font`)
+	local fontAttr = Fonts.Attributes.numbers
+	self._numberFont = Fonts.face(Workspace:GetAttribute(fontAttr))
+	Workspace:GetAttributeChangedSignal(fontAttr):Connect(function()
+		self._numberFont = Fonts.face(Workspace:GetAttribute(fontAttr))
+	end)
 	self._slots, self._xs, self._zs = {}, {}, {}
 	self._icePool = {} -- spare ice shells for frozen enemies
 	local folder = Instance.new("Folder")
@@ -81,7 +88,7 @@ local function placeholder(def, scale: number): Model
 	return model
 end
 
-function EnemyRenderController:_build(typeName: string, elite: boolean)
+function EnemyRenderController:_build(typeName: string, elite: boolean, runner: boolean)
 	local def = Roster.Enemies[typeName]
 	local scale = if elite then GameConfig.EliteScale else 1
 	local assets = ReplicatedStorage:FindFirstChild("Assets")
@@ -131,6 +138,13 @@ function EnemyRenderController:_build(typeName: string, elite: boolean)
 			pcall(Vfx.attach, "GhostWisp", body)
 		end
 	end
+	if runner then
+		-- an overtime runner trails embers: the fast ones read before they arrive
+		local body = model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
+		if body then
+			pcall(Vfx.attach, "RunnerEmbers", body)
+		end
+	end
 
 	local pivot = model:GetPivot()
 	local parts, offsets, limbs, colours = {}, {}, {}, {}
@@ -151,12 +165,12 @@ function EnemyRenderController:_build(typeName: string, elite: boolean)
 	return { model = model, parts = parts, offsets = offsets, limbs = limbs, colours = colours, isPlaceholder = source == nil }
 end
 
-function EnemyRenderController:_acquire(typeName: string, elite: boolean)
-	local key = typeName .. (if elite then "#E" else "")
+function EnemyRenderController:_acquire(typeName: string, elite: boolean, runner: boolean)
+	local key = typeName .. (if elite then "#E" else "") .. (if runner then "#R" else "")
 	local list = self._pool[key]
 	local visual = list and table.remove(list)
 	if not visual then
-		visual = self:_build(typeName, elite)
+		visual = self:_build(typeName, elite, runner)
 	elseif visual.isPlaceholder then
 		visual.parts[1].Color = visual.colours[1] -- it may have been released mid-flash
 	end
@@ -256,7 +270,6 @@ function EnemyRenderController:_number(position: Vector3, amount: number, flags:
 		label.Name = "Label"
 		label.Size = UDim2.fromScale(1, 1)
 		label.BackgroundTransparency = 1
-		label.Font = Enum.Font.LuckiestGuy
 		label.TextStrokeTransparency = 0
 		label.TextStrokeColor3 = Color3.fromRGB(10, 10, 14)
 		label.Parent = gui
@@ -273,6 +286,7 @@ function EnemyRenderController:_number(position: Vector3, amount: number, flags:
 	end
 	local crit = math.min(bit32.band(flags, 3), 2)
 	local label = gui.Label
+	label.FontFace = self._numberFont
 	label.Text = tostring(amount)
 	label.TextColor3 = if bit32.band(flags, 4) ~= 0
 		then Color3.fromRGB(140, 235, 90)
@@ -329,7 +343,9 @@ function EnemyRenderController:KnitStart()
 			local o = i * 4
 			local slot = buffer.readu16(b, o)
 			local typeName = Roster.EnemyOrder[buffer.readu8(b, o + 2)]
-			local elite = buffer.readu8(b, o + 3) == 1
+			local flags = buffer.readu8(b, o + 3)
+			local elite = bit32.band(flags, 1) ~= 0
+			local runner = bit32.band(flags, 2) ~= 0
 			local old = self._active[slot]
 			if old then
 				self:_thaw(old)
@@ -338,7 +354,7 @@ function EnemyRenderController:KnitStart()
 			if typeName then
 				local def = Roster.Enemies[typeName]
 				self._active[slot] = {
-					visual = self:_acquire(typeName, elite),
+					visual = self:_acquire(typeName, elite, runner),
 					def = def,
 					height = def.height * (if elite then GameConfig.EliteScale else 1),
 					yaw = 0,
