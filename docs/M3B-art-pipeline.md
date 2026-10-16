@@ -54,8 +54,7 @@ A Blender render is evidence of shape and palette only, never of the look in Stu
   once) and draw every dressed prop from the templates (`Core/ArtPlan` picks the model),
   pooled and reused. Trees: full detail within 110 studs of the camera, `_LOD` to 280,
   `_FAR` beyond, with 12 studs of slack at each boundary (`Config/Wardwood.ArtLod`).
-- **Grass**: see "Grass: two options on trial" below. The streamed client patches of
-  `bonk-0.17.x` are gone.
+- **Grass**: Roblox's native terrain grass, see below.
 - **Canopy fade**: the kit's leaf meshes carry the `WWFoliage` tag; the client's canopy fade
   ghosts them out of the camera's way like the old crowns.
 
@@ -71,43 +70,31 @@ A Blender render is evidence of shape and palette only, never of the look in Stu
 The old figures estimate Roblox's primitive spheres and cylinders, so they are approximate.
 Frame time under a horde needs Studio.
 
-## Grass: two options on trial
+## Grass: Roblox's native grass
 
-**Why the streamed patches failed** (`bonk-0.17.0`/`0.17.1`): every patch was a disc of blades
-thinning to a soft edge, and the three patch variants had different base colours. Laid out
-as the game laid them, blades per 2x2 studs varied by 61% of their mean (zero to almost
-three times the mean, bare squares included) and each disc wore its own tint: islands.
-Cells near trunks and rocks, and whole 8-stud cells at a path or forest edge, were left out:
-holes and steps. And any set of instances that follows the camera has an edge somewhere in
-view; since the grass did not match the bare carpet it covered, that edge always read,
-however far it was pushed.
+Approved in Studio (`bonk-0.17.2-m3b` A/B): `Config/Wardwood.Grass = "native"`. Every grassy
+column is Roblox's `Grass` material (surface `Turf`, tinted to the old carpet), so the engine
+draws its own blades over all of it: seamless, no instances, nothing streamed by us, faded
+with distance by the engine. `Terrain.GrassLength` stays at its 0.1 minimum (it cannot go
+lower), and the place's `Terrain.Decoration` must stay on. `grass short|less|full` in
+BonkDev bring back the earlier grounds, `grass tint r g b` re-tints the blades live.
 
-**Option A, native** (`grass native`): the short ground in Roblox's own `Grass` material
-(surface `Turf`, tinted to the carpet), so the engine draws its decoration blades over all
-of it. No instances, no streaming code, the same everywhere; the engine fades its blades
-with distance itself. Limits, honestly: `Terrain.GrassLength` cannot go under 0.1 (it is
-already there); blade shape cannot be changed; the blades take the material's colour; a
-custom look would need a MaterialVariant with uploaded textures (not done); and the place's
-`Terrain.Decoration` must be on (a place setting, not scriptable).
+Tried and dropped: client patches streamed round the camera (`bonk-0.17.0`/`0.17.1`: discs
+of uneven density, 61% variation, each its own tint, with an edge always somewhere in view)
+and static world-aligned Blender grass chunks (`bonk-0.17.2`: even and seamless, but
+~5.7M triangles map-wide with nothing to thin them at a distance).
 
-**Option B, static chunks** (`grass chunks on|off`, in the test meadow): `Core/GrassField`
-puts one blade (0.2-0.5 studs, three tones by a per-blade hash) per cell of one global
-grid, 0.5 studs, turned 27 degrees against the world and fully jittered: blades per 2x2
-studs vary by 10% of their mean, no rows, no seams (a blade belongs to the chunk its foot
-stands in), no exclusion holes (only the terrain's own non-grass ground is left bare).
-Each 32x32-stud chunk is baked once by the server into three MeshParts
-(`Wardwood/GrassChunks`) and left alone; Roblox streams it like any part.
-Test meadow (`Config/Wardwood.GrassTest`, 128x128 studs at the north meadow; `grass test`
-stands you there): 48 MeshParts, ~131k triangles (8 per stud^2, half the old patches'
-density, evenly spread). The same over all ~707k studs^2 of grassy ground would be ~5.7M
-triangles in ~2,070 MeshParts, with nothing to thin it at a distance: not viable map-wide
-without a distance scheme of its own, which is what failed before.
+## Enemy clarity
 
-**Recommendation**: option A, if its blades read well in Studio at the 0.1 minimum with the
-carpet tint (`grass tint r g b` adjusts it live): it is the only option that is seamless,
-stable and cheap over the whole map. Option B only if A is rejected, and then limited to
-the meadows the fights cross, measured first. Both previews: `work/art/grass_b_preview.jpg`
-(Blender, B against the bare carpet; A is drawn by the engine and cannot be previewed).
+The native blades can hide a small enemy's legs, so the enemies near the hero get a thin
+ink outline (client `EnemyRenderController`): two Highlights in all, each on a container
+Model the near enemies are moved into five times a second, the nearest 90 within 70 studs
+(8 studs of slack), enemies 3.5 studs tall or less in their own, slightly firmer one. No
+fill; dark by day, moonlit pale when the sky's clock is night. `Occluded`, so hills, walls
+and trunks still hide them. `enemy clarity on|off|through` in BonkDev compares; `through`
+draws the line over the grass too, but only for enemies the terrain heightfield leaves in
+sight of the camera (five height samples each, no raycasts), in case the engine counts
+grass blades as occluders in Studio.
 
 ## Fallbacks
 

@@ -4,14 +4,13 @@
 -- tools/map/preview_blender.py, so the preview is drawn from the same tree as
 -- the game and cannot disagree with it.
 --
---     lune run tools/map/export_world.luau [out.json] [grass mode] [art fx fz [chunks]]
+--     lune run tools/map/export_world.luau [out.json] [grass mode] [art fx fz]
 --
 -- The grass mode is Config/Wardwood.Grass unless given. With `art`, the M3.B
 -- art kit is drawn as a client at (fx, fz) draws it (Core/ArtPlan): the props
 -- it dresses are left out and the kit's meshes (server/Wardwood/ArtMeshes) go
 -- in their place at the detail their distance asks for, once per mesh with
--- an instance per placement; `chunks` adds grass option B's static chunks over
--- the test meadow (Config/Wardwood.GrassTest).
+-- an instance per placement.
 --
 -- Part-built props are exported as their exact primitives (Core/Blueprints);
 -- mesh props as proxies with their measured bounds (assets/meshes/manifest.json).
@@ -97,35 +96,6 @@ if withArt then
 			local px, py, pz, yaw, roll = ArtPlan.place(world, p)
 			if place(name, px, py, pz, yaw, p.scale, nil, roll) then
 				swapped[i] = true
-			end
-		end
-	end
-	-- grass option B's static chunks over the test meadow, with `chunks`
-	if process.args[6] == "chunks" then
-		local GrassField = require("../../src/shared/Core/GrassField")
-		local T = Wardwood.GrassTest
-		local base = T.color
-		for x0 = T.x, T.x + T.size - T.chunk, T.chunk do
-			for z0 = T.z, T.z + T.size - T.chunk, T.chunk do
-				for k, m in GrassField.chunk(world, x0, z0, T.chunk, T.spacing, grass) do
-					if m.tris > 0 then
-						local key = `GrassChunk{x0},{z0}.{k}`
-						local pos = table.create(#m.pos)
-						for i = 0, m.verts - 1 do
-							for c = 1, 3 do
-								pos[i * 3 + c] = math.floor((m.pos[i * 3 + c] + m.centre[c]) * 1000 + 0.5) / 1000
-							end
-						end
-						local tone = GrassField.Tones[k]
-						meshes[key] = {
-							pos = pos,
-							nrm = m.nrm,
-							idx = m.idx,
-							color = { math.min(base[1] * tone, 255), math.min(base[2] * tone, 255), math.min(base[3] * tone, 255) },
-						}
-						table.insert(instances, { parts = { key }, x = 0, y = 0, z = 0, yaw = 0, scale = 1, grass = true })
-					end
-				end
 			end
 		end
 	end

@@ -10,8 +10,8 @@ swaps one for the other in place: same footprint, same collider.
     Woodland   Bush, Fern, Stump, FallenLog
     Stone      BoulderLarge, RockSmall, BoulderFlat, Menhir, Pillar, PillarBroken, RuinWall
 
-Grass is not in the kit: option B's blades stand on the terrain, so they are
-grown per chunk in the game (src/shared/Core/GrassField.luau).
+Grass is not in the kit: the Wardwood's grass is Roblox's own terrain grass
+(Config/Wardwood.Grass "native").
 """
 
 from __future__ import annotations

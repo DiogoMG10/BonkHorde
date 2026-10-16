@@ -19,7 +19,6 @@ local World = require(ReplicatedStorage.Shared.Core.World)
 
 local Builder = require(script.Parent.Parent.Wardwood.Builder)
 local ArtKit = require(script.Parent.Parent.Wardwood.ArtKit)
-local GrassChunks = require(script.Parent.Parent.Wardwood.GrassChunks)
 local ArtPlan = require(ReplicatedStorage.Shared.Core.ArtPlan)
 local Look = require(script.Parent.Parent.Wardwood.Look)
 
@@ -99,12 +98,6 @@ function MapService:SetArt(on: boolean)
 	self._art = on
 	self:_publishArt()
 	self._propsPlaced = Builder.build(self._world, self:_artKinds())
-end
-
---- Studio only (DevService `grass chunks`): grass option B, static 3D grass
---- chunks over the test meadow (Config/Wardwood.GrassTest), on or off.
-function MapService:SetGrassChunks(on: boolean): (number, number)
-	return GrassChunks.set(self._world, on, self._grass)
 end
 
 function MapService:GetWorld()

@@ -58,9 +58,11 @@ explicit decision by Tiago and Diogo.
   trial instead: A, Roblox's own Grass blades on the short ground (`grass native`); B,
   static world-aligned 3D grass chunks in a 128x128 test meadow (`grass chunks on`,
   `grass test`). Default stays the bladeless carpet. Offline checks only.
-- **Next playable result:** Studio: A against B in the test meadow (still, walking, bunny
-  hop, slide, camera spins, a fight), pick one; the Fallen Giant's gully; then decide on
-  uploading the kit for good.
+  `bonk-0.17.3-m3b`: native grass chosen in Studio and made the default (the chunks are
+  gone); near enemies get a thin Occluded ink outline from two pooled Highlights so the
+  grass cannot hide them (`enemy clarity on|off|through`). Offline checks only.
+- **Next playable result:** Studio: enemy clarity on vs off in a meadow fight, under golden
+  and night skies, small enemies especially; then decide on uploading the kit for good.
 - **Blockers:** none.
 
 ## M4 Horde & Performance — not started

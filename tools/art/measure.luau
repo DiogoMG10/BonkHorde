@@ -101,45 +101,6 @@ for _, s in spots do
 	)
 end
 
--- grass option B (static chunks, Core/GrassField): the test meadow, and what
--- the same density would cost over every grassy stud of the map. Option A is
--- Roblox's own terrain decoration: no instances, nothing to count here.
-do
-	local GrassField = require("../../src/shared/Core/GrassField")
-	local T = Wardwood.GrassTest
-	local tris, parts = 0, 0
-	for x0 = T.x, T.x + T.size - T.chunk, T.chunk do
-		for z0 = T.z, T.z + T.size - T.chunk, T.chunk do
-			for _, m in GrassField.chunk(world, x0, z0, T.chunk, T.spacing, "short") do
-				if m.tris > 0 then
-					tris += m.tris
-					parts += 1
-				end
-			end
-		end
-	end
-	local grassy = 0
-	for x = -470, 470, 4 do
-		for z = -470, 470, 4 do
-			if GrassField.grassy(world, x, z, "short") then
-				grassy += 16
-			end
-		end
-	end
-	local perStud = tris / (T.size * T.size)
-	print(
-		string.format("grass B, test meadow %dx%d: %d MeshParts, %dk tris (%.1f per stud^2)", T.size, T.size, parts, tris // 1000, perStud)
-	)
-	print(
-		string.format(
-			"grass B over all %dk studs^2 of grassy ground: ~%.1fM tris, ~%d MeshParts",
-			grassy // 1000,
-			grassy * perStud / 1e6,
-			math.floor(grassy / (T.size * T.size) * parts)
-		)
-	)
-end
-
 -- what the server builds: everything, old; colliders only for what the kit dresses, new
 local oldServer, newServer = 0, 0
 for _, p in world.props do

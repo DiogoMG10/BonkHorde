@@ -16,13 +16,13 @@ local Wardwood = {
 		{ name = "enchanted", weight = 1 },
 		{ name = "night", weight = 1 },
 	},
-	-- how the ground is grassed (Core/World.surface): "short", one continuous,
-	-- almost flat grassy surface with no blades or tufts; "native", the same
-	-- ground in Roblox's own Grass material, whose engine-drawn blades cover it
-	-- (grass option A, GrassLength at its 0.1 minimum); "less", grass in drifts
-	-- between moss and worn earth; or "full", the earlier all-blades look
-	-- (`grass short|native|less|full` in BonkDev rewrites the terrain live)
-	Grass = "short",
+	-- how the ground is grassed (Core/World.surface): "native" (approved in
+	-- Studio), the grassy ground in Roblox's own Grass material, its engine-drawn
+	-- blades covering it seamlessly at GrassLength's 0.1 minimum; kept for
+	-- comparison: "short", the same ground as a bladeless LeafyGrass carpet;
+	-- "less", grass in drifts between moss and worn earth; "full", the earlier
+	-- all-blades look (`grass native|short|less|full` in BonkDev, live)
+	Grass = "native",
 	-- M3.B: the Blender art kit (tools/art) dresses the whole Wardwood; false
 	-- builds the old part-built props instead (`art on|off` in BonkDev)
 	Art = true,
@@ -30,10 +30,6 @@ local Wardwood = {
 	-- far version ("_LOD") to `far`, their horizon version ("_FAR") beyond;
 	-- `slack` studs of hysteresis, so nothing flickers at a boundary
 	ArtLod = { near = 110, far = 280, slack = 12 },
-	-- grass option B, on trial: static 3D grass (Core/GrassField) in fixed
-	-- `chunk`-stud squares over a `size`-stud test meadow from (x, z), a blade
-	-- every `spacing` studs, built once by the server (`grass chunks on|off`)
-	GrassTest = { x = 64, z = 224, size = 128, chunk = 32, spacing = 0.5, color = { 116, 164, 60 } },
 	Surfaces = {
 		Meadow = { material = "Grass", color = { 128, 162, 62 } },
 		Lush = { material = "LeafyGrass", color = { 86, 130, 56 } },

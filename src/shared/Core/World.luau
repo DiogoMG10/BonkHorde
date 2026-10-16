@@ -447,7 +447,7 @@ end
 --- The terrain surface at a point, as a material key (MapService maps keys to
 --- Roblox materials and colours; the preview to swatches).
 ---
---- `grass` "less" (Config/Wardwood.Grass, the default) keeps grass, which
+--- `grass` "less" keeps grass, which
 --- Roblox grows blades on, to drifts: mossy hollows and worn earth between
 --- them in the meadows, a moss-and-litter floor under the trees with leafy
 --- tufts in patches, and the clearings where fights gather mostly trampled.
