@@ -21,9 +21,10 @@
 --   art off            the old props back over the whole Wardwood (`art on` the
 --                      M3.B Blender kit); `art pick` names the nearest prop for
 --                      Config/WardwoodOverrides
---   enemy clarity off  the near enemies' thin outline off to compare (`on`, the
---                      default; `through` draws it over the grass where the
---                      terrain leaves the enemy in sight)
+--   enemy clarity on   force the near enemies' outline on (or `off`, or `through`:
+--                      over the grass where the terrain leaves the enemy in
+--                      sight) for this session, every player; `player` goes
+--                      back to each player's own Settings choice (never saved)
 --   grass short        rewrite the terrain live: `native` Roblox's bladed Grass
 --                      over all grassy ground (default), `short` the same as a
 --                      bladeless carpet, `less` drifts, `full`; `grass tint
@@ -199,11 +200,18 @@ function DevService:KnitStart()
 		end
 	end
 	function commands.enemy(_, what, mode)
+		-- a session override for every client, never saved: each player's own
+		-- "Enemy outlines" setting is untouched and returns with `player`
 		if what == "clarity" and (mode == "on" or mode == "off" or mode == "through") then
 			Workspace:SetAttribute("BonkEnemyClarity", mode)
-			print(`[Dev] enemy clarity {mode}`)
+			print(`[Dev] enemy outlines forced {mode} for this session`)
+		elseif what == "clarity" and mode == "player" then
+			Workspace:SetAttribute("BonkEnemyClarity", nil)
+			print("[Dev] enemy outlines follow each player's setting again")
 		else
-			print(`[Dev] enemy clarity on | off | through (now {Workspace:GetAttribute("BonkEnemyClarity") or "on"})`)
+			print(
+				`[Dev] enemy clarity on | off | through | player (now {Workspace:GetAttribute("BonkEnemyClarity") or "each player's setting"})`
+			)
 		end
 	end
 	function commands.grass(_, mode, r, g, b)

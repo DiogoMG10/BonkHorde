@@ -20,7 +20,9 @@
 --   MasterVolume  0..1   MusicVolume 0..1   SfxVolume 0..1
 --   Sensitivity   0.2..2 (x the configured camera sensitivity; 1 = default)
 --   DamageNumbers boolean
--- The volumes are kept in the profile (DataService) between sessions.
+--   EnemyOutlines boolean, off by default (EnemyRenderController draws them)
+-- The volumes and EnemyOutlines are kept in the profile (DataService) between
+-- sessions; without a datastore (a local Studio test) they last the session.
 -- The touch buttons do what the keys do. Slide and jump are published as the
 -- attributes BonkSlideHeld and BonkJumpHeld on PlayerGui for MovementController.
 
@@ -49,6 +51,7 @@ local DEFAULTS = {
 	SfxVolume = 0.55,
 	Sensitivity = 1,
 	DamageNumbers = true,
+	EnemyOutlines = false,
 }
 local VOLUMES = { master = "MasterVolume", music = "MusicVolume", sfx = "SfxVolume" }
 local PAD_STEP = 0.05
@@ -372,16 +375,21 @@ function OverlayController:_loadVolumes()
 			gui:SetAttribute(attribute, math.clamp(saved[key], 0, 1))
 		end
 	end
+	if typeof(saved.outlines) == "boolean" then
+		gui:SetAttribute("EnemyOutlines", saved.outlines)
+	end
 	self._volumesSent = self:_volumeSignature()
 	self:_renderSettings()
 end
 
 function OverlayController:_volumeSignature(): string
 	local gui = UiKit.playerGui()
-	return `{gui:GetAttribute("MasterVolume")}:{gui:GetAttribute("MusicVolume")}:{gui:GetAttribute("SfxVolume")}`
+	return `{gui:GetAttribute("MasterVolume")}:{gui:GetAttribute("MusicVolume")}:{gui:GetAttribute("SfxVolume")}:{gui:GetAttribute(
+		"EnemyOutlines"
+	)}`
 end
 
---- Hand changed volumes to the profile (on closing the sheet).
+--- Hand changed settings to the profile (on closing the sheet).
 function OverlayController:_sendVolumes()
 	local signature = self:_volumeSignature()
 	if signature == self._volumesSent or not self._settingsRemote then
@@ -393,6 +401,7 @@ function OverlayController:_sendVolumes()
 	for key, attribute in VOLUMES do
 		out[key] = tonumber(gui:GetAttribute(attribute))
 	end
+	out.outlines = gui:GetAttribute("EnemyOutlines") == true
 	self._settingsRemote:FireServer(out)
 end
 
@@ -412,6 +421,21 @@ function OverlayController:_start()
 	self._resumeLabel = UiKit.find(pause, "ResumeButton.Label")
 	self._title = UiKit.find(pause, "Panel.Header.Title")
 	self._check = UiKit.find(pause, "DamageNumbersToggle.Check")
+	-- Enemy outlines: a second toggle row, a copy of the damage-numbers one, made
+	-- here because the Overlay's generator is behind its hand-built pause sheet
+	-- (assets/ui/NOTES.Menu.md). Made before the fade collects the sheet, so it
+	-- fades with it.
+	local numbersToggle = UiKit.find(pause, "DamageNumbersToggle")
+	if numbersToggle and numbersToggle:IsA("GuiObject") then
+		numbersToggle.Position = UDim2.new(0.5, 0, 0.5, 226)
+		local outlines = numbersToggle:Clone()
+		outlines.Name = "EnemyOutlinesToggle"
+		outlines.Position = UDim2.new(0.5, 0, 0.5, 352)
+		outlines.Parent = pause
+		UiKit.text(UiKit.find(outlines, "Label"), "Enemy outlines")
+		self._outlinesToggle = outlines
+		self._outlinesCheck = UiKit.find(outlines, "Check")
+	end
 	UiKit.fillIcons(pause)
 	UiKit.show(pause, false)
 	UiKit.show(UiKit.find(pause, "LeaveButton"), false) -- there is no way to leave a run yet
@@ -464,6 +488,11 @@ function OverlayController:_start()
 		else
 			self:_closeMenu()
 		end
+	end)
+	UiKit.button(self._outlinesToggle, function()
+		-- takes effect at once; kept in the profile when the sheet closes
+		gui:SetAttribute("EnemyOutlines", gui:GetAttribute("EnemyOutlines") ~= true)
+		self:_renderSettings()
 	end)
 	UiKit.button(UiKit.find(pause, "DamageNumbersToggle"), function()
 		gui:SetAttribute("DamageNumbers", gui:GetAttribute("DamageNumbers") == false)
@@ -804,6 +833,7 @@ function OverlayController:_renderSettings()
 		self:_renderSlider(entry)
 	end
 	UiKit.show(self._check, UiKit.playerGui():GetAttribute("DamageNumbers") ~= false)
+	UiKit.show(self._outlinesCheck, UiKit.playerGui():GetAttribute("EnemyOutlines") == true)
 end
 
 return OverlayController

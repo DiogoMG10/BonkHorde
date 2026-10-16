@@ -61,14 +61,19 @@ explicit decision by Tiago and Diogo.
   `bonk-0.17.3-m3b`: native grass chosen in Studio and made the default (the chunks are
   gone); near enemies get a thin Occluded ink outline from two pooled Highlights so the
   grass cannot hide them (`enemy clarity on|off|through`). Offline checks only.
-- **Next playable result:** Studio: enemy clarity on vs off in a meadow fight, under golden
-  and night skies, small enemies especially; then decide on uploading the kit for good.
+  `bonk-0.17.4-m3b`: outlines kept only as an option, off by default: Settings > Enemy
+  outlines, per player, saved with the volumes. Offline checks only.
+- **Next playable result:** Studio: the Settings toggle (mouse, touch, gamepad) and its
+  effect in a fight, saved across sessions; then decide on uploading the kit for good.
 - **Blockers:** none.
 
 ## M4 Horde & Performance — not started
 
 - **Scope:** distinct enemy behaviours, telegraphs, pressure; optimisations only where a
-  measurement justifies them.
+  measurement justifies them. Enemy models redone in Blender for readability (distinct
+  silhouettes, contrast against the native grass, clearer faces, stronger differences
+  between types, legible at the game camera's distance), so the M3.B outline option is a
+  preference rather than a need.
 - **Next playable result:** enemy types that ask for different responses.
 - **Blockers:** no performance baseline recorded yet; take one before optimising.
 

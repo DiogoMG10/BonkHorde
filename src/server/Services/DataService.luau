@@ -1,6 +1,6 @@
 --!nonstrict
 -- DataService - owns the persistent profile: silver, unlocked heroes, run counts,
--- best scores and the player's volume settings.
+-- best scores and the player's settings (volumes, enemy outlines: Core/Settings).
 --
 -- If the load fails the player still plays, on defaults, with saving DISABLED for
 -- the session, so a blank profile can never overwrite a real one.
@@ -13,11 +13,11 @@ local Knit = require(ReplicatedStorage.Packages.Knit)
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Roster = require(ReplicatedStorage.Shared.Config.Roster)
+local Settings = require(ReplicatedStorage.Shared.Core.Settings)
 
 local DataService = Knit.CreateService({ Name = "DataService" })
 
 local LOAD_TRIES = 3
-local SETTINGS = { "master", "music", "sfx" } -- volumes, 0..1; nil until the player sets one
 
 local function blank()
 	local unlocked = {}
@@ -35,20 +35,6 @@ local function blank()
 		devUnlocked = {}, -- Studio test unlocks: shown and playable, never saved
 		canSave = true,
 	}
-end
-
---- Only known keys, only numbers, clamped: a forged message stores nothing odd.
-local function cleanSettings(raw: unknown)
-	local out = {}
-	if typeof(raw) == "table" then
-		for _, key in SETTINGS do
-			local value = (raw :: any)[key]
-			if typeof(value) == "number" and value == value then
-				out[key] = math.floor(math.clamp(value, 0, 1) * 100 + 0.5) / 100
-			end
-		end
-	end
-	return out
 end
 
 function DataService:KnitInit()
@@ -87,7 +73,9 @@ function DataService:KnitStart()
 			return
 		end
 		self._settingsAt[player] = now
-		p.settings = cleanSettings(raw)
+		-- only the keys sent change (Core/Settings): the volumes and the
+		-- outline toggle can never reset each other
+		p.settings = Settings.merge(p.settings, raw)
 	end)
 	task.spawn(function()
 		while true do
@@ -131,7 +119,7 @@ function DataService:_load(player: Player)
 						profile.best.kills = tonumber(data.best.kills) or 0
 						profile.best.time = tonumber(data.best.time) or 0
 					end
-					profile.settings = cleanSettings(data.settings)
+					profile.settings = Settings.clean(data.settings)
 				end
 				loaded = true
 				break

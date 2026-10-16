@@ -10,14 +10,16 @@
 -- exists (parts named Body, Head, ArmL, ArmR, LegL, LegR are animated), and is a
 -- plain coloured block otherwise, so the game always has something to draw.
 --
--- Enemy clarity: the Wardwood's grass can hide a small enemy's legs, so the
--- enemies near the hero get a thin ink outline. Two Highlights in all (Roblox
--- draws at most 31), each on a container Model the near enemies are moved
--- into a few times a second: one for the small ones, a shade firmer, one for
--- the rest. Occluded, so a hill or a wall still hides them; the outline is
--- dark by day and moonlit pale at night. `enemy clarity on|off|through` in
--- Workspace.BonkDev compares (through: drawn over the grass, only where the
--- terrain does not stand between the camera and the enemy).
+-- Enemy outlines, a setting each player chooses (Settings: "Enemy outlines",
+-- off by default, the PlayerGui attribute EnemyOutlines): the enemies near the
+-- hero get a thin ink outline so the grass cannot hide them. Two Highlights in
+-- all (Roblox draws at most 31), each on a container Model the near enemies
+-- are moved into a few times a second: one for the small ones, a shade firmer,
+-- one for the rest. Occluded, so a hill or a wall still hides them; dark by
+-- day, moonlit pale at night. In Studio, `enemy clarity on|off|through|player`
+-- in Workspace.BonkDev overrides every player's choice for the session only
+-- (through: drawn over the grass where the terrain leaves the enemy in sight;
+-- player: back to each player's own setting); nothing it does is saved.
 
 local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
@@ -95,9 +97,16 @@ function EnemyRenderController:_initClarity()
 		c.zones[spec.name] = { model = zone, highlight = h, day = spec.day, night = spec.night }
 	end
 	self._clarity = c
+	c.mode = "off"
+	local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
 	local function readMode()
-		local mode = Workspace:GetAttribute("BonkEnemyClarity")
-		c.mode = if mode == "off" or mode == "through" then mode else "on"
+		-- a Studio override for the session, else the player's own setting
+		local dev = Workspace:GetAttribute("BonkEnemyClarity")
+		if dev == "on" or dev == "off" or dev == "through" then
+			c.mode = dev
+		else
+			c.mode = if playerGui:GetAttribute("EnemyOutlines") == true then "on" else "off"
+		end
 		for _, z in c.zones do
 			z.highlight.Enabled = c.mode ~= "off"
 			z.highlight.DepthMode = if c.mode == "through" then Enum.HighlightDepthMode.AlwaysOnTop else Enum.HighlightDepthMode.Occluded
@@ -115,6 +124,7 @@ function EnemyRenderController:_initClarity()
 	readMode()
 	readSky()
 	Workspace:GetAttributeChangedSignal("BonkEnemyClarity"):Connect(readMode)
+	playerGui:GetAttributeChangedSignal("EnemyOutlines"):Connect(readMode)
 	Lighting:GetPropertyChangedSignal("ClockTime"):Connect(readSky)
 end
 

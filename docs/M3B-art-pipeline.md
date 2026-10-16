@@ -84,17 +84,21 @@ of uneven density, 61% variation, each its own tint, with an edge always somewhe
 and static world-aligned Blender grass chunks (`bonk-0.17.2`: even and seamless, but
 ~5.7M triangles map-wide with nothing to thin them at a distance).
 
-## Enemy clarity
+## Enemy outlines (a player setting)
 
-The native blades can hide a small enemy's legs, so the enemies near the hero get a thin
-ink outline (client `EnemyRenderController`): two Highlights in all, each on a container
-Model the near enemies are moved into five times a second, the nearest 90 within 70 studs
-(8 studs of slack), enemies 3.5 studs tall or less in their own, slightly firmer one. No
-fill; dark by day, moonlit pale when the sky's clock is night. `Occluded`, so hills, walls
-and trunks still hide them. `enemy clarity on|off|through` in BonkDev compares; `through`
-draws the line over the grass too, but only for enemies the terrain heightfield leaves in
-sight of the camera (five height samples each, no raycasts), in case the engine counts
-grass blades as occluders in Studio.
+Studio playtests kept them as an option, not a look: **Settings > Enemy outlines, off by
+default**, each player's own choice, applied at once and saved in the profile with the
+volumes (`Core/Settings`; the server folds in only the keys a client sends, so saving one
+never resets the other; without a datastore it lasts the session). When on, the enemies
+near the hero get a thin ink outline (client `EnemyRenderController`): two Highlights in
+all, each on a container Model the near enemies are moved into five times a second, the
+nearest 90 within 70 studs (8 studs of slack), enemies 3.5 studs tall or less in their
+own, slightly firmer one. No fill; dark by day, moonlit pale at night. `Occluded`, so
+hills, walls and trunks still hide them. In Studio, `enemy clarity on|off|through` forces
+every client for the session (never saved) and `enemy clarity player` hands it back.
+
+Better enemy readability through the models themselves (silhouettes, contrast against
+the grass, faces, type differences) is a later task, with M4.
 
 ## Fallbacks
 
