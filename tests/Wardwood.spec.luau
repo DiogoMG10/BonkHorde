@@ -180,6 +180,48 @@ return {
 		assert(grassShare("less", 60) < 0.4, "the spawn clearing is still a lawn")
 	end,
 
+	["the short meadow is green almost everywhere, with few blades and none where fights gather"] = function()
+		local Wardwood = require("../src/shared/Config/Wardwood")
+		local green, blades, total, nearBlades = 0, 0, 0, 0
+		for x = -440, 440, 8 do
+			for z = -440, 440, 8 do
+				if MapGen.outside(x, z) < -8 then
+					total += 1
+					local m = Wardwood.Surfaces[World.surface(world, x, z, "short")].material
+					if m == "Grass" or m == "LeafyGrass" then
+						green += 1
+					end
+					if m == "Grass" then
+						blades += 1
+						if x * x + z * z < 60 * 60 then
+							nearBlades += 1
+						end
+					end
+				end
+			end
+		end
+		assert(green / total > 0.88, `short meadow green cover {green / total}`)
+		assert(blades / total > 0.05 and blades / total < 0.2, `short meadow blades {blades / total}`)
+		assert(nearBlades == 0, `{nearBlades} bladed columns in the spawn clearing`)
+	end,
+
+	["the short meadow's flowers stay low, loose and out of the way"] = function()
+		local prims = World.flowers(world)
+		assert(#prims > 400 and #prims < 2500, `{#prims} flower parts`)
+		for _, p in prims do
+			local x, y, z = p.cf[1], p.cf[2], p.cf[3]
+			assert(not p.collide and not p.shadow, "a flower collides or casts a shadow")
+			local top = y + p.size[2] / 2 - MapGen.heightAt(map, x, z)
+			assert(top < 1.5, `a flower stands {top} studs tall at {x}, {z}`)
+			assert(x * x + z * z > 60 * 60, `a flower in the spawn clearing at {x}, {z}`)
+			assert(World.pathDistance(x, z) > 2, `a flower on a path at {x}, {z}`)
+			for _, s in solids do
+				local d = math.sqrt((x - s[1]) ^ 2 + (z - s[2]) ^ 2)
+				assert(d > s[3] + 1, `a flower inside {s[4]} at {x}, {z}`)
+			end
+		end
+	end,
+
 	["every landmark is dressed"] = function()
 		local kinds = {}
 		for _, p in world.props do

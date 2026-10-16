@@ -49,6 +49,7 @@ function MapService:KnitStart()
 		end
 		local okProps, errProps = pcall(function()
 			self._propsPlaced = Builder.build(self._world)
+			Builder.flowers(self._world, self._grass == "short")
 		end)
 		if not okProps then
 			warn(`[MapService] prop placement failed: {errProps}`)
@@ -76,10 +77,12 @@ end
 
 --- Studio only (DevService `grass`): rewrite the terrain with another grass
 --- mode, to compare them in place. The heights do not change, so nothing on
---- the ground moves.
+--- the ground moves; the short meadow's flowers come and go with it.
 function MapService:SetGrass(mode: string)
 	self._grass = mode
+	Look.paint(mode)
 	self:_writeTerrain()
+	Builder.flowers(self._world, mode == "short")
 end
 
 --- Put one of Look.Skies over the map; false for an unknown name. `why` is

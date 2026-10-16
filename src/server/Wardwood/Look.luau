@@ -204,6 +204,21 @@ function Look.sky(name: string): boolean
 	return true
 end
 
+--- Tint the terrain materials for a grass mode. A tint is the material's, not
+--- the surface's: the short carpet and the lush drifts are both LeafyGrass,
+--- so under "short" the carpet's fresh green wins.
+function Look.paint(grass: string?)
+	local terrain = Workspace.Terrain
+	for key, entry in Look.Surfaces do
+		if key ~= "Carpet" then
+			terrain:SetMaterialColor(entry[1], entry[2])
+		end
+	end
+	if grass == "short" then
+		terrain:SetMaterialColor(Look.Surfaces.Carpet[1], Look.Surfaces.Carpet[2])
+	end
+end
+
 function Look.apply()
 	for _, child in Lighting:GetChildren() do
 		if child:IsA("Sky") or child:IsA("Atmosphere") or child:IsA("PostEffect") or child:IsA("Clouds") then
@@ -250,9 +265,7 @@ function Look.apply()
 		Look.sky("golden")
 	end
 
-	for _, entry in Look.Surfaces do
-		terrain:SetMaterialColor(entry[1], entry[2])
-	end
+	Look.paint(Wardwood.Grass)
 	pcall(function()
 		-- Roblox's shortest: a meadow's texture without hiding enemies, gems or
 		-- coins (0.35 hid enemies in the first Studio playtest, and 0.15 still

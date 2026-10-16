@@ -87,8 +87,14 @@ explicit decision by Tiago and Diogo.
   the interface stays as built until approved); each run draws its sky at random from
   golden, clear, sunset, enchanted and night (20% each, server-side, shared by the squad and
   late joiners), the lobby stays golden. Offline checks only.
+  `bonk-0.15.1-m5a`: a third grass mode to compare, `grass short`: blade-free LeafyGrass
+  carpet over ~86% of the playable ground in a fresh green, Roblox's blades only in light
+  drifts (~12%, none in the spawn or landmark clearings), and ~1.5k low flower/leaf/plume
+  parts in loose meadow patches (no collision, no shadows, under 1.4 studs). `less` stays the
+  default; `grass full|less|short` switches live. Offline checks only.
 - **Next playable result:** Studio: Fredoka across every menu and panel, several run starts
-  under different skies (night's readability especially); then integrate (M3.A first).
+  under different skies (night's readability especially), `grass short` vs `less` at speed;
+  then integrate (M3.A first).
 - **Blockers:** M3.A's tree pass needs human review before either branch merges.
 
 ## M6 Complete Experience — not started
