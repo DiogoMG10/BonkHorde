@@ -53,8 +53,14 @@ explicit decision by Tiago and Diogo.
   kit model on the same collider; the grass no longer pops in front of the hero (it is kept
   where the camera looks, led by the hero's speed, re-planned on camera turns, grown in a
   per-frame budget without the old half-height outer ring). Offline checks only.
-- **Next playable result:** Studio: grass at full bunny-hop and slide speed, the Fallen
-  Giant's gully, frame rate in a big fight; then decide on uploading the kit for good.
+  `bonk-0.17.2-m3b`: the streamed grass still showed its edge and looked like islands
+  (measured: discs of uneven density and their own tints), so it is gone. Two options on
+  trial instead: A, Roblox's own Grass blades on the short ground (`grass native`); B,
+  static world-aligned 3D grass chunks in a 128x128 test meadow (`grass chunks on`,
+  `grass test`). Default stays the bladeless carpet. Offline checks only.
+- **Next playable result:** Studio: A against B in the test meadow (still, walking, bunny
+  hop, slide, camera spins, a fight), pick one; the Fallen Giant's gully; then decide on
+  uploading the kit for good.
 - **Blockers:** none.
 
 ## M4 Horde & Performance — not started

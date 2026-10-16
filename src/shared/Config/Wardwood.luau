@@ -17,9 +17,11 @@ local Wardwood = {
 		{ name = "night", weight = 1 },
 	},
 	-- how the ground is grassed (Core/World.surface): "short", one continuous,
-	-- almost flat grassy surface with no blades or tufts; "less", grass in
-	-- drifts between moss and worn earth; or "full", the earlier all-blades look
-	-- (`grass short|less|full` in BonkDev rewrites the terrain live)
+	-- almost flat grassy surface with no blades or tufts; "native", the same
+	-- ground in Roblox's own Grass material, whose engine-drawn blades cover it
+	-- (grass option A, GrassLength at its 0.1 minimum); "less", grass in drifts
+	-- between moss and worn earth; or "full", the earlier all-blades look
+	-- (`grass short|native|less|full` in BonkDev rewrites the terrain live)
 	Grass = "short",
 	-- M3.B: the Blender art kit (tools/art) dresses the whole Wardwood; false
 	-- builds the old part-built props instead (`art on|off` in BonkDev)
@@ -28,20 +30,19 @@ local Wardwood = {
 	-- far version ("_LOD") to `far`, their horizon version ("_FAR") beyond;
 	-- `slack` studs of hysteresis, so nothing flickers at a boundary
 	ArtLod = { near = 110, far = 280, slack = 12 },
-	-- short 3D grass, grown on each client only where its camera looks: a patch
-	-- per `cell` studs of grassy ground within `radius` studs of a point `ahead`
-	-- studs in front of the hero along the camera's view, pushed on by `lead`
-	-- seconds of the hero's speed (at most `leadMax` studs); always within
-	-- `keep` studs of the hero; grown nearest the hero first, `budgetMs` of each
-	-- frame at most (four times that while ground within `urgent` studs of the
-	-- hero, in plain view, is still bare: a teleport, a sharp turn)
-	ArtGrass = { cell = 8, radius = 54, ahead = 20, lead = 0.4, leadMax = 26, keep = 30, urgent = 48, budgetMs = 0.8 },
+	-- grass option B, on trial: static 3D grass (Core/GrassField) in fixed
+	-- `chunk`-stud squares over a `size`-stud test meadow from (x, z), a blade
+	-- every `spacing` studs, built once by the server (`grass chunks on|off`)
+	GrassTest = { x = 64, z = 224, size = 128, chunk = 32, spacing = 0.5, color = { 116, 164, 60 } },
 	Surfaces = {
 		Meadow = { material = "Grass", color = { 128, 162, 62 } },
 		Lush = { material = "LeafyGrass", color = { 86, 130, 56 } },
 		-- the short grass carpet: LeafyGrass too (it grows no blades), so it
 		-- takes over that material's tint while `grass short` is down (Look.paint)
 		Carpet = { material = "LeafyGrass", color = { 118, 166, 60 } },
+		-- the same ground in Roblox's Grass material, its blades the colour of
+		-- the carpet so they read as its texture (`grass native`, Look.paint)
+		Turf = { material = "Grass", color = { 112, 158, 58 } },
 		-- moss and leaf litter: under the trees, and in the meadows' hollows
 		ForestFloor = { material = "Mud", color = { 78, 96, 54 } },
 		Mud = { material = "Mud", color = { 78, 96, 54 } },

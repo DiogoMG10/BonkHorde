@@ -36,7 +36,7 @@ colour (`ArtPlan.tint`), so a wood of a few models never reads as copies.
 | Triangles, parts, colours, sizes | `assets/art/manifest.json` |
 | Asset renders | `"$BLENDER" -b assets/art/wardwood_kit.blend -P tools/art/render.py -- <outdir> [Asset ...]` |
 | Map previews from the game camera, old vs new | `python tools/art/preview_map.py work/art/map` |
-| Draw cost, old vs new, offline | `lune run tools/art/measure.luau [near] [grassRadius]` |
+| Draw cost, old vs new, and grass option B, offline | `lune run tools/art/measure.luau [near]` |
 
 Change a recipe, rerun the kit, commit the regenerated files. Never hand-edit generated Luau.
 A Blender render is evidence of shape and palette only, never of the look in Studio.
@@ -54,32 +54,60 @@ A Blender render is evidence of shape and palette only, never of the look in Stu
   once) and draw every dressed prop from the templates (`Core/ArtPlan` picks the model),
   pooled and reused. Trees: full detail within 110 studs of the camera, `_LOD` to 280,
   `_FAR` beyond, with 12 studs of slack at each boundary (`Config/Wardwood.ArtLod`).
-- **Short 3D grass**: grown on each client where its camera looks: a patch (0.2-0.5 studs
-  tall, three tones, ~9 studs across) per 8-stud cell of grassy ground, within 54 studs of a
-  point 20 studs ahead of the hero along the camera's view, pushed a further 0.4 s of the
-  hero's speed (up to 26 studs) ahead, and always within 30 studs of the hero. Re-planned ten
-  times a second and whenever the hero moves a cell or the camera swings ~25 degrees; grown
-  nearest the hero first in 0.8 ms of each frame (four times that while ground within 48
-  studs is still bare); dropped a cell outside; pooled. Never on paths, rock, sand or under
-  trunks and rocks (`Config/Wardwood.ArtGrass`). The edge ahead sits 60-80 studs from the
-  camera, where blades are a pixel or two tall; the terrain's grass carpet carries the rest.
-  `tests/GrassStream.spec.luau` simulates it frame by frame: bunny hopping at 50 studs/s
-  leaves no bare cell ahead, a quarter-turn of the camera at most a few frames of the new
-  view's edge, a teleport is grown round within 0.25 s.
+- **Grass**: see "Grass: two options on trial" below. The streamed client patches of
+  `bonk-0.17.x` are gone.
 - **Canopy fade**: the kit's leaf meshes carry the `WWFoliage` tag; the client's canopy fade
   ghosts them out of the camera's way like the old crowns.
 
 ### Measured offline (`tools/art/measure.luau`, within ~600 studs of a client)
 
-| Spot | Old (est.) | New trees and props | New grass |
-|---|---|---|---|
-| Spawn clearing | ~1.56M tris, 9.8k parts | ~0.61M tris, 5.0k parts | ~145k tris, ~135 patches |
-| Open meadow | ~1.13M, 7.5k | ~0.54M, 3.8k | ~149k, ~138 |
-| Old Grove | ~0.99M, 6.7k | ~0.62M, 3.5k | ~137k, ~127 |
-| Dense wood | ~1.13M, 7.3k | ~0.68M, 3.8k | ~140k, ~130 |
+| Spot | Old (est.) | New trees and props |
+|---|---|---|
+| Spawn clearing | ~1.56M tris, 9.8k parts | ~0.61M tris, 5.0k parts |
+| Open meadow | ~1.13M, 7.5k | ~0.54M, 3.8k |
+| Old Grove | ~0.99M, 6.7k | ~0.62M, 3.5k |
+| Dense wood | ~1.13M, 7.3k | ~0.68M, 3.8k |
 
 The old figures estimate Roblox's primitive spheres and cylinders, so they are approximate.
 Frame time under a horde needs Studio.
+
+## Grass: two options on trial
+
+**Why the streamed patches failed** (`bonk-0.17.0`/`0.17.1`): every patch was a disc of blades
+thinning to a soft edge, and the three patch variants had different base colours. Laid out
+as the game laid them, blades per 2x2 studs varied by 61% of their mean (zero to almost
+three times the mean, bare squares included) and each disc wore its own tint: islands.
+Cells near trunks and rocks, and whole 8-stud cells at a path or forest edge, were left out:
+holes and steps. And any set of instances that follows the camera has an edge somewhere in
+view; since the grass did not match the bare carpet it covered, that edge always read,
+however far it was pushed.
+
+**Option A, native** (`grass native`): the short ground in Roblox's own `Grass` material
+(surface `Turf`, tinted to the carpet), so the engine draws its decoration blades over all
+of it. No instances, no streaming code, the same everywhere; the engine fades its blades
+with distance itself. Limits, honestly: `Terrain.GrassLength` cannot go under 0.1 (it is
+already there); blade shape cannot be changed; the blades take the material's colour; a
+custom look would need a MaterialVariant with uploaded textures (not done); and the place's
+`Terrain.Decoration` must be on (a place setting, not scriptable).
+
+**Option B, static chunks** (`grass chunks on|off`, in the test meadow): `Core/GrassField`
+puts one blade (0.2-0.5 studs, three tones by a per-blade hash) per cell of one global
+grid, 0.5 studs, turned 27 degrees against the world and fully jittered: blades per 2x2
+studs vary by 10% of their mean, no rows, no seams (a blade belongs to the chunk its foot
+stands in), no exclusion holes (only the terrain's own non-grass ground is left bare).
+Each 32x32-stud chunk is baked once by the server into three MeshParts
+(`Wardwood/GrassChunks`) and left alone; Roblox streams it like any part.
+Test meadow (`Config/Wardwood.GrassTest`, 128x128 studs at the north meadow; `grass test`
+stands you there): 48 MeshParts, ~131k triangles (8 per stud^2, half the old patches'
+density, evenly spread). The same over all ~707k studs^2 of grassy ground would be ~5.7M
+triangles in ~2,070 MeshParts, with nothing to thin it at a distance: not viable map-wide
+without a distance scheme of its own, which is what failed before.
+
+**Recommendation**: option A, if its blades read well in Studio at the 0.1 minimum with the
+carpet tint (`grass tint r g b` adjusts it live): it is the only option that is seamless,
+stable and cheap over the whole map. Option B only if A is rejected, and then limited to
+the meadows the fights cross, measured first. Both previews: `work/art/grass_b_preview.jpg`
+(Blender, B against the bare carpet; A is drawn by the engine and cannot be previewed).
 
 ## Fallbacks
 

@@ -1,14 +1,17 @@
 """The Wardwood environment kit (M3.B): every asset as a seeded recipe.
 
 Sizes are studs at scale 1 and match the props they stand in for (the
-part-built blueprints and the mesh props measured in the game), so a showcase
-can swap one for the other in place: same footprint, same collider.
+part-built blueprints and the mesh props measured in the game), so the game
+swaps one for the other in place: same footprint, same collider.
 
-    Broadleaf  Oak, OakLeaning, Beech, Birch, Sapling
-    Conifers   Spruce, Pine
-    Landmark   AncientOak
-    Ground     GrassA, GrassB, GrassC (low 3D grass patches)
-    Stone      BoulderLarge, RockSmall, BoulderFlat, Pillar, PillarBroken
+    Broadleaf  Oak, OakLeaning, Beech, Birch, Sapling (variants, _LOD, _FAR)
+    Conifers   Spruce, Pine (variants, _LOD, _FAR)
+    Landmarks  AncientOak, AncientPine, Elder, FallenGiant
+    Woodland   Bush, Fern, Stump, FallenLog
+    Stone      BoulderLarge, RockSmall, BoulderFlat, Menhir, Pillar, PillarBroken, RuinWall
+
+Grass is not in the kit: option B's blades stand on the terrain, so they are
+grown per chunk in the game (src/shared/Core/GrassField.luau).
 """
 
 from __future__ import annotations
@@ -67,9 +70,6 @@ PAL = {
     "elderMid": (64, 124, 82),
     "elderLight": (108, 164, 96),
     "elderGold": (170, 204, 120),
-    "grassA": (122, 170, 62),
-    "grassB": (130, 176, 66),
-    "grassC": (114, 162, 58),
 }
 
 # ------------------------------------------------------------------ canopy
@@ -413,51 +413,6 @@ def pine(name="Pine", seed=31, height=33.0, lod=False):
             lit = sun_light(shade, (q[2] - (height - 15)) / 15) + rng.uniform(-0.1, 0.1)
             part = dark if (lit < 0.48 or shade[2] < -0.2) else (mid if lit < 0.68 else light)
             card(part, q, out, rng.uniform(1.5, 2.1), rng, shade, fold=0.05, aspect=0.22)
-    return a
-
-
-# ------------------------------------------------------------------ grass
-
-
-def grass_patch(name, seed, color_key, blades=540, radius=4.6):
-    """Low 3D grass: thin blades 0.2 to 0.5 studs above the ground, thinning
-    to a soft edge so overlapping patches read as one continuous lawn. Blades
-    come in three tones and their normals lean toward the way each one faces,
-    so the sun catches some and not others: the ground gets a fine living
-    texture without anything standing tall. Each blade starts 0.2 studs under
-    the surface, so voxel terrain a little off the heightfield never leaves
-    one floating or swallows it."""
-    rng = random.Random(seed)
-    a = Asset(name)
-    base_col = PAL[color_key]
-
-    def tone(k):
-        return tuple(max(0, min(255, round(c * k))) for c in base_col)
-
-    parts = (a.part("bladesDark", tone(0.76)), a.part("bladesMid", base_col), a.part("bladesLight", tone(1.13)))
-    n = 0
-    while n < blades:
-        r = radius * math.sqrt(rng.random())
-        if rng.random() > 1 - smooth((r - radius * 0.55) / (radius * 0.45)):
-            continue
-        ang = rng.uniform(0, math.tau)
-        x, y = math.cos(ang) * r, math.sin(ang) * r
-        h = 0.2 + 0.3 * rng.random() ** 1.5
-        w = rng.uniform(0.1, 0.16)
-        face = rng.uniform(0, math.tau)
-        side = (math.cos(face) * w * 0.5, math.sin(face) * w * 0.5, 0)
-        facing = (-math.sin(face), math.cos(face), 0)
-        lean = rng.uniform(0.1, 0.45) * h
-        la = rng.uniform(0, math.tau)
-        base = (x, y, -0.2)
-        tip = (x + math.cos(la) * lean, y + math.sin(la) * lean, h)
-        nrm = norm(add(add((0, 0, 0.62), mul(facing, 0.55)), (math.cos(la) * 0.12, math.sin(la) * 0.12, 0)))
-        roll = rng.random()
-        g = parts[0] if roll < 0.3 else (parts[1] if roll < 0.8 else parts[2])
-        i0, i1, i2 = g.vert(sub(base, side)), g.vert(add(base, side)), g.vert(tip)
-        g.tri(i0, i1, i2, nrm, nrm, nrm)
-        g.tri(i1, i0, i2, nrm, nrm, nrm)
-        n += 1
     return a
 
 
@@ -875,9 +830,6 @@ def build_all():
             far = recipe(2)
             far.name = name + "_FAR"
             kit.append(far)
-    kit.append(grass_patch("GrassA", 201, "grassA"))
-    kit.append(grass_patch("GrassB", 203, "grassB"))
-    kit.append(grass_patch("GrassC", 205, "grassC"))
     kit.append(fern("FernA", 601))
     kit.append(fern("FernB", 603))
     kit.append(stump("StumpA", 701))

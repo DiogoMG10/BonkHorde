@@ -381,7 +381,7 @@ if art:
         art_mesh[key] = me
     for inst in art["instances"]:
         # grass covers the drawn surface, which this preview puts 2 above the field
-        lift = 2 if inst["parts"][0].startswith("Grass") else 0
+        lift = 2 if inst.get("grass") else 0
         for key in inst["parts"]:
             ob = bpy.data.objects.new(key, art_mesh[key])
             ob.location = to_bl(inst["x"], inst["y"] + lift, inst["z"])

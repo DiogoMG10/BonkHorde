@@ -20,11 +20,13 @@
 --                      SmoothPlastic, Plastic...; `leaves` alone puts it back)
 --   art off            the old props back over the whole Wardwood (`art on` the
 --                      M3.B Blender kit); `art pick` names the nearest prop for
---                      Config/WardwoodOverrides; `art grass 118 166 60` tints
---                      the 3D grass
---   grass less         rewrite the terrain live: `short` one continuous, almost
---                      flat grassy surface (default), `less` grass in drifts
---                      between moss and worn earth, `full` all blades
+--                      Config/WardwoodOverrides
+--   grass native       rewrite the terrain live: `short` one continuous, almost
+--                      flat grassy surface (default), `native` the same in
+--                      Roblox's bladed Grass (option A), `less` drifts, `full`;
+--                      `grass chunks on|off` static 3D grass in the test meadow
+--                      (option B), `grass test` takes you there, `grass tint
+--                      112 158 58` re-tints both
 --   font fredoka all   try a face on the whole game (Config/Fonts): `ui` the
 --                      interface only, `numbers` / `popups` one role, no role
 --                      both of those; `font` alone lists faces and what's worn
@@ -145,7 +147,7 @@ function DevService:KnitStart()
 		end
 		print(`[Dev] font {name} on {table.concat(roles, ", ")}`)
 	end
-	function commands.art(_, what, r, g, b)
+	function commands.art(_, what)
 		if what == "on" or what == "off" then
 			task.spawn(function()
 				mapService:SetArt(what == "on")
@@ -181,24 +183,42 @@ function DevService:KnitStart()
 					)}{if asset then `, asset = "{asset}"` else ""} \},`
 				)
 			end
-		elseif what == "grass" and tonumber(r) and tonumber(g) and tonumber(b) then
-			Workspace:SetAttribute("BonkGrassColor", Color3.fromRGB(tonumber(r), tonumber(g), tonumber(b)))
-			print(`[Dev] art grass tinted {r} {g} {b}`)
 		else
-			print(
-				`[Dev] art on | art off | art pick | art grass <r> <g> <b> (art {if Workspace:GetAttribute("BonkArt") then "on" else "off"})`
-			)
+			print(`[Dev] art on | art off | art pick (art {if Workspace:GetAttribute("BonkArt") then "on" else "off"})`)
 		end
 	end
-	function commands.grass(_, mode)
-		if mode ~= "full" and mode ~= "less" and mode ~= "short" then
-			print("[Dev] grass short | grass less | grass full")
-			return
+	function commands.grass(_, mode, r, g, b)
+		if mode == "chunks" and (r == "on" or r == "off") then
+			-- grass option B: static 3D grass chunks over the test meadow
+			task.spawn(function()
+				local parts, tris = mapService:SetGrassChunks(r == "on")
+				print(`[Dev] grass chunks {r}: {parts} parts, {tris} triangles in the test meadow`)
+			end)
+		elseif mode == "test" then
+			local Wardwood = require(ReplicatedStorage.Shared.Config.Wardwood)
+			local t = Wardwood.GrassTest
+			local player = Players:GetPlayers()[1]
+			local character = player and player.Character
+			if character then
+				local x, z = t.x + t.size / 2, t.z - 6
+				local y = mapService:HeightAt(x, z) + 4
+				character:PivotTo(CFrame.lookAt(Vector3.new(x, y, z), Vector3.new(x, y, z + 40)))
+				print("[Dev] at the edge of the grass test meadow, looking in")
+			end
+		elseif mode == "tint" and tonumber(r) and tonumber(g) and tonumber(b) then
+			local GrassChunks = require(script.Parent.Parent.Wardwood.GrassChunks)
+			local colour = Color3.fromRGB(tonumber(r), tonumber(g), tonumber(b))
+			Workspace.Terrain:SetMaterialColor(Enum.Material.Grass, colour)
+			GrassChunks.tint(colour)
+			print(`[Dev] grass tinted {r} {g} {b} (native blades and the chunks)`)
+		elseif mode == "full" or mode == "less" or mode == "short" or mode == "native" then
+			task.spawn(function()
+				mapService:SetGrass(mode)
+				print(`[Dev] grass {mode}: terrain rewritten`)
+			end)
+		else
+			print("[Dev] grass short | native | less | full; grass chunks on|off; grass test; grass tint <r> <g> <b>")
 		end
-		task.spawn(function()
-			mapService:SetGrass(mode)
-			print(`[Dev] grass {mode}: terrain rewritten`)
-		end)
 	end
 	function commands.marker()
 		local on = Workspace:GetAttribute("BonkAimMarker") ~= true
@@ -418,7 +438,7 @@ function DevService:KnitStart()
 			print(`[Dev] no hero in the run yet (phase {director:GetPhase()})`)
 			return
 		end
-		local ok, err = pcall(command, rec, parts[2], parts[3], parts[4])
+		local ok, err = pcall(command, rec, parts[2], parts[3], parts[4], parts[5])
 		if not ok then
 			warn(`[Dev] {text} failed: {err}`)
 		end

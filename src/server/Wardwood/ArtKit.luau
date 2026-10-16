@@ -83,9 +83,10 @@ end
 local FOLIAGE =
 	{ leafDark = true, leafMid = true, leafLight = true, leafGold = true, needleDark = true, needleMid = true, needleLight = true }
 
-local function meshPart(part, asset: string): MeshPart?
+--- Bake a mesh (ArtKit.decode's shape) into a MeshPart whose content
+--- replicates; nil if the engine will not. Anchored, visual only.
+function ArtKit.bakeMesh(mesh: Mesh, name: string, fidelity: Enum.RenderFidelity?): MeshPart?
 	local AssetService = game:GetService("AssetService")
-	local mesh = ArtKit.decode(part)
 	local em = AssetService:CreateEditableMesh()
 	local vids, nids = table.create(mesh.verts), table.create(mesh.verts)
 	local pos, nrm = mesh.pos, mesh.nrm
@@ -106,35 +107,42 @@ local function meshPart(part, asset: string): MeshPart?
 	end)
 	if not (okBake and result == Enum.CreateContentResult.Success) then
 		em:Destroy()
-		warn(`[ArtKit] {asset}.{part.name}: not baked ({if okBake then result else baked})`)
+		warn(`[ArtKit] {name}: not baked ({if okBake then result else baked})`)
 		return nil
 	end
 	local ok, mp = pcall(function()
 		return AssetService:CreateMeshPartAsync(baked, {
 			CollisionFidelity = Enum.CollisionFidelity.Box,
-			-- the engine's own simplification would thin blades away; grass is
-			-- only ever drawn near the hero anyway
-			RenderFidelity = if string.find(asset, "^Grass") then Enum.RenderFidelity.Precise else Enum.RenderFidelity.Automatic,
+			RenderFidelity = fidelity or Enum.RenderFidelity.Automatic,
 		})
 	end)
 	em:Destroy()
 	if not ok then
-		warn(`[ArtKit] {asset}.{part.name}: {mp}`)
+		warn(`[ArtKit] {name}: {mp}`)
 		return nil
 	end
-	local colour = Color3.fromRGB(part.color[1], part.color[2], part.color[3])
-	mp.Name = part.name
+	mp.Name = name
 	mp.Anchored = true
 	mp.CanCollide = false
 	mp.CanQuery = false
 	mp.CanTouch = false
-	-- grass and the horizon trees cast no shadow: nobody would see it
-	mp.CastShadow = not (string.find(asset, "^Grass") or string.find(asset, "_FAR$"))
+	mp.Size = Vector3.new(math.max(mesh.size[1], 0.01), math.max(mesh.size[2], 0.01), math.max(mesh.size[3], 0.01))
+	mp.CFrame = CFrame.new(mesh.centre[1], mesh.centre[2], mesh.centre[3])
+	return mp
+end
+
+local function meshPart(part, asset: string): MeshPart?
+	local mp = ArtKit.bakeMesh(ArtKit.decode(part), `{asset}.{part.name}`)
+	if not mp then
+		return nil
+	end
+	local colour = Color3.fromRGB(part.color[1], part.color[2], part.color[3])
+	mp.Name = part.name
+	-- the horizon trees cast no shadow: nobody would see it
+	mp.CastShadow = not string.find(asset, "_FAR$")
 	mp.Color = colour
 	mp:SetAttribute("BaseColor", colour) -- clients tint each plant from it
 	mp.Material = (Enum.Material :: any)[part.material] or Enum.Material.SmoothPlastic
-	mp.Size = Vector3.new(math.max(mesh.size[1], 0.01), math.max(mesh.size[2], 0.01), math.max(mesh.size[3], 0.01))
-	mp.CFrame = CFrame.new(mesh.centre[1], mesh.centre[2], mesh.centre[3])
 	if FOLIAGE[part.name] then
 		game:GetService("CollectionService"):AddTag(mp, "WWFoliage")
 	end
@@ -171,16 +179,14 @@ function ArtKit.build(name: string): Model?
 end
 
 -- the horizon and far versions first, so the whole wood stands at once; then
--- the grass and the close-up trees; then the rest of the kit
+-- the close-up trees and the rest of the kit
 local function priority(name: string): number
 	if string.find(name, "_FAR$") then
 		return 0
 	elseif string.find(name, "_LOD$") then
 		return 1
-	elseif string.find(name, "^Grass") then
-		return 2
 	end
-	return 3
+	return 2
 end
 
 --- Bake every asset into ReplicatedStorage.WardwoodArt, a few at a time.

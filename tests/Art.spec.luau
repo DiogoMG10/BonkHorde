@@ -7,8 +7,6 @@
 local ArtKit = require("../src/server/Wardwood/ArtKit")
 local ArtPlan = require("../src/shared/Core/ArtPlan")
 local GameConfig = require("../src/shared/Config/GameConfig")
-local MapGen = require("../src/shared/Core/MapGen")
-local Wardwood = require("../src/shared/Config/Wardwood")
 local World = require("../src/shared/Core/World")
 
 local fs = require("@lune/fs")
@@ -78,7 +76,6 @@ return {
 				then 20000
 				elseif string.find(name, "_FAR$") then 2000
 				elseif string.find(name, "_LOD$") then 3500
-				elseif string.find(name, "^Grass") then 1400
 				else 9000
 			assert(n <= cap, `{name} has {n} triangles, budget {cap}`)
 		end
@@ -199,32 +196,5 @@ return {
 			end
 		end
 		assert(checked, "the Fallen Giant has no trunk part")
-	end,
-
-	["short 3D grass grows only on grassy ground, clear of trunks, rocks and walls"] = function()
-		local field = ArtPlan.grassField(world)
-		local cell = Wardwood.ArtGrass.cell
-		local n, total = 0, 0
-		for cx = -40, 40 do
-			for cz = -40, 40 do
-				total += 1
-				local g = field(cx, cz)
-				if g then
-					n += 1
-					local surface = World.surface(world, g.x, g.z, Wardwood.Grass)
-					assert(surface ~= "Path" and surface ~= "Rock" and surface ~= "Sand", `grass on {surface}`)
-					assert(math.abs(g.y - MapGen.heightAt(world.map, g.x, g.z)) < 1e-6, "grass off the ground")
-					assert(math.abs(g.x - (cx + 0.5) * cell) <= cell * 0.2 + 1e-6, "grass strayed from its cell")
-					assert(table.find(ArtPlan.Grass, g.asset), `grass patch {g.asset}`)
-					assert(field(cx, cz) == g, "the field does not cache")
-				end
-			end
-		end
-		assert(n > total * 0.5, `grass in only {n} of {total} cells round spawn`)
-		for _, name in ArtPlan.Grass do
-			for _, part in ASSETS[name].parts do
-				assert(part.max[2] <= 0.55, `{name} stands {part.max[2]} studs tall`)
-			end
-		end
 	end,
 }

@@ -504,8 +504,11 @@ function World.surface(world: World, x: number, z: number, grass: string?): stri
 			return "Lush"
 		end
 		return "Meadow"
-	elseif grass == "short" then
-		return if f > 0.55 and cool > 0.5 then "ForestFloor" else "Carpet"
+	elseif grass == "short" or grass == "native" then
+		if f > 0.55 and cool > 0.5 then
+			return "ForestFloor"
+		end
+		return if grass == "native" then "Turf" else "Carpet"
 	end
 	local fine = patchNoise(x, z)
 	if f > 0.5 and cool > 0.5 then

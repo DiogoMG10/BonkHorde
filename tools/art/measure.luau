@@ -4,7 +4,7 @@
 -- the server builds and replicates. Offline, from the same plan the game
 -- uses; frame time still needs Studio.
 --
---     lune run tools/art/measure.luau [near] [grassRadius]
+--     lune run tools/art/measure.luau [near]
 
 local fs = require("@lune/fs")
 local process = require("@lune/process")
@@ -17,7 +17,6 @@ local World = require("../../src/shared/Core/World")
 
 local near = tonumber(process.args[1]) or Wardwood.ArtLod.near
 local farAt = Wardwood.ArtLod.far
-local grassR = tonumber(process.args[2]) or Wardwood.ArtGrass.radius
 local VIEW = 600 -- roughly how far the haze lets anything count
 
 local manifest = serde.decode("json", fs.readFile("assets/art/manifest.json")).assets
@@ -65,11 +64,7 @@ local spots = {
 	{ "Thornwood edge", 250, -150 },
 }
 
-local field = ArtPlan.grassField(world)
-local cell = Wardwood.ArtGrass.cell
-local grassTris = manifest.GrassA.tris
-
-print(string.format("near %d studs, far %d studs, grass radius %d studs", near, farAt, grassR))
+print(string.format("near %d studs, far %d studs", near, farAt))
 for _, s in spots do
 	local name, sx, sz = s[1], s[2], s[3]
 	local oldT, oldP, newT, newP, n0, n1 = 0, 0, 0, 0, 0, 0
@@ -92,29 +87,55 @@ for _, s in spots do
 			end
 		end
 	end
-	local patches = 0
-	local r = math.ceil(grassR / cell)
-	local cx0, cz0 = math.floor(sx / cell), math.floor(sz / cell)
-	for cx = cx0 - r, cx0 + r do
-		for cz = cz0 - r, cz0 + r do
-			local g = field(cx, cz)
-			if g and (g.x - sx) ^ 2 + (g.z - sz) ^ 2 < grassR * grassR then
-				patches += 1
-			end
-		end
-	end
 	print(
 		string.format(
-			"%-22s old %4dk tris %5d parts | new %4dk tris %5d parts (%d near, %d far) + grass %d patches %dk tris",
+			"%-22s old %4dk tris %5d parts | new %4dk tris %5d parts (%d near, %d far)",
 			name,
 			oldT // 1000,
 			oldP,
 			newT // 1000,
 			newP,
 			n0,
-			n1,
-			patches,
-			patches * grassTris // 1000
+			n1
+		)
+	)
+end
+
+-- grass option B (static chunks, Core/GrassField): the test meadow, and what
+-- the same density would cost over every grassy stud of the map. Option A is
+-- Roblox's own terrain decoration: no instances, nothing to count here.
+do
+	local GrassField = require("../../src/shared/Core/GrassField")
+	local T = Wardwood.GrassTest
+	local tris, parts = 0, 0
+	for x0 = T.x, T.x + T.size - T.chunk, T.chunk do
+		for z0 = T.z, T.z + T.size - T.chunk, T.chunk do
+			for _, m in GrassField.chunk(world, x0, z0, T.chunk, T.spacing, "short") do
+				if m.tris > 0 then
+					tris += m.tris
+					parts += 1
+				end
+			end
+		end
+	end
+	local grassy = 0
+	for x = -470, 470, 4 do
+		for z = -470, 470, 4 do
+			if GrassField.grassy(world, x, z, "short") then
+				grassy += 16
+			end
+		end
+	end
+	local perStud = tris / (T.size * T.size)
+	print(
+		string.format("grass B, test meadow %dx%d: %d MeshParts, %dk tris (%.1f per stud^2)", T.size, T.size, parts, tris // 1000, perStud)
+	)
+	print(
+		string.format(
+			"grass B over all %dk studs^2 of grassy ground: ~%.1fM tris, ~%d MeshParts",
+			grassy // 1000,
+			grassy * perStud / 1e6,
+			math.floor(grassy / (T.size * T.size) * parts)
 		)
 	)
 end
