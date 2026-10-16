@@ -1,10 +1,17 @@
 --!nonstrict
 -- PickupRenderController - owns gem, coin and powerup visuals and their
--- fly-to-hero animation.
+-- flight to the hero.
 --
--- The server says what dropped where and who took it. A visual comes from
--- ReplicatedStorage.Assets.Pickups.<Kind> when it exists and is a simple shape
--- otherwise.
+-- The server says what dropped where and who took it; it has already counted
+-- the XP and the gold. Here a taken pickup is seen to go to its hero: it hops
+-- up and away for an instant, then homes in with ever-growing speed (it
+-- outruns a hero at full bunny-hop speed within half a second), and twinkles
+-- and chimes as it arrives. A magnet or vacuum shrine sweeps nearest first,
+-- so the whole map's gems and coins stream in as a converging wave, with a
+-- running "+XP" tally over the hero. Gems and coins near the camera bob and
+-- turn while they wait. Parts are pooled and every frame's moves go out in one
+-- BulkMoveTo. A visual comes from ReplicatedStorage.Assets.Pickups.<Kind> when
+-- it exists and is a simple shape otherwise.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -14,6 +21,7 @@ local Knit = require(ReplicatedStorage.Packages.Knit)
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Roster = require(ReplicatedStorage.Shared.Config.Roster)
+local Vfx = require(script.Parent.Parent.Vfx)
 
 local PickupRenderController = Knit.CreateController({ Name = "PickupRenderController" })
 
@@ -35,14 +43,27 @@ local LOOK = {
 	},
 }
 
+local GOLD = Color3.fromRGB(255, 214, 90)
+local IDLE_RANGE = 140 -- gems and coins this close to the camera bob and turn
+local ARRIVE = 2.2 -- studs from the hero's chest that count as arrived
+local TALLY_MIN = 12 -- a tally shows once a sweep brings at least this many gems
+
 function PickupRenderController:KnitInit()
-	self._items = {} -- id -> { part, kind }
+	self._items = {} -- id -> { part, kind, value, at (resting CFrame), phase }
 	self._pool = {} -- kind -> { part }
 	self._flying = {}
+	self._moveParts = {}
+	self._moveFrames = {}
 	local folder = Instance.new("Folder")
 	folder.Name = "Pickups"
 	folder.Parent = Workspace
 	self._folder = folder
+	self._streak = 0
+	self._streakAt = 0
+	self._sparkAt = 0
+	self._tally = 0
+	self._tallyGems = 0
+	self._tallyAt = 0
 end
 
 function PickupRenderController:_make(kind: string): BasePart
@@ -114,8 +135,76 @@ function PickupRenderController:_clear()
 	end
 end
 
+-- a pickup reached its hero: for the local hero, a twinkle, a chime that
+-- climbs in pitch through a run of them, and the sweep's tally
+function PickupRenderController:_arrived(f, at: Vector3)
+	if f.index ~= self._state:MyIndex() then
+		return
+	end
+	local now = os.clock()
+	if now - self._sparkAt > 0.06 then
+		self._sparkAt = now
+		pcall(Vfx.burst, "GemCollect", at, if f.kind == "GoldCoin" then { tint = GOLD } else nil)
+	end
+	if f.kind == "XPGem" then
+		self._streak = if now - self._streakAt < 0.5 then math.min(self._streak + 1, 14) else 0
+		self._streakAt = now
+		self._audio:Play("xp_pickup", nil, 1 + self._streak * 0.045)
+		local me = self._state.me
+		self._tally += f.value * (if me and me.stats then me.stats.XPGain else 1)
+		self._tallyGems += 1
+		self._tallyAt = now
+	elseif f.kind == "GoldCoin" then
+		self._audio:Play("coin_pickup", 0.08)
+	end
+end
+
+-- the "+XP" over the hero while a big haul streams in
+function PickupRenderController:_tallyGui(): TextLabel
+	if self._tallyLabel and self._tallyLabel.Parent then
+		return self._tallyLabel
+	end
+	local gui = Instance.new("BillboardGui")
+	gui.Name = "PickupTally"
+	gui.Size = UDim2.fromOffset(220, 46)
+	gui.StudsOffset = Vector3.new(0, 4.6, 0)
+	gui.AlwaysOnTop = true
+	gui.LightInfluence = 0
+	local text = Instance.new("TextLabel")
+	text.Size = UDim2.fromScale(1, 1)
+	text.BackgroundTransparency = 1
+	text.Font = Enum.Font.LuckiestGuy
+	text.TextScaled = true
+	text.TextColor3 = Color3.fromRGB(150, 210, 255)
+	text.TextStrokeTransparency = 0.1
+	text.TextStrokeColor3 = Color3.fromRGB(10, 30, 70)
+	text.Parent = gui
+	gui.Parent = self._folder
+	self._tallyLabel = text
+	return text
+end
+
+function PickupRenderController:_updateTally(roots: { [number]: BasePart })
+	local now = os.clock()
+	local label = self._tallyLabel
+	local root = roots[self._state:MyIndex()]
+	if self._tallyGems >= TALLY_MIN and root and now - self._tallyAt < 1.4 then
+		label = self:_tallyGui()
+		label.Parent.Adornee = root
+		label.Text = `+{math.floor(self._tally + 0.5)} XP`
+		label.TextTransparency = 0
+		label.TextStrokeTransparency = 0.1
+	elseif label and label.Parent then
+		label.Parent.Adornee = nil
+	end
+	if now - self._tallyAt >= 1.4 then
+		self._tally, self._tallyGems = 0, 0
+	end
+end
+
 function PickupRenderController:KnitStart()
 	self._state = Knit.GetController("StateController")
+	self._audio = Knit.GetController("AudioController")
 	local half = GameConfig.MapSizeStuds / 2
 	local function restore(q: number): number
 		return q / 65535 * (2 * half) - half
@@ -143,8 +232,9 @@ function PickupRenderController:KnitStart()
 						part.Size = base
 					end
 					local y = self._state:HeightAt(x, z) + 1.6
-					part.CFrame = CFrame.new(x, y, z) * CFrame.Angles(0, (id % 12) * 0.5, if kind == "GoldCoin" then 0 else math.rad(8))
-					self._items[id] = { part = part, kind = kind }
+					local at = CFrame.new(x, y, z) * CFrame.Angles(0, (id % 12) * 0.5, if kind == "GoldCoin" then 0 else math.rad(8))
+					part.CFrame = at
+					self._items[id] = { part = part, kind = kind, value = value, at = at, phase = (id % 17) * 0.37 }
 				end
 			end
 		end)
@@ -159,7 +249,21 @@ function PickupRenderController:KnitStart()
 				local item = self._items[id]
 				if item then
 					self._items[id] = nil
-					table.insert(self._flying, { part = item.part, kind = item.kind, index = index, from = item.part.Position, t = 0 })
+					local pos = item.part.Position
+					local root = self._state:RootOfIndex(index)
+					-- a little hop up and away from the hero before the pull takes it
+					local away = if root then (pos - root.Position) * Vector3.new(1, 0, 1) else Vector3.zero
+					away = if away.Magnitude > 0.1 then away.Unit else Vector3.zero
+					table.insert(self._flying, {
+						part = item.part,
+						kind = item.kind,
+						value = item.value,
+						index = index,
+						pos = pos,
+						vel = away * 9 + Vector3.new(0, 11, 0),
+						t = 0,
+						spin = (id % 7) * 0.9,
+					})
 				end
 			end
 		end)
@@ -171,21 +275,72 @@ function PickupRenderController:KnitStart()
 		end
 	end)
 
+	local roots = {}
 	RunService.RenderStepped:Connect(function(dt)
+		dt = math.min(dt, 0.05)
+		local parts, frames = self._moveParts, self._moveFrames
+		table.clear(parts)
+		table.clear(frames)
+		table.clear(roots)
+		for _, entry in self._state.roster.players do
+			roots[entry.index] = self._state:RootOfIndex(entry.index)
+		end
+
+		-- flights home
 		local flying = self._flying
 		for i = #flying, 1, -1 do
 			local f = flying[i]
-			f.t += dt / 0.22
-			local root = self._state:RootOfIndex(f.index)
-			if f.t >= 1 or not root then
+			f.t += dt
+			local root = roots[f.index]
+			if not root or f.t > 4 then
 				self:_free(f.kind, f.part)
 				table.remove(flying, i)
+				continue
+			end
+			local target = root.Position + Vector3.new(0, 0.6, 0)
+			local to = target - f.pos
+			local dist = to.Magnitude
+			if dist < ARRIVE then
+				self:_arrived(f, target)
+				self:_free(f.kind, f.part)
+				table.remove(flying, i)
+				continue
+			end
+			-- homing with a speed that keeps growing: a gentle start, a fast finish
+			local speed = 18 + 240 * f.t ^ 1.4
+			local want = to / dist * speed
+			f.vel = f.vel:Lerp(want, math.min(1, dt * (3 + 14 * f.t)))
+			local step = f.vel * dt
+			if step.Magnitude >= dist then
+				f.pos = target
 			else
-				-- ease in so it lingers a moment, then snaps to the hero
-				local a = f.t * f.t
-				f.part.Position = f.from:Lerp(root.Position, a) + Vector3.new(0, math.sin(f.t * math.pi) * 2, 0)
+				f.pos += step
+			end
+			f.spin += dt * 9
+			table.insert(parts, f.part)
+			table.insert(frames, CFrame.new(f.pos) * CFrame.Angles(0, f.spin, if f.kind == "GoldCoin" then 0 else 0.3))
+		end
+
+		-- the ones still waiting near the camera bob and turn
+		local camera = Workspace.CurrentCamera
+		if camera then
+			local c = camera.CFrame.Position
+			local clock = os.clock()
+			for _, item in self._items do
+				local p = item.at.Position
+				local dx, dz = p.X - c.X, p.Z - c.Z
+				if dx * dx + dz * dz < IDLE_RANGE * IDLE_RANGE then
+					local ph = item.phase + clock
+					table.insert(parts, item.part)
+					table.insert(frames, item.at * CFrame.new(0, math.sin(ph * 2.2) * 0.25, 0) * CFrame.Angles(0, ph * 1.6, 0))
+				end
 			end
 		end
+
+		if #parts > 0 then
+			Workspace:BulkMoveTo(parts, frames, Enum.BulkMoveMode.FireCFrameChanged)
+		end
+		self:_updateTally(roots)
 	end)
 end
 

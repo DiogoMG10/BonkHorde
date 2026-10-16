@@ -70,6 +70,10 @@ end
 
 function EnemyService:KnitInit()
 	self._free = {}
+	-- slots freed this tick: only reusable once the client has been told they are
+	-- gone (FlushNet), so a new enemy never takes a slot whose removal, or whose
+	-- killing blow, is still on its way
+	self._recycle = {}
 	for slot = MAX, 1, -1 do
 		table.insert(self._free, slot)
 	end
@@ -314,7 +318,7 @@ function EnemyService:Clear()
 	for slot = 1, MAX do
 		if alive[slot] then
 			alive[slot] = false
-			table.insert(self._free, slot)
+			table.insert(self._recycle, slot)
 			table.insert(self._gone, slot)
 			table.insert(self._gone, GONE_CLEARED)
 		end
@@ -347,7 +351,7 @@ function EnemyService:Damage(slot: number, amount: number, rec, flags: number?):
 		return false
 	end
 	alive[slot] = false
-	table.insert(self._free, slot)
+	table.insert(self._recycle, slot)
 	self._count -= 1
 	if bossKind[slot] == 0 and not tag[slot] then
 		self._regular -= 1
@@ -629,18 +633,8 @@ function EnemyService:FlushNet()
 		table.clear(spawned)
 		self._spawnEvent:FireAllClients(b)
 	end
-	local gone = self._gone
-	if #gone > 0 then
-		local n = #gone / 2
-		local b = buffer.create(n * 3)
-		for i = 1, n do
-			local o = (i - 1) * 3
-			buffer.writeu16(b, o, gone[i * 2 - 1])
-			buffer.writeu8(b, o + 2, gone[i * 2])
-		end
-		table.clear(gone)
-		self._goneEvent:FireAllClients(b)
-	end
+	-- hits before removals: a killing blow's number is drawn where the enemy
+	-- still stands on the client, and only then does it go
 	local hits = self._hits
 	if #hits > 0 then
 		local n = #hits / 3
@@ -654,6 +648,24 @@ function EnemyService:FlushNet()
 		table.clear(hits)
 		self._hitsEvent:FireAllClients(b)
 	end
+	local gone = self._gone
+	if #gone > 0 then
+		local n = #gone / 2
+		local b = buffer.create(n * 3)
+		for i = 1, n do
+			local o = (i - 1) * 3
+			buffer.writeu16(b, o, gone[i * 2 - 1])
+			buffer.writeu8(b, o + 2, gone[i * 2])
+		end
+		table.clear(gone)
+		self._goneEvent:FireAllClients(b)
+	end
+	-- the client now knows these slots are empty: they may be used again
+	local recycle = self._recycle
+	for i = #recycle, 1, -1 do
+		table.insert(self._free, recycle[i])
+	end
+	table.clear(recycle)
 	local frozen = self._frozen
 	if #frozen > 0 then
 		local n = #frozen / 2

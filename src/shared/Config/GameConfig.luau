@@ -6,7 +6,7 @@
 -- what makes a balance pass a data edit.
 
 local GameConfig = {
-	BuildStamp = "bonk-0.12.0-m5a",
+	BuildStamp = "bonk-0.13.0-m5a",
 
 	-- squad
 	MaxPlayers = 3,
@@ -129,6 +129,8 @@ local GameConfig = {
 	XPQuadratic = 0,
 	GemMergeRadius = 5,
 	GemCap = 400,
+	GoldCap = 300, -- coins on the ground; past it their value rides on the next coin picked up
+	VacuumSeconds = 1.2, -- a magnet or vacuum shrine sweeps the whole map, nearest first, over this long
 	PickupFlySpeed = 60,
 	OfferCount = 3,
 	OfferChoiceSecondsCoop = 12,

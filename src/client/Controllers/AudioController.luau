@@ -56,8 +56,6 @@ function AudioController:KnitInit()
 	self._musicRole = nil
 	self._ambience = nil
 	self._bossUp = false
-	self._gemStreak = 0
-	self._gemAt = 0
 
 	local function group(name: string): SoundGroup
 		local g = Instance.new("SoundGroup")
@@ -264,19 +262,7 @@ function AudioController:KnitStart()
 		end
 	end)
 
-	on("PickupTaken", function(b: buffer)
-		local mine = state:MyIndex()
-		for i = 0, buffer.len(b) / 3 - 1 do
-			if buffer.readu8(b, i * 3 + 2) == mine then
-				-- a run of gems climbs in pitch, the way a good pickup streak should
-				local now = os.clock()
-				self._gemStreak = if now - self._gemAt < 0.5 then math.min(self._gemStreak + 1, 12) else 0
-				self._gemAt = now
-				self:Play("xp_pickup", nil, 1 + self._gemStreak * 0.05)
-				break
-			end
-		end
-	end)
+	-- gem and coin chimes play as each one reaches its hero (PickupRenderController)
 
 	on("Hurt", function(_amount, dodged, shieldBroke)
 		if shieldBroke then

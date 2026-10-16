@@ -374,6 +374,19 @@ local PRESETS: { [string]: { any } } = {
 		},
 		{ tex = "ring_thin", count = 1, colour = rgb(120, 190, 255), size = grow(16, 1), life = { 0.4, 0.4 }, speed = { 0, 0 }, glow = 1 },
 	},
+	-- gems and coins reaching the hero: a small twinkle (tinted gold for coins)
+	GemCollect = {
+		{
+			tex = "star4",
+			count = 3,
+			colour = rgb(130, 200, 255),
+			size = grow(0.9, 0),
+			life = { 0.18, 0.28 },
+			speed = { 3, 7 },
+			glow = 1,
+			up = true,
+		},
+	},
 	FrenzyFlare = {
 		{
 			tex = "burst",

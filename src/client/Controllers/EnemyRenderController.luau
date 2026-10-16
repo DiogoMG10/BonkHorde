@@ -226,11 +226,20 @@ end
 
 -- ------------------------------------------------------------------ damage numbers
 
+-- numbers only, no words: strength reads from colour, size and a pop.
+-- normal white, crit gold, megacrit orange-red; poison green, ice blue
 local NUMBER_COLOURS = {
 	[0] = Color3.fromRGB(255, 255, 255),
-	[1] = Color3.fromRGB(255, 221, 60),
-	[2] = Color3.fromRGB(255, 120, 40),
+	[1] = Color3.fromRGB(255, 212, 40),
+	[2] = Color3.fromRGB(255, 92, 36),
 }
+local NUMBER_STROKES = {
+	[0] = Color3.fromRGB(10, 10, 14),
+	[1] = Color3.fromRGB(70, 40, 0),
+	[2] = Color3.fromRGB(80, 8, 0),
+}
+local NUMBER_SCALE = { [0] = 1, [1] = 1.3, [2] = 1.6 }
+local NUMBER_POP = { [0] = 1.15, [1] = 1.6, [2] = 2.1 } -- how big it starts before it settles
 
 function EnemyRenderController:_number(position: Vector3, amount: number, flags: number)
 	if #self._numbers >= MAX_NUMBERS then
@@ -251,6 +260,7 @@ function EnemyRenderController:_number(position: Vector3, amount: number, flags:
 		label.TextStrokeTransparency = 0
 		label.TextStrokeColor3 = Color3.fromRGB(10, 10, 14)
 		label.Parent = gui
+		Instance.new("UIScale").Parent = label
 		local part = Instance.new("Part")
 		part.Anchored = true
 		part.CanCollide = false
@@ -261,21 +271,22 @@ function EnemyRenderController:_number(position: Vector3, amount: number, flags:
 		gui.Adornee = part
 		gui.Parent = part
 	end
-	local crit = bit32.band(flags, 3)
+	local crit = math.min(bit32.band(flags, 3), 2)
 	local label = gui.Label
-	label.Text = (if crit > 0 then "CRIT! " else "") .. tostring(amount)
+	label.Text = tostring(amount)
 	label.TextColor3 = if bit32.band(flags, 4) ~= 0
 		then Color3.fromRGB(140, 235, 90)
 		elseif bit32.band(flags, 8) ~= 0 then Color3.fromRGB(120, 220, 255)
-		else NUMBER_COLOURS[crit] or NUMBER_COLOURS[0]
-	local size = math.clamp(20 + math.sqrt(amount) * 2.2, 22, 54) * (if crit > 0 then 1.25 else 1)
-	label.TextSize = size
-	label.Rotation = math.random(-12, 12)
+		else NUMBER_COLOURS[crit]
+	label.TextStrokeColor3 = NUMBER_STROKES[crit]
+	label.TextSize = math.clamp(20 + math.sqrt(amount) * 2.2, 22, 54) * NUMBER_SCALE[crit]
+	label.Rotation = math.random(-12, 12) * (if crit > 0 then 0.5 else 1)
 	label.TextTransparency = 0
 	label.TextStrokeTransparency = 0
+	label.UIScale.Scale = NUMBER_POP[crit]
 	gui.Enabled = true
 	local jitter = Vector3.new(math.random(-10, 10) / 10, 0, math.random(-10, 10) / 10)
-	table.insert(self._numbers, { gui = gui, part = gui.Adornee, origin = position + jitter, born = os.clock() })
+	table.insert(self._numbers, { gui = gui, part = gui.Adornee, origin = position + jitter, born = os.clock(), pop = NUMBER_POP[crit] })
 end
 
 function EnemyRenderController:_stepNumbers(now: number)
@@ -290,8 +301,12 @@ function EnemyRenderController:_stepNumbers(now: number)
 		else
 			n.part.Position = n.origin + Vector3.new(0, 1 + age * 3.5, 0)
 			local fade = math.clamp((age - 0.6) / 0.4, 0, 1)
-			n.gui.Label.TextTransparency = fade
-			n.gui.Label.TextStrokeTransparency = fade
+			local label = n.gui.Label
+			label.TextTransparency = fade
+			label.TextStrokeTransparency = fade
+			-- a hard hit lands big and settles in the first moment
+			local settle = math.clamp(age / 0.18, 0, 1)
+			label.UIScale.Scale = n.pop + (1 - n.pop) * (1 - (1 - settle) ^ 3)
 		end
 	end
 end

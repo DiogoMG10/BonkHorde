@@ -449,7 +449,7 @@ function InteractableService:_interact(rec, it, now: number)
 			return
 		end
 		self:SetState(it, "used")
-		self._pickups:CollectAllGems(rec, now)
+		self._pickups:Vacuum(rec, now)
 		Net.server("Fx"):FireAllClients("Pickup", rec.index, "Magnet")
 	elseif kind == "BossPortal" then
 		self._director:PortalUsed(it)
