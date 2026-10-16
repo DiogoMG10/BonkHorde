@@ -2,12 +2,12 @@
  "source": "tools/art/assets.py",
  "blend": "assets/art/wardwood_kit.blend",
  "assets": {
-  "Oak": {
-   "tris": 7970,
+  "OakA": {
+   "tris": 7714,
    "size_studs": [
-    22.02,
+    22.17,
     19.8,
-    20.86
+    20.27
    ],
    "parts": {
     "bark": {
@@ -20,7 +20,7 @@
      "material": "SmoothPlastic"
     },
     "leafDark": {
-     "tris": 3138,
+     "tris": 3062,
      "color": [
       46,
       92,
@@ -29,7 +29,7 @@
      "material": "SmoothPlastic"
     },
     "leafMid": {
-     "tris": 1936,
+     "tris": 1876,
      "color": [
       78,
       126,
@@ -38,7 +38,7 @@
      "material": "SmoothPlastic"
     },
     "leafLight": {
-     "tris": 2234,
+     "tris": 2114,
      "color": [
       118,
       160,
@@ -47,15 +47,111 @@
      "material": "SmoothPlastic"
     }
    },
-   "glb": "assets/art/export/Oak.glb",
-   "luau": "src/server/Wardwood/ArtMeshes/Oak.luau"
+   "glb": "assets/art/export/OakA.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/OakA.luau"
   },
-  "OakLeaning": {
-   "tris": 7267,
+  "OakA_LOD": {
+   "tris": 812,
    "size_studs": [
-    21.55,
-    20.28,
-    21.9
+    22.28,
+    19.91,
+    15.76
+   ],
+   "parts": {
+    "bark": {
+     "tris": 252,
+     "color": [
+      104,
+      78,
+      58
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 286,
+     "color": [
+      46,
+      92,
+      44
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 130,
+     "color": [
+      78,
+      126,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 144,
+     "color": [
+      118,
+      160,
+      58
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/OakA_LOD.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/OakA_LOD.luau"
+  },
+  "OakA_FAR": {
+   "tris": 392,
+   "size_studs": [
+    22.74,
+    20.98,
+    17.46
+   ],
+   "parts": {
+    "bark": {
+     "tris": 72,
+     "color": [
+      104,
+      78,
+      58
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 144,
+     "color": [
+      46,
+      92,
+      44
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 82,
+     "color": [
+      78,
+      126,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 94,
+     "color": [
+      118,
+      160,
+      58
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/OakA_FAR.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/OakA_FAR.luau"
+  },
+  "OakB": {
+   "tris": 6963,
+   "size_studs": [
+    19.67,
+    20.75,
+    21.41
    ],
    "parts": {
     "bark": {
@@ -68,7 +164,7 @@
      "material": "SmoothPlastic"
     },
     "leafDark": {
-     "tris": 3045,
+     "tris": 3044,
      "color": [
       46,
       92,
@@ -77,7 +173,7 @@
      "material": "SmoothPlastic"
     },
     "leafMid": {
-     "tris": 1801,
+     "tris": 1746,
      "color": [
       78,
       126,
@@ -86,7 +182,7 @@
      "material": "SmoothPlastic"
     },
     "leafLight": {
-     "tris": 1838,
+     "tris": 1590,
      "color": [
       118,
       160,
@@ -95,15 +191,543 @@
      "material": "SmoothPlastic"
     }
    },
-   "glb": "assets/art/export/OakLeaning.glb",
-   "luau": "src/server/Wardwood/ArtMeshes/OakLeaning.luau"
+   "glb": "assets/art/export/OakB.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/OakB.luau"
   },
-  "Beech": {
-   "tris": 6877,
+  "OakB_LOD": {
+   "tris": 767,
    "size_studs": [
-    16.56,
+    18.57,
+    20.59,
+    19.86
+   ],
+   "parts": {
+    "bark": {
+     "tris": 207,
+     "color": [
+      104,
+      78,
+      58
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 294,
+     "color": [
+      46,
+      92,
+      44
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 138,
+     "color": [
+      78,
+      126,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 128,
+     "color": [
+      118,
+      160,
+      58
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/OakB_LOD.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/OakB_LOD.luau"
+  },
+  "OakB_FAR": {
+   "tris": 392,
+   "size_studs": [
+    18.82,
+    21.66,
+    15.31
+   ],
+   "parts": {
+    "bark": {
+     "tris": 72,
+     "color": [
+      104,
+      78,
+      58
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 153,
+     "color": [
+      46,
+      92,
+      44
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 80,
+     "color": [
+      78,
+      126,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 87,
+     "color": [
+      118,
+      160,
+      58
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/OakB_FAR.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/OakB_FAR.luau"
+  },
+  "OakC": {
+   "tris": 8233,
+   "size_studs": [
+    23.19,
+    19.37,
+    21.9
+   ],
+   "parts": {
+    "bark": {
+     "tris": 741,
+     "color": [
+      104,
+      78,
+      58
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 3624,
+     "color": [
+      46,
+      92,
+      44
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 1904,
+     "color": [
+      78,
+      126,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 1964,
+     "color": [
+      118,
+      160,
+      58
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/OakC.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/OakC.luau"
+  },
+  "OakC_LOD": {
+   "tris": 937,
+   "size_studs": [
+    23.5,
+    19.8,
+    20.52
+   ],
+   "parts": {
+    "bark": {
+     "tris": 297,
+     "color": [
+      104,
+      78,
+      58
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 302,
+     "color": [
+      46,
+      92,
+      44
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 159,
+     "color": [
+      78,
+      126,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 179,
+     "color": [
+      118,
+      160,
+      58
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/OakC_LOD.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/OakC_LOD.luau"
+  },
+  "OakC_FAR": {
+   "tris": 392,
+   "size_studs": [
+    19.84,
+    20.89,
+    18.2
+   ],
+   "parts": {
+    "bark": {
+     "tris": 72,
+     "color": [
+      104,
+      78,
+      58
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 138,
+     "color": [
+      46,
+      92,
+      44
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 79,
+     "color": [
+      78,
+      126,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 103,
+     "color": [
+      118,
+      160,
+      58
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/OakC_FAR.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/OakC_FAR.luau"
+  },
+  "OakLeaningA": {
+   "tris": 7043,
+   "size_studs": [
+    21.74,
+    20.28,
+    21.88
+   ],
+   "parts": {
+    "bark": {
+     "tris": 583,
+     "color": [
+      104,
+      78,
+      58
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 2977,
+     "color": [
+      46,
+      92,
+      44
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 1657,
+     "color": [
+      78,
+      126,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 1826,
+     "color": [
+      118,
+      160,
+      58
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/OakLeaningA.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/OakLeaningA.luau"
+  },
+  "OakLeaningA_LOD": {
+   "tris": 767,
+   "size_studs": [
+    21.65,
+    20.13,
+    21.01
+   ],
+   "parts": {
+    "bark": {
+     "tris": 207,
+     "color": [
+      104,
+      78,
+      58
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 273,
+     "color": [
+      46,
+      92,
+      44
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 137,
+     "color": [
+      78,
+      126,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 150,
+     "color": [
+      118,
+      160,
+      58
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/OakLeaningA_LOD.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/OakLeaningA_LOD.luau"
+  },
+  "OakLeaningA_FAR": {
+   "tris": 392,
+   "size_studs": [
+    24.42,
+    21.21,
+    19.36
+   ],
+   "parts": {
+    "bark": {
+     "tris": 72,
+     "color": [
+      104,
+      78,
+      58
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 153,
+     "color": [
+      46,
+      92,
+      44
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 77,
+     "color": [
+      78,
+      126,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 90,
+     "color": [
+      118,
+      160,
+      58
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/OakLeaningA_FAR.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/OakLeaningA_FAR.luau"
+  },
+  "OakLeaningB": {
+   "tris": 6638,
+   "size_studs": [
+    21.88,
+    19.56,
+    19.94
+   ],
+   "parts": {
+    "bark": {
+     "tris": 558,
+     "color": [
+      104,
+      78,
+      58
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 2497,
+     "color": [
+      46,
+      92,
+      44
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 1606,
+     "color": [
+      78,
+      126,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 1977,
+     "color": [
+      118,
+      160,
+      58
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/OakLeaningB.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/OakLeaningB.luau"
+  },
+  "OakLeaningB_LOD": {
+   "tris": 687,
+   "size_studs": [
+    21.52,
+    20.04,
+    18.17
+   ],
+   "parts": {
+    "bark": {
+     "tris": 207,
+     "color": [
+      104,
+      78,
+      58
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 232,
+     "color": [
+      46,
+      92,
+      44
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 118,
+     "color": [
+      78,
+      126,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 130,
+     "color": [
+      118,
+      160,
+      58
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/OakLeaningB_LOD.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/OakLeaningB_LOD.luau"
+  },
+  "OakLeaningB_FAR": {
+   "tris": 312,
+   "size_studs": [
+    20.51,
+    21.17,
+    15.53
+   ],
+   "parts": {
+    "bark": {
+     "tris": 72,
+     "color": [
+      104,
+      78,
+      58
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 99,
+     "color": [
+      46,
+      92,
+      44
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 61,
+     "color": [
+      78,
+      126,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 80,
+     "color": [
+      118,
+      160,
+      58
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/OakLeaningB_FAR.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/OakLeaningB_FAR.luau"
+  },
+  "BeechA": {
+   "tris": 6705,
+   "size_studs": [
+    16.51,
     20.52,
-    16.27
+    16.21
    ],
    "parts": {
     "bark": {
@@ -116,7 +740,7 @@
      "material": "SmoothPlastic"
     },
     "leafDark": {
-     "tris": 2861,
+     "tris": 2765,
      "color": [
       56,
       98,
@@ -125,7 +749,7 @@
      "material": "SmoothPlastic"
     },
     "leafMid": {
-     "tris": 1634,
+     "tris": 1598,
      "color": [
       98,
       142,
@@ -134,7 +758,7 @@
      "material": "SmoothPlastic"
     },
     "leafLight": {
-     "tris": 1745,
+     "tris": 1705,
      "color": [
       132,
       168,
@@ -143,10 +767,250 @@
      "material": "SmoothPlastic"
     }
    },
-   "glb": "assets/art/export/Beech.glb",
-   "luau": "src/server/Wardwood/ArtMeshes/Beech.luau"
+   "glb": "assets/art/export/BeechA.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/BeechA.luau"
   },
-  "Birch": {
+  "BeechA_LOD": {
+   "tris": 812,
+   "size_studs": [
+    16.19,
+    20.68,
+    16.86
+   ],
+   "parts": {
+    "bark": {
+     "tris": 252,
+     "color": [
+      104,
+      78,
+      58
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 255,
+     "color": [
+      56,
+      98,
+      42
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 144,
+     "color": [
+      98,
+      142,
+      52
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 161,
+     "color": [
+      132,
+      168,
+      62
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/BeechA_LOD.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/BeechA_LOD.luau"
+  },
+  "BeechA_FAR": {
+   "tris": 392,
+   "size_studs": [
+    18.98,
+    21.62,
+    18.85
+   ],
+   "parts": {
+    "bark": {
+     "tris": 72,
+     "color": [
+      104,
+      78,
+      58
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 148,
+     "color": [
+      56,
+      98,
+      42
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 75,
+     "color": [
+      98,
+      142,
+      52
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 97,
+     "color": [
+      132,
+      168,
+      62
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/BeechA_FAR.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/BeechA_FAR.luau"
+  },
+  "BeechB": {
+   "tris": 6006,
+   "size_studs": [
+    15.43,
+    21.2,
+    16.01
+   ],
+   "parts": {
+    "bark": {
+     "tris": 558,
+     "color": [
+      104,
+      78,
+      58
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 2500,
+     "color": [
+      56,
+      98,
+      42
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 1365,
+     "color": [
+      98,
+      142,
+      52
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 1583,
+     "color": [
+      132,
+      168,
+      62
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/BeechB.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/BeechB.luau"
+  },
+  "BeechB_LOD": {
+   "tris": 687,
+   "size_studs": [
+    16.7,
+    21.35,
+    14.16
+   ],
+   "parts": {
+    "bark": {
+     "tris": 207,
+     "color": [
+      104,
+      78,
+      58
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 257,
+     "color": [
+      56,
+      98,
+      42
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 116,
+     "color": [
+      98,
+      142,
+      52
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 107,
+     "color": [
+      132,
+      168,
+      62
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/BeechB_LOD.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/BeechB_LOD.luau"
+  },
+  "BeechB_FAR": {
+   "tris": 312,
+   "size_studs": [
+    14.62,
+    22.31,
+    12.44
+   ],
+   "parts": {
+    "bark": {
+     "tris": 72,
+     "color": [
+      104,
+      78,
+      58
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 111,
+     "color": [
+      56,
+      98,
+      42
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 58,
+     "color": [
+      98,
+      142,
+      52
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 71,
+     "color": [
+      132,
+      168,
+      62
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/BeechB_FAR.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/BeechB_FAR.luau"
+  },
+  "BirchA": {
    "tris": 3004,
    "size_studs": [
     12.05,
@@ -200,10 +1064,277 @@
      "material": "SmoothPlastic"
     }
    },
-   "glb": "assets/art/export/Birch.glb",
-   "luau": "src/server/Wardwood/ArtMeshes/Birch.luau"
+   "glb": "assets/art/export/BirchA.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/BirchA.luau"
   },
-  "Sapling": {
+  "BirchA_LOD": {
+   "tris": 912,
+   "size_studs": [
+    9.7,
+    26.61,
+    9.06
+   ],
+   "parts": {
+    "bark": {
+     "tris": 252,
+     "color": [
+      226,
+      220,
+      202
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 226,
+     "color": [
+      88,
+      128,
+      52
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 113,
+     "color": [
+      132,
+      168,
+      66
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 141,
+     "color": [
+      156,
+      184,
+      74
+     ],
+     "material": "SmoothPlastic"
+    },
+    "barkMark": {
+     "tris": 180,
+     "color": [
+      62,
+      58,
+      52
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/BirchA_LOD.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/BirchA_LOD.luau"
+  },
+  "BirchA_FAR": {
+   "tris": 312,
+   "size_studs": [
+    10.92,
+    27.32,
+    9.75
+   ],
+   "parts": {
+    "bark": {
+     "tris": 72,
+     "color": [
+      226,
+      220,
+      202
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 89,
+     "color": [
+      88,
+      128,
+      52
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 73,
+     "color": [
+      132,
+      168,
+      66
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 78,
+     "color": [
+      156,
+      184,
+      74
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/BirchA_FAR.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/BirchA_FAR.luau"
+  },
+  "BirchB": {
+   "tris": 2473,
+   "size_studs": [
+    10.95,
+    27.13,
+    9.39
+   ],
+   "parts": {
+    "bark": {
+     "tris": 533,
+     "color": [
+      226,
+      220,
+      202
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 677,
+     "color": [
+      88,
+      128,
+      52
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 521,
+     "color": [
+      132,
+      168,
+      66
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 562,
+     "color": [
+      156,
+      184,
+      74
+     ],
+     "material": "SmoothPlastic"
+    },
+    "barkMark": {
+     "tris": 180,
+     "color": [
+      62,
+      58,
+      52
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/BirchB.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/BirchB.luau"
+  },
+  "BirchB_LOD": {
+   "tris": 867,
+   "size_studs": [
+    8.66,
+    27.12,
+    9.01
+   ],
+   "parts": {
+    "bark": {
+     "tris": 207,
+     "color": [
+      226,
+      220,
+      202
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 187,
+     "color": [
+      88,
+      128,
+      52
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 135,
+     "color": [
+      132,
+      168,
+      66
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 158,
+     "color": [
+      156,
+      184,
+      74
+     ],
+     "material": "SmoothPlastic"
+    },
+    "barkMark": {
+     "tris": 180,
+     "color": [
+      62,
+      58,
+      52
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/BirchB_LOD.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/BirchB_LOD.luau"
+  },
+  "BirchB_FAR": {
+   "tris": 312,
+   "size_studs": [
+    9.99,
+    27.81,
+    8.63
+   ],
+   "parts": {
+    "bark": {
+     "tris": 72,
+     "color": [
+      226,
+      220,
+      202
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 108,
+     "color": [
+      88,
+      128,
+      52
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 62,
+     "color": [
+      132,
+      168,
+      66
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 70,
+     "color": [
+      156,
+      184,
+      74
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/BirchB_FAR.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/BirchB_FAR.luau"
+  },
+  "SaplingA": {
    "tris": 1150,
    "size_studs": [
     6.74,
@@ -248,15 +1379,159 @@
      "material": "SmoothPlastic"
     }
    },
-   "glb": "assets/art/export/Sapling.glb",
-   "luau": "src/server/Wardwood/ArtMeshes/Sapling.luau"
+   "glb": "assets/art/export/SaplingA.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/SaplingA.luau"
   },
-  "Spruce": {
-   "tris": 8721,
+  "SaplingA_LOD": {
+   "tris": 402,
    "size_studs": [
-    21.57,
+    5.73,
+    11.28,
+    5.97
+   ],
+   "parts": {
+    "bark": {
+     "tris": 162,
+     "color": [
+      104,
+      78,
+      58
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 103,
+     "color": [
+      46,
+      92,
+      44
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 61,
+     "color": [
+      78,
+      126,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 76,
+     "color": [
+      118,
+      160,
+      58
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/SaplingA_LOD.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/SaplingA_LOD.luau"
+  },
+  "SaplingB": {
+   "tris": 1094,
+   "size_studs": [
+    5.26,
+    11.75,
+    5.91
+   ],
+   "parts": {
+    "bark": {
+     "tris": 354,
+     "color": [
+      104,
+      78,
+      58
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 268,
+     "color": [
+      56,
+      98,
+      42
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 209,
+     "color": [
+      98,
+      142,
+      52
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 263,
+     "color": [
+      132,
+      168,
+      62
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/SaplingB.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/SaplingB.luau"
+  },
+  "SaplingB_LOD": {
+   "tris": 402,
+   "size_studs": [
+    5.9,
+    11.85,
+    6.22
+   ],
+   "parts": {
+    "bark": {
+     "tris": 162,
+     "color": [
+      104,
+      78,
+      58
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 88,
+     "color": [
+      56,
+      98,
+      42
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 69,
+     "color": [
+      98,
+      142,
+      52
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 83,
+     "color": [
+      132,
+      168,
+      62
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/SaplingB_LOD.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/SaplingB_LOD.luau"
+  },
+  "SpruceA": {
+   "tris": 7673,
+   "size_studs": [
+    17.42,
     33.7,
-    20.61
+    18.74
    ],
    "parts": {
     "bark": {
@@ -269,7 +1544,7 @@
      "material": "SmoothPlastic"
     },
     "needleDark": {
-     "tris": 1408,
+     "tris": 1216,
      "color": [
       30,
       68,
@@ -278,7 +1553,7 @@
      "material": "SmoothPlastic"
     },
     "needleMid": {
-     "tris": 4968,
+     "tris": 4256,
      "color": [
       50,
       102,
@@ -287,7 +1562,7 @@
      "material": "SmoothPlastic"
     },
     "needleLight": {
-     "tris": 2296,
+     "tris": 2152,
      "color": [
       88,
       138,
@@ -296,10 +1571,394 @@
      "material": "SmoothPlastic"
     }
    },
-   "glb": "assets/art/export/Spruce.glb",
-   "luau": "src/server/Wardwood/ArtMeshes/Spruce.luau"
+   "glb": "assets/art/export/SpruceA.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/SpruceA.luau"
   },
-  "Pine": {
+  "SpruceA_LOD": {
+   "tris": 838,
+   "size_studs": [
+    18.28,
+    33.7,
+    17.79
+   ],
+   "parts": {
+    "bark": {
+     "tris": 42,
+     "color": [
+      82,
+      62,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleDark": {
+     "tris": 164,
+     "color": [
+      30,
+      68,
+      50
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleMid": {
+     "tris": 384,
+     "color": [
+      50,
+      102,
+      62
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleLight": {
+     "tris": 248,
+     "color": [
+      88,
+      138,
+      76
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/SpruceA_LOD.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/SpruceA_LOD.luau"
+  },
+  "SpruceA_FAR": {
+   "tris": 394,
+   "size_studs": [
+    15.62,
+    33.7,
+    15.08
+   ],
+   "parts": {
+    "bark": {
+     "tris": 42,
+     "color": [
+      82,
+      62,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleDark": {
+     "tris": 100,
+     "color": [
+      30,
+      68,
+      50
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleMid": {
+     "tris": 148,
+     "color": [
+      50,
+      102,
+      62
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleLight": {
+     "tris": 104,
+     "color": [
+      88,
+      138,
+      76
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/SpruceA_FAR.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/SpruceA_FAR.luau"
+  },
+  "SpruceB": {
+   "tris": 7673,
+   "size_studs": [
+    21.93,
+    34.95,
+    20.97
+   ],
+   "parts": {
+    "bark": {
+     "tris": 49,
+     "color": [
+      82,
+      62,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleDark": {
+     "tris": 1248,
+     "color": [
+      30,
+      68,
+      50
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleMid": {
+     "tris": 4360,
+     "color": [
+      50,
+      102,
+      62
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleLight": {
+     "tris": 2016,
+     "color": [
+      88,
+      138,
+      76
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/SpruceB.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/SpruceB.luau"
+  },
+  "SpruceB_LOD": {
+   "tris": 922,
+   "size_studs": [
+    21.48,
+    34.8,
+    18.95
+   ],
+   "parts": {
+    "bark": {
+     "tris": 42,
+     "color": [
+      82,
+      62,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleDark": {
+     "tris": 164,
+     "color": [
+      30,
+      68,
+      50
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleMid": {
+     "tris": 456,
+     "color": [
+      50,
+      102,
+      62
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleLight": {
+     "tris": 260,
+     "color": [
+      88,
+      138,
+      76
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/SpruceB_LOD.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/SpruceB_LOD.luau"
+  },
+  "SpruceB_FAR": {
+   "tris": 386,
+   "size_studs": [
+    19.18,
+    34.71,
+    17.58
+   ],
+   "parts": {
+    "bark": {
+     "tris": 42,
+     "color": [
+      82,
+      62,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleDark": {
+     "tris": 88,
+     "color": [
+      30,
+      68,
+      50
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleMid": {
+     "tris": 148,
+     "color": [
+      50,
+      102,
+      62
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleLight": {
+     "tris": 108,
+     "color": [
+      88,
+      138,
+      76
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/SpruceB_FAR.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/SpruceB_FAR.luau"
+  },
+  "SpruceC": {
+   "tris": 7241,
+   "size_studs": [
+    24.58,
+    32.87,
+    21.44
+   ],
+   "parts": {
+    "bark": {
+     "tris": 49,
+     "color": [
+      82,
+      62,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleDark": {
+     "tris": 1104,
+     "color": [
+      30,
+      68,
+      50
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleMid": {
+     "tris": 4016,
+     "color": [
+      50,
+      102,
+      62
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleLight": {
+     "tris": 2072,
+     "color": [
+      88,
+      138,
+      76
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/SpruceC.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/SpruceC.luau"
+  },
+  "SpruceC_LOD": {
+   "tris": 826,
+   "size_studs": [
+    22.79,
+    32.69,
+    20.26
+   ],
+   "parts": {
+    "bark": {
+     "tris": 42,
+     "color": [
+      82,
+      62,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleDark": {
+     "tris": 160,
+     "color": [
+      30,
+      68,
+      50
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleMid": {
+     "tris": 408,
+     "color": [
+      50,
+      102,
+      62
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleLight": {
+     "tris": 216,
+     "color": [
+      88,
+      138,
+      76
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/SpruceC_LOD.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/SpruceC_LOD.luau"
+  },
+  "SpruceC_FAR": {
+   "tris": 394,
+   "size_studs": [
+    22.29,
+    32.69,
+    22.47
+   ],
+   "parts": {
+    "bark": {
+     "tris": 42,
+     "color": [
+      82,
+      62,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleDark": {
+     "tris": 100,
+     "color": [
+      30,
+      68,
+      50
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleMid": {
+     "tris": 156,
+     "color": [
+      50,
+      102,
+      62
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleLight": {
+     "tris": 96,
+     "color": [
+      88,
+      138,
+      76
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/SpruceC_FAR.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/SpruceC_FAR.luau"
+  },
+  "PineA": {
    "tris": 3688,
    "size_studs": [
     18.14,
@@ -344,10 +2003,250 @@
      "material": "SmoothPlastic"
     }
    },
-   "glb": "assets/art/export/Pine.glb",
-   "luau": "src/server/Wardwood/ArtMeshes/Pine.luau"
+   "glb": "assets/art/export/PineA.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/PineA.luau"
   },
-  "AncientOak": {
+  "PineA_LOD": {
+   "tris": 1088,
+   "size_studs": [
+    18.09,
+    34.0,
+    17.14
+   ],
+   "parts": {
+    "bark": {
+     "tris": 288,
+     "color": [
+      132,
+      88,
+      62
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleDark": {
+     "tris": 320,
+     "color": [
+      44,
+      86,
+      50
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleMid": {
+     "tris": 201,
+     "color": [
+      66,
+      112,
+      56
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleLight": {
+     "tris": 279,
+     "color": [
+      102,
+      142,
+      64
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/PineA_LOD.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/PineA_LOD.luau"
+  },
+  "PineA_FAR": {
+   "tris": 688,
+   "size_studs": [
+    20.28,
+    32.27,
+    18.65
+   ],
+   "parts": {
+    "bark": {
+     "tris": 288,
+     "color": [
+      132,
+      88,
+      62
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleDark": {
+     "tris": 187,
+     "color": [
+      44,
+      86,
+      50
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleMid": {
+     "tris": 107,
+     "color": [
+      66,
+      112,
+      56
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleLight": {
+     "tris": 106,
+     "color": [
+      102,
+      142,
+      64
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/PineA_FAR.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/PineA_FAR.luau"
+  },
+  "PineB": {
+   "tris": 3844,
+   "size_studs": [
+    15.57,
+    34.23,
+    15.15
+   ],
+   "parts": {
+    "bark": {
+     "tris": 288,
+     "color": [
+      132,
+      88,
+      62
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleDark": {
+     "tris": 1572,
+     "color": [
+      44,
+      86,
+      50
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleMid": {
+     "tris": 788,
+     "color": [
+      66,
+      112,
+      56
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleLight": {
+     "tris": 1196,
+     "color": [
+      102,
+      142,
+      64
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/PineB.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/PineB.luau"
+  },
+  "PineB_LOD": {
+   "tris": 1088,
+   "size_studs": [
+    15.48,
+    33.93,
+    15.63
+   ],
+   "parts": {
+    "bark": {
+     "tris": 288,
+     "color": [
+      132,
+      88,
+      62
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleDark": {
+     "tris": 311,
+     "color": [
+      44,
+      86,
+      50
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleMid": {
+     "tris": 220,
+     "color": [
+      66,
+      112,
+      56
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleLight": {
+     "tris": 269,
+     "color": [
+      102,
+      142,
+      64
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/PineB_LOD.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/PineB_LOD.luau"
+  },
+  "PineB_FAR": {
+   "tris": 688,
+   "size_studs": [
+    18.2,
+    33.84,
+    16.95
+   ],
+   "parts": {
+    "bark": {
+     "tris": 288,
+     "color": [
+      132,
+      88,
+      62
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleDark": {
+     "tris": 164,
+     "color": [
+      44,
+      86,
+      50
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleMid": {
+     "tris": 105,
+     "color": [
+      66,
+      112,
+      56
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleLight": {
+     "tris": 131,
+     "color": [
+      102,
+      142,
+      64
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/PineB_FAR.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/PineB_FAR.luau"
+  },
+  "AncientOakA": {
    "tris": 17606,
    "size_studs": [
     68.87,
@@ -401,8 +2300,842 @@
      "material": "SmoothPlastic"
     }
    },
-   "glb": "assets/art/export/AncientOak.glb",
-   "luau": "src/server/Wardwood/ArtMeshes/AncientOak.luau"
+   "glb": "assets/art/export/AncientOakA.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/AncientOakA.luau"
+  },
+  "AncientOakA_LOD": {
+   "tris": 3240,
+   "size_studs": [
+    64.79,
+    87.07,
+    63.59
+   ],
+   "parts": {
+    "bark": {
+     "tris": 1000,
+     "color": [
+      96,
+      76,
+      60
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 1033,
+     "color": [
+      40,
+      84,
+      44
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 531,
+     "color": [
+      74,
+      124,
+      50
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 472,
+     "color": [
+      114,
+      156,
+      56
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafGold": {
+     "tris": 204,
+     "color": [
+      156,
+      180,
+      70
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/AncientOakA_LOD.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/AncientOakA_LOD.luau"
+  },
+  "AncientOakA_FAR": {
+   "tris": 1800,
+   "size_studs": [
+    53.47,
+    90.52,
+    63.34
+   ],
+   "parts": {
+    "bark": {
+     "tris": 1000,
+     "color": [
+      96,
+      76,
+      60
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 364,
+     "color": [
+      40,
+      84,
+      44
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 181,
+     "color": [
+      74,
+      124,
+      50
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 165,
+     "color": [
+      114,
+      156,
+      56
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafGold": {
+     "tris": 90,
+     "color": [
+      156,
+      180,
+      70
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/AncientOakA_FAR.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/AncientOakA_FAR.luau"
+  },
+  "AncientOakB": {
+   "tris": 17586,
+   "size_studs": [
+    68.93,
+    88.63,
+    71.72
+   ],
+   "parts": {
+    "bark": {
+     "tris": 2254,
+     "color": [
+      96,
+      76,
+      60
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 7120,
+     "color": [
+      40,
+      84,
+      44
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 3738,
+     "color": [
+      74,
+      124,
+      50
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 3037,
+     "color": [
+      114,
+      156,
+      56
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafGold": {
+     "tris": 1437,
+     "color": [
+      156,
+      180,
+      70
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/AncientOakB.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/AncientOakB.luau"
+  },
+  "AncientOakB_LOD": {
+   "tris": 3306,
+   "size_studs": [
+    63.64,
+    87.24,
+    66.91
+   ],
+   "parts": {
+    "bark": {
+     "tris": 1066,
+     "color": [
+      96,
+      76,
+      60
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 1135,
+     "color": [
+      40,
+      84,
+      44
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 535,
+     "color": [
+      74,
+      124,
+      50
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 402,
+     "color": [
+      114,
+      156,
+      56
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafGold": {
+     "tris": 168,
+     "color": [
+      156,
+      180,
+      70
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/AncientOakB_LOD.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/AncientOakB_LOD.luau"
+  },
+  "AncientOakB_FAR": {
+   "tris": 1866,
+   "size_studs": [
+    55.64,
+    91.21,
+    66.65
+   ],
+   "parts": {
+    "bark": {
+     "tris": 1066,
+     "color": [
+      96,
+      76,
+      60
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 377,
+     "color": [
+      40,
+      84,
+      44
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 178,
+     "color": [
+      74,
+      124,
+      50
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 163,
+     "color": [
+      114,
+      156,
+      56
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafGold": {
+     "tris": 82,
+     "color": [
+      156,
+      180,
+      70
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/AncientOakB_FAR.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/AncientOakB_FAR.luau"
+  },
+  "AncientPine": {
+   "tris": 7529,
+   "size_studs": [
+    48.2,
+    109.12,
+    53.57
+   ],
+   "parts": {
+    "bark": {
+     "tris": 49,
+     "color": [
+      82,
+      62,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleDark": {
+     "tris": 1184,
+     "color": [
+      30,
+      68,
+      50
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleMid": {
+     "tris": 4200,
+     "color": [
+      50,
+      102,
+      62
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleLight": {
+     "tris": 2096,
+     "color": [
+      88,
+      138,
+      76
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/AncientPine.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/AncientPine.luau"
+  },
+  "AncientPine_LOD": {
+   "tris": 862,
+   "size_studs": [
+    52.11,
+    109.12,
+    40.7
+   ],
+   "parts": {
+    "bark": {
+     "tris": 42,
+     "color": [
+      82,
+      62,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleDark": {
+     "tris": 160,
+     "color": [
+      30,
+      68,
+      50
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleMid": {
+     "tris": 368,
+     "color": [
+      50,
+      102,
+      62
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleLight": {
+     "tris": 292,
+     "color": [
+      88,
+      138,
+      76
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/AncientPine_LOD.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/AncientPine_LOD.luau"
+  },
+  "AncientPine_FAR": {
+   "tris": 386,
+   "size_studs": [
+    46.62,
+    109.12,
+    48.21
+   ],
+   "parts": {
+    "bark": {
+     "tris": 42,
+     "color": [
+      82,
+      62,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleDark": {
+     "tris": 96,
+     "color": [
+      30,
+      68,
+      50
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleMid": {
+     "tris": 144,
+     "color": [
+      50,
+      102,
+      62
+     ],
+     "material": "SmoothPlastic"
+    },
+    "needleLight": {
+     "tris": 104,
+     "color": [
+      88,
+      138,
+      76
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/AncientPine_FAR.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/AncientPine_FAR.luau"
+  },
+  "Elder": {
+   "tris": 14414,
+   "size_studs": [
+    64.22,
+    71.29,
+    62.05
+   ],
+   "parts": {
+    "bark": {
+     "tris": 2134,
+     "color": [
+      96,
+      76,
+      60
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 5553,
+     "color": [
+      36,
+      84,
+      62
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 3067,
+     "color": [
+      64,
+      124,
+      82
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 2637,
+     "color": [
+      108,
+      164,
+      96
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafGold": {
+     "tris": 1023,
+     "color": [
+      170,
+      204,
+      120
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/Elder.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/Elder.luau"
+  },
+  "Elder_LOD": {
+   "tris": 2986,
+   "size_studs": [
+    60.03,
+    69.51,
+    57.06
+   ],
+   "parts": {
+    "bark": {
+     "tris": 1066,
+     "color": [
+      96,
+      76,
+      60
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 954,
+     "color": [
+      36,
+      84,
+      62
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 454,
+     "color": [
+      64,
+      124,
+      82
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 379,
+     "color": [
+      108,
+      164,
+      96
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafGold": {
+     "tris": 133,
+     "color": [
+      170,
+      204,
+      120
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/Elder_LOD.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/Elder_LOD.luau"
+  },
+  "Elder_FAR": {
+   "tris": 1706,
+   "size_studs": [
+    66.77,
+    72.82,
+    61.07
+   ],
+   "parts": {
+    "bark": {
+     "tris": 1066,
+     "color": [
+      96,
+      76,
+      60
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafDark": {
+     "tris": 317,
+     "color": [
+      36,
+      84,
+      62
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 149,
+     "color": [
+      64,
+      124,
+      82
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 117,
+     "color": [
+      108,
+      164,
+      96
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafGold": {
+     "tris": 57,
+     "color": [
+      170,
+      204,
+      120
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/Elder_FAR.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/Elder_FAR.luau"
+  },
+  "BushA": {
+   "tris": 528,
+   "size_studs": [
+    4.18,
+    3.12,
+    3.66
+   ],
+   "parts": {
+    "leafDark": {
+     "tris": 241,
+     "color": [
+      42,
+      86,
+      44
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 139,
+     "color": [
+      70,
+      118,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 148,
+     "color": [
+      108,
+      150,
+      56
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/BushA.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/BushA.luau"
+  },
+  "BushA_LOD": {
+   "tris": 400,
+   "size_studs": [
+    4.08,
+    2.87,
+    3.6
+   ],
+   "parts": {
+    "leafDark": {
+     "tris": 201,
+     "color": [
+      42,
+      86,
+      44
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 103,
+     "color": [
+      70,
+      118,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 96,
+     "color": [
+      108,
+      150,
+      56
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/BushA_LOD.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/BushA_LOD.luau"
+  },
+  "BushB": {
+   "tris": 520,
+   "size_studs": [
+    3.8,
+    2.94,
+    4.62
+   ],
+   "parts": {
+    "leafDark": {
+     "tris": 228,
+     "color": [
+      42,
+      86,
+      44
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 147,
+     "color": [
+      70,
+      118,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 145,
+     "color": [
+      108,
+      150,
+      56
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/BushB.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/BushB.luau"
+  },
+  "BushB_LOD": {
+   "tris": 400,
+   "size_studs": [
+    3.7,
+    2.69,
+    4.08
+   ],
+   "parts": {
+    "leafDark": {
+     "tris": 188,
+     "color": [
+      42,
+      86,
+      44
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 103,
+     "color": [
+      70,
+      118,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 109,
+     "color": [
+      108,
+      150,
+      56
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/BushB_LOD.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/BushB_LOD.luau"
+  },
+  "BushC": {
+   "tris": 620,
+   "size_studs": [
+    4.13,
+    3.52,
+    3.95
+   ],
+   "parts": {
+    "leafDark": {
+     "tris": 289,
+     "color": [
+      42,
+      86,
+      44
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 141,
+     "color": [
+      70,
+      118,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 190,
+     "color": [
+      108,
+      150,
+      56
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/BushC.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/BushC.luau"
+  },
+  "BushC_LOD": {
+   "tris": 480,
+   "size_studs": [
+    3.88,
+    2.98,
+    3.84
+   ],
+   "parts": {
+    "leafDark": {
+     "tris": 237,
+     "color": [
+      42,
+      86,
+      44
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafMid": {
+     "tris": 121,
+     "color": [
+      70,
+      118,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "leafLight": {
+     "tris": 122,
+     "color": [
+      108,
+      150,
+      56
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/BushC_LOD.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/BushC_LOD.luau"
   },
   "GrassA": {
    "tris": 660,
@@ -521,7 +3254,184 @@
    "glb": "assets/art/export/GrassC.glb",
    "luau": "src/server/Wardwood/ArtMeshes/GrassC.luau"
   },
-  "BoulderLarge": {
+  "FernA": {
+   "tris": 360,
+   "size_studs": [
+    5.29,
+    1.27,
+    5.37
+   ],
+   "parts": {
+    "frondMid": {
+     "tris": 200,
+     "color": [
+      76,
+      130,
+      56
+     ],
+     "material": "SmoothPlastic"
+    },
+    "frondLight": {
+     "tris": 160,
+     "color": [
+      110,
+      158,
+      64
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/FernA.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/FernA.luau"
+  },
+  "FernB": {
+   "tris": 360,
+   "size_studs": [
+    5.55,
+    1.36,
+    5.57
+   ],
+   "parts": {
+    "frondMid": {
+     "tris": 176,
+     "color": [
+      76,
+      130,
+      56
+     ],
+     "material": "SmoothPlastic"
+    },
+    "frondLight": {
+     "tris": 184,
+     "color": [
+      110,
+      158,
+      64
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/FernB.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/FernB.luau"
+  },
+  "StumpA": {
+   "tris": 73,
+   "size_studs": [
+    3.45,
+    2.55,
+    3.34
+   ],
+   "parts": {
+    "bark": {
+     "tris": 54,
+     "color": [
+      104,
+      78,
+      58
+     ],
+     "material": "SmoothPlastic"
+    },
+    "wood": {
+     "tris": 9,
+     "color": [
+      176,
+      140,
+      96
+     ],
+     "material": "SmoothPlastic"
+    },
+    "moss": {
+     "tris": 10,
+     "color": [
+      74,
+      108,
+      44
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/StumpA.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/StumpA.luau"
+  },
+  "StumpB": {
+   "tris": 73,
+   "size_studs": [
+    4.05,
+    2.21,
+    3.95
+   ],
+   "parts": {
+    "bark": {
+     "tris": 54,
+     "color": [
+      104,
+      78,
+      58
+     ],
+     "material": "SmoothPlastic"
+    },
+    "wood": {
+     "tris": 9,
+     "color": [
+      176,
+      140,
+      96
+     ],
+     "material": "SmoothPlastic"
+    },
+    "moss": {
+     "tris": 10,
+     "color": [
+      74,
+      108,
+      44
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/StumpB.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/StumpB.luau"
+  },
+  "FallenLog": {
+   "tris": 107,
+   "size_studs": [
+    5.03,
+    2.98,
+    2.74
+   ],
+   "parts": {
+    "bark": {
+     "tris": 79,
+     "color": [
+      104,
+      78,
+      58
+     ],
+     "material": "SmoothPlastic"
+    },
+    "wood": {
+     "tris": 18,
+     "color": [
+      176,
+      140,
+      96
+     ],
+     "material": "SmoothPlastic"
+    },
+    "moss": {
+     "tris": 10,
+     "color": [
+      74,
+      108,
+      44
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/FallenLog.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/FallenLog.luau"
+  },
+  "BoulderLargeA": {
    "tris": 391,
    "size_studs": [
     8.8,
@@ -557,10 +3467,49 @@
      "material": "SmoothPlastic"
     }
    },
-   "glb": "assets/art/export/BoulderLarge.glb",
-   "luau": "src/server/Wardwood/ArtMeshes/BoulderLarge.luau"
+   "glb": "assets/art/export/BoulderLargeA.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/BoulderLargeA.luau"
   },
-  "RockSmall": {
+  "BoulderLargeB": {
+   "tris": 395,
+   "size_studs": [
+    8.8,
+    4.8,
+    9.0
+   ],
+   "parts": {
+    "stone": {
+     "tris": 239,
+     "color": [
+      136,
+      130,
+      118
+     ],
+     "material": "SmoothPlastic"
+    },
+    "stoneDark": {
+     "tris": 81,
+     "color": [
+      110,
+      106,
+      98
+     ],
+     "material": "SmoothPlastic"
+    },
+    "moss": {
+     "tris": 75,
+     "color": [
+      74,
+      108,
+      44
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/BoulderLargeB.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/BoulderLargeB.luau"
+  },
+  "RockSmallA": {
    "tris": 86,
    "size_studs": [
     1.8,
@@ -596,8 +3545,47 @@
      "material": "SmoothPlastic"
     }
    },
-   "glb": "assets/art/export/RockSmall.glb",
-   "luau": "src/server/Wardwood/ArtMeshes/RockSmall.luau"
+   "glb": "assets/art/export/RockSmallA.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/RockSmallA.luau"
+  },
+  "RockSmallB": {
+   "tris": 81,
+   "size_studs": [
+    1.8,
+    2.1,
+    1.8
+   ],
+   "parts": {
+    "stone": {
+     "tris": 58,
+     "color": [
+      136,
+      130,
+      118
+     ],
+     "material": "SmoothPlastic"
+    },
+    "stoneDark": {
+     "tris": 22,
+     "color": [
+      110,
+      106,
+      98
+     ],
+     "material": "SmoothPlastic"
+    },
+    "moss": {
+     "tris": 1,
+     "color": [
+      74,
+      108,
+      44
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/RockSmallB.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/RockSmallB.luau"
   },
   "BoulderFlat": {
    "tris": 86,
@@ -638,7 +3626,154 @@
    "glb": "assets/art/export/BoulderFlat.glb",
    "luau": "src/server/Wardwood/ArtMeshes/BoulderFlat.luau"
   },
-  "Pillar": {
+  "MenhirA": {
+   "tris": 321,
+   "size_studs": [
+    3.4,
+    11.0,
+    2.4
+   ],
+   "parts": {
+    "stone": {
+     "tris": 236,
+     "color": [
+      136,
+      130,
+      118
+     ],
+     "material": "SmoothPlastic"
+    },
+    "stoneDark": {
+     "tris": 84,
+     "color": [
+      110,
+      106,
+      98
+     ],
+     "material": "SmoothPlastic"
+    },
+    "moss": {
+     "tris": 1,
+     "color": [
+      74,
+      108,
+      44
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/MenhirA.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/MenhirA.luau"
+  },
+  "MenhirB": {
+   "tris": 320,
+   "size_studs": [
+    3.2,
+    11.5,
+    2.5
+   ],
+   "parts": {
+    "stone": {
+     "tris": 224,
+     "color": [
+      136,
+      130,
+      118
+     ],
+     "material": "SmoothPlastic"
+    },
+    "stoneDark": {
+     "tris": 96,
+     "color": [
+      110,
+      106,
+      98
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/MenhirB.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/MenhirB.luau"
+  },
+  "RuinWallA": {
+   "tris": 368,
+   "size_studs": [
+    4.94,
+    4.09,
+    5.33
+   ],
+   "parts": {
+    "stone": {
+     "tris": 260,
+     "color": [
+      168,
+      160,
+      142
+     ],
+     "material": "SmoothPlastic"
+    },
+    "stoneDark": {
+     "tris": 88,
+     "color": [
+      128,
+      122,
+      110
+     ],
+     "material": "SmoothPlastic"
+    },
+    "moss": {
+     "tris": 20,
+     "color": [
+      92,
+      130,
+      52
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/RuinWallA.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/RuinWallA.luau"
+  },
+  "RuinWallB": {
+   "tris": 392,
+   "size_studs": [
+    4.95,
+    3.98,
+    5.12
+   ],
+   "parts": {
+    "stone": {
+     "tris": 248,
+     "color": [
+      168,
+      160,
+      142
+     ],
+     "material": "SmoothPlastic"
+    },
+    "stoneDark": {
+     "tris": 124,
+     "color": [
+      128,
+      122,
+      110
+     ],
+     "material": "SmoothPlastic"
+    },
+    "moss": {
+     "tris": 20,
+     "color": [
+      92,
+      130,
+      52
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/RuinWallB.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/RuinWallB.luau"
+  },
+  "PillarA": {
    "tris": 344,
    "size_studs": [
     4.8,
@@ -674,10 +3809,49 @@
      "material": "SmoothPlastic"
     }
    },
-   "glb": "assets/art/export/Pillar.glb",
-   "luau": "src/server/Wardwood/ArtMeshes/Pillar.luau"
+   "glb": "assets/art/export/PillarA.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/PillarA.luau"
   },
-  "PillarBroken": {
+  "PillarB": {
+   "tris": 344,
+   "size_studs": [
+    4.8,
+    19.87,
+    4.8
+   ],
+   "parts": {
+    "stone": {
+     "tris": 264,
+     "color": [
+      168,
+      160,
+      142
+     ],
+     "material": "SmoothPlastic"
+    },
+    "stoneDark": {
+     "tris": 60,
+     "color": [
+      128,
+      122,
+      110
+     ],
+     "material": "SmoothPlastic"
+    },
+    "moss": {
+     "tris": 20,
+     "color": [
+      92,
+      130,
+      52
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/PillarB.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/PillarB.luau"
+  },
+  "PillarBrokenA": {
    "tris": 304,
    "size_studs": [
     11.39,
@@ -713,8 +3887,47 @@
      "material": "SmoothPlastic"
     }
    },
-   "glb": "assets/art/export/PillarBroken.glb",
-   "luau": "src/server/Wardwood/ArtMeshes/PillarBroken.luau"
+   "glb": "assets/art/export/PillarBrokenA.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/PillarBrokenA.luau"
+  },
+  "PillarBrokenB": {
+   "tris": 304,
+   "size_studs": [
+    11.11,
+    10.09,
+    7.35
+   ],
+   "parts": {
+    "stone": {
+     "tris": 192,
+     "color": [
+      168,
+      160,
+      142
+     ],
+     "material": "SmoothPlastic"
+    },
+    "stoneDark": {
+     "tris": 92,
+     "color": [
+      128,
+      122,
+      110
+     ],
+     "material": "SmoothPlastic"
+    },
+    "moss": {
+     "tris": 20,
+     "color": [
+      92,
+      130,
+      52
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/PillarBrokenB.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/PillarBrokenB.luau"
   }
  }
 }

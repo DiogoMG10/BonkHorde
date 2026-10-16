@@ -18,9 +18,10 @@
 --                      enchanted; `sky` alone says which is up and why
 --   leaves Grass       re-material every tree's foliage live (LeafyGrass, Grass,
 --                      SmoothPlastic, Plastic...; `leaves` alone puts it back)
---   art off            the M3.B art showcase in the Old Grove: `art on` the new
---                      Blender kit, `art off` the old props, `art goto` stand at
---                      its edge, `art grass 118 166 60` tint its 3D grass
+--   art off            the old props back over the whole Wardwood (`art on` the
+--                      M3.B Blender kit); `art pick` names the nearest prop for
+--                      Config/WardwoodOverrides; `art grass 118 166 60` tints
+--                      the 3D grass
 --   grass less         rewrite the terrain live: `short` one continuous, almost
 --                      flat grassy surface (default), `less` grass in drifts
 --                      between moss and worn earth, `full` all blades
@@ -145,40 +146,48 @@ function DevService:KnitStart()
 		print(`[Dev] font {name} on {table.concat(roles, ", ")}`)
 	end
 	function commands.art(_, what, r, g, b)
-		local Showcase = require(script.Parent.Parent.Wardwood.Showcase)
 		if what == "on" or what == "off" then
 			task.spawn(function()
 				mapService:SetArt(what == "on")
-				print(`[Dev] art {what}: the Old Grove shows the {if what == "on" then "new kit" else "old props"}`)
+				print(`[Dev] art {what}: the Wardwood wears the {if what == "on" then "Blender kit" else "old props"}`)
 			end)
-		elseif what == "goto" then
+		elseif what == "pick" then
+			-- the prop nearest the first player, as a Config/WardwoodOverrides line
+			local ArtPlan = require(ReplicatedStorage.Shared.Core.ArtPlan)
 			local player = Players:GetPlayers()[1]
-			local character = player and player.Character
-			if character then
-				local c = Showcase.Centre
-				local x, z = c.x + Showcase.Radius * 0.75, c.z + 8
-				character:PivotTo(
-					CFrame.lookAt(Vector3.new(x, mapService:HeightAt(x, z) + 4, z), Vector3.new(c.x, mapService:HeightAt(x, z) + 4, c.z))
-				)
-				print(`[Dev] at the art showcase, looking into the Old Grove`)
+			local root = player and player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+			if not root then
+				print("[Dev] art pick needs a character")
+				return
 			end
-		elseif what == "grass" and tonumber(r) and tonumber(g) and tonumber(b) then
-			local folder = Workspace:FindFirstChild("WardwoodArt")
-			local colour = Color3.fromRGB(tonumber(r), tonumber(g), tonumber(b))
-			local n = 0
-			for _, model in if folder then folder:GetChildren() else {} do
-				if string.find(model.Name, "^Grass") then
-					for _, part in model:GetChildren() do
-						if part:IsA("MeshPart") then
-							part.Color = colour
-							n += 1
-						end
-					end
+			local best, bestD = nil, math.huge
+			for _, p in mapService:GetWorld().props do
+				local d = (p.x - root.Position.X) ^ 2 + (p.z - root.Position.Z) ^ 2
+				if d < bestD then
+					best, bestD = p, d
 				end
 			end
-			print(`[Dev] art grass tinted on {n} patches`)
+			if best then
+				local asset = ArtPlan.asset(best)
+				print(
+					`[Dev] {best.key}: {best.kind}{if asset then ` as {asset}` else ""}, at {math.floor(best.x)}, {math.floor(best.z)}, yaw {math.floor(
+						math.deg(best.yaw)
+					)}, scale {string.format("%.2f", best.scale)}, {math.floor(math.sqrt(bestD))} studs away`
+				)
+				print(
+					`[Dev] paste into Config/WardwoodOverrides: ["{best.key}"] = \{ dx = 0, dz = 0, yaw = {math.floor(math.deg(best.yaw))}, scale = {string.format(
+						"%.2f",
+						best.scale
+					)}{if asset then `, asset = "{asset}"` else ""} \},`
+				)
+			end
+		elseif what == "grass" and tonumber(r) and tonumber(g) and tonumber(b) then
+			Workspace:SetAttribute("BonkGrassColor", Color3.fromRGB(tonumber(r), tonumber(g), tonumber(b)))
+			print(`[Dev] art grass tinted {r} {g} {b}`)
 		else
-			print(`[Dev] art on | art off | art goto | art grass <r> <g> <b> (showcase {if Showcase.active() then "on" else "off"})`)
+			print(
+				`[Dev] art on | art off | art pick | art grass <r> <g> <b> (art {if Workspace:GetAttribute("BonkArt") then "on" else "off"})`
+			)
 		end
 	end
 	function commands.grass(_, mode)

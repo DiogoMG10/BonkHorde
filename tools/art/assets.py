@@ -55,6 +55,17 @@ PAL = {
     "rock": (136, 130, 118),
     "rockDark": (110, 106, 98),
     "mossRock": (74, 108, 44),
+    "bushDark": (42, 86, 44),
+    "bushMid": (70, 118, 48),
+    "bushLight": (108, 150, 56),
+    "fernDark": (50, 100, 48),
+    "fernMid": (76, 130, 56),
+    "fernLight": (110, 158, 64),
+    "wood": (176, 140, 96),
+    "elderDark": (36, 84, 62),
+    "elderMid": (64, 124, 82),
+    "elderLight": (108, 164, 96),
+    "elderGold": (170, 204, 120),
     "grassA": (122, 170, 62),
     "grassB": (130, 176, 66),
     "grassC": (114, 162, 58),
@@ -117,7 +128,7 @@ def crown_spots(rng, centre, crown_r, crown_h, clump_r, clumps, low=-0.55):
 
 def broadleaf(name, seed, *, height, crown_r, crown_h, trunk_h, trunk_r, lean=(0.0, 0.0), clumps=9,
               clump_r=4.2, leaf=2.1, density=5.4, limbs=4, pal=("leafDark", "leafMid", "leafLight"),
-              bark="bark", birch=False, roots=5):
+              bark="bark", birch=False, roots=5, bend=0.25, lod=False):
     """A stylized broadleaf: a flared, slightly bent trunk forks into limbs that
     reach out to clumps of folded leaves around dark cores. Clumps sit on the
     crown's envelope, so the silhouette is a ragged dome of lobes, never a ball."""
@@ -135,8 +146,8 @@ def broadleaf(name, seed, *, height, crown_r, crown_h, trunk_h, trunk_r, lean=(0
     n = 6
     for i in range(n + 1):
         t = i / n
-        bend = math.sin(t * math.pi) * 0.25 * trunk_r
-        p = (lean[0] * t ** 1.3 + bend, lean[1] * t ** 1.3 - bend * 0.5, -0.8 + (trunk_h + 0.8) * t)
+        bend_ = math.sin(t * math.pi) * bend * trunk_r
+        p = (lean[0] * t ** 1.3 + bend_, lean[1] * t ** 1.3 - bend_ * 0.5, -0.8 + (trunk_h + 0.8) * t)
         path.append(p)
         radii.append(trunk_r * (1.0 - 0.32 * t))
 
@@ -146,8 +157,8 @@ def broadleaf(name, seed, *, height, crown_r, crown_h, trunk_h, trunk_r, lean=(0
         k = (1.0 if i == 0 else 0.45)
         return 1 + k * 0.55 * max(0.0, math.cos(ang * roots + seed)) ** 2
 
-    tube(barkp, path, radii, sides=8, lobes=flare, seed=seed, cap=False)
-    if birch:
+    tube(barkp, path, radii, sides=6 if lod else 8, lobes=flare, seed=seed, cap=False)
+    if birch and lod != 2:
         for k in range(9):
             z = rng.uniform(1.0, trunk_h * 0.95)
             ang = rng.uniform(0, math.tau)
@@ -163,8 +174,8 @@ def broadleaf(name, seed, *, height, crown_r, crown_h, trunk_h, trunk_r, lean=(0
     order = sorted(spots, key=lambda s: math.atan2(s[0][1] - centre[1], s[0][0] - centre[0]))
     groups = [order[i::limbs] for i in range(limbs)]
     for gi, group in enumerate(groups):
-        if not group:
-            continue
+        if not group or lod == 2:
+            continue  # on the horizon the masses hide the limbs
         tgt = tuple(sum(g[0][i] for g in group) / len(group) for i in range(3))
         start = add(fork, (0, 0, -trunk_h * 0.12 * (gi % 2)))
         end = lerp(start, tgt, 0.72)
@@ -172,30 +183,39 @@ def broadleaf(name, seed, *, height, crown_r, crown_h, trunk_h, trunk_r, lean=(0
         mid_pt = add(lerp(start, end, 0.5), (rng.uniform(-0.6, 0.6), rng.uniform(-0.6, 0.6), 0.9))
         lp = [start, lerp(start, mid_pt, 0.5), mid_pt, lerp(mid_pt, end, 0.5), end]
         lr = [radii[-1] * 0.78, radii[-1] * 0.66, radii[-1] * 0.54, radii[-1] * 0.44, radii[-1] * 0.34]
-        tube(barkp, lp, lr, sides=6, seed=seed + gi)
+        tube(barkp, lp, lr, sides=5 if lod else 6, seed=seed + gi)
         for (p, r) in group:
+            if lod:
+                break  # far away, the masses hide the twigs
             s = lerp(start, end, rng.uniform(0.55, 0.95))
             e = lerp(s, p, 0.82)
             m = add(lerp(s, e, 0.5), (0, 0, 0.4))
             tube(barkp, [s, m, e], [lr[-1] * 0.85, lr[-1] * 0.6, lr[-1] * 0.32], sides=5, seed=seed + 31)
 
-    canopy((dark, mid, light), (0.5, 0.68), spots, centre, rng, leaf, density, seed,
-           subdiv=2 if clump_r > 3 else 1)
+    if lod == 2:
+        # on the horizon: a few big masses make the silhouette
+        spots = [(p, r * 1.7) for p, r in spots[::4]]
+    elif lod:
+        # far away: half as many, larger masses, no leaf fringe, coarser cores
+        spots = [(p, r * 1.35) for p, r in spots[::2]]
+    canopy((dark, mid, light), (0.5, 0.68), spots, centre, rng, leaf, 0 if lod else density, seed,
+           subdiv=1 if (lod or clump_r <= 3) else 2)
     return a
 
 
-def ancient_oak(seed=11):
+def ancient_oak(name="AncientOak", seed=11, lod=False, trunk_h=26.0, r0=7.6, crown_z=60.0, crown_r=34.0,
+                crown_h=44.0, clump_r=9.5, clumps=28, nroots=7, reach=(13, 21),
+                pal=("ancientDark", "ancientMid", "ancientLight", "ancientGold")):
     """The landmark: a gnarled ancient with buttress roots, a twisted trunk, great
-    limbs and a sprawling crown of big leaf masses, moss on its upper sides."""
+    limbs and a sprawling crown of big leaf masses, a few of them gold-lit."""
     rng = random.Random(seed)
-    a = Asset("AncientOak")
+    a = Asset(name)
     barkp = a.part("bark", PAL["barkAncient"])
-    dark = a.part("leafDark", PAL["ancientDark"])
-    mid = a.part("leafMid", PAL["ancientMid"])
-    light = a.part("leafLight", PAL["ancientLight"])
-    gold = a.part("leafGold", PAL["ancientGold"])
+    dark = a.part("leafDark", PAL[pal[0]])
+    mid = a.part("leafMid", PAL[pal[1]])
+    light = a.part("leafLight", PAL[pal[2]])
+    gold = a.part("leafGold", PAL[pal[3]])
 
-    trunk_h, r0 = 26.0, 7.6
     path, radii = [], []
     for i in range(9):
         t = i / 8
@@ -206,13 +226,13 @@ def ancient_oak(seed=11):
         twist = ang + i * 0.5
         return 1 + 0.16 * math.cos(twist * 5) + 0.08 * math.cos(twist * 3 + 1) + (0.35 if i == 0 else 0.0)
 
-    tube(barkp, path, radii, sides=14, lobes=gnarl, seed=seed, cap=False)
+    tube(barkp, path, radii, sides=10 if lod else 14, lobes=gnarl, seed=seed, cap=False)
     # buttress roots: out of the trunk, down and away into the ground
-    nroots = 7
+    reach_range = reach
     for k in range(nroots):
         ang = k / nroots * math.tau + rng.uniform(-0.2, 0.2)
         d = (math.cos(ang), math.sin(ang), 0)
-        reach = rng.uniform(13, 21)
+        reach = rng.uniform(*reach_range)
         start = add(mul(d, r0 * 0.55), (0, 0, rng.uniform(5, 8)))
         pts, rr = [], []
         for i in range(6):
@@ -221,12 +241,12 @@ def ancient_oak(seed=11):
             z = start[2] * (1 - t) ** 1.6 - 0.9 * t
             side = math.sin(t * 3 + k) * 1.2
             pts.append(add(add(mul(d, out), mul((-d[1], d[0], 0), side)), (0, 0, z)))
-            rr.append(rng.uniform(2.6, 3.2) * (1 - t) ** 0.8 + 0.35)
-        tube(barkp, pts, rr, sides=8, seed=seed + k)
+            rr.append(rng.uniform(2.6, 3.2) * r0 / 7.6 * (1 - t) ** 0.8 + 0.35)
+        tube(barkp, pts, rr, sides=6 if lod else 8, seed=seed + k)
 
     # the crown: a broad dome of great leaf masses, and the limbs that carry them
-    centre = (0.0, -1.0, 60.0)
-    spots = crown_spots(rng, centre, 34.0, 44.0, 9.5, 28, low=-0.5)
+    centre = (0.0, -1.0, crown_z)
+    spots = crown_spots(rng, centre, crown_r, crown_h, clump_r, clumps, low=-0.5)
     order = sorted(spots, key=lambda s: math.atan2(s[0][1] - centre[1], s[0][0] - centre[0]))
     nl = 6
     for k in range(nl):
@@ -239,30 +259,37 @@ def ancient_oak(seed=11):
         knee = add(lerp(start, end, 0.45), (rng.uniform(-2, 2), rng.uniform(-2, 2), -3.0))
         pts = [start, lerp(start, knee, 0.5), knee, lerp(knee, end, 0.5), end]
         rr = [radii[-1] * 0.72, radii[-1] * 0.6, radii[-1] * 0.48, radii[-1] * 0.36, radii[-1] * 0.24]
-        tube(barkp, pts, rr, sides=9, seed=seed + 40 + k)
+        tube(barkp, pts, rr, sides=7 if lod else 9, seed=seed + 40 + k)
         for ci, (p, r) in enumerate(group):
+            if lod:
+                break
             s = lerp(knee, end, rng.uniform(0.2, 1.0))
             e = lerp(s, p, 0.75)
             tube(barkp, [s, add(lerp(s, e, 0.5), (0, 0, 1.5)), e], [2.0, 1.3, 0.6], sides=6, seed=seed + 90 + ci)
-    canopy((dark, mid, light, gold), (0.5, 0.66, 0.8), spots, centre, rng, 3.2, 0.85, seed + 200)
+    if lod == 2:
+        spots = [(p, r * 1.45) for p, r in spots[::3]]
+    canopy((dark, mid, light, gold), (0.5, 0.66, 0.8), spots, centre, rng, 3.2, 0 if lod else 0.85, seed + 200,
+           subdiv=1 if lod else 2)
     return a
 
 
 # ------------------------------------------------------------------ conifers
 
 
-def spruce(seed=21, height=32.5, base_r=10.0):
+def spruce(name="Spruce", seed=21, height=32.5, base_r=10.0, trunk_r=0.95, lod=False):
     """A spruce: whorls of drooping, saw-toothed fronds, longer and more ragged
     low down, around a dark heart, a leader spike on top. Lengths and bearings
     jitter so the tiers read as boughs, not a stack of cones."""
     rng = random.Random(seed)
-    a = Asset("Spruce")
+    a = Asset(name)
+    k = height / 32.5
     barkp = a.part("bark", PAL["barkDark"])
     dark = a.part("needleDark", PAL["spruceDark"])
     mid = a.part("needleMid", PAL["spruceMid"])
     light = a.part("needleLight", PAL["spruceLight"])
-    tube(barkp, [(0, 0, -0.8), (0, 0, 6), (0.1, 0, 16), (0, 0.1, height - 1)], [0.95, 0.8, 0.55, 0.15], sides=7, seed=seed)
-    z0, z1 = 2.6, height - 1.2
+    tube(barkp, [(0, 0, -0.8), (0, 0, 6 * k), (0.1, 0, 16 * k), (0, 0.1, height - 1)],
+         [trunk_r, trunk_r * 0.84, trunk_r * 0.58, 0.15], sides=6 if lod else 7, seed=seed)
+    z0, z1 = 2.6 * k, height - 1.2 * k
     # dark heart, so there is no daylight through the middle
     heart_pts = [(0, 0, z0 + (z1 - z0) * t) for t in (0, 0.25, 0.5, 0.75, 1.0)]
     heart_r = [base_r * 0.3 * (1 - t) ** 1.05 + 0.2 for t in (0, 0.25, 0.5, 0.75, 1.0)]
@@ -274,27 +301,29 @@ def spruce(seed=21, height=32.5, base_r=10.0):
         # every tier its own length, so the outline steps in and out like boughs
         tier = rng.uniform(0.78, 1.12)
         reach = (base_r * (1 - t) ** 0.95 + 0.8) * tier
-        nf = 8 if t < 0.55 else (6 if t < 0.8 else 4)
+        nf = max(3, (8 if t < 0.55 else (6 if t < 0.8 else 4)) - (3 if lod == 2 else (1 if lod else 0)))
         off = rng.uniform(0, math.tau)
-        for k in range(nf):
+        for fi in range(nf):
             if t < 0.7 and rng.random() < 0.12:
                 continue
-            ang = off + k / nf * math.tau + rng.uniform(-0.3, 0.3)
+            ang = off + fi / nf * math.tau + rng.uniform(-0.3, 0.3)
             L = reach * rng.uniform(0.8, 1.1)
-            frond(a, (dark, mid, light), rng, (0, 0, z + rng.uniform(-0.2, 0.2)), ang, L, t,
-                  droop=0.55 + 0.3 * (1 - t), wide=0.3)
-            if t < 0.85:
+            frond(a, (dark, mid, light), rng, (0, 0, z + rng.uniform(-0.2, 0.2) * k), ang, L, t,
+                  droop=0.55 + 0.3 * (1 - t), wide=0.62 if lod == 2 else (0.5 if lod else 0.3),
+                  segs=2 if lod == 2 else (3 if lod else 4),
+                  sided=1 if lod else 2)
+            if t < 0.85 and not lod:
                 # a shorter bough between, a little higher: fills the tier
-                frond(a, (dark, mid, light), rng, (0, 0, z + 0.45), ang + math.pi / nf, L * 0.62, t,
+                frond(a, (dark, mid, light), rng, (0, 0, z + 0.45 * k), ang + math.pi / nf, L * 0.62, t,
                       droop=0.4 + 0.2 * (1 - t), wide=0.28)
         level += 1
-        z += rng.uniform(1.7, 2.4) * (1 - 0.4 * t)
+        z += rng.uniform(1.7, 2.4) * (1 - 0.4 * t) * k * (2.3 if lod == 2 else (1.55 if lod else 1.0))
     # leader
-    frond(a, (dark, mid, light), rng, (0, 0, z1 - 0.6), 0, 2.2, 1.0, droop=-6.0)
+    frond(a, (dark, mid, light), rng, (0, 0, z1 - 0.6 * k), 0, 2.2 * k, 1.0, droop=-6.0)
     return a
 
 
-def frond(a, parts, rng, root, ang, L, t, droop=0.5, segs=5, wide=0.26):
+def frond(a, parts, rng, root, ang, L, t, droop=0.5, segs=5, wide=0.26, rise=0.3, sided=2):
     """A spruce bough as a broad drooping pad: widest near its middle, folded
     down from the midrib like a shallow umbrella, its edge lightly toothed,
     darker at the trunk and lighter toward the sunlit tip."""
@@ -302,14 +331,14 @@ def frond(a, parts, rng, root, ang, L, t, droop=0.5, segs=5, wide=0.26):
     leader = droop < -1
     d = (math.cos(ang), math.sin(ang), 0.0)
     side = norm((-d[1], d[0], 0)) if not leader else (1.0, 0.0, 0.0)
-    width = max(0.7, min(3.0, L * wide))
+    width = max(0.7, min(3.0 * max(1.0, L / 10.0), L * wide))
     rows = []
     for i in range(segs + 1):
         s = i / segs
         if leader:
             m = add(root, (0, 0, L * s))
         else:
-            m = add(root, (d[0] * L * s, d[1] * L * s, (0.3 * s - droop * s * s) * L * 0.55))
+            m = add(root, (d[0] * L * s, d[1] * L * s, (rise * s - droop * s * s) * L * 0.55))
         w = width * (math.sin(math.pi * min(s * 1.15, 1.0)) ** 0.6) * (1.0 if i % 2 == 0 else 0.82)
         if i == 0:
             w = width * 0.2
@@ -330,17 +359,19 @@ def frond(a, parts, rng, root, ang, L, t, droop=0.5, segs=5, wide=0.26):
         part = dark if lit < 0.42 else (mid if lit < 0.7 else light)
         for quad in ((l0, m0, m1, l1), (m0, r0, r1, m1)):
             ids = [part.vert(q) for q in quad]
-            part.tri(ids[0], ids[1], ids[2], shade, shade, shade)
-            part.tri(ids[0], ids[2], ids[3], shade, shade, shade)
+            # one face up (what the game camera sees); the underside too unless one-sided
             part.tri(ids[0], ids[2], ids[1], shade, shade, shade)
             part.tri(ids[0], ids[3], ids[2], shade, shade, shade)
+            if sided == 2:
+                part.tri(ids[0], ids[1], ids[2], shade, shade, shade)
+                part.tri(ids[0], ids[2], ids[3], shade, shade, shade)
 
 
-def pine(seed=31, height=33.0):
+def pine(name="Pine", seed=31, height=33.0, lod=False):
     """A Scots pine: a tall, bare, warm-barked trunk that bends a little, boughs
     only in the top third, each ending in a flat cloud of needle tufts."""
     rng = random.Random(seed)
-    a = Asset("Pine")
+    a = Asset(name)
     barkp = a.part("bark", PAL["barkPine"])
     dark = a.part("needleDark", PAL["pineDark"])
     mid = a.part("needleMid", PAL["pineMid"])
@@ -359,9 +390,17 @@ def pine(seed=31, height=33.0):
         tube(barkp, [base, midp, end], [0.42, 0.3, 0.16], sides=5, seed=seed + k)
         puffs.append((add(end, (0, 0, 0.4)), rng.uniform(2.6, 3.6)))
     puffs.append(((1.3, 0.6, height - 2.4), 3.0))
+    if lod == 2:
+        puffs = [(p, r * 1.35) for p, r in puffs[::2]]
     centre = (1.0, 0.5, height - 6)
     top = height
     for ci, (p, r) in enumerate(puffs):
+        if lod:
+            # far away: the needle cloud as a shaded puff
+            banded_blob((dark, mid, light), (0.5, 0.68), p, (r * 1.05, r * 1.05, r * 0.5),
+                        lambda n, q: sun_light(n, (q[2] - (height - 15)) / 15), subdiv=1, lump=0.2,
+                        seed=seed + ci, shade_center=centre)
+            continue
         blob(dark, p, (r * 0.85, r * 0.85, r * 0.38), subdiv=1, lump=0.2, seed=seed + ci, shade_center=centre)
         for _ in range(int(9.5 * r * r)):
             v, d = sample_ellipsoid(rng, (r, r, r * 0.45))
@@ -574,6 +613,130 @@ def pillar(name="Pillar", seed=41, broken=False):
     return a
 
 
+
+# ------------------------------------------------------------------ woodland
+
+
+def bush(name, seed, lod=False):
+    """A shrub: a low cluster of the same leaf masses the trees wear."""
+    rng = random.Random(seed)
+    a = Asset(name)
+    parts = (a.part("leafDark", PAL["bushDark"]), a.part("leafMid", PAL["bushMid"]), a.part("leafLight", PAL["bushLight"]))
+    spots = [((rng.uniform(-0.2, 0.2), rng.uniform(-0.2, 0.2), 1.95), 1.4)]
+    n = rng.choice((4, 5, 6))
+    for k in range(n):
+        ang = k / n * math.tau + rng.uniform(-0.3, 0.3)
+        d = rng.uniform(0.8, 1.2)
+        spots.append(((math.cos(ang) * d, math.sin(ang) * d, rng.uniform(1.05, 1.45)), rng.uniform(0.95, 1.25)))
+    canopy(parts, (0.5, 0.68), spots, (0, 0, 1.0), rng, 0.8, 0 if lod else 6.0, seed, subdiv=1)
+    return a
+
+
+def fern(name, seed):
+    """A fern: a ring of arching fronds, toothed along their edges."""
+    rng = random.Random(seed)
+    a = Asset(name)
+    parts = (a.part("frondDark", PAL["fernDark"]), a.part("frondMid", PAL["fernMid"]), a.part("frondLight", PAL["fernLight"]))
+    n = rng.choice((9, 10, 11))
+    for k in range(n):
+        ang = k / n * math.tau + rng.uniform(-0.25, 0.25)
+        frond(a, parts, rng, (0, 0, 0.05), ang, rng.uniform(2.2, 3.2), 0.6, droop=rng.uniform(1.6, 1.9), segs=5,
+              wide=0.13, rise=2.3)
+    return a
+
+
+def disc(part, centre, axis, r, sides, rng, rough=0.0):
+    """A flat, slightly ragged disc facing along `axis` (a cut end of wood)."""
+    u = perp(axis)
+    v = cross(axis, u)
+    c = part.vert(centre)
+    ring = []
+    for k in range(sides):
+        ang = k / sides * math.tau
+        rr = r * (1 - rough * rng.random())
+        ring.append(part.vert(add(centre, add(mul(u, math.cos(ang) * rr), mul(v, math.sin(ang) * rr)))))
+    for k in range(sides):
+        part.tri(c, ring[k], ring[(k + 1) % sides], axis, axis, axis)
+
+
+def stump(name, seed):
+    """A sawn-off stump on flared roots, its cut face pale wood, moss at one side."""
+    rng = random.Random(seed)
+    a = Asset(name)
+    barkp = a.part("bark", PAL["bark"])
+    wood = a.part("wood", PAL["wood"])
+    moss = a.part("moss", PAL["mossRock"])
+    h, r = rng.uniform(1.6, 2.1), 1.25
+    roots = rng.choice((4, 5))
+
+    def flare(i, ang):
+        if i > 1:
+            return 1.0
+        k = 1.0 if i == 0 else 0.4
+        return 1 + k * 0.6 * max(0.0, math.cos(ang * roots + seed)) ** 2
+
+    tube(barkp, [(0, 0, -0.5), (0, 0, 0.4), (0, 0, h * 0.7), (0, 0, h)], [r * 1.2, r * 1.06, r, r * 0.97],
+         sides=9, lobes=flare, seed=seed, cap=False)
+    disc(wood, (0, 0, h - 0.02), (0, 0, 1), r * 0.97, 9, rng)
+    moss_cap(moss, rng, (0.35, -0.25, 0), r * 0.85, h + 0.01, seed, coverage=0.55)
+    return a
+
+
+def fallen_log(name, seed):
+    """A fallen trunk: bark, pale cut ends, a broken branch stub, moss on its back."""
+    rng = random.Random(seed)
+    a = Asset(name)
+    barkp = a.part("bark", PAL["bark"])
+    wood = a.part("wood", PAL["wood"])
+    moss = a.part("moss", PAL["mossRock"])
+    r0, r1, half = 1.3, 1.05, 2.45
+    path = [(-half, 0, r0 - 0.35), (-half * 0.3, 0.1, r0 - 0.38), (half * 0.35, -0.08, r1 - 0.3), (half, 0, r1 - 0.3)]
+    radii = [r0, r0 * 0.95, r1 * 1.02, r1]
+    tube(barkp, path, radii, sides=9, seed=seed, cap=False, moss=moss, moss_up=0.55)
+    disc(wood, (-half - 0.01, 0, r0 - 0.35), (-1, 0, 0), r0 * 0.97, 9, rng)
+    disc(wood, (half + 0.01, 0, r1 - 0.3), (1, 0, 0), r1 * 0.97, 9, rng)
+    tube(barkp, [(0.4, 0.5, r0 + 0.2), (0.9, 1.0, r0 + 0.9), (1.2, 1.3, r0 + 1.2)], [0.36, 0.26, 0.18], sides=5, seed=seed + 1)
+    return a
+
+
+def ruin_wall(name, seed):
+    """A stub of ruined wall: courses of dressed blocks, the top broken into
+    steps, fallen blocks at its feet, moss on its ledges."""
+    rng = random.Random(seed)
+    a = Asset(name)
+    st = a.part("stone", PAL["stone"])
+    dk = a.part("stoneDark", PAL["stoneDark"])
+    moss = a.part("moss", PAL["moss"])
+    L, T = 5.0, 2.2
+
+    def top(x):
+        return 4.2 * (0.5 + 0.5 * fbm((x * 0.55 + seed, 0.3, 1.7), seed))
+
+    z, row = -0.4, 0
+    while z < 4.2:
+        hgt = rng.uniform(0.7, 0.9)
+        x = -L / 2 + (0.45 if row % 2 else 0.0) - 0.45
+        while x < L / 2:
+            ln = rng.uniform(1.0, 1.7)
+            x0, x1 = max(x, -L / 2), min(x + ln, L / 2)
+            if x1 - x0 > 0.3 and z < top((x0 + x1) / 2):
+                y = rng.uniform(-0.08, 0.08)
+                part = dk if rng.random() < 0.3 else st
+                box(part, (x0 + 0.03, -T / 2 + y, z + 0.03), (x1 - 0.03, T / 2 + y, z + hgt - 0.03))
+                if z + hgt >= top((x0 + x1) / 2) and rng.random() < 0.6:
+                    moss_cap(moss, rng, ((x0 + x1) / 2, y, 0), min(x1 - x0, T) * 0.5, z + hgt - 0.03, seed + row, 0.8)
+            x += ln
+        z += hgt
+        row += 1
+    # fallen blocks to either side
+    for k in range(6):
+        side = 1 if k % 2 == 0 else -1
+        c = (rng.uniform(-2.0, 2.0), side * rng.uniform(1.5, 2.3), 0.2)
+        blob(dk if k % 3 == 0 else st, c, (rng.uniform(0.45, 0.75), rng.uniform(0.4, 0.6), 0.38), subdiv=0, lump=0.3,
+             seed=seed + k, flat=True)
+    return a
+
+
 # ------------------------------------------------------------------ the kit
 
 
@@ -591,28 +754,87 @@ def fit(asset, size):
     return asset
 
 
+# kind families: (name, recipe) per variant; trees also get a far-detail "_LOD"
+TREES = [
+    ("OakA", lambda lod: broadleaf("OakA", 101, height=17.0, crown_r=10.8, crown_h=12.8, trunk_h=5.0, trunk_r=1.35,
+                                   clumps=14, clump_r=3.8, leaf=1.5, density=4.2, limbs=4, lod=lod)),
+    ("OakB", lambda lod: broadleaf("OakB", 121, height=17.5, crown_r=10.2, crown_h=13.6, trunk_h=5.4, trunk_r=1.3,
+                                   clumps=13, clump_r=3.7, leaf=1.5, density=4.2, limbs=3, bend=0.45, lod=lod)),
+    ("OakC", lambda lod: broadleaf("OakC", 131, height=16.6, crown_r=11.4, crown_h=11.8, trunk_h=4.8, trunk_r=1.4,
+                                   clumps=15, clump_r=3.6, leaf=1.5, density=4.2, limbs=5, roots=6, lod=lod)),
+    ("OakLeaningA", lambda lod: broadleaf("OakLeaningA", 103, height=17.0, crown_r=11.0, crown_h=12.0, trunk_h=5.4,
+                                          trunk_r=1.35, lean=(2.4, 0.4), clumps=13, clump_r=3.8, leaf=1.5,
+                                          density=4.2, limbs=3, lod=lod)),
+    ("OakLeaningB", lambda lod: broadleaf("OakLeaningB", 123, height=16.4, crown_r=10.5, crown_h=11.6, trunk_h=5.8,
+                                          trunk_r=1.3, lean=(2.2, -0.6), clumps=12, clump_r=3.8, leaf=1.5,
+                                          density=4.2, limbs=3, bend=0.4, lod=lod)),
+    ("BeechA", lambda lod: broadleaf("BeechA", 107, height=18.0, crown_r=8.2, crown_h=14.0, trunk_h=5.2, trunk_r=1.1,
+                                     clumps=13, clump_r=3.2, leaf=1.35, density=4.4, limbs=4,
+                                     pal=("beechDark", "beechMid", "beechLight"), lod=lod)),
+    ("BeechB", lambda lod: broadleaf("BeechB", 127, height=18.5, crown_r=7.6, crown_h=15.0, trunk_h=5.6, trunk_r=1.05,
+                                     clumps=12, clump_r=3.1, leaf=1.35, density=4.4, limbs=3, bend=0.35,
+                                     pal=("beechDark", "beechMid", "beechLight"), lod=lod)),
+    ("BirchA", lambda lod: broadleaf("BirchA", 109, height=24.5, crown_r=5.4, crown_h=15.0, trunk_h=9.5, trunk_r=0.62,
+                                     clumps=12, clump_r=2.4, leaf=1.05, density=5.2, limbs=4,
+                                     pal=("birchDark", "birchMid", "birchLight"), bark="barkBirch", birch=True,
+                                     roots=3, lod=lod)),
+    ("BirchB", lambda lod: broadleaf("BirchB", 129, height=25.0, crown_r=4.9, crown_h=16.0, trunk_h=10.5,
+                                     trunk_r=0.6, clumps=11, clump_r=2.3, leaf=1.05, density=5.2, limbs=3,
+                                     pal=("birchDark", "birchMid", "birchLight"), bark="barkBirch", birch=True,
+                                     roots=3, bend=0.5, lod=lod)),
+    ("SaplingA", lambda lod: broadleaf("SaplingA", 113, height=9.6, crown_r=3.6, crown_h=6.5, trunk_h=3.0,
+                                       trunk_r=0.34, clumps=6, clump_r=1.7, leaf=0.95, density=5.5, limbs=2, roots=3,
+                                       lod=lod)),
+    ("SaplingB", lambda lod: broadleaf("SaplingB", 133, height=10.2, crown_r=3.2, crown_h=7.0, trunk_h=3.4,
+                                       trunk_r=0.32, clumps=6, clump_r=1.6, leaf=0.95, density=5.5, limbs=2, roots=3,
+                                       pal=("beechDark", "beechMid", "beechLight"), bend=0.5, lod=lod)),
+    ("SpruceA", lambda lod: spruce("SpruceA", 21, 32.5, 10.0, lod=lod)),
+    ("SpruceB", lambda lod: spruce("SpruceB", 22, 33.5, 9.2, lod=lod)),
+    ("SpruceC", lambda lod: spruce("SpruceC", 23, 31.0, 10.8, lod=lod)),
+    ("PineA", lambda lod: pine("PineA", 31, 33.0, lod=lod)),
+    ("PineB", lambda lod: pine("PineB", 32, 34.0, lod=lod)),
+    ("AncientOakA", lambda lod: ancient_oak("AncientOakA", 11, lod=lod)),
+    ("AncientOakB", lambda lod: ancient_oak("AncientOakB", 12, lod=lod, crown_r=36.0, crown_h=42.0, nroots=8)),
+    ("AncientPine", lambda lod: spruce("AncientPine", 24, 107.0, 25.0, trunk_r=4.2, lod=lod)),
+    ("Elder", lambda lod: ancient_oak("Elder", 14, lod=lod, trunk_h=20.0, r0=6.8, crown_z=46.0, crown_r=34.0,
+                                      crown_h=36.0, clump_r=8.5, clumps=24, nroots=8, reach=(12, 18),
+                                      pal=("elderDark", "elderMid", "elderLight", "elderGold"))),
+    ("BushA", lambda lod: bush("BushA", 501, lod=lod)),
+    ("BushB", lambda lod: bush("BushB", 503, lod=lod)),
+    ("BushC", lambda lod: bush("BushC", 505, lod=lod)),
+]
+
+
 def build_all():
     kit = []
-    kit.append(broadleaf("Oak", 101, height=17.0, crown_r=10.8, crown_h=12.8, trunk_h=5.0, trunk_r=1.35, clumps=14,
-                         clump_r=3.8, leaf=1.5, density=4.6, limbs=4))
-    kit.append(broadleaf("OakLeaning", 103, height=17.0, crown_r=11.0, crown_h=12.0, trunk_h=5.4, trunk_r=1.35,
-                         lean=(2.4, 0.4), clumps=13, clump_r=3.8, leaf=1.5, density=4.6, limbs=3))
-    kit.append(broadleaf("Beech", 107, height=18.0, crown_r=8.2, crown_h=14.0, trunk_h=5.2, trunk_r=1.1, clumps=13,
-                         clump_r=3.2, leaf=1.35, density=4.8, limbs=4, pal=("beechDark", "beechMid", "beechLight")))
-    kit.append(broadleaf("Birch", 109, height=24.5, crown_r=5.4, crown_h=15.0, trunk_h=9.5, trunk_r=0.62, clumps=12,
-                         clump_r=2.4, leaf=1.05, density=5.2, limbs=4, pal=("birchDark", "birchMid", "birchLight"),
-                         bark="barkBirch", birch=True, roots=3))
-    kit.append(broadleaf("Sapling", 113, height=9.6, crown_r=3.6, crown_h=6.5, trunk_h=3.0, trunk_r=0.34, clumps=6,
-                         clump_r=1.7, leaf=0.95, density=5.5, limbs=2, roots=3))
-    kit.append(spruce())
-    kit.append(pine())
-    kit.append(ancient_oak())
+    for name, recipe in TREES:
+        kit.append(recipe(False))
+        lod = recipe(1)
+        lod.name = name + "_LOD"
+        kit.append(lod)
+        if not name.startswith(("Bush", "Sapling")):
+            far = recipe(2)
+            far.name = name + "_FAR"
+            kit.append(far)
     kit.append(grass_patch("GrassA", 201, "grassA"))
     kit.append(grass_patch("GrassB", 203, "grassB"))
     kit.append(grass_patch("GrassC", 205, "grassC"))
-    kit.append(fit(rock("BoulderLarge", 301, (4.4, 4.5, 2.9), sink=0.18, moss_amount=0.6), (8.8, 9.0, 4.6)))
-    kit.append(fit(rock("RockSmall", 303, (0.95, 0.9, 1.15), sink=0.15, moss_amount=0.45, subdiv=1), (1.8, 1.8, 2.0)))
+    kit.append(fern("FernA", 601))
+    kit.append(fern("FernB", 603))
+    kit.append(stump("StumpA", 701))
+    kit.append(stump("StumpB", 703))
+    kit.append(fallen_log("FallenLog", 711))
+    kit.append(fit(rock("BoulderLargeA", 301, (4.4, 4.5, 2.9), sink=0.18, moss_amount=0.6), (8.8, 9.0, 4.6)))
+    kit.append(fit(rock("BoulderLargeB", 311, (4.6, 4.2, 3.2), sink=0.2, moss_amount=0.55), (8.8, 9.0, 4.8)))
+    kit.append(fit(rock("RockSmallA", 303, (0.95, 0.9, 1.15), sink=0.15, moss_amount=0.45, subdiv=1), (1.8, 1.8, 2.0)))
+    kit.append(fit(rock("RockSmallB", 313, (1.0, 0.85, 1.1), sink=0.15, moss_amount=0.4, subdiv=1), (1.8, 1.8, 2.1)))
     kit.append(fit(rock("BoulderFlat", 305, (1.35, 1.3, 1.25), sink=0.12, moss_amount=0.5, subdiv=1), (2.6, 2.4, 1.6)))
-    kit.append(pillar("Pillar", 401, broken=False))
-    kit.append(pillar("PillarBroken", 403, broken=True))
+    kit.append(fit(rock("MenhirA", 801, (1.5, 1.1, 5.5), sink=0.08, moss_amount=0.32), (3.4, 2.4, 11.0)))
+    kit.append(fit(rock("MenhirB", 803, (1.4, 1.2, 5.5), sink=0.08, moss_amount=0.38), (3.2, 2.5, 11.5)))
+    kit.append(ruin_wall("RuinWallA", 901))
+    kit.append(ruin_wall("RuinWallB", 903))
+    kit.append(pillar("PillarA", 401, broken=False))
+    kit.append(pillar("PillarB", 411, broken=False))
+    kit.append(pillar("PillarBrokenA", 403, broken=True))
+    kit.append(pillar("PillarBrokenB", 413, broken=True))
     return kit

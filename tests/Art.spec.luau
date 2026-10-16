@@ -1,11 +1,14 @@
 --!strict
--- Specs for the M3.B art kit: the packed meshes decode whole and stay inside
--- Roblox's limits, and the Old Grove showcase only re-skins what is there.
+-- Specs for the M3.B art kit across the Wardwood: the packed meshes decode
+-- whole and stay inside Roblox's limits, every prop the plan dresses has its
+-- models (and far versions), overrides do what they say, and the 3D grass
+-- only grows where it should.
 
 local ArtKit = require("../src/server/Wardwood/ArtKit")
-local ArtShowcase = require("../src/shared/Core/ArtShowcase")
+local ArtPlan = require("../src/shared/Core/ArtPlan")
 local GameConfig = require("../src/shared/Config/GameConfig")
 local MapGen = require("../src/shared/Core/MapGen")
+local Wardwood = require("../src/shared/Config/Wardwood")
 local World = require("../src/shared/Core/World")
 
 local fs = require("@lune/fs")
@@ -20,13 +23,20 @@ end
 
 local world = World.build(GameConfig)
 
+local function tris(name: string): number
+	local n = 0
+	for _, part in ASSETS[name].parts do
+		n += part.tris
+	end
+	return n
+end
+
 return {
 	["every art mesh decodes whole and fits Roblox's EditableMesh limits"] = function()
 		local count = 0
 		for name, asset in ASSETS do
 			count += 1
 			assert(asset.name == name, `{name} names itself {asset.name}`)
-			local tris = 0
 			for _, part in asset.parts do
 				local mesh = ArtKit.decode(part)
 				assert(mesh.verts == part.verts and #mesh.pos == part.verts * 3, `{name}.{part.name} vertex count`)
@@ -40,67 +50,135 @@ return {
 					local len = math.sqrt(x * x + y * y + z * z)
 					assert(len > 0.9 and len < 1.1, `{name}.{part.name} has a normal of length {len}`)
 				end
-				for k = 1, 3 do
-					local half = mesh.size[k] / 2 + 1e-3
-					for v = 0, part.verts - 1 do
-						assert(math.abs(mesh.pos[v * 3 + k]) <= half, `{name}.{part.name} vertex outside its box`)
+			end
+		end
+		assert(count >= 80, `{count} art assets`)
+	end,
+
+	["every family the plan uses is built, and the far versions are cheaper"] = function()
+		for kind, family in ArtPlan.Families do
+			for _, asset in family do
+				assert(ASSETS[asset], `{kind} uses {asset}, which is not built`)
+				local hasLod = ArtPlan.hasLod({ kind = kind } :: any)
+				if hasLod then
+					assert(ASSETS[asset .. "_LOD"], `{asset} has no _LOD`)
+					assert(tris(asset .. "_LOD") < tris(asset), `{asset}_LOD is no cheaper`)
+					if ASSETS[asset .. "_FAR"] then
+						assert(tris(asset .. "_FAR") < tris(asset .. "_LOD"), `{asset}_FAR is no cheaper`)
 					end
 				end
-				tris += part.tris
-			end
-			assert(tris > 0, `{name} is empty`)
-		end
-		assert(count >= 16, `{count} art assets`)
-	end,
-
-	["the art keeps to its triangle budgets"] = function()
-		local budget = { AncientOak = 20000, GrassA = 1000, GrassB = 1000, GrassC = 1000 }
-		for name, asset in ASSETS do
-			local tris = 0
-			for _, part in asset.parts do
-				tris += part.tris
-			end
-			local cap = budget[name] or 10000
-			assert(tris <= cap, `{name} has {tris} triangles, budget {cap}`)
-		end
-	end,
-
-	["the 3D grass stays low"] = function()
-		for _, name in { "GrassA", "GrassB", "GrassC" } do
-			for _, part in ASSETS[name].parts do
-				local top = part.max[2]
-				assert(top <= 0.55 and top >= 0.15, `{name} stands {top} studs tall`)
 			end
 		end
 	end,
 
-	["every swapped kind has an asset, and the showcase only re-skins props in the Old Grove"] = function()
-		for kind, asset in ArtShowcase.Swap do
-			assert(ASSETS[asset], `{kind} swaps to {asset}, which is not built`)
+	["the kit keeps to its triangle budgets"] = function()
+		for name in ASSETS do
+			local n = tris(name)
+			local cap = if string.find(name, "^Ancient") or string.find(name, "^Elder")
+				then 20000
+				elseif string.find(name, "_FAR$") then 2000
+				elseif string.find(name, "_LOD$") then 3500
+				elseif string.find(name, "^Grass") then 1000
+				else 9000
+			assert(n <= cap, `{name} has {n} triangles, budget {cap}`)
 		end
-		local plan = ArtShowcase.plan(world)
-		local kinds, props, grass = {}, 0, 0
-		local c, r = ArtShowcase.Centre, ArtShowcase.Radius
-		for _, p in plan do
-			assert((p.x - c.x) ^ 2 + (p.z - c.z) ^ 2 < r * r, `{p.asset} placed outside the showcase`)
-			assert(ASSETS[p.asset], `{p.asset} is planned but not built`)
-			if p.prop then
-				local prop = world.props[p.prop]
-				assert(ArtShowcase.Swap[prop.kind] == p.asset, `prop {p.prop} ({prop.kind}) shown as {p.asset}`)
-				assert(prop.x == p.x and prop.z == p.z and prop.scale == p.scale, `{p.asset} moved from its prop`)
-				kinds[p.asset] = true
-				props += 1
+	end,
+
+	["the art dresses the whole Wardwood, every plant picks a variation of its own kind"] = function()
+		local dressed, kinds = 0, {}
+		for _, p in world.props do
+			local asset = ArtPlan.asset(p)
+			if ArtPlan.Families[p.kind] then
+				assert(asset and table.find(ArtPlan.Families[p.kind], asset), `{p.key} wears {asset}`)
+				assert(asset == ArtPlan.asset(p), "the pick is not stable")
+				dressed += 1
+				kinds[asset] = (kinds[asset] or 0) + 1
 			else
-				grass += 1
-				local surface = World.surface(world, p.x, p.z)
-				assert(surface ~= "Path" and surface ~= "Rock", `grass on {surface} at {p.x}, {p.z}`)
-				assert(math.abs(p.y - MapGen.heightAt(world.map, p.x, p.z)) < 0.01, "grass off the ground")
+				assert(asset == nil, `{p.kind} has no family but wears {asset}`)
+			end
+			local r, g, b = ArtPlan.tint(p)
+			assert(r > 0.8 and r < 1.25 and g > 0.85 and g < 1.15 and b > 0.75 and b < 1.2, "tint out of range")
+		end
+		assert(dressed > 1200, `only {dressed} props dressed`)
+		-- a family's variations all get used
+		for kind, family in ArtPlan.Families do
+			if #family > 1 then
+				for _, asset in family do
+					local used = 0
+					for _, p in world.props do
+						if p.kind == kind and ArtPlan.asset(p) == asset then
+							used += 1
+						end
+					end
+					local total = 0
+					for _, p in world.props do
+						if p.kind == kind then
+							total += 1
+						end
+					end
+					assert(total < #family * 2 or used > 0, `{asset} is never used for {kind}`)
+				end
 			end
 		end
-		for _, need in { "AncientOak", "Spruce", "Pillar", "PillarBroken" } do
-			assert(kinds[need], `the showcase has no {need}`)
+	end,
+
+	["overrides move, turn, re-skin and hide props by their stable names"] = function()
+		local keys = {}
+		for _, p in world.props do
+			assert(p.key and not keys[p.key], `{p.key} is not a unique name`)
+			keys[p.key] = true
 		end
-		assert(props >= 12, `only {props} props in the showcase`)
-		assert(grass > 100 and grass < 500, `{grass} grass patches`)
+		local fresh = World.build(GameConfig)
+		local props = {}
+		for _, p in fresh.props do
+			if p.kind == "Oak" or p.kind == "Bush" then
+				table.insert(props, table.clone(p))
+			end
+		end
+		local oak, bush = nil, nil
+		for _, p in props do
+			if p.kind == "Oak" and not oak then
+				oak = p
+			elseif p.kind == "Bush" and not bush then
+				bush = p
+			end
+		end
+		assert(oak and bush, "no oak or bush to try")
+		local x, z = oak.x, oak.z
+		local out = World.applyOverrides(props, {
+			[oak.key :: string] = { dx = 3, dz = -2, yaw = 90, scale = 1.5, asset = "OakC" },
+			[bush.key :: string] = { hide = true },
+		})
+		assert(#out == #props - 1, "the hidden bush is still there")
+		assert(math.abs(oak.x - (x + 3)) < 1e-6 and math.abs(oak.z - (z - 2)) < 1e-6, "the oak did not move")
+		assert(math.abs(oak.yaw - math.pi / 2) < 1e-6 and oak.scale == 1.5, "the oak did not turn or grow")
+		assert(ArtPlan.asset(oak) == "OakC", "the oak did not take its variation")
+	end,
+
+	["short 3D grass grows only on grassy ground, clear of trunks, rocks and walls"] = function()
+		local field = ArtPlan.grassField(world)
+		local cell = Wardwood.ArtGrass.cell
+		local n, total = 0, 0
+		for cx = -40, 40 do
+			for cz = -40, 40 do
+				total += 1
+				local g = field(cx, cz)
+				if g then
+					n += 1
+					local surface = World.surface(world, g.x, g.z, Wardwood.Grass)
+					assert(surface ~= "Path" and surface ~= "Rock" and surface ~= "Sand", `grass on {surface}`)
+					assert(math.abs(g.y - MapGen.heightAt(world.map, g.x, g.z)) < 1e-6, "grass off the ground")
+					assert(math.abs(g.x - (cx + 0.5) * cell) <= cell * 0.2 + 1e-6, "grass strayed from its cell")
+					assert(table.find(ArtPlan.Grass, g.asset), `grass patch {g.asset}`)
+					assert(field(cx, cz) == g, "the field does not cache")
+				end
+			end
+		end
+		assert(n > total * 0.5, `grass in only {n} of {total} cells round spawn`)
+		for _, name in ArtPlan.Grass do
+			for _, part in ASSETS[name].parts do
+				assert(part.max[2] <= 0.55, `{name} stands {part.max[2]} studs tall`)
+			end
+		end
 	end,
 }

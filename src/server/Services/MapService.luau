@@ -9,7 +9,6 @@
 -- builds its scenery (Wardwood/Builder).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
@@ -19,8 +18,9 @@ local Wardwood = require(ReplicatedStorage.Shared.Config.Wardwood)
 local World = require(ReplicatedStorage.Shared.Core.World)
 
 local Builder = require(script.Parent.Parent.Wardwood.Builder)
+local ArtKit = require(script.Parent.Parent.Wardwood.ArtKit)
+local ArtPlan = require(ReplicatedStorage.Shared.Core.ArtPlan)
 local Look = require(script.Parent.Parent.Wardwood.Look)
-local Showcase = require(script.Parent.Parent.Wardwood.Showcase)
 
 local MapService = Knit.CreateService({ Name = "MapService" })
 
@@ -38,10 +38,80 @@ function MapService:KnitInit()
 	self._grass = Wardwood.Grass
 	self._rng = Random.new()
 	self._skyWhy = "lobby"
+	-- the prop kinds the M3.B art kit dresses; a kind falls back to its old
+	-- models if one of its variations will not bake
+	self._art = Wardwood.Art
+	self._classic = {}
+end
+
+-- the kinds the kit dresses now: none with the art off, else every family
+-- that baked whole
+function MapService:_artKinds(): { [string]: boolean }?
+	if not self._art then
+		return nil
+	end
+	local kinds = {}
+	for kind in ArtPlan.Families do
+		if not self._classic[kind] then
+			kinds[kind] = true
+		end
+	end
+	return kinds
+end
+
+function MapService:_publishArt()
+	local classic = {}
+	for kind in self._classic do
+		table.insert(classic, kind)
+	end
+	table.sort(classic)
+	Workspace:SetAttribute("BonkArt", self._art)
+	Workspace:SetAttribute("BonkArtClassic", table.concat(classic, ","))
+end
+
+-- bake the kit; any family with a variation that will not bake goes back to
+-- its old models, on the server and on every client
+function MapService:_bakeArt()
+	local failed = ArtKit.bakeAll()
+	if #failed == 0 then
+		return
+	end
+	local bad = {}
+	for _, name in failed do
+		bad[(string.gsub(name, "_[LF][OA][DR]$", ""))] = true
+	end
+	for kind, family in ArtPlan.Families do
+		for _, asset in family do
+			if bad[asset] then
+				self._classic[kind] = true
+			end
+		end
+	end
+	self:_publishArt()
+	if self._propsPlaced then
+		self._propsPlaced = Builder.build(self._world, self:_artKinds())
+	end
+end
+
+--- Studio only (DevService `art`): the art kit on, or the old props back.
+function MapService:SetArt(on: boolean)
+	self._art = on
+	self:_publishArt()
+	self._propsPlaced = Builder.build(self._world, self:_artKinds())
+end
+
+function MapService:GetWorld()
+	return self._world
 end
 
 function MapService:KnitStart()
 	Look.apply()
+	self:_publishArt()
+	if self._art then
+		task.spawn(function()
+			self:_bakeArt()
+		end)
+	end
 	task.spawn(function()
 		local ok, err = pcall(function()
 			self:_writeTerrain()
@@ -50,10 +120,7 @@ function MapService:KnitStart()
 			warn(`[MapService] terrain write failed: {err}`)
 		end
 		local okProps, errProps = pcall(function()
-			self._propsPlaced = Builder.build(self._world)
-			if Wardwood.ArtShowcase and RunService:IsStudio() then
-				task.spawn(Showcase.set, self._world, true)
-			end
+			self._propsPlaced = Builder.build(self._world, self:_artKinds())
 		end)
 		if not okProps then
 			warn(`[MapService] prop placement failed: {errProps}`)
@@ -117,11 +184,6 @@ end
 --- Back in the lobby: its own sky again.
 function MapService:LobbySky()
 	self:SetSky(Wardwood.Sky, "lobby")
-end
-
---- Studio only (DevService `art`): the M3.B art showcase on or off.
-function MapService:SetArt(on: boolean): number
-	return Showcase.set(self._world, on)
 end
 
 function MapService:GetAnchors()

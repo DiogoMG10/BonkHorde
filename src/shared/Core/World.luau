@@ -25,6 +25,7 @@
 
 local Blueprints = require(script and script.Parent.Blueprints or "./Blueprints")
 local MapGen = require(script and script.Parent.MapGen or "./MapGen")
+local Overrides = require(script and script.Parent.Parent.Config.WardwoodOverrides or "../Config/WardwoodOverrides")
 
 local World = {}
 
@@ -39,6 +40,8 @@ export type Prop = {
 	blocks: { { number } }?, -- several solid footprints { x, z, r } instead of one
 	lift: number?, -- raise (or sink) from the ground
 	collider: number?, -- a mesh tree: an invisible trunk of this radius is its only solid part
+	key: string?, -- a stable name, "Kind@x,z" where it was generated (Config/WardwoodOverrides)
+	art: string?, -- an art kit variation chosen by hand (Config/WardwoodOverrides)
 }
 
 export type World = {
@@ -1534,6 +1537,46 @@ local function placeCover(ctx)
 	end
 end
 
+--- Name every prop by its kind and generated spot (Config/WardwoodOverrides),
+--- then apply the hand-made overrides: move, turn, rescale, re-skin or hide.
+function World.applyOverrides(props: { Prop }, overrides: { [string]: any }): { Prop }
+	local seen = {}
+	local kept = {}
+	for _, p in props do
+		local key = `{p.kind}@{math.floor(p.x + 0.5)},{math.floor(p.z + 0.5)}`
+		seen[key] = (seen[key] or 0) + 1
+		if seen[key] > 1 then
+			key ..= `#{seen[key]}`
+		end
+		p.key = key
+		local o = overrides[key]
+		if o and o.hide then
+			continue
+		end
+		if o then
+			local nx = o.x or (p.x + (o.dx or 0))
+			local nz = o.z or (p.z + (o.dz or 0))
+			if p.blocks then
+				for _, b in p.blocks do
+					b[1] += nx - p.x
+					b[2] += nz - p.z
+				end
+			end
+			p.x, p.z = nx, nz
+			if o.yaw then
+				p.yaw = math.rad(o.yaw)
+			end
+			if o.scale then
+				p.radius *= o.scale / p.scale
+				p.scale = o.scale
+			end
+			p.art = o.asset
+		end
+		table.insert(kept, p)
+	end
+	return kept
+end
+
 function World.build(cfg: any): World
 	local map = MapGen.build(cfg.MapSizeStuds, cfg.HeightCellStuds, cfg.WallHeight)
 	local anchors = World.anchors(map)
@@ -1548,7 +1591,7 @@ function World.build(cfg: any): World
 	placeCover(ctx)
 	placeMist(ctx)
 	placeMountainTrees(ctx)
-	local props = ctx.props
+	local props = World.applyOverrides(ctx.props, Overrides)
 	MapGen.block(map, props)
 	-- landmark pieces were placed without regard to anchors: drop any anchor a
 	-- solid now crowds, so no chest or shrine is ever built into a rock

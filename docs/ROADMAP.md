@@ -40,16 +40,16 @@ explicit decision by Tiago and Diogo.
   `grass short` ground. Layout, movement and atmosphere approved by Tiago and Diogo in
   Studio playtests. The part-built trees and the LeafyGrass ground are accepted as
   provisional art, to be replaced in M3.B.
-- **M3.B Blender art overhaul:** branch `feat/m3b-blender-art`, `bonk-0.16.0-m3b`. A seeded
-  Blender kit (`tools/art`, source `assets/art/wardwood_kit.blend`, GLBs in
-  `assets/art/export`): Oak, OakLeaning, Beech, Birch, Sapling, Spruce, Pine, AncientOak,
-  three low 3D grass patches, three mossy rocks, a fluted Pillar and a broken one. In game
-  with no upload: the server rebuilds each mesh (EditableMesh, baked to replicating
-  content) and re-skins the Old Grove's props in place, colliders kept, 3D grass over its
-  ground (Studio only; `art on|off|goto`). Pipeline and next steps:
+- **M3.B Blender art overhaul:** branch `feat/m3b-blender-art`. `bonk-0.16.0-m3b` showcase
+  approved in Studio by Tiago and Diogo. `bonk-0.17.0-m3b` dresses the whole Wardwood: every
+  tree family (variants, far and horizon versions), the ancients, the Elder, bushes, ferns,
+  stumps, logs, rocks, menhirs, pillars and ruin walls from the Blender kit; the server bakes
+  each model once (no upload) and keeps only colliders, clients draw from shared templates
+  with distance detail, per-plant tint and short 3D grass streamed round the hero; hand edits
+  kept in `Config/WardwoodOverrides` (`art pick`); `art off` restores the old props. Details:
   `docs/M3B-art-pipeline.md`. Offline checks and Blender previews only.
-- **Next playable result:** the M3.B showcase reviewed in Studio from the game camera
-  (`art goto`, compare with `art off`); then the map-wide replacement plan.
+- **Next playable result:** Studio: the whole Wardwood under every sky, bunny hops through
+  woods and meadows, frame rate in a big fight; then decide on uploading the kit for good.
 - **Blockers:** none.
 
 ## M4 Horde & Performance — not started

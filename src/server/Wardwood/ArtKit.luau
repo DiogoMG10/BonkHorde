@@ -1,18 +1,19 @@
 --!nonstrict
 -- ArtKit - the Wardwood's Blender-made art (M3.B) brought into the game with
 -- no upload. tools/art/kit.py packs each asset's geometry into
--- Wardwood/ArtMeshes/<Asset> (positions, authored normals, triangles); here
--- the server rebuilds each part once as an EditableMesh, bakes it into static
--- content (AssetService:CreateDataModelContentAsync), which replicates to
--- every client with the parts that use it, and keeps the result as a template
--- Model that placements clone. Templates live in ServerStorage.WardwoodArt.
+-- Wardwood/ArtMeshes/<Asset> (positions, authored normals, triangles); at
+-- start the server rebuilds each part once as an EditableMesh, bakes it into
+-- static content (AssetService:CreateDataModelContentAsync) and keeps the
+-- result as a template Model in ReplicatedStorage.WardwoodArt. The templates,
+-- and the content with them, replicate to every client, which places its own
+-- copies (client ArtController); nothing is rebuilt per tree.
 --
 -- The baked content lasts for the server's session: nothing is saved into the
--- place or uploaded. Making an asset permanent (a real MeshId) is the upload
+-- place or uploaded. Making the meshes permanent (real MeshIds) is the upload
 -- route in docs/M3B-art-pipeline.md, and needs a person's go-ahead.
 --
 -- Every art part is visual only: no collision, query or touch. Whatever it
--- stands in for keeps its own collider (Wardwood/Showcase).
+-- stands in for keeps its own collider (Wardwood/Builder).
 
 local ArtKit = {}
 
@@ -81,8 +82,6 @@ end
 
 local FOLIAGE =
 	{ leafDark = true, leafMid = true, leafLight = true, leafGold = true, needleDark = true, needleMid = true, needleLight = true }
-local templates = {}
-local building = {}
 
 local function meshPart(part, asset: string): MeshPart?
 	local AssetService = game:GetService("AssetService")
@@ -93,7 +92,7 @@ local function meshPart(part, asset: string): MeshPart?
 	for i = 0, mesh.verts - 1 do
 		vids[i + 1] = em:AddVertex(Vector3.new(pos[i * 3 + 1], pos[i * 3 + 2], pos[i * 3 + 3]))
 		local n = Vector3.new(nrm[i * 3 + 1], nrm[i * 3 + 2], nrm[i * 3 + 3])
-		nids[i + 1] = em:AddNormal(if n.Magnitude > 0 then n.Unit else Vector3.yAxis)
+		nids[i + 1] = em:AddNormal(if n.Magnitude > 0 then n.Unit else Vector3.new(0, 1, 0))
 	end
 	local idx = mesh.idx
 	for t = 0, mesh.tris - 1 do
@@ -102,36 +101,35 @@ local function meshPart(part, asset: string): MeshPart?
 		em:SetFaceNormals(face, { nids[a], nids[b], nids[c] })
 	end
 	-- bake it, so it reaches the clients and the editable copy can go
-	local source = Content.fromObject(em)
 	local okBake, result, baked = pcall(function()
-		return AssetService:CreateDataModelContentAsync(source)
+		return AssetService:CreateDataModelContentAsync(Content.fromObject(em))
 	end)
-	local shared = okBake and result == Enum.CreateContentResult.Success
-	if shared then
-		source = baked
-	else
-		warn(`[ArtKit] {asset}.{part.name}: content not baked ({if okBake then result else baked}); it will not replicate`)
+	if not (okBake and result == Enum.CreateContentResult.Success) then
+		em:Destroy()
+		warn(`[ArtKit] {asset}.{part.name}: not baked ({if okBake then result else baked})`)
+		return nil
 	end
 	local ok, mp = pcall(function()
-		return AssetService:CreateMeshPartAsync(source, {
+		return AssetService:CreateMeshPartAsync(baked, {
 			CollisionFidelity = Enum.CollisionFidelity.Box,
 			RenderFidelity = Enum.RenderFidelity.Automatic,
 		})
 	end)
-	if shared then
-		em:Destroy()
-	end
+	em:Destroy()
 	if not ok then
 		warn(`[ArtKit] {asset}.{part.name}: {mp}`)
 		return nil
 	end
+	local colour = Color3.fromRGB(part.color[1], part.color[2], part.color[3])
 	mp.Name = part.name
 	mp.Anchored = true
 	mp.CanCollide = false
 	mp.CanQuery = false
 	mp.CanTouch = false
-	mp.CastShadow = not string.find(asset, "^Grass")
-	mp.Color = Color3.fromRGB(part.color[1], part.color[2], part.color[3])
+	-- grass and the horizon trees cast no shadow: nobody would see it
+	mp.CastShadow = not (string.find(asset, "^Grass") or string.find(asset, "_FAR$"))
+	mp.Color = colour
+	mp:SetAttribute("BaseColor", colour) -- clients tint each plant from it
 	mp.Material = (Enum.Material :: any)[part.material] or Enum.Material.SmoothPlastic
 	mp.Size = Vector3.new(math.max(mesh.size[1], 0.01), math.max(mesh.size[2], 0.01), math.max(mesh.size[3], 0.01))
 	mp.CFrame = CFrame.new(mesh.centre[1], mesh.centre[2], mesh.centre[3])
@@ -141,23 +139,14 @@ local function meshPart(part, asset: string): MeshPart?
 	return mp
 end
 
---- The template Model for an asset (built once, then cached): its pivot is
---- the asset's foot, at the origin. Yields the first time; nil if the asset
---- is unknown or could not be built.
-function ArtKit.template(name: string): Model?
-	while building[name] do
-		task.wait()
-	end
-	if templates[name] ~= nil then
-		return templates[name] or nil
-	end
+--- One asset's template Model (its pivot the asset's foot, at the origin), or
+--- nil if any of its parts would not bake: half a tree is worse than the old one.
+function ArtKit.build(name: string): Model?
 	local source = script.Parent.ArtMeshes:FindFirstChild(name)
 	if not source then
-		templates[name] = false
 		return nil
 	end
-	building[name] = true
-	local data = require(source)
+	local data = require(source) :: any
 	local model = Instance.new("Model")
 	model.Name = name
 	local root = Instance.new("Part")
@@ -168,40 +157,70 @@ function ArtKit.template(name: string): Model?
 	root.CFrame = CFrame.new()
 	root.Parent = model
 	model.PrimaryPart = root
-	local made = 0
 	for _, part in data.parts do
 		local mp = meshPart(part, name)
-		if mp then
-			mp.Parent = model
-			made += 1
+		if not mp then
+			model:Destroy()
+			return nil
 		end
+		mp.Parent = model
 	end
-	local ServerStorage = game:GetService("ServerStorage")
-	local store = ServerStorage:FindFirstChild("WardwoodArt")
-	if not store then
-		store = Instance.new("Folder")
-		store.Name = "WardwoodArt"
-		store.Parent = ServerStorage
-	end
-	model.Parent = store
-	templates[name] = if made > 0 then model else false
-	building[name] = nil
-	return if made > 0 then model else nil
+	return model
 end
 
---- A placed copy: foot at `at`, turned and scaled.
-function ArtKit.place(name: string, at: CFrame, scale: number, parent: Instance): Model?
-	local template = ArtKit.template(name)
-	if not template then
-		return nil
+-- the horizon and far versions first, so the whole wood stands at once; then
+-- the grass and the close-up trees; then the rest of the kit
+local function priority(name: string): number
+	if string.find(name, "_FAR$") then
+		return 0
+	elseif string.find(name, "_LOD$") then
+		return 1
+	elseif string.find(name, "^Grass") then
+		return 2
 	end
-	local model = template:Clone()
-	if math.abs(scale - 1) > 1e-3 then
-		model:ScaleTo(scale)
+	return 3
+end
+
+--- Bake every asset into ReplicatedStorage.WardwoodArt, a few at a time.
+--- Returns the names that failed. The folder's `Ready` attribute turns true
+--- at the end, with `Failed` listing any that did not bake.
+function ArtKit.bakeAll(): { string }
+	local ReplicatedStorage = game:GetService("ReplicatedStorage")
+	local folder = ReplicatedStorage:FindFirstChild("WardwoodArt")
+	if not folder then
+		folder = Instance.new("Folder")
+		folder.Name = "WardwoodArt"
+		folder.Parent = ReplicatedStorage
 	end
-	model:PivotTo(at)
-	model.Parent = parent
-	return model
+	folder:SetAttribute("Ready", false)
+	local names = {}
+	for _, m in script.Parent.ArtMeshes:GetChildren() do
+		if not folder:FindFirstChild(m.Name) then
+			table.insert(names, m.Name)
+		end
+	end
+	table.sort(names, function(a, b)
+		local pa, pb = priority(a), priority(b)
+		return if pa == pb then a < b else pa < pb
+	end)
+	local failed = {}
+	local started = os.clock()
+	for _, name in names do
+		local model = ArtKit.build(name)
+		if model then
+			model.Parent = folder
+		else
+			table.insert(failed, name)
+		end
+	end
+	folder:SetAttribute("Failed", table.concat(failed, ","))
+	folder:SetAttribute("Ready", true)
+	print(
+		`[ArtKit] {#names - #failed} art models baked in {string.format("%.1f", os.clock() - started)}s{if #failed > 0
+			then `, {#failed} failed`
+			else ""}`
+	)
+	return failed
 end
 
 return ArtKit

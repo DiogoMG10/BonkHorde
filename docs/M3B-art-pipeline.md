@@ -1,72 +1,112 @@
-# M3.B Blender art: direction, pipeline, showcase
+# M3.B Blender art: the Wardwood kit
 
-The Wardwood's layout, movement and atmosphere are approved; its environment models are
-not. M3.B replaces them with a cohesive Blender-made kit, starting with a showcase in the
-Old Grove for human visual approval. Nothing map-wide changes until that approval.
+The Blender kit's direction was approved from the Old Grove showcase (Studio, Tiago and
+Diogo). M3.B now dresses the whole Wardwood with it. Layout, paths, colliders, enemy
+pathing, skies and gameplay are unchanged.
 
-## Visual assessment (before M3.B)
+## What the kit covers
 
-- **Trees** are part-built: cylinder trunks under clusters of smooth spheres, conifers as
-  stacked cones. They read as toys, not foliage, and clash with the meshed props.
-- **Ground** is a LeafyGrass carpet (`grass short`): clean, but reads as flat texture.
-- **Rocks, bushes, logs, ruin walls** are generated textured meshes (`generate_mesh`):
-  decent alone, a different style from the part-built trees and pillars.
-- **Pillars and ruins** are stacked primitives: the most placeholder-looking pieces.
-- **Characters and enemies** are chunky, colourful cartoon meshes: the environment should
-  meet them with soft, rounded, stylized shapes, not realism or high-frequency detail.
-- **Light** (golden default, random sky per run) is good and stays.
+| Old prop kind | Kit models | Detail levels |
+|---|---|---|
+| Oak, OakLeaning, Beech, Birch, Sapling | OakA/B/C, OakLeaningA/B, BeechA/B, BirchA/B, SaplingA/B | near, `_LOD`, `_FAR` (saplings: near, `_LOD`) |
+| Spruce, SpruceFar, SpruceRidge, Pine | SpruceA/B/C, PineA/B | near, `_LOD`, `_FAR` |
+| AncientOak, AncientPine, Elder | AncientOakA/B, AncientPine, Elder | near, `_LOD`, `_FAR` |
+| Bush, Fern, Stump, FallenLog | BushA/B/C (near, `_LOD`), FernA/B, StumpA/B, FallenLog | |
+| BoulderLarge, RockSmall, BoulderFlat, Menhir | BoulderLargeA/B, RockSmallA/B, BoulderFlat, MenhirA/B | |
+| Pillar, PillarBroken, RuinWall | PillarA/B, PillarBrokenA/B, RuinWallA/B | |
+| ElderRoots | retired while the kit is on (the Elder grows its own roots) | |
 
-**Direction:** stylized fantasy forest. Crowns as layered leaf masses (shaded cores fringed
-with leaf cards, cel-like light bands, normals bent away from the crown's heart so it lights
-as one soft volume); conifers as drooping layered boughs; warm bark and stone; chunky
-faceted rocks with moss caps; one warm palette shared by every asset.
+Still the old models: the landmarks' architecture (Ward, Gate, Sun Temple, ruin tower and
+arches, steps, paving, braziers, cairns), rune and moon stones, lanterns, glowcaps, the
+Elder's flower ring, the Fallen Giant, the falls. They are the next candidates.
+
+Each plant picks its variation from its seed and gets a small fixed shift of foliage
+colour (`ArtPlan.tint`), so a wood of a few models never reads as copies.
 
 ## Pipeline
 
 | Step | Command / file |
 |---|---|
-| Recipes (the editable source of truth) | `tools/art/assets.py`, geometry helpers `tools/art/geo.py` |
-| Build: `.blend`, GLBs, game data, manifest | `"$BLENDER" -b -P tools/art/kit.py` (5 s) |
+| Recipes (the editable source of truth) | `tools/art/assets.py` (`TREES`, `build_all`), helpers `tools/art/geo.py` |
+| Build: `.blend`, GLBs, game data, manifest | `"$BLENDER" -b -P tools/art/kit.py` (~10 s) |
 | Blender source, one collection per asset | `assets/art/wardwood_kit.blend` |
-| Roblox-importable meshes | `assets/art/export/<Asset>.glb` (one object per colour part) |
+| Roblox-importable meshes | `assets/art/export/<Asset>.glb` |
 | Game data (packed positions, normals, triangles) | `src/server/Wardwood/ArtMeshes/<Asset>.luau` |
 | Triangles, parts, colours, sizes | `assets/art/manifest.json` |
-| Asset renders | `"$BLENDER" -b assets/art/wardwood_kit.blend -P tools/art/render.py -- <outdir>` |
-| Showcase from the game camera, offline | `lune run tools/map/export_world.luau <out.json> short art`, then `tools/map/preview_blender.py` |
+| Asset renders | `"$BLENDER" -b assets/art/wardwood_kit.blend -P tools/art/render.py -- <outdir> [Asset ...]` |
+| Map previews from the game camera, old vs new | `python tools/art/preview_map.py work/art/map` |
+| Draw cost, old vs new, offline | `lune run tools/art/measure.luau [near] [grassRadius]` |
 
-Change a recipe, rerun the kit, commit the regenerated files. Never hand-edit the generated
-Luau. Blender renders show shape and palette only; they are not Studio evidence.
+Change a recipe, rerun the kit, commit the regenerated files. Never hand-edit generated Luau.
+A Blender render is evidence of shape and palette only, never of the look in Studio.
 
-## In the game now: no upload
+## How the game draws it
 
-`server/Wardwood/ArtKit` rebuilds each packed part as an `EditableMesh`, bakes it with
-`AssetService:CreateDataModelContentAsync` (static content that replicates to every client
-with the parts using it), and keeps a template Model in `ServerStorage.WardwoodArt`.
-`server/Wardwood/Showcase` clones templates where `Core/ArtShowcase` plans them. The content
-lasts for the server session: nothing is saved into the place, nothing is uploaded, no
-asset id exists. Every art part is visual only (no collision, query or touch); the props
-it stands in for keep their colliders, only hidden. Leaf meshes carry the `WWFoliage` tag
-so the canopy fade (client `CanopyController`) ghosts them out of the camera's way.
+- **Server** (`server/Wardwood/ArtKit`): at start, rebuilds each kit model once as an
+  `EditableMesh`, bakes it with `AssetService:CreateDataModelContentAsync` and keeps it as a
+  template Model in `ReplicatedStorage.WardwoodArt` (horizon and far versions first). The
+  templates and their content replicate to every client. Nothing is rebuilt per tree.
+- **Server** (`Wardwood/Builder`): for every prop the kit dresses, only its colliders are
+  built (hidden); bushes and small rocks, which never collided, get nothing. Scenery parts
+  the server builds and replicates: 10,218 before, ~1,460 now.
+- **Clients** (`ArtController`): rebuild the same deterministic world (`Core/World`, ~0.3 s
+  once) and draw every dressed prop from the templates (`Core/ArtPlan` picks the model),
+  pooled and reused. Trees: full detail within 110 studs of the camera, `_LOD` to 280,
+  `_FAR` beyond, with 12 studs of slack at each boundary (`Config/Wardwood.ArtLod`).
+- **Short 3D grass**: grown on each client only round the hero: a patch (0.2-0.5 studs tall,
+  three tones) per 6-stud cell of grassy ground within 42 studs, nearest first, pooled, and
+  never on paths, rock, sand or under trunks and rocks (`Config/Wardwood.ArtGrass`). Beyond
+  it the terrain's own grass carpet carries the distance; at 42 studs the blades are a pixel
+  or two, so they do not pop at bunny-hop speed.
+- **Canopy fade**: the kit's leaf meshes carry the `WWFoliage` tag; the client's canopy fade
+  ghosts them out of the camera's way like the old crowns.
 
-Studio: `Config/Wardwood.ArtShowcase` turns it on at server start. BonkDev:
-`art on | art off | art goto | art grass <r> <g> <b>`.
+### Measured offline (`tools/art/measure.luau`, within ~600 studs of a client)
 
-## Making assets permanent (needs a person's go-ahead)
+| Spot | Old (est.) | New trees and props | New grass |
+|---|---|---|---|
+| Spawn clearing | ~1.56M tris, 9.8k parts | ~0.61M tris, 5.0k parts | ~97k tris |
+| Open meadow | ~1.13M, 7.5k | ~0.54M, 3.8k | ~97k |
+| Old Grove | ~0.99M, 6.7k | ~0.62M, 3.5k | ~93k |
+| Dense wood | ~1.13M, 7.3k | ~0.68M, 3.8k | ~93k |
 
-1. Import `assets/art/export/<Asset>.glb` with Studio's 3D Importer (or upload as `Model`
-   through Open Cloud: see the roblox-3d-model skill). This creates Roblox assets.
-2. Record each part's MeshId in `assets/meshes/manifest.json`; set colours from
-   `assets/art/manifest.json` (the GLB materials carry them, but set `MeshPart.Color`).
-3. `python tools/assets/emit_assets.py` writes them into `assets/models/Assets.rbxmx`.
-4. Point `ArtKit.template` at `ReplicatedStorage.Assets` instead of the runtime build.
+The old figures estimate Roblox's primitive spheres and cylinders, so they are approximate.
+Frame time under a horde needs Studio.
 
-## After approval: the rest of the Wardwood
+## Fallbacks
 
-- Map-wide: Builder places kit assets for the swapped kinds instead of blueprints (the
-  colliders as today), the showcase's swap table becoming the map's.
-- Grass: the showcase's 3D grass is ~250k triangles for ~8,500 studs²; map-wide it must be
-  client-side and streamed in near the camera, with fewer blades per patch.
-- Distance: lighter LOD variants of the broadleaf and spruce for far trees; the ancients
-  can stay full.
-- Still to model: bushes, ferns, logs, stumps, ruin walls, arches, the Elder, the ancient
-  fir and the Sun Temple, in the same palette.
+- `Config/Wardwood.Art = false`, or `art off` in `Workspace.BonkDev` (Studio), builds the old
+  props over the whole map; `art on` brings the kit back. Nothing is duplicated: whichever
+  look is off is not built.
+- If any of a family's models fails to bake, the server builds that family's old models and
+  lists it in the `BonkArtClassic` attribute; clients skip it.
+
+## Keeping hand-made edits: `Config/WardwoodOverrides`
+
+The Wardwood is generated, so a tree moved in Studio is gone next run. Instead:
+
+1. In a Studio playtest, stand by the prop and run `art pick` in `Workspace.BonkDev`. Output
+   prints its stable key (`Oak@-398,-34`: kind and generated spot) and a line to paste.
+2. Paste the line into `src/shared/Config/WardwoodOverrides.luau` and edit it: `dx`/`dz` or
+   `x`/`z` to move, `yaw` (degrees), `scale`, `asset` (another variation of its family),
+   `hide = true` to remove it (collider too).
+3. Restart the playtest. `World.build` applies overrides before anything is built, so the
+   server colliders, enemy pathing and every client agree. Run `lune run test` and
+   `lune run tools/map/prove.luau` to catch a prop moved onto a path.
+
+## Permanent assets (needs a person's go-ahead)
+
+The runtime route needs no upload and works in Studio. It costs one bake at server start
+(seconds, in the background; the old horizon is replaced as templates arrive), and its
+content lasts the session only. For the published game, uploaded meshes are the more robust
+route: Roblox streams and LODs them itself, nothing is baked at start, and the place stops
+depending on the EditableMesh and DataModelContent APIs.
+
+To switch, with authorization:
+
+1. Upload `assets/art/export/<Asset>.glb` as `Model` assets (Studio's 3D Importer, or Open
+   Cloud with an API key; the roblox-3d-model skill has the steps). About 85 models.
+2. Record each part's MeshId in `assets/meshes/manifest.json` and run
+   `python tools/assets/emit_assets.py`, so `Assets.rbxmx` carries them through Rojo.
+3. Point `ArtKit.bakeAll` at copying those into `ReplicatedStorage.WardwoodArt` instead of
+   baking; the client side does not change.

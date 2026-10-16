@@ -21,9 +21,16 @@ local Wardwood = {
 	-- drifts between moss and worn earth; or "full", the earlier all-blades look
 	-- (`grass short|less|full` in BonkDev rewrites the terrain live)
 	Grass = "short",
-	-- M3.B: show the Blender-made art kit in the Old Grove (server/Wardwood/
-	-- Showcase), Studio only, for human review; `art on|off` in BonkDev
-	ArtShowcase = true,
+	-- M3.B: the Blender art kit (tools/art) dresses the whole Wardwood; false
+	-- builds the old part-built props instead (`art on|off` in BonkDev)
+	Art = true,
+	-- the kit's trees: full detail within `near` studs of the camera, their
+	-- far version ("_LOD") to `far`, their horizon version ("_FAR") beyond;
+	-- `slack` studs of hysteresis, so nothing flickers at a boundary
+	ArtLod = { near = 110, far = 280, slack = 12 },
+	-- short 3D grass, grown on the client around the camera only: a patch per
+	-- `cell` studs of grassy ground within `radius` studs
+	ArtGrass = { cell = 6, radius = 42 },
 	Surfaces = {
 		Meadow = { material = "Grass", color = { 128, 162, 62 } },
 		Lush = { material = "LeafyGrass", color = { 86, 130, 56 } },

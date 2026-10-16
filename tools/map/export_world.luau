@@ -4,12 +4,13 @@
 -- tools/map/preview_blender.py, so the preview is drawn from the same tree as
 -- the game and cannot disagree with it.
 --
---     lune run tools/map/export_world.luau [out.json] [grass mode] [art]
+--     lune run tools/map/export_world.luau [out.json] [grass mode] [art fx fz]
 --
 -- The grass mode is Config/Wardwood.Grass unless given. With `art`, the M3.B
--- showcase is drawn as the game builds it (Core/ArtShowcase): the props it
--- re-skins are left out and the kit's meshes (server/Wardwood/ArtMeshes) go
--- in their place, once per mesh with an instance per placement.
+-- art kit is drawn as a client at (fx, fz) draws it (Core/ArtPlan): the props
+-- it dresses are left out and the kit's meshes (server/Wardwood/ArtMeshes) go
+-- in their place at the detail their distance asks for, once per mesh with
+-- an instance per placement, plus the 3D grass round (fx, fz).
 --
 -- Part-built props are exported as their exact primitives (Core/Blueprints);
 -- mesh props as proxies with their measured bounds (assets/meshes/manifest.json).
@@ -45,20 +46,23 @@ local manifest = serde.decode("json", fs.readFile("assets/meshes/manifest.json")
 local props = {}
 local counts = {}
 
--- the art showcase: which props it re-skins, and the kit's meshes
+-- the M3.B art kit, as a client draws it from (fx, fz): every prop the plan
+-- dresses at the detail its distance asks for, and the 3D grass round it
 local art, swapped = nil, {}
 if withArt then
 	local ArtKit = require("../../src/server/Wardwood/ArtKit")
-	local ArtShowcase = require("../../src/shared/Core/ArtShowcase")
+	local ArtPlan = require("../../src/shared/Core/ArtPlan")
+	local fx, fz = tonumber(process.args[4]) or 0, tonumber(process.args[5]) or 0
+	local lod = Wardwood.ArtLod
 	local meshes, instances = {}, {}
-	for _, p in ArtShowcase.plan(world) do
-		if p.prop then
-			swapped[p.prop] = true
+	local function place(name, x, y, z, yaw, scale, up)
+		if not fs.isFile(`src/server/Wardwood/ArtMeshes/{name}.luau`) then
+			return false
 		end
-		local asset = require(`../../src/server/Wardwood/ArtMeshes/{p.asset}`) :: any
+		local asset = require(`../../src/server/Wardwood/ArtMeshes/{name}`) :: any
 		local parts = {}
 		for _, part in asset.parts do
-			local key = `{p.asset}.{part.name}`
+			local key = `{name}.{part.name}`
 			if not meshes[key] then
 				local m = ArtKit.decode(part)
 				local pos = table.create(#m.pos)
@@ -75,7 +79,35 @@ if withArt then
 			end
 			table.insert(parts, key)
 		end
-		table.insert(instances, { parts = parts, x = p.x, y = p.y, z = p.z, yaw = p.yaw, scale = p.scale })
+		table.insert(instances, { parts = parts, x = x, y = y, z = z, yaw = yaw, scale = scale, up = up })
+		return true
+	end
+	for i, p in world.props do
+		local asset = ArtPlan.asset(p)
+		if asset then
+			local d = math.sqrt((p.x - fx) ^ 2 + (p.z - fz) ^ 2)
+			local name = asset
+			if ArtPlan.hasLod(p) and d > lod.near then
+				name = asset .. (if d > lod.far then "_FAR" else "_LOD")
+				if not fs.isFile(`src/server/Wardwood/ArtMeshes/{name}.luau`) then
+					name = asset .. "_LOD"
+				end
+			end
+			if place(name, p.x, ArtPlan.footY(world, p), p.z, p.yaw, p.scale) then
+				swapped[i] = true
+			end
+		end
+	end
+	local field = ArtPlan.grassField(world)
+	local cell, radius = Wardwood.ArtGrass.cell, Wardwood.ArtGrass.radius
+	local r = math.ceil(radius / cell)
+	for cx = math.floor(fx / cell) - r, math.floor(fx / cell) + r do
+		for cz = math.floor(fz / cell) - r, math.floor(fz / cell) + r do
+			local g = field(cx, cz)
+			if g and (g.x - fx) ^ 2 + (g.z - fz) ^ 2 <= radius * radius then
+				place(g.asset, g.x, g.y, g.z, g.yaw, g.scale, g.up)
+			end
+		end
 	end
 	art = { meshes = meshes, instances = instances }
 end
