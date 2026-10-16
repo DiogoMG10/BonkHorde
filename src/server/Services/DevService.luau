@@ -277,7 +277,8 @@ function DevService:KnitStart()
 				.. `enemies={enemies:Count()} bosses={bossCount} weapons={table.concat(w, ",")} items={#rec.items} tomes={#rec.tomes} `
 				.. `manual={rec.manual} held={rec.input.held} swings={rec.primarySwings or 0} auto={rec.primaryAuto or 0} `
 				.. `pos={math.floor(rec.x)},{math.floor(rec.y)},{math.floor(rec.z)} downed={rec.downed} `
-				.. `tickMs={string.format("%.2f", (director._tickCost or 0) * 1000)}`
+				.. `tickMs={string.format("%.2f", (director._tickCost or 0) * 1000)} projs={#Knit.GetService("CombatService")._projs} `
+				.. `gems={Knit.GetService("PickupService")._gems} coins={Knit.GetService("PickupService")._coins}`
 		)
 	end
 

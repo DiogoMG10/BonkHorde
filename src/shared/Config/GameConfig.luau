@@ -6,7 +6,7 @@
 -- what makes a balance pass a data edit.
 
 local GameConfig = {
-	BuildStamp = "bonk-0.13.0-m5a",
+	BuildStamp = "bonk-0.13.1-m5a",
 
 	-- squad
 	MaxPlayers = 3,
@@ -108,6 +108,10 @@ local GameConfig = {
 	ReviveRadius = 7,
 	ReviveHPFraction = 0.5,
 	AimRange = 70,
+	-- what a stacked late build may put in the air (performance, not balance: a
+	-- build past these is already overwhelming)
+	MaxShotsPerFire = 24, -- projectiles or swings from one attack
+	MaxProjectiles = 320, -- in flight at once across the squad; a shot past it is not fired
 
 	-- primary weapon (the hero's starting weapon, fired by hand)
 	ManualPrimaryHeroes = { Knight = true, Fox = true, Frostling = true }, -- heroes whose weapon in slot 1 waits for the attack button

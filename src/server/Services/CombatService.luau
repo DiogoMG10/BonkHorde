@@ -104,7 +104,7 @@ local function shots(rec, w): number
 	if rng:NextNumber() < c - whole then
 		whole += 1
 	end
-	return math.max(whole, 1)
+	return math.clamp(whole, 1, GameConfig.MaxShotsPerFire)
 end
 
 local function sizeOf(rec, w): number
@@ -225,6 +225,9 @@ function CombatService:_blast(rec, w, x: number, z: number, r: number, base: num
 end
 
 function CombatService:_spawnProj(p)
+	if #self._projs >= GameConfig.MaxProjectiles then
+		return -- the sky is full: this one is never fired (nor sent)
+	end
 	p.id = self._nextProj
 	self._nextProj = self._nextProj % 60000 + 1
 	table.insert(self._projs, p)
