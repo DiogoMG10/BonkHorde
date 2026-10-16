@@ -6,7 +6,7 @@
 -- what makes a balance pass a data edit.
 
 local GameConfig = {
-	BuildStamp = "bonk-0.8.1-m2d",
+	BuildStamp = "bonk-0.11.0-m3a",
 
 	-- squad
 	MaxPlayers = 3,
@@ -86,6 +86,7 @@ local GameConfig = {
 	AirReverseAngle = 120, -- input more than this many degrees off the heading is pulling back
 	SpeedFovKick = 10, -- extra degrees of FOV at the hop cap (less below, none at 1x)
 	CameraDistance = 18,
+	SpawnCameraYaw = 180, -- degrees; the first view looks north, past the Ward to the Highwatch
 	CameraHeight = 3.5,
 	CameraFOV = 80,
 	CameraSensitivity = 0.35,
@@ -157,24 +158,27 @@ local GameConfig = {
 	FrenzySeconds = 10,
 	FrenzyBonus = 0.5,
 	InteractablesPerRun = {
-		Chest = 14,
-		ChargeShrine = 6,
-		GreedShrine = 2,
-		ChallengeShrine = 2,
-		VacuumShrine = 1,
-		SmugStatue = 2,
+		-- scaled with the playable area (M3.A) so they are about as close together as before
+		Chest = 22,
+		ChargeShrine = 9,
+		GreedShrine = 3,
+		ChallengeShrine = 3,
+		VacuumShrine = 2,
+		SmugStatue = 3,
 		DodgyDan = 1,
-		Pot = 30,
-		Crate = 16,
+		Pot = 46,
+		Crate = 24,
 	},
 
 	-- map
-	MapSizeStuds = 720,
+	MapSizeStuds = 1200, -- the terrain, mountains included
+	PlaySizeStuds = 960, -- the playable world inside them (the big map shows this)
 	HeightCellStuds = 4,
 	MapSeed = 20261012,
-	WallHeight = 80,
+	WallHeight = 230, -- the highest the mountain backdrop may rise
 	CliffSlope = 1.2, -- rise over run above which a cell edge is a cliff for enemies
 	BossPortalMinDistance = 220,
+	BossPortalMaxDistance = 400, -- a bigger world, but finding the portal stays part of a run, not a trek
 	PortalRevealDistance = 70,
 
 	-- persistence

@@ -18,3 +18,13 @@ design/refs/*.jpg
 # built trees for the Studio push, and server logs
 work/push/
 build-runs/*.log
+
+# Wardwood offline previews (tools/map/export_world.luau, preview_blender.py):
+# regenerated on demand; only the plan and one contact sheet are kept
+work/map/world*.json
+work/map/preview*/
+work/map/preview_v*_sheet.jpg
+work/map/preview_gallery_sheet.jpg
+work/map/trees*.json
+work/map/views_trees.json
+work/tmp/

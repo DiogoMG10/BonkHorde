@@ -1,34 +1,34 @@
 {
-  "anchors": 391,
+  "anchors": 498,
   "cell_studs": 4,
   "checks": [
     {
-      "detail": "391 of 391 anchors can be walked to from spawn",
+      "detail": "498 of 498 anchors can be walked to from spawn",
       "name": "anchors_reachable",
       "pass": true
     },
     {
-      "detail": "207 anchors at least 220 studs from spawn",
+      "detail": "362 anchors at least 220 studs from spawn",
       "name": "boss_portal_sites",
       "pass": true
     },
     {
-      "detail": "18 anchors within 60 studs, 65 within 120",
+      "detail": "13 anchors within 60 studs, 49 within 120",
       "name": "tutorial_sites",
       "pass": true
     },
     {
-      "detail": "worst slope 0.068, 0 props inside 42 studs",
+      "detail": "worst slope 0.070, 0 props inside 42 studs",
       "name": "spawn_clearing",
       "pass": true
     },
     {
-      "detail": "top at 35.1 studs, reached by the ramps only",
+      "detail": "top at 36.5 studs, reached by the ramps only",
       "name": "plateau_route",
       "pass": true
     },
     {
-      "detail": "nothing walks out of the map",
+      "detail": "0 points beyond the playable edge can be walked to",
       "name": "boundary_wall",
       "pass": true
     },
@@ -38,34 +38,61 @@
       "pass": true
     },
     {
-      "detail": "14.5% of the playfield is 20 to 40 degree slide ground",
+      "detail": "25.3% of the playfield is 20 to 40 degree slide ground",
       "name": "slide_runs",
       "pass": true
     },
     {
-      "detail": "262 solid props, 0 pairs closer than 4 studs apart",
+      "detail": "1041 solid props, 0 pairs closer than 4 studs apart",
       "name": "prop_gaps",
       "pass": true
     }
   ],
   "map": "ForestGrove",
-  "props": 477,
+  "props": 2204,
   "props_by_kind": {
-    "BoulderFlat": 20,
-    "BoulderLarge": 28,
-    "Bush": 88,
+    "AncientOak": 8,
+    "AncientPine": 4,
+    "Beech": 96,
+    "Birch": 184,
+    "BoulderLarge": 35,
+    "Brazier": 3,
+    "Bush": 340,
+    "Cairn": 2,
+    "Elder": 1,
+    "ElderRoots": 1,
+    "FallenGiant": 1,
     "FallenLog": 14,
-    "LanternPost": 10,
-    "RockSmall": 56,
+    "Fern": 159,
+    "Flowers": 326,
+    "Gate": 1,
+    "Glowcaps": 18,
+    "LanternPost": 34,
+    "Menhir": 19,
+    "Mist": 16,
+    "MoonStone": 4,
+    "Oak": 80,
+    "OakLeaning": 60,
+    "Paving": 16,
+    "Pillar": 19,
+    "PillarBroken": 18,
+    "Pine": 48,
+    "RockSmall": 63,
     "RuinArch": 2,
-    "RuinTower": 2,
-    "RuinWall": 5,
-    "Stump": 20,
-    "TreeLeaning": 96,
-    "TreeSapling": 64,
-    "TreeTwin": 72
+    "RuinTower": 1,
+    "RuinWall": 46,
+    "RuneStone": 14,
+    "Sapling": 49,
+    "Spruce": 59,
+    "SpruceFar": 291,
+    "SpruceRidge": 109,
+    "StoneSteps": 2,
+    "Stump": 58,
+    "SunTemple": 1,
+    "Ward": 1,
+    "Waterfall": 1
   },
-  "size_studs": 720,
+  "size_studs": 1200,
   "source": "tools/map/prove.luau over src/shared/Core/MapGen.luau (the module the server runs)",
   "verdict": "PASS"
 }

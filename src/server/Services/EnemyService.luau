@@ -249,7 +249,7 @@ end
 
 -- A point on the ring around a hero that an enemy can actually walk from.
 function EnemyService:_ringPoint(rec, minR: number, maxR: number): (number?, number?)
-	local limit = self._map.half - 40
+	local limit = GameConfig.PlaySizeStuds / 2
 	for _ = 1, 8 do
 		local angle = rng:NextNumber() * math.pi * 2
 		local r = minR + rng:NextNumber() * (maxR - minR)

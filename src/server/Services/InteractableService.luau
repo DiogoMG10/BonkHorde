@@ -144,7 +144,7 @@ function InteractableService:Place()
 		return nil
 	end
 
-	local portalAt = take(GameConfig.BossPortalMinDistance, math.huge) or take(150, math.huge)
+	local portalAt = take(GameConfig.BossPortalMinDistance, GameConfig.BossPortalMaxDistance) or take(150, math.huge)
 	if portalAt then
 		self._portal = self:_add("BossPortal", portalAt.x, portalAt.z)
 	end

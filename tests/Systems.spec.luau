@@ -4,6 +4,7 @@
 local GameConfig = require("../src/shared/Config/GameConfig")
 local Grid = require("../src/shared/Core/Grid")
 local MapGen = require("../src/shared/Core/MapGen")
+local World = require("../src/shared/Core/World")
 local Offers = require("../src/shared/Core/Offers")
 local Roster = require("../src/shared/Config/Roster")
 local Snapshot = require("../src/shared/Core/Snapshot")
@@ -33,10 +34,10 @@ local function levelUp(loadout: any, rnd: () -> number)
 	)
 end
 
-local map = MapGen.build(GameConfig.MapSizeStuds, GameConfig.HeightCellStuds, GameConfig.WallHeight)
-local anchors = MapGen.anchors(map, 26, 0.35)
-local props = MapGen.props(map, anchors)
-MapGen.block(map, props)
+local world = World.build(GameConfig)
+local map = world.map
+local anchors = world.anchors
+local props = world.props
 local reach = MapGen.reachable(map, 0, 0, GameConfig.CliffSlope)
 
 return {
@@ -77,7 +78,10 @@ return {
 	["a banished weapon never comes back"] = function()
 		local rnd = lcg(3)
 		for _ = 1, 200 do
-			local offers = levelUp({ weapons = { Sword = 1 }, tomes = {}, banished = { ["weapon:Axe"] = true }, luck = 0, weaponSlots = 4, tomeSlots = 4 }, rnd)
+			local offers = levelUp(
+				{ weapons = { Sword = 1 }, tomes = {}, banished = { ["weapon:Axe"] = true }, luck = 0, weaponSlots = 4, tomeSlots = 4 },
+				rnd
+			)
 			for _, o in offers do
 				assert(not (o.kind == "weapon" and o.id == "Axe"), "banished Axe was offered")
 			end
@@ -86,7 +90,14 @@ return {
 
 	["full weapon slots stop new weapons being offered"] = function()
 		local rnd = lcg(11)
-		local loadout = { weapons = { Sword = 1, Axe = 1, Bone = 1, FireStaff = 1 }, tomes = {}, banished = {}, luck = 0, weaponSlots = 4, tomeSlots = 4 }
+		local loadout = {
+			weapons = { Sword = 1, Axe = 1, Bone = 1, FireStaff = 1 },
+			tomes = {},
+			banished = {},
+			luck = 0,
+			weaponSlots = 4,
+			tomeSlots = 4,
+		}
 		for _ = 1, 200 do
 			for _, o in levelUp(loadout, rnd) do
 				assert(not (o.kind == "weapon" and o.isNew), "offered a fifth weapon: " .. o.id)
@@ -97,7 +108,9 @@ return {
 	["a new pick is marked New and an upgrade carries stat lines"] = function()
 		local rnd = lcg(5)
 		for _ = 1, 100 do
-			for _, o in levelUp({ weapons = { Sword = 3 }, tomes = { Damage = 2 }, banished = {}, luck = 0, weaponSlots = 4, tomeSlots = 4 }, rnd) do
+			for _, o in
+				levelUp({ weapons = { Sword = 3 }, tomes = { Damage = 2 }, banished = {}, luck = 0, weaponSlots = 4, tomeSlots = 4 }, rnd)
+			do
 				if o.isNew then
 					assert(o.rarity == "New" and o.level == 1)
 				else
@@ -117,14 +130,25 @@ return {
 	end,
 
 	["the vendor can be forced to Legendary stock"] = function()
-		local ids = Offers.items(Roster.ItemOrder, Roster.Items, Roster.ItemRarityOrder, Roster.ItemRarityWeights, {}, 0, 3, "Legendary", lcg(1))
+		local ids =
+			Offers.items(Roster.ItemOrder, Roster.Items, Roster.ItemRarityOrder, Roster.ItemRarityWeights, {}, 0, 3, "Legendary", lcg(1))
 		for _, id in ids do
 			assert(Roster.Items[id].rarity == "Legendary")
 		end
 	end,
 
 	["a shrine offers three different boosts"] = function()
-		local picks = Offers.shrine(Roster.ShrineBoosts, Roster.RarityOrder, Roster.RarityWeights, Roster.RarityLuckFactor, Roster.RarityMultiplier, 0, 0, 3, lcg(2))
+		local picks = Offers.shrine(
+			Roster.ShrineBoosts,
+			Roster.RarityOrder,
+			Roster.RarityWeights,
+			Roster.RarityLuckFactor,
+			Roster.RarityMultiplier,
+			0,
+			0,
+			3,
+			lcg(2)
+		)
 		assert(#picks == 3 and picks[1].index ~= picks[2].index and picks[2].index ~= picks[3].index)
 		for _, p in picks do
 			assert(Roster.Stats[Roster.ShrineBoosts[p.index].stat] ~= nil, "shrine boosts an unknown stat")
@@ -170,8 +194,20 @@ return {
 	end,
 
 	["nothing walks out through the boundary wall"] = function()
-		assert(not MapGen.canStep(map, 328, 0, 340, 0, GameConfig.CliffSlope))
-		assert(not MapGen.isReachable(map, reach, 356, 0))
+		-- in every direction: no step across the playable edge, nothing reachable beyond it
+		for k = 0, 35 do
+			local a = k / 36 * math.pi * 2
+			local c, s = math.cos(a), math.sin(a)
+			local edge = 100
+			while MapGen.outside(c * edge, s * edge) < 0 do
+				edge += 1
+			end
+			assert(
+				not MapGen.canStep(map, c * (edge - 14), s * (edge - 14), c * (edge - 6), s * (edge - 6), 99),
+				`walked to the edge at {k * 10} deg`
+			)
+			assert(not MapGen.isReachable(map, reach, c * (edge + 20), s * (edge + 20)), `the mountains at {k * 10} deg can be reached`)
+		end
 	end,
 
 	["every anchor can be walked to from spawn"] = function()
@@ -189,9 +225,10 @@ return {
 	end,
 
 	["an enemy cannot walk into a tree but can still walk out of one"] = function()
+		-- a tree standing on its own (landmark pieces stand close to each other on purpose)
 		local tree
 		for _, prop in props do
-			if prop.radius > 0 then
+			if prop.kind == "Spruce" and MapGen.canStep(map, prop.x + prop.radius + 6, prop.z, prop.x + prop.radius + 7, prop.z, 99) then
 				tree = prop
 				break
 			end

@@ -10,8 +10,12 @@
 --   spawn Skeleton 40 | boss | mini Hamlet | bosshp 0.05 | status
 -- From the lobby too:
 --   unlock Frostling   unlock a hero for this session only (no Silver, never saved)
+--   site Falls         stand in front of a Wardwood landmark (site alone lists them)
 --   marker             show or hide the Sword's aim marker on the ground
 --   hop                show or hide real vs intended movement speed (M2.B playtest)
+--   sky clear          switch the sky live: golden (the baseline), clear, dusk
+--   leaves Grass       re-material every tree's foliage live (LeafyGrass, Grass,
+--                      SmoothPlastic, Plastic...; `leaves` alone puts it back)
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -50,7 +54,7 @@ function DevService:KnitStart()
 
 	local commands = {}
 	-- these need no hero, so they also work in the lobby
-	local lobbyCommands = { clock = true, unlock = true, marker = true, hop = true }
+	local lobbyCommands = { clock = true, unlock = true, marker = true, hop = true, sky = true, leaves = true }
 
 	function commands.unlock(_, id)
 		local player = Players:GetPlayers()[1]
@@ -64,6 +68,47 @@ function DevService:KnitStart()
 		local on = Workspace:GetAttribute("BonkHopDebug") ~= true
 		Workspace:SetAttribute("BonkHopDebug", on)
 		print(`[Dev] hop speed readout {if on then "on" else "off"}`)
+	end
+	function commands.sky(_, name)
+		local Look = require(script.Parent.Parent.Wardwood.Look)
+		if Look.sky(name or "") then
+			print(`[Dev] sky {name}`)
+		else
+			local names = {}
+			for key in Look.Skies do
+				table.insert(names, key)
+			end
+			table.sort(names)
+			print(`[Dev] sky is {Look.current()}; skies: {table.concat(names, ", ")}`)
+		end
+	end
+	-- every tree's foliage, found once by its material and shape (moss bands are
+	-- Grass cylinders and blocks, so they stay out), with the material it had
+	local foliage: { [BasePart]: Enum.Material }? = nil
+	function commands.leaves(_, name)
+		if not foliage then
+			local found = {}
+			local map = Workspace:FindFirstChild("Map")
+			for _, d in if map then map:GetDescendants() else {} do
+				if d:IsA("BasePart") then
+					local m = d.Material
+					local rounded = d:IsA("Part") and (d.Shape == Enum.PartType.Ball or d:FindFirstChildOfClass("SpecialMesh") ~= nil)
+					if m == Enum.Material.LeafyGrass or (m == Enum.Material.Grass and (rounded or d:IsA("WedgePart"))) then
+						found[d] = m
+					end
+				end
+			end
+			foliage = found
+		end
+		local ok, material = pcall(function()
+			return (Enum.Material :: any)[name or ""]
+		end)
+		local count = 0
+		for part, original in foliage :: any do
+			part.Material = if ok and material then material else original
+			count += 1
+		end
+		print(`[Dev] leaves {if ok and material then name else "as built"} on {count} parts`)
 	end
 	function commands.marker()
 		local on = Workspace:GetAttribute("BonkAimMarker") ~= true
@@ -110,6 +155,23 @@ function DevService:KnitStart()
 	end
 	function commands.tp(rec, x, z)
 		teleport(rec, tonumber(x) or 0, tonumber(z) or 0)
+	end
+	-- the Wardwood's landmarks, for a quick look round in a playtest
+	function commands.site(rec, name)
+		local World = require(ReplicatedStorage.Shared.Core.World)
+		local names = {}
+		for _, s in World.Sites do
+			table.insert(names, s.name)
+			if string.lower(s.name) == string.lower(name or "") then
+				-- stand on the spawn side of it, looking at it
+				local d = math.sqrt(s.x * s.x + s.z * s.z)
+				local back = if d > 1 then (s.clear + 6) / d else 0
+				teleport(rec, s.x - s.x * back, s.z - s.z * back)
+				print(`[Dev] site {s.name} at {s.x}, {s.z}`)
+				return
+			end
+		end
+		print(`[Dev] sites: {table.concat(names, ", ")}`)
 	end
 	commands["goto"] = function(rec, kind)
 		local best, bestD = nil, math.huge

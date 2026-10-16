@@ -3,7 +3,7 @@
 --
 -- The minimap is centred on the hero and turns with the camera, so "up" is
 -- always where the camera looks; N/E/S/W ride the rim. The big map (Tab, or the
--- gamepad Select button) shows the whole 720 stud stage with north up. Both
+-- gamepad Select button) shows the whole playable world with north up. Both
 -- draw the same dots from WorldController's interactables, the boss portal
 -- once the squad has found it, and the teammates.
 
@@ -282,7 +282,7 @@ function MinimapController:_frame()
 	end
 
 	if bigOn then
-		local scale = self._bigSpan / GameConfig.MapSizeStuds
+		local scale = self._bigSpan / GameConfig.PlaySizeStuds
 		local half = self._bigSpan * 0.5
 		local pool = self._bigPool
 		for _, dot in dots do

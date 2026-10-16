@@ -11,12 +11,13 @@ local serde = require("@lune/serde")
 
 local GameConfig = require("../../src/shared/Config/GameConfig")
 local MapGen = require("../../src/shared/Core/MapGen")
+local World = require("../../src/shared/Core/World")
 
 local c = GameConfig
-local map = MapGen.build(c.MapSizeStuds, c.HeightCellStuds, c.WallHeight)
-local anchors = MapGen.anchors(map, 26, 0.35)
-local props = MapGen.props(map, anchors)
-MapGen.block(map, props)
+local world = World.build(c)
+local map = world.map
+local anchors = world.anchors
+local props = world.props
 local reach = MapGen.reachable(map, 0, 0, c.CliffSlope)
 
 local checks = {}
@@ -72,7 +73,18 @@ check(
 )
 
 -- the boundary holds
-check("boundary_wall", not MapGen.isReachable(map, reach, map.half - 4, 0) and not MapGen.isReachable(map, reach, 0, -(map.half - 4)), "nothing walks out of the map")
+-- nothing reaches the mountains: not the foot of them, not their slopes
+local escaped = 0
+for k = 0, 71 do
+	local a = k / 72 * math.pi * 2
+	for r = 300, map.half - 4, 8 do
+		local x, z = math.cos(a) * r, math.sin(a) * r
+		if MapGen.outside(x, z) > 0 and MapGen.isReachable(map, reach, x, z) then
+			escaped += 1
+		end
+	end
+end
+check("boundary_wall", escaped == 0, `{escaped} points beyond the playable edge can be walked to`)
 
 -- walkable share, slide runs and cliffs
 local n = map.n
@@ -80,7 +92,7 @@ local walk, slide, cliff, inside = 0, 0, 0, 0
 for iz = 0, n - 1 do
 	for ix = 0, n - 1 do
 		local x, z = -map.half + ix * map.cell, -map.half + iz * map.cell
-		if math.abs(x) < map.half - 30 and math.abs(z) < map.half - 30 then
+		if map.play[iz * n + ix + 1] then
 			inside += 1
 			if reach[iz * n + ix + 1] then
 				walk += 1
@@ -96,7 +108,11 @@ for iz = 0, n - 1 do
 end
 local share = walk / inside
 check("walkable_share", share >= 0.7, `{string.format("%.0f", share * 100)}% of the playfield is walkable from spawn`)
-check("slide_runs", slide / inside >= 0.03, `{string.format("%.1f", slide / inside * 100)}% of the playfield is 20 to 40 degree slide ground`)
+check(
+	"slide_runs",
+	slide / inside >= 0.03,
+	`{string.format("%.1f", slide / inside * 100)}% of the playfield is 20 to 40 degree slide ground`
+)
 
 -- no solid prop traps an anchor, no two solid props touch
 local touching = 0
@@ -165,7 +181,11 @@ for iz = 0, n - 1, step do
 end
 fs.writeFile(
 	"work/map/layout.json",
-	serde.encode("json", { half = map.half, cell = map.cell * step, heights = rows, reach = reachRows, anchors = anchors, props = props }, false)
+	serde.encode(
+		"json",
+		{ half = map.half, cell = map.cell * step, heights = rows, reach = reachRows, anchors = anchors, props = props },
+		false
+	)
 )
 
 for _, ch in checks do
