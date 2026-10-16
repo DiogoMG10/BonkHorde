@@ -307,8 +307,8 @@ function Builder.build(world): number
 end
 
 --- The terrain material and colour key for one column (see Look.Surfaces).
-function Builder.surface(world, x: number, z: number): string
-	return World.surface(world, x, z)
+function Builder.surface(world, x: number, z: number, grass: string?): string
+	return World.surface(world, x, z, grass)
 end
 
 return Builder

@@ -157,6 +157,29 @@ return {
 		assert(deep / total < 0.12, `{deep / total * 100} % of the world is deep forest`)
 	end,
 
+	["grass grows in drifts, and the fights' clearings are worn"] = function()
+		local Wardwood = require("../src/shared/Config/Wardwood")
+		local function grassShare(mode: string?, near: number?): number
+			local grassy, total = 0, 0
+			for x = -440, 440, 8 do
+				for z = -440, 440, 8 do
+					if MapGen.outside(x, z) < -8 and (not near or x * x + z * z < near * near) then
+						total += 1
+						local m = Wardwood.Surfaces[World.surface(world, x, z, mode)].material
+						if m == "Grass" or m == "LeafyGrass" then
+							grassy += 1
+						end
+					end
+				end
+			end
+			return grassy / total
+		end
+		assert(Wardwood.Grass == "less")
+		local less, full = grassShare("less"), grassShare("full")
+		assert(full > 0.85 and less < 0.62 and less > 0.4, `grass {less} less, {full} full`)
+		assert(grassShare("less", 60) < 0.4, "the spawn clearing is still a lawn")
+	end,
+
 	["every landmark is dressed"] = function()
 		local kinds = {}
 		for _, p in world.props do

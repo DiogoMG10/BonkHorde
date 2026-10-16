@@ -2,16 +2,24 @@
 -- Wardwood Look - the light over the Wardwood. Built in code so the place file
 -- carries no hand-set lighting to drift out of step.
 --
--- Three skies to compare (Config/Wardwood.Sky picks the one a run starts
--- with; `sky <name>` in Workspace.BonkDev switches live in a Studio playtest):
---   golden   the baseline: a late golden afternoon, warm low sun, cool teal
+-- Skies to compare (Config/Wardwood.Sky picks the one a run starts with, and
+-- stays golden until a person picks otherwise; `sky <name>` in
+-- Workspace.BonkDev switches live in a Studio playtest):
+--   golden   the default: a late golden afternoon, warm low sun, cool teal
 --            shade and distance, a soft haze that gives depth without fogging
 --            the fight
 --   clear    a bright fair-weather day: the sun higher, clean blue air, big
 --            soft white clouds, the greens at their freshest
 --   dusk     the magical hour: the sun low and amber, a warm glowing horizon
 --            under a cool violet upper sky, peach clouds, longer shadows
--- Each moves the sun with the clock, so shadows always agree with the sky.
+--   sunset   the sun on the horizon and the whole sky burning orange: hot
+--            haze, copper clouds, long shadows, shade kept warm and readable
+--   night    moonlight: a high moon and stars, blue-grey ambient lifted well
+--            above true dark so the horde, gems and coins still read, and the
+--            lanterns and neon glow
+--   enchanted  a fantasy twilight just after sundown: violet-teal air, lilac
+--            clouds, the first stars, a soft magical bloom
+-- Each moves the sun (or moon) with the clock, so shadows agree with the sky.
 -- None uses a texture: Roblox's own sky, atmosphere and clouds, nothing uploaded.
 --
 -- Rules learned the hard way (roblox-map skill): Atmosphere needs a Sky;
@@ -84,6 +92,55 @@ Look.Skies = {
 		rays = 0.12,
 		clouds = { cover = 0.55, density = 0.6, color = rgb(255, 206, 178) },
 	},
+	sunset = {
+		clock = 17.95,
+		brightness = 2.3,
+		ambient = rgb(104, 82, 74),
+		outdoor = rgb(150, 112, 92),
+		shiftTop = rgb(46, 18, 0),
+		shiftBottom = rgb(14, 6, 4),
+		exposure = 0.25,
+		sunSize = 24,
+		haze = { density = 0.32, offset = 0.34, color = rgb(255, 156, 92), decay = rgb(178, 84, 62), glare = 1.2, haze = 2.2 },
+		grade = { saturation = 0.2, contrast = 0.1, tint = rgb(255, 228, 204) },
+		bloom = 0.7,
+		rays = 0.18,
+		clouds = { cover = 0.52, density = 0.62, color = rgb(255, 160, 112) },
+	},
+	night = {
+		clock = 0.6, -- the moon high in the south-east, its light from the same side
+		brightness = 2.2,
+		ambient = rgb(70, 80, 112),
+		outdoor = rgb(84, 96, 136),
+		shiftTop = rgb(0, 4, 14),
+		shiftBottom = rgb(0, 2, 10),
+		exposure = 0.45,
+		sunSize = 12,
+		moonSize = 13,
+		stars = 3000,
+		haze = { density = 0.28, offset = 0.1, color = rgb(64, 76, 108), decay = rgb(28, 34, 62), glare = 0, haze = 0.5 },
+		grade = { saturation = -0.08, contrast = 0.12, tint = rgb(214, 226, 255) },
+		bloom = 0.9, -- lanterns, gems and neon carry the night
+		rays = 0,
+		clouds = { cover = 0.42, density = 0.5, color = rgb(92, 104, 136) },
+	},
+	enchanted = {
+		clock = 18.35,
+		brightness = 2.2,
+		ambient = rgb(96, 88, 124),
+		outdoor = rgb(112, 120, 164),
+		shiftTop = rgb(22, 0, 30),
+		shiftBottom = rgb(0, 10, 18),
+		exposure = 0.35,
+		sunSize = 18,
+		moonSize = 10,
+		stars = 1200,
+		haze = { density = 0.3, offset = 0.24, color = rgb(176, 146, 222), decay = rgb(60, 124, 146), glare = 0.6, haze = 1.4 },
+		grade = { saturation = 0.24, contrast = 0.1, tint = rgb(242, 234, 255) },
+		bloom = 0.8,
+		rays = 0.08,
+		clouds = { cover = 0.5, density = 0.55, color = rgb(232, 184, 255) },
+	},
 }
 
 local current: string? = nil
@@ -111,6 +168,8 @@ function Look.sky(name: string): boolean
 	local sky = Lighting:FindFirstChildOfClass("Sky")
 	if sky then
 		sky.SunAngularSize = preset.sunSize
+		sky.MoonAngularSize = preset.moonSize or 9
+		sky.StarCount = preset.stars or 0
 	end
 	local haze = Lighting:FindFirstChildOfClass("Atmosphere")
 	if haze then

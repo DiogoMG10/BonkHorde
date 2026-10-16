@@ -13,9 +13,12 @@
 --   site Falls         stand in front of a Wardwood landmark (site alone lists them)
 --   marker             show or hide the Sword's aim marker on the ground
 --   hop                show or hide real vs intended movement speed (M2.B playtest)
---   sky clear          switch the sky live: golden (the baseline), clear, dusk
+--   sky night          switch the sky live: golden (the default), clear, dusk,
+--                      sunset, night, enchanted
 --   leaves Grass       re-material every tree's foliage live (LeafyGrass, Grass,
 --                      SmoothPlastic, Plastic...; `leaves` alone puts it back)
+--   grass full         rewrite the terrain all-grass as before; `grass less` back
+--                      to grass in drifts between moss and worn earth (default)
 --   font bangers       try a face on the damage numbers and popups (Config/Fonts);
 --                      `font bangers numbers` / `font fredoka popups` one of them
 -- In a run:
@@ -59,7 +62,7 @@ function DevService:KnitStart()
 
 	local commands = {}
 	-- these need no hero, so they also work in the lobby
-	local lobbyCommands = { clock = true, unlock = true, marker = true, hop = true, sky = true, leaves = true, font = true }
+	local lobbyCommands = { clock = true, unlock = true, marker = true, hop = true, sky = true, leaves = true, font = true, grass = true }
 
 	function commands.unlock(_, id)
 		local player = Players:GetPlayers()[1]
@@ -127,6 +130,16 @@ function DevService:KnitStart()
 			end
 		end
 		print(`[Dev] font {name} on {role or "numbers and popups"}`)
+	end
+	function commands.grass(_, mode)
+		if mode ~= "full" and mode ~= "less" then
+			print("[Dev] grass full | grass less")
+			return
+		end
+		task.spawn(function()
+			mapService:SetGrass(mode)
+			print(`[Dev] grass {mode}: terrain rewritten`)
+		end)
 	end
 	function commands.marker()
 		local on = Workspace:GetAttribute("BonkAimMarker") ~= true

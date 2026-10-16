@@ -48,8 +48,14 @@ explicit decision by Tiago and Diogo.
   approaches and bends instead of every 46 studs (60 -> 34), three skies to compare
   (`sky golden|clear|dusk`), foliage material A/B (`leaves <material>`), grass at Roblox's
   minimum 0.1. Offline checks only; the tree direction awaits human review in Studio.
-- **Next playable result:** Studio review of `bonk-0.11.0-m3a`: the trees up close and at
-  range, the three skies from the same spots, foliage material, frame rate in the woods.
+  Light follow-up on the M5.A line (`bonk-0.14.1-m5a`, trees not remodelled): golden stays
+  the default sky, plus `sky sunset|night|enchanted`; grass in drifts between moss and worn
+  earth (grass-growing ground 92% -> 54%, `grass full|less` compares live); the forest
+  thinned with crown spacing, winding lanes and glades, young trees at wood edges (trees
+  877 -> 614, canopy cover 40% -> 28%, scenery parts 15.2k -> 11.8k), dense pockets kept.
+  Offline checks only. The full tree-model redesign is a later, dedicated task.
+- **Next playable result:** Studio review: the trees up close and at range, the skies from
+  the same spots, grass full vs less, forest spacing and bunny hops in the woods.
 - **Blockers:** none.
 
 ## M4 Horde & Performance — not started
@@ -69,8 +75,14 @@ explicit decision by Tiago and Diogo.
   Silver bounded (early defeat 6, normal win 53, strong run 90, cap 120 a run); gems and
   coins fly home, magnet and vacuum shrine sweep coins too; one-shot kills show numbers,
   crits by colour; projectile caps. Offline checks only.
-- **Next playable result:** Studio playtest: a normal run's Silver, how long overtime lasts
-  for a strong build, the magnet sweep, numbers on one-shot kills, frame rate late on.
+  `bonk-0.14.0-m5a` follow-up: Lifesteal removed (no item, no shrine, stat held at 0); a
+  finished build shows LVL MAX and gets no more level-up popups or panels (extra squad
+  levels pay 15 gold quietly, the hero passive stops at the level reached); overtime adds
+  pace (horde x1.45 by 8 min, up to 30% ember-trailing runners that beat a walk within a
+  minute and a full bunny hop by ~12 min) and finite HP/damage ceilings; the magnet's +XP
+  tally is gone; fonts on trial (`font <name>`, LuckiestGuy still default). Offline only.
+- **Next playable result:** Studio playtest: fonts compared, LVL MAX (`maxbuild`), overtime
+  pace for a strong build, a normal run's Silver, the magnet sweep, frame rate late on.
 - **Blockers:** M3.A's tree pass needs human review before either branch merges.
 
 ## M6 Complete Experience — not started
