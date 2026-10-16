@@ -359,6 +359,38 @@ for prop in W["props"]:
     else:
         proxy(prop)
 
+# the M3.B art showcase (export_world.luau ... art): one mesh per kit part,
+# linked into an object per placement, lit by its authored normals
+art = W.get("art")
+if art:
+    art_mesh = {}
+    for key, m in art["meshes"].items():
+        pos, nrm, idx = m["pos"], m["nrm"], m["idx"]
+        corners, normals = [], []
+        for t in range(0, len(idx), 3):
+            for j in range(3):
+                v = idx[t + j]
+                corners.append(to_bl(pos[v * 3], pos[v * 3 + 1], pos[v * 3 + 2]))
+                normals.append(to_bl(nrm[v * 3], nrm[v * 3 + 1], nrm[v * 3 + 2]))
+        me = bpy.data.meshes.new(key)
+        me.from_pydata(corners, [], [(k, k + 1, k + 2) for k in range(0, len(corners), 3)])
+        for poly in me.polygons:
+            poly.use_smooth = True
+        me.normals_split_custom_set([tuple(v) for v in normals])
+        me.materials.append(mat("art_" + key, tuple(c / 255 for c in m["color"]), rough=0.9))
+        art_mesh[key] = me
+    for inst in art["instances"]:
+        # grass covers the drawn surface, which this preview puts 2 above the field
+        lift = 2 if inst.get("grass") else 0
+        for key in inst["parts"]:
+            ob = bpy.data.objects.new(key, art_mesh[key])
+            ob.location = to_bl(inst["x"], inst["y"] + lift, inst["z"])
+            # roblox Ry(yaw) * Rz(roll) is blender Rz(yaw) * Ry(-roll)
+            ob.rotation_mode = "ZYX"
+            ob.rotation_euler = (0, -(inst.get("roll") or 0), inst["yaw"])
+            ob.scale = (inst["scale"],) * 3
+            link(ob)
+
 # ------------------------------------------------------------------ light and air
 look = W.get("look") or {}
 sun_az = math.radians(look.get("sun_azimuth", 200))  # degrees from roblox +x towards +z

@@ -126,3 +126,14 @@ so the model and the Luau still come from the same node.
   corner.
 - The Luau builders live in `design/ui_specs/*.build.lua`, which is outside the
   file list given in the brief (`src/ui` would have synced them into StarterGui).
+
+## Known drift: the Overlay pause sheet (checked 2026-10-16)
+
+`Menu_build.py` is behind `src/ui/Overlay.model.json`. M2.A (`bonk-0.5.x-m2a`) built the
+pause sheet's Master slider, pause notice and 3-2-1 countdown straight into the model
+JSON, and re-laid the sheet out, without updating the generator. Running
+`Menu_build.py` + `tools/ui/bake_icons.py` + `tools/ui/fix_strokes.py` today rewrites
+`Overlay.model.json` and `Menu.model.json` and **drops those features**, so do not
+regenerate them until the generator has caught up. Until then, additions to the pause
+sheet are made in `OverlayController` from the existing elements: the "Enemy outlines"
+row (M3.B) is a runtime copy of `DamageNumbersToggle`, placed below it.

@@ -9,7 +9,20 @@
 -- A visual comes from ReplicatedStorage.Assets.Enemies.<Type> when that model
 -- exists (parts named Body, Head, ArmL, ArmR, LegL, LegR are animated), and is a
 -- plain coloured block otherwise, so the game always has something to draw.
+--
+-- Enemy outlines, a setting each player chooses (Settings: "Enemy outlines",
+-- off by default, the PlayerGui attribute EnemyOutlines): the enemies near the
+-- hero get a thin ink outline so the grass cannot hide them. Two Highlights in
+-- all (Roblox draws at most 31), each on a container Model the near enemies
+-- are moved into a few times a second: one for the small ones, a shade firmer,
+-- one for the rest. Occluded, so a hill or a wall still hides them; dark by
+-- day, moonlit pale at night. In Studio, `enemy clarity on|off|through|player`
+-- in Workspace.BonkDev overrides every player's choice for the session only
+-- (through: drawn over the grass where the terrain leaves the enemy in sight;
+-- player: back to each player's own setting); nothing it does is saved.
 
+local Lighting = game:GetService("Lighting")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -31,6 +44,15 @@ local LIMB_SWING = { ArmL = 1, ArmR = -1, LegL = -1, LegR = 1 }
 local MAX_NUMBERS = 60
 -- enemy types whose model is not simply "Enemy" .. type
 local MODEL_NAME = { BoulderBro = "EnemyRockGolem", Hamlet = "EnemyHogBrute", OldManTimber = "BossOldManTimber" }
+
+-- enemy clarity
+local CLARITY_EVERY = 0.2 -- seconds between choosing who is outlined
+local CLARITY_NEAR = 70 -- studs from the hero
+local CLARITY_SLACK = 8 -- an outlined enemy keeps it until this much further
+local CLARITY_MAX = 90 -- the nearest this many at most
+local CLARITY_SMALL = 3.5 -- studs tall or less: the grass can hide most of one
+local INK_DAY = Color3.fromRGB(30, 24, 18)
+local INK_NIGHT = Color3.fromRGB(214, 224, 255)
 
 function EnemyRenderController:KnitInit()
 	self._sparkBudget = 6
@@ -56,6 +78,114 @@ function EnemyRenderController:KnitInit()
 	numbers.Name = "DamageNumbers"
 	numbers.Parent = Workspace
 	self._numberFolder = numbers
+	self:_initClarity()
+end
+
+-- ------------------------------------------------------------------ clarity
+
+function EnemyRenderController:_initClarity()
+	local c = { t = 0, zones = {} }
+	for _, spec in { { name = "Near", day = 0.45, night = 0.55 }, { name = "NearSmall", day = 0.25, night = 0.4 } } do
+		-- a Model, not a Folder: a Highlight outlines a Model and all inside it
+		local zone = Instance.new("Model")
+		zone.Name = spec.name
+		local h = Instance.new("Highlight")
+		h.FillTransparency = 1
+		h.DepthMode = Enum.HighlightDepthMode.Occluded
+		h.Parent = zone
+		zone.Parent = self._folder
+		c.zones[spec.name] = { model = zone, highlight = h, day = spec.day, night = spec.night }
+	end
+	self._clarity = c
+	c.mode = "off"
+	local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+	local function readMode()
+		-- a Studio override for the session, else the player's own setting
+		local dev = Workspace:GetAttribute("BonkEnemyClarity")
+		if dev == "on" or dev == "off" or dev == "through" then
+			c.mode = dev
+		else
+			c.mode = if playerGui:GetAttribute("EnemyOutlines") == true then "on" else "off"
+		end
+		for _, z in c.zones do
+			z.highlight.Enabled = c.mode ~= "off"
+			z.highlight.DepthMode = if c.mode == "through" then Enum.HighlightDepthMode.AlwaysOnTop else Enum.HighlightDepthMode.Occluded
+		end
+	end
+	local function readSky()
+		-- a dark line reads on a sunlit meadow, a pale one under the moon
+		local clock = Lighting.ClockTime
+		local night = clock < 5.5 or clock > 19.5
+		for _, z in c.zones do
+			z.highlight.OutlineColor = if night then INK_NIGHT else INK_DAY
+			z.highlight.OutlineTransparency = if night then z.night else z.day
+		end
+	end
+	readMode()
+	readSky()
+	Workspace:GetAttributeChangedSignal("BonkEnemyClarity"):Connect(readMode)
+	playerGui:GetAttributeChangedSignal("EnemyOutlines"):Connect(readMode)
+	Lighting:GetPropertyChangedSignal("ClockTime"):Connect(readSky)
+end
+
+-- whether the terrain leaves the line from the camera to an enemy open (the
+-- heightfield the enemies stand on, a few samples: no raycasts)
+function EnemyRenderController:_inSight(eye: Vector3, e): boolean
+	local tx, ty, tz = e.x, e.y + e.height * 0.6, e.z
+	for i = 1, 5 do
+		local t = i / 6
+		local x, y, z = eye.X + (tx - eye.X) * t, eye.Y + (ty - eye.Y) * t, eye.Z + (tz - eye.Z) * t
+		if self._state:HeightAt(x, z) > y then
+			return false
+		end
+	end
+	return true
+end
+
+function EnemyRenderController:_stepClarity(dt: number)
+	local c = self._clarity
+	c.t += dt
+	if c.t < CLARITY_EVERY then
+		return
+	end
+	c.t = 0
+	local chosen = {}
+	local camera = Workspace.CurrentCamera
+	local character = Players.LocalPlayer.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart")
+	if c.mode ~= "off" and camera and root then
+		local fx, fz = root.Position.X, root.Position.Z
+		local eye = camera.CFrame.Position
+		local list = {}
+		for _, e in self._active do
+			if e.x then
+				local r = if e.visual.zone then CLARITY_NEAR + CLARITY_SLACK else CLARITY_NEAR
+				local d2 = (e.x - fx) ^ 2 + (e.z - fz) ^ 2
+				if d2 < r * r and (c.mode ~= "through" or self:_inSight(eye, e)) then
+					table.insert(list, { e = e, d2 = d2 })
+				end
+			end
+		end
+		if #list > CLARITY_MAX then
+			table.sort(list, function(a, b)
+				return a.d2 < b.d2
+			end)
+		end
+		for i = 1, math.min(#list, CLARITY_MAX) do
+			chosen[list[i].e] = true
+		end
+	end
+	for _, e in self._active do
+		local zone = nil
+		if chosen[e] then
+			zone = if e.height <= CLARITY_SMALL then c.zones.NearSmall.model else c.zones.Near.model
+		end
+		local visual = e.visual
+		if visual.zone ~= zone then
+			visual.zone = zone
+			visual.model.Parent = zone or self._folder
+		end
+	end
 end
 
 --- Where an enemy is being drawn, for effects that chase it. nil if not visible.
@@ -179,6 +309,10 @@ function EnemyRenderController:_acquire(typeName: string, elite: boolean, runner
 end
 
 function EnemyRenderController:_release(visual)
+	if visual.zone then
+		visual.zone = nil
+		visual.model.Parent = self._folder
+	end
 	local far = CFrame.new(0, -500, 0)
 	local parts, cframes = visual.parts, {}
 	for i = 1, #parts do
@@ -525,6 +659,7 @@ function EnemyRenderController:_frame(dt: number)
 		Workspace:BulkMoveTo(parts, cframes, Enum.BulkMoveMode.FireCFrameChanged)
 	end
 	self:_stepNumbers(now)
+	self:_stepClarity(dt)
 end
 
 return EnemyRenderController

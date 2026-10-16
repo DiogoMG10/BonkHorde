@@ -174,7 +174,7 @@ return {
 			end
 			return grassy / total
 		end
-		assert(Wardwood.Grass == "short")
+		assert(Wardwood.Grass == "native")
 		local less, full = grassShare("less"), grassShare("full")
 		assert(full > 0.85 and less < 0.62 and less > 0.4, `grass {less} less, {full} full`)
 		assert(grassShare("less", 60) < 0.4, "the spawn clearing is still a lawn")
@@ -376,5 +376,28 @@ return {
 		end
 		assert(Wardwood.runSky(0) == Wardwood.RunSkies[1].name, "a roll of 0 draws the first")
 		assert(Wardwood.runSky(0.999999) == Wardwood.RunSkies[5].name, "a roll near 1 draws the last")
+	end,
+
+	["native grass covers exactly the ground the short carpet covers"] = function()
+		local Wardwood = require("../src/shared/Config/Wardwood")
+		local native, carpet = 0, 0
+		for x = -400, 400, 16 do
+			for z = -400, 400, 16 do
+				if MapGen.outside(x, z) < -8 then
+					local short, nat = World.surface(world, x, z, "short"), World.surface(world, x, z, "native")
+					if short == "Carpet" then
+						carpet += 1
+						assert(nat == "Turf", `{nat} where the carpet would be`)
+					else
+						assert(nat == short, `native changes {short} to {nat}`)
+					end
+					if nat == "Turf" then
+						native += 1
+					end
+				end
+			end
+		end
+		assert(native == carpet and carpet > 1000, `{native} native, {carpet} carpet`)
+		assert(Wardwood.Surfaces.Turf.material == "Grass", "native grass is not Roblox's bladed Grass")
 	end,
 }

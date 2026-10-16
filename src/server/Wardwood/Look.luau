@@ -210,12 +210,14 @@ end
 function Look.paint(grass: string?)
 	local terrain = Workspace.Terrain
 	for key, entry in Look.Surfaces do
-		if key ~= "Carpet" then
+		if key ~= "Carpet" and key ~= "Turf" then
 			terrain:SetMaterialColor(entry[1], entry[2])
 		end
 	end
 	if grass == "short" then
 		terrain:SetMaterialColor(Look.Surfaces.Carpet[1], Look.Surfaces.Carpet[2])
+	elseif grass == "native" then
+		terrain:SetMaterialColor(Look.Surfaces.Turf[1], Look.Surfaces.Turf[2])
 	end
 end
 

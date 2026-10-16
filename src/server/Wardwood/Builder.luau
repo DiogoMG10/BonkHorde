@@ -16,6 +16,7 @@ local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
+local ArtPlan = require(ReplicatedStorage.Shared.Core.ArtPlan)
 local MapGen = require(ReplicatedStorage.Shared.Core.MapGen)
 local World = require(ReplicatedStorage.Shared.Core.World)
 
@@ -251,7 +252,38 @@ end
 
 --- Build every prop of the world into a fresh Workspace.Map. Yields now and
 --- then so the server never stalls; returns how many props were built.
-function Builder.build(world): number
+-- a prop the art kit dresses (M3.B): the server keeps only what collides, out
+-- of sight; every client draws the kit's model over it (client ArtController)
+local function colliderOnly(world, prop, prims, templates: Instance?): Model?
+	local model = Instance.new("Model")
+	if prims then
+		for _, p in prims do
+			if p.collide then
+				makePart(p, model).Transparency = 1
+			end
+		end
+	elseif templates and not WALK_THROUGH[prop.kind] then
+		local mesh = meshProp(world, prop, templates)
+		if mesh then
+			for _, d in mesh:GetDescendants() do
+				if d:IsA("BasePart") then
+					d.Transparency = 1
+					d.CastShadow = false
+				end
+			end
+			return mesh
+		end
+	end
+	if #model:GetChildren() == 0 then
+		model:Destroy()
+		return nil
+	end
+	return model
+end
+
+--- Build the scenery. `art` lists the prop kinds the art kit dresses (their
+--- colliders only are built here); every other prop gets its old model.
+function Builder.build(world, art: { [string]: boolean }?): number
 	local old = Workspace:FindFirstChild("Map")
 	if old then
 		old:Destroy()
@@ -278,6 +310,11 @@ function Builder.build(world): number
 			host.CFrame = CFrame.new(prop.x, MapGen.heightAt(world.map, prop.x, prop.z) + 1.5, prop.z)
 			host.Parent = model
 			CollectionService:AddTag(host, "WWForestMist")
+		elseif art and ArtPlan.Retired[prop.kind] then
+			model = nil
+		elseif art and art[prop.kind] and ArtPlan.asset(prop) then
+			model = colliderOnly(world, prop, prims, templates)
+			parts += if model then #model:GetChildren() else 0
 		elseif prims then
 			model = Instance.new("Model")
 			for _, p in prims do
@@ -290,6 +327,7 @@ function Builder.build(world): number
 		end
 		if model then
 			model.Name = prop.kind
+			model:SetAttribute("Prop", i) -- its index in world.props
 			model.Parent = folder
 			built += 1
 		end

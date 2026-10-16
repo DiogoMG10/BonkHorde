@@ -16,17 +16,29 @@ local Wardwood = {
 		{ name = "enchanted", weight = 1 },
 		{ name = "night", weight = 1 },
 	},
-	-- how the ground is grassed (Core/World.surface): "short", one continuous,
-	-- almost flat grassy surface with no blades or tufts; "less", grass in
-	-- drifts between moss and worn earth; or "full", the earlier all-blades look
-	-- (`grass short|less|full` in BonkDev rewrites the terrain live)
-	Grass = "short",
+	-- how the ground is grassed (Core/World.surface): "native" (approved in
+	-- Studio), the grassy ground in Roblox's own Grass material, its engine-drawn
+	-- blades covering it seamlessly at GrassLength's 0.1 minimum; kept for
+	-- comparison: "short", the same ground as a bladeless LeafyGrass carpet;
+	-- "less", grass in drifts between moss and worn earth; "full", the earlier
+	-- all-blades look (`grass native|short|less|full` in BonkDev, live)
+	Grass = "native",
+	-- M3.B: the Blender art kit (tools/art) dresses the whole Wardwood; false
+	-- builds the old part-built props instead (`art on|off` in BonkDev)
+	Art = true,
+	-- the kit's trees: full detail within `near` studs of the camera, their
+	-- far version ("_LOD") to `far`, their horizon version ("_FAR") beyond;
+	-- `slack` studs of hysteresis, so nothing flickers at a boundary
+	ArtLod = { near = 110, far = 280, slack = 12 },
 	Surfaces = {
 		Meadow = { material = "Grass", color = { 128, 162, 62 } },
 		Lush = { material = "LeafyGrass", color = { 86, 130, 56 } },
 		-- the short grass carpet: LeafyGrass too (it grows no blades), so it
 		-- takes over that material's tint while `grass short` is down (Look.paint)
 		Carpet = { material = "LeafyGrass", color = { 118, 166, 60 } },
+		-- the same ground in Roblox's Grass material, its blades the colour of
+		-- the carpet so they read as its texture (`grass native`, Look.paint)
+		Turf = { material = "Grass", color = { 112, 158, 58 } },
 		-- moss and leaf litter: under the trees, and in the meadows' hollows
 		ForestFloor = { material = "Mud", color = { 78, 96, 54 } },
 		Mud = { material = "Mud", color = { 78, 96, 54 } },

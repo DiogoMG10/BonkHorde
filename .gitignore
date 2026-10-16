@@ -28,3 +28,8 @@ work/map/preview_gallery_sheet.jpg
 work/map/trees*.json
 work/map/views_trees.json
 work/tmp/
+
+# M3.B art renders (tools/art/render.py, the showcase previews): only the sheets are kept
+work/art/*/
+work/art/*.png
+*.blend1

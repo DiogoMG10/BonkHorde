@@ -40,17 +40,40 @@ explicit decision by Tiago and Diogo.
   `grass short` ground. Layout, movement and atmosphere approved by Tiago and Diogo in
   Studio playtests. The part-built trees and the LeafyGrass ground are accepted as
   provisional art, to be replaced in M3.B.
-- **M3.B Blender art overhaul:** branch `feat/m3b-blender-art`. A cohesive Blender-made
-  environment kit (broadleaf and conifer trees, an ancient tree, low 3D grass, mossy rocks,
-  a ruin piece) shown in a small showcase clearing for human visual approval before any
-  map-wide replacement.
-- **Next playable result:** the M3.B showcase reviewed in Studio from the game camera.
+- **M3.B Blender art overhaul:** branch `feat/m3b-blender-art`. `bonk-0.16.0-m3b` showcase
+  approved in Studio by Tiago and Diogo. `bonk-0.17.0-m3b` dresses the whole Wardwood: every
+  tree family (variants, far and horizon versions), the ancients, the Elder, bushes, ferns,
+  stumps, logs, rocks, menhirs, pillars and ruin walls from the Blender kit; the server bakes
+  each model once (no upload) and keeps only colliders, clients draw from shared templates
+  with distance detail, per-plant tint and short 3D grass streamed round the hero; hand edits
+  kept in `Config/WardwoodOverrides` (`art pick`); `art off` restores the old props. Details:
+  `docs/M3B-art-pipeline.md`. Offline checks and Blender previews only.
+  `bonk-0.17.0-m3b` approved in a Studio playtest but for two faults, fixed in
+  `bonk-0.17.1-m3b`: the Fallen Giant (a green cylinder with a round root disc) is now a
+  kit model on the same collider; the grass no longer pops in front of the hero (it is kept
+  where the camera looks, led by the hero's speed, re-planned on camera turns, grown in a
+  per-frame budget without the old half-height outer ring). Offline checks only.
+  `bonk-0.17.2-m3b`: the streamed grass still showed its edge and looked like islands
+  (measured: discs of uneven density and their own tints), so it is gone. Two options on
+  trial instead: A, Roblox's own Grass blades on the short ground (`grass native`); B,
+  static world-aligned 3D grass chunks in a 128x128 test meadow (`grass chunks on`,
+  `grass test`). Default stays the bladeless carpet. Offline checks only.
+  `bonk-0.17.3-m3b`: native grass chosen in Studio and made the default (the chunks are
+  gone); near enemies get a thin Occluded ink outline from two pooled Highlights so the
+  grass cannot hide them (`enemy clarity on|off|through`). Offline checks only.
+  `bonk-0.17.4-m3b`: outlines kept only as an option, off by default: Settings > Enemy
+  outlines, per player, saved with the volumes. Offline checks only.
+- **Next playable result:** Studio: the Settings toggle (mouse, touch, gamepad) and its
+  effect in a fight, saved across sessions; then decide on uploading the kit for good.
 - **Blockers:** none.
 
 ## M4 Horde & Performance — not started
 
 - **Scope:** distinct enemy behaviours, telegraphs, pressure; optimisations only where a
-  measurement justifies them.
+  measurement justifies them. Enemy models redone in Blender for readability (distinct
+  silhouettes, contrast against the native grass, clearer faces, stronger differences
+  between types, legible at the game camera's distance), so the M3.B outline option is a
+  preference rather than a need.
 - **Next playable result:** enemy types that ask for different responses.
 - **Blockers:** no performance baseline recorded yet; take one before optimising.
 

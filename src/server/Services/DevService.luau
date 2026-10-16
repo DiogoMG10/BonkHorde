@@ -18,9 +18,17 @@
 --                      enchanted; `sky` alone says which is up and why
 --   leaves Grass       re-material every tree's foliage live (LeafyGrass, Grass,
 --                      SmoothPlastic, Plastic...; `leaves` alone puts it back)
---   grass less         rewrite the terrain live: `short` one continuous, almost
---                      flat grassy surface (default), `less` grass in drifts
---                      between moss and worn earth, `full` all blades
+--   art off            the old props back over the whole Wardwood (`art on` the
+--                      M3.B Blender kit); `art pick` names the nearest prop for
+--                      Config/WardwoodOverrides
+--   enemy clarity on   force the near enemies' outline on (or `off`, or `through`:
+--                      over the grass where the terrain leaves the enemy in
+--                      sight) for this session, every player; `player` goes
+--                      back to each player's own Settings choice (never saved)
+--   grass short        rewrite the terrain live: `native` Roblox's bladed Grass
+--                      over all grassy ground (default), `short` the same as a
+--                      bladeless carpet, `less` drifts, `full`; `grass tint
+--                      112 158 58` re-tints the native blades
 --   font fredoka all   try a face on the whole game (Config/Fonts): `ui` the
 --                      interface only, `numbers` / `popups` one role, no role
 --                      both of those; `font` alone lists faces and what's worn
@@ -65,7 +73,18 @@ function DevService:KnitStart()
 
 	local commands = {}
 	-- these need no hero, so they also work in the lobby
-	local lobbyCommands = { clock = true, unlock = true, marker = true, hop = true, sky = true, leaves = true, font = true, grass = true }
+	local lobbyCommands = {
+		clock = true,
+		unlock = true,
+		marker = true,
+		hop = true,
+		sky = true,
+		leaves = true,
+		font = true,
+		grass = true,
+		art = true,
+		enemy = true,
+	}
 
 	function commands.unlock(_, id)
 		local player = Players:GetPlayers()[1]
@@ -140,15 +159,73 @@ function DevService:KnitStart()
 		end
 		print(`[Dev] font {name} on {table.concat(roles, ", ")}`)
 	end
-	function commands.grass(_, mode)
-		if mode ~= "full" and mode ~= "less" and mode ~= "short" then
-			print("[Dev] grass short | grass less | grass full")
-			return
+	function commands.art(_, what)
+		if what == "on" or what == "off" then
+			task.spawn(function()
+				mapService:SetArt(what == "on")
+				print(`[Dev] art {what}: the Wardwood wears the {if what == "on" then "Blender kit" else "old props"}`)
+			end)
+		elseif what == "pick" then
+			-- the prop nearest the first player, as a Config/WardwoodOverrides line
+			local ArtPlan = require(ReplicatedStorage.Shared.Core.ArtPlan)
+			local player = Players:GetPlayers()[1]
+			local root = player and player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+			if not root then
+				print("[Dev] art pick needs a character")
+				return
+			end
+			local best, bestD = nil, math.huge
+			for _, p in mapService:GetWorld().props do
+				local d = (p.x - root.Position.X) ^ 2 + (p.z - root.Position.Z) ^ 2
+				if d < bestD then
+					best, bestD = p, d
+				end
+			end
+			if best then
+				local asset = ArtPlan.asset(best)
+				print(
+					`[Dev] {best.key}: {best.kind}{if asset then ` as {asset}` else ""}, at {math.floor(best.x)}, {math.floor(best.z)}, yaw {math.floor(
+						math.deg(best.yaw)
+					)}, scale {string.format("%.2f", best.scale)}, {math.floor(math.sqrt(bestD))} studs away`
+				)
+				print(
+					`[Dev] paste into Config/WardwoodOverrides: ["{best.key}"] = \{ dx = 0, dz = 0, yaw = {math.floor(math.deg(best.yaw))}, scale = {string.format(
+						"%.2f",
+						best.scale
+					)}{if asset then `, asset = "{asset}"` else ""} \},`
+				)
+			end
+		else
+			print(`[Dev] art on | art off | art pick (art {if Workspace:GetAttribute("BonkArt") then "on" else "off"})`)
 		end
-		task.spawn(function()
-			mapService:SetGrass(mode)
-			print(`[Dev] grass {mode}: terrain rewritten`)
-		end)
+	end
+	function commands.enemy(_, what, mode)
+		-- a session override for every client, never saved: each player's own
+		-- "Enemy outlines" setting is untouched and returns with `player`
+		if what == "clarity" and (mode == "on" or mode == "off" or mode == "through") then
+			Workspace:SetAttribute("BonkEnemyClarity", mode)
+			print(`[Dev] enemy outlines forced {mode} for this session`)
+		elseif what == "clarity" and mode == "player" then
+			Workspace:SetAttribute("BonkEnemyClarity", nil)
+			print("[Dev] enemy outlines follow each player's setting again")
+		else
+			print(
+				`[Dev] enemy clarity on | off | through | player (now {Workspace:GetAttribute("BonkEnemyClarity") or "each player's setting"})`
+			)
+		end
+	end
+	function commands.grass(_, mode, r, g, b)
+		if mode == "tint" and tonumber(r) and tonumber(g) and tonumber(b) then
+			Workspace.Terrain:SetMaterialColor(Enum.Material.Grass, Color3.fromRGB(tonumber(r), tonumber(g), tonumber(b)))
+			print(`[Dev] grass tinted {r} {g} {b}`)
+		elseif mode == "full" or mode == "less" or mode == "short" or mode == "native" then
+			task.spawn(function()
+				mapService:SetGrass(mode)
+				print(`[Dev] grass {mode}: terrain rewritten`)
+			end)
+		else
+			print("[Dev] grass native | short | less | full; grass tint <r> <g> <b>")
+		end
 	end
 	function commands.marker()
 		local on = Workspace:GetAttribute("BonkAimMarker") ~= true
@@ -368,7 +445,7 @@ function DevService:KnitStart()
 			print(`[Dev] no hero in the run yet (phase {director:GetPhase()})`)
 			return
 		end
-		local ok, err = pcall(command, rec, parts[2], parts[3], parts[4])
+		local ok, err = pcall(command, rec, parts[2], parts[3], parts[4], parts[5])
 		if not ok then
 			warn(`[Dev] {text} failed: {err}`)
 		end
