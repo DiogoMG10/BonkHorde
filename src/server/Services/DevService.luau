@@ -13,9 +13,20 @@
 --   site Falls         stand in front of a Wardwood landmark (site alone lists them)
 --   marker             show or hide the Sword's aim marker on the ground
 --   hop                show or hide real vs intended movement speed (M2.B playtest)
---   sky clear          switch the sky live: golden (the baseline), clear, dusk
+--   sky night          switch the sky live until the next run draws its own:
+--                      golden (the lobby's), clear, dusk, sunset, night,
+--                      enchanted; `sky` alone says which is up and why
 --   leaves Grass       re-material every tree's foliage live (LeafyGrass, Grass,
 --                      SmoothPlastic, Plastic...; `leaves` alone puts it back)
+--   grass less         rewrite the terrain live: `short` one continuous, almost
+--                      flat grassy surface (default), `less` grass in drifts
+--                      between moss and worn earth, `full` all blades
+--   font fredoka all   try a face on the whole game (Config/Fonts): `ui` the
+--                      interface only, `numbers` / `popups` one role, no role
+--                      both of those; `font` alone lists faces and what's worn
+-- In a run:
+--   maxbuild           fill every weapon and tome slot at the cap (LVL MAX);
+--                      `maxbuild 1` leaves the last one a level short
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -54,7 +65,7 @@ function DevService:KnitStart()
 
 	local commands = {}
 	-- these need no hero, so they also work in the lobby
-	local lobbyCommands = { clock = true, unlock = true, marker = true, hop = true, sky = true, leaves = true }
+	local lobbyCommands = { clock = true, unlock = true, marker = true, hop = true, sky = true, leaves = true, font = true, grass = true }
 
 	function commands.unlock(_, id)
 		local player = Players:GetPlayers()[1]
@@ -71,15 +82,16 @@ function DevService:KnitStart()
 	end
 	function commands.sky(_, name)
 		local Look = require(script.Parent.Parent.Wardwood.Look)
-		if Look.sky(name or "") then
-			print(`[Dev] sky {name}`)
+		if name and mapService:SetSky(name, "set by hand") then
+			print(`[Dev] sky {name}, until the next run draws its own`)
 		else
 			local names = {}
 			for key in Look.Skies do
 				table.insert(names, key)
 			end
 			table.sort(names)
-			print(`[Dev] sky is {Look.current()}; skies: {table.concat(names, ", ")}`)
+			local current, why = mapService:Sky()
+			print(`[Dev] sky is {current} ({why}); skies: {table.concat(names, ", ")}`)
 		end
 	end
 	-- every tree's foliage, found once by its material and shape (moss bands are
@@ -109,6 +121,34 @@ function DevService:KnitStart()
 			count += 1
 		end
 		print(`[Dev] leaves {if ok and material then name else "as built"} on {count} parts`)
+	end
+	function commands.font(_, name, role)
+		local Fonts = require(ReplicatedStorage.Shared.Config.Fonts)
+		local roles = if role == nil then { "numbers", "popups" } elseif role == "all" then { "numbers", "popups", "ui" } else { role }
+		if not Fonts.Faces[name or ""] or not Fonts.Attributes[roles[1]] then
+			local worn = {}
+			for _, key in { "numbers", "popups", "ui" } do
+				local pick = Workspace:GetAttribute(Fonts.Attributes[key])
+				local fallback = if key == "ui" then "as built" else Fonts.Default
+				table.insert(worn, `{key} {pick or fallback}`)
+			end
+			print(`[Dev] font <{table.concat(Fonts.Order, "|")}> [numbers|popups|ui|all]; now {table.concat(worn, ", ")}`)
+			return
+		end
+		for _, key in roles do
+			Workspace:SetAttribute(Fonts.Attributes[key], name)
+		end
+		print(`[Dev] font {name} on {table.concat(roles, ", ")}`)
+	end
+	function commands.grass(_, mode)
+		if mode ~= "full" and mode ~= "less" and mode ~= "short" then
+			print("[Dev] grass short | grass less | grass full")
+			return
+		end
+		task.spawn(function()
+			mapService:SetGrass(mode)
+			print(`[Dev] grass {mode}: terrain rewritten`)
+		end)
 	end
 	function commands.marker()
 		local on = Workspace:GetAttribute("BonkAimMarker") ~= true
@@ -147,6 +187,39 @@ function DevService:KnitStart()
 		if Roster.Items[id] then
 			players:GrantItem(rec, id)
 		end
+	end
+	-- a finished build, for the LVL MAX state: free slots filled in roster order,
+	-- then every weapon and tome levelled to the cap (`maxbuild 1`: the last one
+	-- stops a level short, so the next level-up finishes it)
+	function commands.maxbuild(rec, short)
+		local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
+		local cap = GameConfig.UpgradeMaxLevel
+		for _, id in Roster.WeaponOrder do
+			if #rec.weapons < GameConfig.WeaponSlots then
+				players:GrantWeapon(rec, id)
+			end
+		end
+		for _, id in Roster.TomeOrder do
+			if #rec.tomes < GameConfig.TomeSlots and not rec.tomeIndex[id] then
+				local def = Roster.Tomes[id]
+				players:GrantTome(rec, id, { { stat = def.stat, amount = def.perLevel } })
+			end
+		end
+		local last = if tonumber(short) then rec.tomes[#rec.tomes] else nil
+		for _, w in rec.weapons do
+			local pool = Roster.Weapons[w.id].pool
+			local key = next(pool)
+			while w.level < cap do
+				players:UpgradeWeapon(rec, w.id, if key then { { stat = key, amount = pool[key] } } else {})
+			end
+		end
+		for _, t in rec.tomes do
+			local def = Roster.Tomes[t.id]
+			while t.level < (if t == last then cap - 1 else cap) do
+				players:GrantTome(rec, t.id, { { stat = def.stat, amount = def.perLevel } })
+			end
+		end
+		print(`[Dev] maxbuild: complete={rec.complete}`)
 	end
 	function commands.weapon(rec, id)
 		if Roster.Weapons[id] then
@@ -277,7 +350,8 @@ function DevService:KnitStart()
 				.. `enemies={enemies:Count()} bosses={bossCount} weapons={table.concat(w, ",")} items={#rec.items} tomes={#rec.tomes} `
 				.. `manual={rec.manual} held={rec.input.held} swings={rec.primarySwings or 0} auto={rec.primaryAuto or 0} `
 				.. `pos={math.floor(rec.x)},{math.floor(rec.y)},{math.floor(rec.z)} downed={rec.downed} `
-				.. `tickMs={string.format("%.2f", (director._tickCost or 0) * 1000)}`
+				.. `tickMs={string.format("%.2f", (director._tickCost or 0) * 1000)} projs={#Knit.GetService("CombatService")._projs} `
+				.. `gems={Knit.GetService("PickupService")._gems} coins={Knit.GetService("PickupService")._coins}`
 		)
 	end
 

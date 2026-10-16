@@ -261,12 +261,13 @@ function RunDirectorService:_startRun()
 	self._bosses:Reset()
 	self._xp:Reset()
 	self._interactables:Place()
+	local sky = self._mapService:DrawRunSky()
 	self._players:BeginRun(self._party:GetPlayers())
 	self._phaseUntil = os.clock() + GameConfig.IntroSeconds
 	self:_sendPhase(nil)
 	local map = Roster.Maps[self._party:GetMap()]
 	self._banner:FireAllClients(map.name, "stage", map.joke)
-	print(`[RunDirectorService] run started with {#self._party:GetPlayers()} player(s)`)
+	print(`[RunDirectorService] run started with {#self._party:GetPlayers()} player(s), sky {sky}`)
 end
 
 function RunDirectorService:_lateJoin(player: Player)
@@ -288,18 +289,16 @@ function RunDirectorService:_endRun(victory: boolean)
 	self._players:SetFrozen(true)
 	local rows = {}
 	local c = GameConfig
+	local run = {
+		stageSeconds = math.min(self._clock, c.StageSeconds),
+		overtimeSeconds = math.max(0, self._clock - c.StageSeconds),
+		kills = self._kills,
+		minibossKills = self._minibossKills,
+		bossKills = self._bossKills,
+		escaped = victory,
+	}
 	for _, rec in self._players:All() do
-		local silver = Progress.silver(
-			self._kills,
-			self._minibossKills,
-			self._bossKills,
-			c.SilverPerHundredKills,
-			c.SilverPerMinibossKill,
-			c.SilverPerBossKill,
-			rec.stats.SilverGain,
-			self._tier,
-			c.OvertimeSilverStep
-		)
+		local silver = Progress.silver(run, rec.stats.SilverGain, c)
 		self._data:AddSilver(rec.player, silver)
 		self._data:RecordRun(rec.player, rec.hero, self._kills, self._bossDeadAt)
 		table.insert(rows, {
@@ -335,6 +334,7 @@ function RunDirectorService:_toLobby()
 	self._upgrades:Reset()
 	self._bosses:Reset()
 	self._interactables:Clear()
+	self._mapService:LobbySky()
 	self._players:EndRun()
 	self._party:ClearReady()
 	table.clear(self._pauses)

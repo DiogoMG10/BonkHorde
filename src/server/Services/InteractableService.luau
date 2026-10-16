@@ -282,7 +282,7 @@ function InteractableService:_rollItem(rec, forceRarity: string?): string?
 		Roster.Items,
 		Roster.ItemRarityOrder,
 		Roster.ItemRarityWeights,
-		rec.banished,
+		self._players:ItemBlocked(rec),
 		rec.stats.Luck,
 		1,
 		forceRarity,
@@ -295,7 +295,9 @@ function InteractableService:_panelChoice(rec, panel, action: string, index: num
 	local data = panel.data
 	if panel.kind == "chest" then
 		if action == "take" then
-			self._players:GrantItem(rec, data.item)
+			if not self._players:GrantItem(rec, data.item) then
+				self._players:MaxedOut(rec)
+			end
 			self:_close(rec)
 		elseif action == "banish" and rec.charges.banish > 0 and not data.rerolled then
 			rec.charges.banish -= 1
@@ -316,14 +318,17 @@ function InteractableService:_panelChoice(rec, panel, action: string, index: num
 		self:_close(rec)
 	elseif panel.kind == "statue" then
 		local id = data.items[index]
-		if action == "pick" and id then
-			self._players:GrantItem(rec, id)
+		if action == "pick" and id and not self._players:GrantItem(rec, id) then
+			self._players:MaxedOut(rec)
 		end
 		self:_close(rec)
 	elseif panel.kind == "shop" then
 		local entry = data.stock[index]
 		if action == "buy" and entry and not entry.sold then
-			if self._players:Spend(rec, entry.price) then
+			if not self._players:CanTakeItem(rec, entry.item) then
+				-- maxed since Dan stocked it: never take gold for nothing
+				self._toast:FireClient(rec.player, "Maxed out", "You can't carry any more of those.")
+			elseif self._players:Spend(rec, entry.price) then
 				entry.sold = true
 				self._players:GrantItem(rec, entry.item)
 			end
@@ -351,14 +356,20 @@ function InteractableService:_interact(rec, it, now: number)
 			price = 0
 			self._toast:FireClient(rec.player, "Skeleton Key", "This one is on the house.")
 		end
-		if not self._players:Spend(rec, price) then
+		if rec.gold < price then
 			self._toast:FireClient(rec.player, "Not enough gold", `This chest costs {price}.`)
 			return
 		end
+		-- roll before paying: with every item maxed the chest is free and pays out
 		local item = self:_rollItem(rec, nil)
 		if not item then
+			it.used[uid] = true
+			self._stateEvent:FireClient(rec.player, it.id, "used")
+			self._players:MaxedOut(rec)
+			self._toast:FireClient(rec.player, "Maxed out", "Nothing left you can carry. Have some gold.")
 			return
 		end
+		self._players:Spend(rec, price)
 		it.used[uid] = true
 		if not it.free then
 			rec.chestsOpened += 1
@@ -376,7 +387,7 @@ function InteractableService:_interact(rec, it, now: number)
 			Roster.Items,
 			Roster.ItemRarityOrder,
 			Roster.ItemRarityWeights,
-			rec.banished,
+			self._players:ItemBlocked(rec),
 			rec.stats.Luck,
 			3,
 			nil,
@@ -393,7 +404,7 @@ function InteractableService:_interact(rec, it, now: number)
 				Roster.Items,
 				Roster.ItemRarityOrder,
 				Roster.ItemRarityWeights,
-				rec.banished,
+				self._players:ItemBlocked(rec),
 				rec.stats.Luck + 1.5,
 				3,
 				nil,
@@ -438,7 +449,7 @@ function InteractableService:_interact(rec, it, now: number)
 			return
 		end
 		self:SetState(it, "used")
-		self._pickups:CollectAllGems(rec, now)
+		self._pickups:Vacuum(rec, now)
 		Net.server("Fx"):FireAllClients("Pickup", rec.index, "Magnet")
 	elseif kind == "BossPortal" then
 		self._director:PortalUsed(it)
@@ -567,8 +578,9 @@ function InteractableService:StepPanels(now: number)
 		if not rec.active then
 			self._panels[rec] = nil
 		elseif now >= panel.deadline then
-			if panel.kind == "chest" then
-				self._players:GrantItem(rec, panel.data.item) -- never lose a chest to the timer
+			-- never lose a chest to the timer
+			if panel.kind == "chest" and not self._players:GrantItem(rec, panel.data.item) then
+				self._players:MaxedOut(rec)
 			end
 			self:_close(rec)
 		end

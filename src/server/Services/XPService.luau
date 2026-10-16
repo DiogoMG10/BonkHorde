@@ -4,6 +4,7 @@
 -- XP is shared so a squad levels together: whoever picks up a gem, everyone gets
 -- the level, and everyone gets their own choice of upgrade.
 
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
@@ -53,7 +54,14 @@ function XPService:Add(amount: number, rec)
 	if gained > 0 then
 		self._players:RecomputeAll() -- hero passives scale with level
 		self._upgrades:QueueAll(gained)
-		Net.server("Fx"):FireAllClients("LevelUp", level)
+		-- the fanfare for everyone but a finished build (they are at LVL MAX)
+		local fx = Net.server("Fx")
+		for _, player in Players:GetPlayers() do
+			local mate = self._players:Get(player)
+			if not (mate and mate.complete) then
+				fx:FireClient(player, "LevelUp", level)
+			end
+		end
 	end
 	self:Broadcast()
 end

@@ -35,17 +35,72 @@ function Spawn.typesAt(timeline: { { from: number, types: { string } } }, second
 	return current
 end
 
+--- How much tougher overtime makes an enemy: 1 before it, then `growth` more
+--- for every tier, compounding (tier 1 is x1.5 health, as it always was), up
+--- to `max` so the numbers stay finite however long a run goes.
+function Spawn.overtimeHP(overtimeTier: number, growth: number, max: number?): number
+	if overtimeTier <= 0 then
+		return 1
+	end
+	return math.min(1.5 * growth ^ (overtimeTier - 1), max or math.huge)
+end
+
+--- How much harder overtime makes an enemy hit: `growth` per tier, compounding,
+--- up to `max`.
+function Spawn.overtimeDamage(overtimeTier: number, growth: number, max: number?): number
+	return math.min(growth ^ math.max(overtimeTier, 0), max or math.huge)
+end
+
+--- How much faster overtime makes the whole horde: `perTier` more for each tier
+--- after the first, up to `max`. Tier 1 is the stage's own pace.
+function Spawn.overtimeSpeed(overtimeTier: number, perTier: number, max: number): number
+	if overtimeTier <= 1 then
+		return 1
+	end
+	return math.min(1 + perTier * (overtimeTier - 1), max)
+end
+
+--- Overtime's runners: the share of spawns that come frenzied, and how much
+--- faster again than the horde a runner is. Neither exists in tier 1; both
+--- grow each tier to a ceiling.
+function Spawn.runners(
+	overtimeTier: number,
+	sharePerTier: number,
+	shareMax: number,
+	boost: number,
+	boostPerTier: number,
+	boostMax: number
+): (number, number)
+	if overtimeTier <= 1 then
+		return 0, 1
+	end
+	local past = overtimeTier - 1
+	return math.min(sharePerTier * past, shareMax), math.min(boost + boostPerTier * past, boostMax)
+end
+
 --- Health multiplier for an enemy spawned at `seconds`.
-function Spawn.hpMult(seconds: number, difficulty: number, overtimeTier: number, perMinute: number): number
+function Spawn.hpMult(seconds: number, difficulty: number, overtimeTier: number, perMinute: number, growth: number, max: number?): number
 	local m = 1 + perMinute * (math.max(seconds, 0) / 60)
 	m *= 1 + math.max(difficulty, 0)
-	m *= 1 + 0.5 * math.max(overtimeTier, 0)
+	m *= Spawn.overtimeHP(overtimeTier, growth, max)
 	return m
 end
 
---- Chance that a spawn is an elite.
-function Spawn.eliteChance(base: number, eliteSpawnIncrease: number, seconds: number): number
+--- Chance that a spawn is an elite. Overtime adds `perTier` for each tier and
+--- lifts the ceiling to `overtimeMax`.
+function Spawn.eliteChance(
+	base: number,
+	eliteSpawnIncrease: number,
+	seconds: number,
+	overtimeTier: number?,
+	perTier: number?,
+	overtimeMax: number?
+): number
 	local c = base * math.max(eliteSpawnIncrease, 0) * (1 + seconds / 300)
+	local tier = math.max(overtimeTier or 0, 0)
+	if tier > 0 and perTier and overtimeMax then
+		return math.clamp(c + perTier * tier, 0, math.max(overtimeMax, 0.35))
+	end
 	return math.clamp(c, 0, 0.35)
 end
 

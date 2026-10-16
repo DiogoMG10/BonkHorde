@@ -157,6 +157,57 @@ return {
 		assert(deep / total < 0.12, `{deep / total * 100} % of the world is deep forest`)
 	end,
 
+	["grass grows in drifts, and the fights' clearings are worn"] = function()
+		local Wardwood = require("../src/shared/Config/Wardwood")
+		local function grassShare(mode: string?, near: number?): number
+			local grassy, total = 0, 0
+			for x = -440, 440, 8 do
+				for z = -440, 440, 8 do
+					if MapGen.outside(x, z) < -8 and (not near or x * x + z * z < near * near) then
+						total += 1
+						local m = Wardwood.Surfaces[World.surface(world, x, z, mode)].material
+						if m == "Grass" or m == "LeafyGrass" then
+							grassy += 1
+						end
+					end
+				end
+			end
+			return grassy / total
+		end
+		assert(Wardwood.Grass == "short")
+		local less, full = grassShare("less"), grassShare("full")
+		assert(full > 0.85 and less < 0.62 and less > 0.4, `grass {less} less, {full} full`)
+		assert(grassShare("less", 60) < 0.4, "the spawn clearing is still a lawn")
+	end,
+
+	["the short grass is one continuous carpet, with no blades to hide a fight"] = function()
+		local Wardwood = require("../src/shared/Config/Wardwood")
+		local green, blades, total = 0, 0, 0
+		for x = -440, 440, 8 do
+			for z = -440, 440, 8 do
+				if MapGen.outside(x, z) < -8 then
+					total += 1
+					local m = Wardwood.Surfaces[World.surface(world, x, z, "short")].material
+					if m == "Grass" or m == "LeafyGrass" then
+						green += 1
+					end
+					if m == "Grass" then
+						blades += 1
+					end
+				end
+			end
+		end
+		assert(green / total > 0.88, `short meadow green cover {green / total}`)
+		assert(blades == 0, `{blades} bladed columns in the short grass`)
+		local drifts = 0
+		for _, p in world.props do
+			if p.kind == "Flowers" then
+				drifts += 1
+			end
+		end
+		assert(drifts <= 6, `{drifts} flower tufts: only the Elder hill's ring should have any`)
+	end,
+
 	["every landmark is dressed"] = function()
 		local kinds = {}
 		for _, p in world.props do
@@ -303,5 +354,27 @@ return {
 				end
 			end
 		end
+	end,
+	["each run draws one of five skies, evenly, and the lobby stays golden"] = function()
+		local Wardwood = require("../src/shared/Config/Wardwood")
+		assert(Wardwood.Sky == "golden", "the lobby's sky is golden")
+		local want = { golden = true, clear = true, sunset = true, enchanted = true, night = true }
+		local counts = {}
+		for _, entry in Wardwood.RunSkies do
+			assert(want[entry.name], `{entry.name} is not one of the five run skies`)
+			assert(entry.weight == 1, `{entry.name} weighs {entry.weight}, not an even share`)
+			counts[entry.name] = 0
+		end
+		assert(#Wardwood.RunSkies == 5, `{#Wardwood.RunSkies} run skies, not 5`)
+		local n = 10000
+		for i = 0, n - 1 do
+			local name = Wardwood.runSky(i / n)
+			counts[name] += 1
+		end
+		for name, count in counts do
+			assert(math.abs(count / n - 0.2) < 0.001, `{name} drawn {count / n}, not 20%`)
+		end
+		assert(Wardwood.runSky(0) == Wardwood.RunSkies[1].name, "a roll of 0 draws the first")
+		assert(Wardwood.runSky(0.999999) == Wardwood.RunSkies[5].name, "a roll near 1 draws the last")
 	end,
 }

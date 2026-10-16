@@ -14,6 +14,7 @@ local Knit = require(ReplicatedStorage.Packages.Knit)
 local Damage = require(ReplicatedStorage.Shared.Core.Damage)
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local Net = require(ReplicatedStorage.Shared.Net)
+local Offers = require(ReplicatedStorage.Shared.Core.Offers)
 local PrimaryTrigger = require(ReplicatedStorage.Shared.Core.PrimaryTrigger)
 local Progress = require(ReplicatedStorage.Shared.Core.Progress)
 local Roster = require(ReplicatedStorage.Shared.Config.Roster)
@@ -96,6 +97,9 @@ local function newRecord(player: Player, index: number, heroId: string)
 		stillFor = 0,
 		nightAt = 0,
 		greed = 0,
+		-- a finished build (UpdateComplete): no level-up can offer it anything more
+		complete = false,
+		passiveLevel = nil, -- the squad level the hero passive stopped at, once complete
 		dirty = true,
 	}
 end
@@ -314,7 +318,8 @@ end
 -- ------------------------------------------------------------------ stats
 
 function PlayerStateService:Recompute(rec)
-	local level = self._xp:GetLevel()
+	-- the passive follows the squad level until the build is finished, then stays
+	local level = rec.passiveLevel or self._xp:GetLevel()
 	local passive = rec.heroDef.passive
 	local old = rec.stats
 	rec.stats = Stats.compute(Roster.Stats, rec.heroDef.base, passive.stat, passive.perLevel, level, rec.bonus)
@@ -381,22 +386,30 @@ function PlayerStateService:GrantWeapon(rec, id: string)
 	rec.weaponIndex[id] = entry
 	table.insert(rec.weapons, entry)
 	rec.dirty = true
+	self:UpdateComplete(rec)
 end
 
-function PlayerStateService:UpgradeWeapon(rec, id: string, lines)
+--- Level a weapon up. False, and nothing applied, at the level cap.
+function PlayerStateService:UpgradeWeapon(rec, id: string, lines): boolean
 	local entry = rec.weaponIndex[id]
-	if not entry then
-		return
+	if not entry or entry.level >= GameConfig.UpgradeMaxLevel then
+		return false
 	end
 	entry.level += 1
 	for _, line in lines do
 		entry.s[line.stat] = (entry.s[line.stat] or 0) + line.amount
 	end
 	rec.dirty = true
+	self:UpdateComplete(rec)
+	return true
 end
 
-function PlayerStateService:GrantTome(rec, id: string, lines)
+--- Take a tome or level it up. False, and nothing applied, at the level cap.
+function PlayerStateService:GrantTome(rec, id: string, lines): boolean
 	local entry = rec.tomeIndex[id]
+	if entry and entry.level >= GameConfig.UpgradeMaxLevel then
+		return false
+	end
 	if not entry then
 		entry = { id = id, level = 0 }
 		rec.tomeIndex[id] = entry
@@ -406,13 +419,59 @@ function PlayerStateService:GrantTome(rec, id: string, lines)
 	for _, line in lines do
 		Stats.add(rec.bonus, line.stat, line.amount)
 	end
+	self:UpdateComplete(rec)
 	self:Recompute(rec)
+	return true
 end
 
-function PlayerStateService:GrantItem(rec, id: string)
+--- Mark a build finished once no level-up can offer it anything (every slot
+--- filled and at the cap, or the rest banished). From then on the player is at
+--- LVL MAX: squad levels no longer open a choice or announce themselves to
+--- them, each one pays MaxedOutGold quietly, and the hero passive keeps the
+--- level it had reached. Teammates keep levelling from the same shared XP.
+function PlayerStateService:UpdateComplete(rec)
+	local complete = not Offers.canLevel(self:Loadout(rec), Roster.WeaponOrder, Roster.TomeOrder)
+	if complete == rec.complete then
+		return
+	end
+	rec.complete = complete
+	rec.passiveLevel = if complete then self._xp:GetLevel() else nil
+	rec.dirty = true
+end
+
+--- Whether one more of an item can be taken: a unique item once, a stackable
+--- one up to the upgrade cap.
+function PlayerStateService:CanTakeItem(rec, id: string): boolean
 	local def = Roster.Items[id]
 	if not def then
-		return
+		return false
+	end
+	local count = rec.itemIndex[id] or 0
+	return if def.unique then count == 0 else count < GameConfig.UpgradeMaxLevel
+end
+
+--- The item offers to leave out for this player: those they banished, and
+--- those they can take no more of.
+function PlayerStateService:ItemBlocked(rec): { [string]: boolean }
+	local out = table.clone(rec.banished)
+	for id in rec.itemIndex do
+		if not self:CanTakeItem(rec, id) then
+			out["item:" .. id] = true
+		end
+	end
+	return out
+end
+
+--- The reward for a level-up, chest or pick with nothing left to give.
+function PlayerStateService:MaxedOut(rec, levels: number?)
+	self:AddGold(rec, GameConfig.MaxedOutGold * (levels or 1))
+end
+
+--- Take an item. False, and nothing applied, past its cap (CanTakeItem).
+function PlayerStateService:GrantItem(rec, id: string): boolean
+	local def = Roster.Items[id]
+	if not def or not self:CanTakeItem(rec, id) then
+		return false
 	end
 	if rec.itemIndex[id] then
 		rec.itemIndex[id] += 1
@@ -434,6 +493,7 @@ function PlayerStateService:GrantItem(rec, id: string)
 		end
 	end
 	self:Recompute(rec)
+	return true
 end
 
 function PlayerStateService:RemoveItem(rec, id: string)
@@ -470,6 +530,7 @@ function PlayerStateService:Loadout(rec)
 		luck = rec.stats.Luck,
 		weaponSlots = GameConfig.WeaponSlots,
 		tomeSlots = GameConfig.TomeSlots,
+		maxLevel = GameConfig.UpgradeMaxLevel,
 	}
 end
 
@@ -505,6 +566,21 @@ function PlayerStateService:Heal(rec, amount: number)
 	rec.hp = math.min(rec.hp + amount, rec.stats.MaxHP)
 	if rec.hp ~= before then
 		rec.dirty = true
+	end
+end
+
+--- Healing from lifesteal: at most LifestealPerSecond of max HP in any one
+--- second, however many enemies a weapon hits in it.
+function PlayerStateService:Lifesteal(rec, amount: number)
+	local now = self._director:Now()
+	if now - (rec.leechAt or -math.huge) >= 1 then
+		rec.leechAt = now
+		rec.leech = 0
+	end
+	local take = math.min(amount, rec.stats.MaxHP * GameConfig.LifestealPerSecond - rec.leech)
+	if take > 0 then
+		rec.leech += take
+		self:Heal(rec, take)
 	end
 end
 
@@ -684,6 +760,7 @@ function PlayerStateService:Push(rec)
 		stats = rec.stats,
 		charges = rec.charges,
 		chestPrice = self:ChestPrice(rec),
+		complete = rec.complete,
 	})
 end
 

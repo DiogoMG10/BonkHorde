@@ -20,6 +20,7 @@ export type Loadout = {
 	luck: number,
 	weaponSlots: number,
 	tomeSlots: number,
+	maxLevel: number?, -- a weapon or tome at this level is no longer offered
 }
 
 local function count(t: { [string]: number }): number
@@ -66,6 +67,49 @@ local function sortedKeys(t: { [string]: any }): { string }
 	return keys
 end
 
+type Candidate = { kind: string, id: string, isNew: boolean, weight: number }
+
+-- every weapon and tome a level-up could still bring: new ones while a slot is
+-- free, owned ones below the cap, none of them banished
+local function candidatesFor(loadout: Loadout, weaponOrder: { string }, tomeOrder: { string }): { Candidate }
+	local candidates: { Candidate } = {}
+	local weaponFull = count(loadout.weapons) >= loadout.weaponSlots
+	local tomeFull = count(loadout.tomes) >= loadout.tomeSlots
+	local maxLevel = loadout.maxLevel or math.huge
+
+	for _, id in weaponOrder do
+		if loadout.banished["weapon:" .. id] then
+			continue
+		end
+		if loadout.weapons[id] then
+			if loadout.weapons[id] < maxLevel then
+				table.insert(candidates, { kind = "weapon", id = id, isNew = false, weight = 3 })
+			end
+		elseif not weaponFull then
+			table.insert(candidates, { kind = "weapon", id = id, isNew = true, weight = 1.4 })
+		end
+	end
+	for _, id in tomeOrder do
+		if loadout.banished["tome:" .. id] then
+			continue
+		end
+		if loadout.tomes[id] then
+			if loadout.tomes[id] < maxLevel then
+				table.insert(candidates, { kind = "tome", id = id, isNew = false, weight = 2.5 })
+			end
+		elseif not tomeFull then
+			table.insert(candidates, { kind = "tome", id = id, isNew = true, weight = 1 })
+		end
+	end
+	return candidates
+end
+
+--- Whether a level-up could still offer this loadout anything. False is a
+--- finished build: every slot filled and maxed (or the rest banished).
+function Offers.canLevel(loadout: Loadout, weaponOrder: { string }, tomeOrder: { string }): boolean
+	return #candidatesFor(loadout, weaponOrder, tomeOrder) > 0
+end
+
 --- Build up to `n` distinct level-up offers for a loadout.
 function Offers.levelUp(
 	loadout: Loadout,
@@ -80,31 +124,7 @@ function Offers.levelUp(
 	n: number,
 	rnd: () -> number
 ): { Offer }
-	local candidates: { { kind: string, id: string, isNew: boolean, weight: number } } = {}
-	local weaponFull = count(loadout.weapons) >= loadout.weaponSlots
-	local tomeFull = count(loadout.tomes) >= loadout.tomeSlots
-
-	for _, id in weaponOrder do
-		if loadout.banished["weapon:" .. id] then
-			continue
-		end
-		if loadout.weapons[id] then
-			table.insert(candidates, { kind = "weapon", id = id, isNew = false, weight = 3 })
-		elseif not weaponFull then
-			table.insert(candidates, { kind = "weapon", id = id, isNew = true, weight = 1.4 })
-		end
-	end
-	for _, id in tomeOrder do
-		if loadout.banished["tome:" .. id] then
-			continue
-		end
-		if loadout.tomes[id] then
-			table.insert(candidates, { kind = "tome", id = id, isNew = false, weight = 2.5 })
-		elseif not tomeFull then
-			table.insert(candidates, { kind = "tome", id = id, isNew = true, weight = 1 })
-		end
-	end
-
+	local candidates = candidatesFor(loadout, weaponOrder, tomeOrder)
 	local out: { Offer } = {}
 	while #out < n and #candidates > 0 do
 		local total = 0

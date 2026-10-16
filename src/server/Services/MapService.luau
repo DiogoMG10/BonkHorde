@@ -14,6 +14,7 @@ local Workspace = game:GetService("Workspace")
 local Knit = require(ReplicatedStorage.Packages.Knit)
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local MapGen = require(ReplicatedStorage.Shared.Core.MapGen)
+local Wardwood = require(ReplicatedStorage.Shared.Config.Wardwood)
 local World = require(ReplicatedStorage.Shared.Core.World)
 
 local Builder = require(script.Parent.Parent.Wardwood.Builder)
@@ -32,6 +33,9 @@ function MapService:KnitInit()
 	self._props = self._world.props
 	self._reach = MapGen.reachable(self._map, 0, 0, GameConfig.CliffSlope)
 	self._terrainReady = false
+	self._grass = Wardwood.Grass
+	self._rng = Random.new()
+	self._skyWhy = "lobby"
 end
 
 function MapService:KnitStart()
@@ -68,6 +72,46 @@ end
 
 function MapService:IsReachable(x: number, z: number): boolean
 	return MapGen.isReachable(self._map, self._reach, x, z)
+end
+
+--- Studio only (DevService `grass`): rewrite the terrain with another grass
+--- mode, to compare them in place. The heights do not change, so nothing on
+--- the ground moves.
+function MapService:SetGrass(mode: string)
+	self._grass = mode
+	Look.paint(mode)
+	self:_writeTerrain()
+end
+
+--- Put one of Look.Skies over the map; false for an unknown name. `why` is
+--- what the `sky` dev command reports (lobby, drawn for this run, set by hand).
+function MapService:SetSky(name: string, why: string): boolean
+	if not Look.sky(name) then
+		return false
+	end
+	self._skyWhy = why
+	return true
+end
+
+--- The sky in use, and why.
+function MapService:Sky(): (string?, string)
+	return Look.current(), self._skyWhy
+end
+
+--- A run's start: draw its sky from Wardwood.RunSkies. Only the light
+--- changes; the terrain and the scenery stay as they are.
+function MapService:DrawRunSky(): string
+	local name = Wardwood.runSky(self._rng:NextNumber())
+	if not self:SetSky(name, "drawn for this run") then
+		name = Wardwood.Sky
+		self:SetSky(name, "lobby")
+	end
+	return name
+end
+
+--- Back in the lobby: its own sky again.
+function MapService:LobbySky()
+	self:SetSky(Wardwood.Sky, "lobby")
 end
 
 function MapService:GetAnchors()
@@ -125,7 +169,7 @@ function MapService:_writeTerrain()
 				for iz = 1, nz do
 					local z = -half + (cz + iz - 1) * VOXEL + VOXEL / 2
 					local h = MapGen.heightAt(map, x, z)
-					local surface = Look.Surfaces[Builder.surface(world, x, z)]
+					local surface = Look.Surfaces[Builder.surface(world, x, z, self._grass)]
 					local material = if surface then surface[1] else Enum.Material.LeafyGrass
 					for iy = 1, layers do
 						local bottom = FLOOR_Y + (iy - 1) * VOXEL

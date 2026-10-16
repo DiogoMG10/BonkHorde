@@ -35,7 +35,7 @@ function Damage.mitigate(amount: number, armor: number, evasion: number, rEvade:
 	if rEvade < evasion then
 		return 0, true
 	end
-	local reduced = amount * (1 - math.clamp(armor, 0, 0.8))
+	local reduced = amount * (1 - math.clamp(armor, 0, 0.9)) -- the stat's own cap is in Roster.Stats
 	return math.max(reduced, 1), false
 end
 

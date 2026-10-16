@@ -48,8 +48,14 @@ explicit decision by Tiago and Diogo.
   approaches and bends instead of every 46 studs (60 -> 34), three skies to compare
   (`sky golden|clear|dusk`), foliage material A/B (`leaves <material>`), grass at Roblox's
   minimum 0.1. Offline checks only; the tree direction awaits human review in Studio.
-- **Next playable result:** Studio review of `bonk-0.11.0-m3a`: the trees up close and at
-  range, the three skies from the same spots, foliage material, frame rate in the woods.
+  Light follow-up on the M5.A line (`bonk-0.14.1-m5a`, trees not remodelled): golden stays
+  the default sky, plus `sky sunset|night|enchanted`; grass in drifts between moss and worn
+  earth (grass-growing ground 92% -> 54%, `grass full|less` compares live); the forest
+  thinned with crown spacing, winding lanes and glades, young trees at wood edges (trees
+  877 -> 614, canopy cover 40% -> 28%, scenery parts 15.2k -> 11.8k), dense pockets kept.
+  Offline checks only. The full tree-model redesign is a later, dedicated task.
+- **Next playable result:** Studio review: the trees up close and at range, the skies from
+  the same spots, grass full vs less, forest spacing and bunny hops in the woods.
 - **Blockers:** none.
 
 ## M4 Horde & Performance — not started
@@ -59,11 +65,42 @@ explicit decision by Tiago and Diogo.
 - **Next playable result:** enemy types that ask for different responses.
 - **Blockers:** no performance baseline recorded yet; take one before optimising.
 
-## M5 Builds & Replayability — not started
+## M5 Builds & Replayability — in progress
 
 - **Scope:** balance, caps, synergies, evolutions, a mechanical identity per hero.
-- **Next playable result:** builds that play differently from run to run.
-- **Blockers:** depends on M1 settling how each hero's primary works.
+- **State:** M5.A on branch `feat/m5a-balance-feedback`, stacked on `feat/m3a-wardwood` (merge
+  M3.A first). `bonk-0.13.1-m5a`: weapons, tomes and stackable items cap at 20 (maxed-out
+  picks pay gold); overtime compounds (enemy HP x1.2 and damage x1.13 per 30 s tier, more
+  elites); Armor cap 70%, Evasion 60%, lifesteal 4% max HP/s, freeze chance 75% per hit;
+  Silver bounded (early defeat 6, normal win 53, strong run 90, cap 120 a run); gems and
+  coins fly home, magnet and vacuum shrine sweep coins too; one-shot kills show numbers,
+  crits by colour; projectile caps. Offline checks only.
+  `bonk-0.14.0-m5a` follow-up: Lifesteal removed (no item, no shrine, stat held at 0); a
+  finished build shows LVL MAX and gets no more level-up popups or panels (extra squad
+  levels pay 15 gold quietly, the hero passive stops at the level reached); overtime adds
+  pace (horde x1.45 by 8 min, up to 30% ember-trailing runners that beat a walk within a
+  minute and a full bunny hop by ~12 min) and finite HP/damage ceilings; the magnet's +XP
+  tally is gone; fonts on trial (`font <name>`, LuckiestGuy still default). Offline only.
+  `bonk-0.14.1-m5a` approved in a human Studio playtest (grass less, numbers, magnet, LVL MAX,
+  balance). `bonk-0.15.0-m5a`: Fredoka is the default for damage numbers and popups; a
+  whole-interface font trial (`font fredoka all`, `font fredoka ui`, `font luckiest all`;
+  the interface stays as built until approved); each run draws its sky at random from
+  golden, clear, sunset, enchanted and night (20% each, server-side, shared by the squad and
+  late joiners), the lobby stays golden. Offline checks only.
+  `bonk-0.15.1-m5a`: a third grass mode to compare, `grass short`: blade-free LeafyGrass
+  carpet over ~86% of the playable ground in a fresh green, Roblox's blades only in light
+  drifts (~12%, none in the spawn or landmark clearings), and ~1.5k low flower/leaf/plume
+  parts in loose meadow patches (no collision, no shadows, under 1.4 studs). `less` stays the
+  default; `grass full|less|short` switches live. Offline checks only.
+  `bonk-0.15.2-m5a` (after review: no tufts, no flowers wanted): `short` is now one continuous,
+  almost flat grassy surface and the default: blade-free LeafyGrass carpet on all grassy
+  ground (no Grass blades at all), the scattered flower patches and plumes gone, and the
+  older meadow flower drifts removed too (~400 tufts, ~1.6k parts; the Elder hill's ring
+  stays). Paths, rock, ruins and deep-wood moss unchanged. Offline checks only.
+- **Next playable result:** Studio: Fredoka across every menu and panel, several run starts
+  under different skies (night's readability especially), the flat `grass short` default at speed;
+  then integrate (M3.A first).
+- **Blockers:** M3.A's tree pass needs human review before either branch merges.
 
 ## M6 Complete Experience — not started
 

@@ -3,7 +3,10 @@
 -- collected what.
 --
 -- Pickups are data, like the horde. Collection is a server-side range check
--- against each hero's Pickup Range; a client never claims a pickup.
+-- against each hero's Pickup Range; a client never claims a pickup. A magnet
+-- or a vacuum shrine starts a sweep: for VacuumSeconds the hero's reach grows
+-- from their Pickup Range to the whole map, so every gem and coin is taken
+-- nearest first and the XP and gold arrive with the wave the client draws.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
@@ -27,6 +30,9 @@ function PickupService:KnitInit()
 	self._nextId = 1
 	self._gems = 0
 	self._overflow = 0
+	self._coins = 0
+	self._goldOverflow = 0
+	self._vacuums = {} -- rec -> when its sweep began
 	self._spawned = {}
 	self._taken = {}
 	self._spawnEvent = Net.server("PickupSpawn")
@@ -48,26 +54,45 @@ function PickupService:Clear()
 	table.clear(self._items)
 	table.clear(self._spawned)
 	table.clear(self._taken)
+	table.clear(self._vacuums)
 	self._gems = 0
 	self._overflow = 0
+	self._coins = 0
+	self._goldOverflow = 0
 end
 
 function PickupService:Drop(kind: string, x: number, z: number, value: number)
 	if kind == "XPGem" and self._gems >= GameConfig.GemCap then
 		self._overflow += value -- paid out with the next gem collected
 		return
+	elseif kind == "GoldCoin" and self._coins >= GameConfig.GoldCap then
+		self._goldOverflow += value -- paid out with the next coin collected
+		return
 	end
 	local id = self._nextId
+	local found = false
 	for _ = 1, MAX_ID do
 		if not self._items[id] then
+			found = true
 			break
 		end
 		id = id % MAX_ID + 1
+	end
+	if not found then
+		-- every id is in use: never overwrite a pickup lying on the ground
+		if kind == "XPGem" then
+			self._overflow += value
+		elseif kind == "GoldCoin" then
+			self._goldOverflow += value
+		end
+		return
 	end
 	self._nextId = id % MAX_ID + 1
 	self._items[id] = { kind = kind, value = value, x = x, z = z }
 	if kind == "XPGem" then
 		self._gems += 1
+	elseif kind == "GoldCoin" then
+		self._coins += 1
 	end
 	table.insert(self._spawned, id)
 end
@@ -117,11 +142,14 @@ function PickupService:_collect(id: number, item, rec, now: number)
 		self._xp:Add(item.value + self._overflow, rec)
 		self._overflow = 0
 	elseif kind == "GoldCoin" then
+		self._coins -= 1
+		local value = item.value + self._goldOverflow
+		self._goldOverflow = 0
 		for _, other in self._players:All() do
-			self._players:AddGold(other, item.value)
+			self._players:AddGold(other, value)
 		end
 	elseif kind == "PowerupMagnet" then
-		self:CollectAllGems(rec, now)
+		self:Vacuum(rec, now)
 		self._fx:FireAllClients("Pickup", rec.index, "Magnet")
 	elseif kind == "PowerupSnack" then
 		for _, other in self._players:All() do
@@ -136,25 +164,38 @@ function PickupService:_collect(id: number, item, rec, now: number)
 	end
 end
 
---- Pull every gem on the map to one hero (magnet powerup, vacuum shrine).
-function PickupService:CollectAllGems(rec, now: number)
-	for id, item in self._items do
-		if item.kind == "XPGem" then
-			self:_collect(id, item, rec, now)
-		end
-	end
+--- Pull every gem and coin on the map to one hero (magnet powerup, vacuum
+--- shrine): a sweep from their feet out to the edge of the map.
+function PickupService:Vacuum(rec, now: number)
+	self._vacuums[rec] = now
 end
 
+local SWEEPABLE = { XPGem = true, GoldCoin = true }
+
 function PickupService:Step(_dt: number, now: number)
+	local sweep = GameConfig.VacuumSeconds
+	local reachAll = GameConfig.MapSizeStuds * 1.5
 	for _, rec in self._players:All() do
+		local began = self._vacuums[rec]
 		if rec.downed then
+			self._vacuums[rec] = nil
 			continue
 		end
-		local range2 = rec.stats.PickupRange ^ 2
 		local x, z = rec.x, rec.z
+		local range = rec.stats.PickupRange
+		local range2 = range * range
+		local vacuum2 = -1
+		if began then
+			local f = math.clamp((now - began) / sweep, 0, 1)
+			vacuum2 = (range + reachAll * f ^ 1.5) ^ 2
+			if f >= 1 then
+				self._vacuums[rec] = nil
+			end
+		end
 		for id, item in self._items do
 			local dx, dz = item.x - x, item.z - z
-			if dx * dx + dz * dz <= range2 then
+			local d2 = dx * dx + dz * dz
+			if d2 <= range2 or (d2 <= vacuum2 and SWEEPABLE[item.kind]) then
 				self:_collect(id, item, rec, now)
 			end
 		end

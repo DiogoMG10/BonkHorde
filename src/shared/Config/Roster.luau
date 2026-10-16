@@ -14,10 +14,10 @@ Roster.ItemRarityOrder = { "Common", "Rare", "Epic", "Legendary" }
 Roster.ItemRarityWeights = { Common = 60, Rare = 28, Epic = 9, Legendary = 3 }
 
 -- ---------------------------------------------------------------- stats
--- The 31 stats of the stats panel, in display order, with their defaults.
+-- The 30 stats of the stats panel, in display order, with their defaults.
 -- fmt: "int" plain number, "pct" value*100 + %, "mult" value + x, "permin" /min.
 Roster.StatGroups = {
-	{ "MaxHP", "HPRegen", "Overheal", "Shield", "Armor", "Evasion", "Lifesteal", "Thorns" },
+	{ "MaxHP", "HPRegen", "Overheal", "Shield", "Armor", "Evasion", "Thorns" },
 	{ "Damage", "CritChance", "CritDamage", "AttackSpeed", "ProjectileCount", "ProjectileBounces" },
 	{ "Size", "ProjectileSpeed", "Duration", "DamageToElites", "Knockback", "MoveSpeed" },
 	{ "ExtraJumps", "JumpHeight", "Luck", "Difficulty" },
@@ -33,31 +33,36 @@ Roster.StatGroups = {
 }
 
 Roster.Stats = {
-	MaxHP = { name = "Max HP", default = 100, fmt = "int" },
+	MaxHP = { name = "Max HP", default = 100, fmt = "int", min = 1 },
 	HPRegen = { name = "HP Regen", default = 10, fmt = "int" },
 	Overheal = { name = "Overheal", default = 0, fmt = "int" },
 	Shield = { name = "Shield", default = 0, fmt = "int" },
-	Armor = { name = "Armor", default = 0, fmt = "pct" },
-	Evasion = { name = "Evasion", default = 0, fmt = "pct" },
-	Lifesteal = { name = "Lifesteal", default = 0, fmt = "pct" },
+	-- Armor and Evasion stop short of untouchable (they were 80% and 75%: with
+	-- regen and a shield on top, a hero could no longer be worn down)
+	Armor = { name = "Armor", default = 0, fmt = "pct", max = 0.7 },
+	Evasion = { name = "Evasion", default = 0, fmt = "pct", max = 0.6 },
+	-- Lifesteal is out of the game: healing from every hit made a hero with an
+	-- area weapon unkillable whatever the cap. No item or shrine gives it, and the
+	-- ceiling of 0 keeps anything left over (an old item, a dev grant) from healing
+	Lifesteal = { name = "Lifesteal", default = 0, fmt = "pct", hidden = true, max = 0 },
 	Thorns = { name = "Thorns", default = 0, fmt = "int" },
 	Damage = { name = "Damage", default = 1, fmt = "mult" },
-	CritChance = { name = "Crit Chance", default = 0.01, fmt = "pct" },
+	CritChance = { name = "Crit Chance", default = 0.01, fmt = "pct", max = 1 },
 	CritDamage = { name = "Crit Damage", default = 2, fmt = "mult" },
-	AttackSpeed = { name = "Attack Speed", default = 1, fmt = "pct" },
+	AttackSpeed = { name = "Attack Speed", default = 1, fmt = "pct", min = 0.2 },
 	ProjectileCount = { name = "Projectile Count", default = 0, fmt = "int" },
 	ProjectileBounces = { name = "Projectile Bounces", default = 0, fmt = "int" },
-	Size = { name = "Size", default = 1, fmt = "mult" },
+	Size = { name = "Size", default = 1, fmt = "mult", min = 0.3 },
 	ProjectileSpeed = { name = "Projectile Speed", default = 1, fmt = "mult" },
 	Duration = { name = "Duration", default = 1, fmt = "mult" },
 	DamageToElites = { name = "Damage to Elites", default = 1, fmt = "mult" },
 	Knockback = { name = "Knockback", default = 1, fmt = "mult" },
-	MoveSpeed = { name = "Movement Speed", default = 1, fmt = "mult" },
+	MoveSpeed = { name = "Movement Speed", default = 1, fmt = "mult", min = 0.4 },
 	ExtraJumps = { name = "Extra Jumps", default = 0, fmt = "int" },
-	JumpHeight = { name = "Jump Height", default = 7, fmt = "int" },
+	JumpHeight = { name = "Jump Height", default = 7, fmt = "int", min = 3 },
 	Luck = { name = "Luck", default = 0, fmt = "pct" },
 	Difficulty = { name = "Difficulty", default = 0, fmt = "pct" },
-	PickupRange = { name = "Pickup Range", default = 10, fmt = "int" },
+	PickupRange = { name = "Pickup Range", default = 10, fmt = "int", min = 2 },
 	XPGain = { name = "XP Gain", default = 1, fmt = "mult" },
 	GoldGain = { name = "Gold Gain", default = 1, fmt = "mult" },
 	SilverGain = { name = "Silver Gain", default = 1, fmt = "mult" },
@@ -65,7 +70,7 @@ Roster.Stats = {
 	PowerupMultiplier = { name = "Powerup Multiplier", default = 1, fmt = "mult" },
 	PowerupDropChance = { name = "Powerup Drop Chance", default = 1, fmt = "mult" },
 	-- hidden: not shown in the panel
-	FreezeChance = { name = "Freeze Chance", default = 0, fmt = "pct", hidden = true },
+	FreezeChance = { name = "Freeze Chance", default = 0, fmt = "pct", hidden = true, max = 0.5 },
 }
 
 -- ---------------------------------------------------------------- heroes
@@ -436,6 +441,7 @@ Roster.Items = {
 		proc = "AutoTrigger",
 		unique = true, -- a second one would do nothing, so it is never offered again
 	},
+	-- retired with Lifesteal: not in ItemOrder, so never offered, sold or dropped
 	VampireMitts = {
 		name = "Vampire Mitts",
 		rarity = "Epic",
@@ -511,7 +517,6 @@ Roster.ItemOrder = {
 	"StaticMitts",
 	"SkeletonKey",
 	"AutoTrigger",
-	"VampireMitts",
 	"Nightlight",
 	"CrackedGoggles",
 	"PanicMirror",
@@ -708,7 +713,6 @@ Roster.ShrineBoosts = {
 	{ stat = "Armor", amount = 0.03, text = "3% Armor" },
 	{ stat = "Size", amount = 0.05, text = "5% Size" },
 	{ stat = "Shield", amount = 10, text = "10 Shield" },
-	{ stat = "Lifesteal", amount = 0.01, text = "1% Lifesteal" },
 	{ stat = "Evasion", amount = 0.02, text = "2% Evasion" },
 	{ stat = "CritDamage", amount = 0.1, text = "10% Crit Damage" },
 	{ stat = "DamageToElites", amount = 0.08, text = "8% Damage to Elites" },
@@ -736,7 +740,7 @@ Roster.InteractablePrompt = {
 	ChargeShrine = "Stand in the dome",
 	GreedShrine = "Get greedy",
 	ChallengeShrine = "Start the challenge",
-	VacuumShrine = "Pull every gem",
+	VacuumShrine = "Pull every gem and coin",
 	SmugStatue = "Ask the statue",
 	DodgyDan = "Browse Dan's deals",
 	BossPortal = "Summon the boss",

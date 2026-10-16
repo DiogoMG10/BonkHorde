@@ -6,7 +6,7 @@
 -- what makes a balance pass a data edit.
 
 local GameConfig = {
-	BuildStamp = "bonk-0.11.0-m3a",
+	BuildStamp = "bonk-0.15.2-m5a",
 
 	-- squad
 	MaxPlayers = 3,
@@ -18,7 +18,25 @@ local GameConfig = {
 	StageSeconds = 600,
 	OvertimeTierSeconds = 30,
 	OvertimeNames = { "Easy", "Normal", "Hard", "Brutal", "Insane", "Unfair", "Why" },
-	OvertimeSilverStep = 0.15,
+	-- past the stage clock every tier compounds on the last (Core/Spawn): the first
+	-- minutes are a fight, ten minutes in it is a wall. Enemy counts stay capped.
+	OvertimeHPGrowth = 1.2, -- enemy health x this per tier (x3 after 2 min, x57 after 10)...
+	OvertimeHPMax = 50000, -- ...to this ceiling (about 28 min): finite, and long past survivable
+	OvertimeDamageGrowth = 1.13, -- enemy damage x this per tier (x1.8 after 2 min, x13 after 10)...
+	OvertimeDamageMax = 100, -- ...to this ceiling (about 18 min), where any hit is lethal anyway
+	OvertimeElitePerTier = 0.015, -- more of each wave are elites...
+	OvertimeEliteMax = 0.5, -- ...up to this share
+	-- speed: health alone lets a big build delete the horde before it arrives.
+	-- The whole horde quickens a little; a growing share comes frenzied (runners,
+	-- trailing embers) and outpaces a walking hero within a minute, a bunny hop
+	-- from about twelve minutes. Counts stay capped: the threat is pace, not mass.
+	OvertimeSpeedPerTier = 0.03, -- every enemy x(1 + this per tier after the first)...
+	OvertimeSpeedMax = 1.45, -- ...to this (8 min)
+	OvertimeRunnerPerTier = 0.015, -- the share of spawns that are runners grows by this per tier...
+	OvertimeRunnerMax = 0.3, -- ...to this (10 min): most of the horde can still be outrun
+	OvertimeRunnerBoost = 1.35, -- a runner is this much faster than the horde...
+	OvertimeRunnerBoostPerTier = 0.04, -- ...plus this per tier...
+	OvertimeRunnerBoostMax = 2.3, -- ...to this (12 min)
 
 	-- simulation
 	SimHz = 20,
@@ -58,6 +76,10 @@ local GameConfig = {
 	EliteScale = 1.5,
 	EliteBaseChance = 0.02,
 	EliteXP = 10,
+	-- defence: Armor and Evasion are capped in Roster.Stats; lifesteal heals at most
+	-- this share of max HP per second however many enemies a weapon hits
+	LifestealPerSecond = 0.04,
+	FreezeChanceMax = 0.75, -- a hit's whole freeze chance (stat, weapon, items) stops here
 	OvertimeSpawnMultiplier = 1.6,
 
 	-- player
@@ -99,6 +121,10 @@ local GameConfig = {
 	ReviveRadius = 7,
 	ReviveHPFraction = 0.5,
 	AimRange = 70,
+	-- what a stacked late build may put in the air (performance, not balance: a
+	-- build past these is already overwhelming)
+	MaxShotsPerFire = 24, -- projectiles or swings from one attack
+	MaxProjectiles = 320, -- in flight at once across the squad; a shot past it is not fired
 
 	-- primary weapon (the hero's starting weapon, fired by hand)
 	ManualPrimaryHeroes = { Knight = true, Fox = true, Frostling = true }, -- heroes whose weapon in slot 1 waits for the attack button
@@ -120,6 +146,8 @@ local GameConfig = {
 	XPQuadratic = 0,
 	GemMergeRadius = 5,
 	GemCap = 400,
+	GoldCap = 300, -- coins on the ground; past it their value rides on the next coin picked up
+	VacuumSeconds = 1.2, -- a magnet or vacuum shrine sweeps the whole map, nearest first, over this long
 	PickupFlySpeed = 60,
 	OfferCount = 3,
 	OfferChoiceSecondsCoop = 12,
@@ -129,6 +157,8 @@ local GameConfig = {
 	RefreshCharges = 3,
 	WeaponSlots = 4,
 	TomeSlots = 4,
+	UpgradeMaxLevel = 20, -- every weapon and tome stops here, and every stackable item at this many
+	MaxedOutGold = 15, -- what a level-up, chest or pick with nothing left to give pays instead
 	SkipGold = 5,
 	LateJoinLevelFraction = 0.75,
 
@@ -139,9 +169,19 @@ local GameConfig = {
 	ChestPriceLinear = 40,
 	ChestPriceQuadratic = 3,
 	ShopPrice = { Common = 60, Rare = 120, Epic = 200, Legendary = 290 },
-	SilverPerHundredKills = 1,
-	SilverPerBossKill = 10,
+	-- Silver (Core/Progress.silver): every part of a run pays, each with diminishing
+	-- returns, and the run as a whole is capped, so no run is ever worth an unlock on
+	-- its own (Minty is 150). tests/Rules.spec.luau pins the reference payouts.
+	SilverPerStageMinute = 0.8, -- surviving the stage clock (up to its 10 minutes)
+	SilverKillMax = 35, -- kills pay towards this...
+	SilverKillScale = 2500, -- ...about two thirds of it by this many kills
 	SilverPerMinibossKill = 3,
+	SilverPerBossKill = 10,
+	SilverForEscape = 4, -- leaving through the portal after the boss
+	SilverOvertimeMax = 30, -- overtime survived pays towards this...
+	SilverOvertimeHalfLife = 240, -- ...half of it in this many seconds
+	SilverGainCap = 1.5, -- Silver Gain counts up to this multiplier
+	SilverRunCap = 120, -- the most one run can pay
 
 	-- interactables
 	InteractRange = 9,

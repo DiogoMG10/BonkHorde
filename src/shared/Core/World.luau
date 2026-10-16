@@ -348,9 +348,41 @@ local function patches(x: number, z: number): number
 	return smooth((noise(x * 1.4 + 31, z * 1.4 - 17) - 0.5) / 0.14)
 end
 
+-- Winding lanes through the woods, 0 in a lane and 1 away from one: where
+-- either of two slow, smooth fields crosses its middle. The two cross each
+-- other, so the lanes form a sparse network about 12 studs wide that wanders
+-- like a deer trail, not a road.
+local function lanes(x: number, z: number): number
+	local a = 0.5 + 0.3 * math.sin(x * 0.021 + 1.3) * math.cos(z * 0.017 - 0.4) + 0.2 * math.sin((x - z) * 0.013 + 2.1)
+	local b = 0.5 + 0.3 * math.sin(z * 0.02 - 2.2) * math.cos(x * 0.016 + 0.9) + 0.2 * math.sin((x + z) * 0.012 - 1.7)
+	local d = math.min(math.abs(a - 0.5), math.abs(b - 0.5))
+	return smooth((d - 0.03) / 0.03)
+end
+
+-- Glades, 0 inside one and 1 clear of them: a clearing in most cells of a
+-- jittered 96-stud lattice, 24 to 48 studs across, room to turn and fight in.
+local GLADE = 96
+local function glades(x: number, z: number): number
+	local keep = 1
+	local cx, cz = math.floor(x / GLADE), math.floor(z / GLADE)
+	for ix = cx - 1, cx + 1 do
+		for iz = cz - 1, cz + 1 do
+			if hash(ix, iz, 401) < 0.6 then
+				local gx = (ix + 0.2 + hash(ix, iz, 403) * 0.6) * GLADE
+				local gz = (iz + 0.2 + hash(ix, iz, 407) * 0.6) * GLADE
+				local r = 12 + 12 * hash(ix, iz, 409)
+				local d = math.sqrt((x - gx) ^ 2 + (z - gz) ^ 2)
+				keep = math.min(keep, smooth((d - r) / 10))
+			end
+		end
+	end
+	return keep
+end
+
 --- Forest density, 0 (open meadow) to 1 (deep forest). Dense forest is kept
 --- to chosen places, Mirewood and Thornwood's patches; the rest of the world
---- is meadow, groves and open woodland, so a hero can always see and move.
+--- is meadow, groves and open woodland, broken by lanes and glades, so a hero
+--- can always see and move.
 function World.forest(x: number, z: number): number
 	local n = noise(x, z)
 	local out = MapGen.outside(x, z)
@@ -374,14 +406,54 @@ function World.forest(x: number, z: number): number
 		local d = math.sqrt((x - g[1]) ^ 2 + (z - g[2]) ^ 2)
 		f = math.max(f, g[4] * smooth(1 - d / g[3]) * (0.75 + 0.5 * n))
 	end
+	-- lanes and glades open the woodland, never the meadows' lone trees
+	if f > 0.15 then
+		f = 0.15 + (f - 0.15) * (0.12 + 0.88 * lanes(x, z) * glades(x, z))
+	end
 	return math.clamp(f, 0, 1) * openness(x, z)
 end
 
 -- ------------------------------------------------------------------ surfaces
 
+-- Ground patches 20 to 40 studs across, in [0, 1]: three samples of the
+-- broad noise, turned 60 degrees apart, so no direction wins and the patches
+-- read as rounded drifts (one sample alone lays them out in diagonal stripes)
+local function patchNoise(x: number, z: number): number
+	local acc = 0
+	for k = 0, 2 do
+		local a = k * math.pi / 3 + 0.4
+		local c, s = math.cos(a), math.sin(a)
+		acc += noise((x * c + z * s) * 2.2 + 71 * k, (z * c - x * s) * 2.2 - 43 * k)
+	end
+	return math.clamp(0.5 + (acc / 3 - 0.5) * 1.7, 0, 1)
+end
+
+-- How worn the ground is where fights gather, 0..1: the spawn clearing and
+-- the landmarks' clearings, trampled to earth and moss in their middles.
+local function wear(x: number, z: number): number
+	local w = smooth((72 - math.sqrt(x * x + z * z)) / 30)
+	for _, site in World.Sites do
+		if site.name ~= "Spawn" then
+			local d = math.sqrt((x - site.x) ^ 2 + (z - site.z) ^ 2)
+			w = math.max(w, smooth((site.clear + 8 - d) / 16))
+		end
+	end
+	return w
+end
+
 --- The terrain surface at a point, as a material key (MapService maps keys to
 --- Roblox materials and colours; the preview to swatches).
-function World.surface(world: World, x: number, z: number): string
+---
+--- `grass` "less" (Config/Wardwood.Grass, the default) keeps grass, which
+--- Roblox grows blades on, to drifts: mossy hollows and worn earth between
+--- them in the meadows, a moss-and-litter floor under the trees with leafy
+--- tufts in patches, and the clearings where fights gather mostly trampled.
+--- "full" is the earlier all-grass look, for comparison (`grass full` in BonkDev).
+--- "short" (the default) is one continuous, almost flat grassy surface:
+--- LeafyGrass, whose texture reads as short grass and which Roblox grows no
+--- blades on, over all the open ground and the woods; no tufts, no flowers,
+--- moss only in the deep woods' heart (`grass short`).
+function World.surface(world: World, x: number, z: number, grass: string?): string
 	local map = world.map
 	local h = MapGen.heightAt(map, x, z)
 	local slope = MapGen.slopeAt(map, x, z)
@@ -422,10 +494,29 @@ function World.surface(world: World, x: number, z: number): string
 	end
 	local f = World.forest(x, z)
 	local cool = coolness(x, z)
+	if grass == "full" then
+		if f > 0.5 and cool > 0.5 then
+			return "ForestFloor"
+		elseif f > 0.32 or (cool > 0.6 and n > 0.35) then
+			return "Lush"
+		end
+		return "Meadow"
+	elseif grass == "short" then
+		return if f > 0.55 and cool > 0.5 then "ForestFloor" else "Carpet"
+	end
+	local fine = patchNoise(x, z)
 	if f > 0.5 and cool > 0.5 then
 		return "ForestFloor"
-	elseif f > 0.32 or (cool > 0.6 and n > 0.35) then
-		return "Lush"
+	elseif f > 0.38 then
+		return if fine > 0.64 then "Lush" else "ForestFloor"
+	elseif f > 0.25 or (cool > 0.6 and n > 0.35) then
+		return if fine > 0.5 then "Lush" elseif fine > 0.36 then "Meadow" else "ForestFloor"
+	end
+	local bare = fine - 0.3 * wear(x, z)
+	if bare < 0.24 then
+		return "Ground"
+	elseif bare < 0.44 then
+		return "ForestFloor"
 	end
 	return "Meadow"
 end
@@ -1176,12 +1267,65 @@ local function placeWider(ctx)
 	end
 end
 
+-- how far a crown reaches at scale 1, about (measured from the blueprints)
+local CROWN = {
+	Spruce = 8,
+	SpruceFar = 8.5,
+	Pine = 9,
+	Beech = 8.5,
+	Oak = 10,
+	OakLeaning = 10,
+	Birch = 6.5,
+	Sapling = 3,
+	AncientOak = 26, -- about half the limbs' spread: the ancients keep a clearing
+	AncientPine = 14,
+	Elder = 22,
+}
+
 local function placeForest(ctx)
 	local add, free, sink, map, limit = ctx.add, ctx.free, ctx.sink, ctx.map, ctx.limit
 	-- the forest: a jittered lattice, thinned by the forest field; spruce where
 	-- it is cool (pines along its warmer edges), beech, oak, birch and saplings
-	-- where it is warm. Sizes vary: mostly young and middling trees, about one
-	-- in eight grown large.
+	-- where it is warm. Sizes vary: young trees crowd the woodland's thin
+	-- edges, old ones stand in its heart, about one in ten grown large.
+	--
+	-- Trunks keep their walking gap (ctx.free), and crowns keep a gap of their
+	-- own: in open woodland they barely touch, so there is sky between them;
+	-- only in deep forest do they close into a roof.
+	local crowns = {}
+	local CELL = 32
+	local function crownKey(x: number, z: number): number
+		return math.floor(x / CELL) * 4096 + math.floor(z / CELL)
+	end
+	local function addCrown(x: number, z: number, c: number)
+		local k = crownKey(x, z)
+		local list = crowns[k]
+		if not list then
+			list = {}
+			crowns[k] = list
+		end
+		table.insert(list, { x, z, c })
+	end
+	local function crownRoom(x: number, z: number, c: number, overlap: number): boolean
+		local cx, cz = math.floor(x / CELL), math.floor(z / CELL)
+		for ix = cx - 1, cx + 1 do
+			for iz = cz - 1, cz + 1 do
+				for _, o in crowns[ix * 4096 + iz] or {} do
+					local need = (o[3] + c) * overlap
+					if (o[1] - x) ^ 2 + (o[2] - z) ^ 2 < need * need then
+						return false
+					end
+				end
+			end
+		end
+		return true
+	end
+	for _, p in ctx.props do
+		if CROWN[p.kind] then
+			addCrown(p.x, p.z, CROWN[p.kind] * p.scale)
+		end
+	end
+
 	local step = 8.5
 	local count = math.floor(limit / step)
 	for iz = -count, count do
@@ -1201,7 +1345,10 @@ local function placeForest(ctx)
 			end
 			local cool = coolness(x, z)
 			local roll = hash(ix, iz, 149)
-			local mature = hash(ix, iz, 151) < 0.12
+			-- young at the thin edges of a wood, old in its heart
+			local edge = smooth((0.5 - f) / 0.3)
+			local young = hash(ix, iz, 163) < 0.15 + 0.3 * edge
+			local mature = not young and hash(ix, iz, 151) < 0.06 + 0.1 * (1 - edge)
 			local grow = hash(ix, iz, 153)
 			local kind, scale, r
 			if roll < cool or cool > 0.9 then
@@ -1243,6 +1390,14 @@ local function placeForest(ctx)
 					r = 0.9 * scale
 				end
 			end
+			if young and kind ~= "Sapling" then
+				scale *= 0.58 + 0.17 * hash(ix, iz, 165)
+				r *= 0.7
+			end
+			-- crowns in open woodland barely touch; in deep forest they close in
+			if not crownRoom(x, z, CROWN[kind] * scale, 0.78 - 0.33 * f) then
+				continue
+			end
 			-- the crown must clear a route, not only the trunk: a spruce's lowest
 			-- whorl hangs at head height and would close over a path at speed (a
 			-- broadleaf's crown and a pine's stand well overhead)
@@ -1263,6 +1418,7 @@ local function placeForest(ctx)
 					lift = sink(x, z, r),
 				}
 				add(p)
+				addCrown(x, z, CROWN[kind] * scale)
 			end
 		end
 	end
@@ -1334,7 +1490,8 @@ end
 
 local function placeCover(ctx)
 	local add, map, solids, limit = ctx.add, ctx.map, ctx.solids, ctx.limit
-	-- ground cover, walked through: ferns, glowcaps, bushes, logs, stumps, flowers
+	-- ground cover, walked through: ferns, glowcaps, bushes, logs, stumps. The
+	-- open meadows stay bare grass: no flower drifts to read as clutter at speed
 	local cover = 6.5
 	local cn = math.floor(limit / cover)
 	for iz = -cn, cn do
@@ -1367,13 +1524,8 @@ local function placeCover(ctx)
 				elseif roll < 0.085 then
 					kind, scale = "Fern", 0.9 + hash(ix, iz, 239) * 0.6
 				end
-			elseif open > 0.6 and World.pathDistance(x, z) > 1.5 then
-				-- the meadows: flowers in drifts, following the noise
-				if roll < 0.028 + 0.05 * smooth((noise(x * 2.3, z * 2.3) - 0.55) / 0.2) then
-					kind, scale = "Flowers", 0.9 + hash(ix, iz, 241) * 0.5
-				elseif roll > 0.988 then
-					kind, scale = "Bush", 0.6 + hash(ix, iz, 251) * 0.5
-				end
+			elseif open > 0.6 and World.pathDistance(x, z) > 1.5 and roll > 0.988 then
+				kind, scale = "Bush", 0.6 + hash(ix, iz, 251) * 0.5
 			end
 			if kind and solids:clear(x, z, 0.5, 0.5) then
 				add({ kind = kind, x = x, z = z, yaw = hash(ix, iz, 257) * math.pi * 2, scale = scale, radius = 0, seed = seedOf(x, z) })

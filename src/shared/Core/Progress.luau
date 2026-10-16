@@ -41,21 +41,34 @@ function Progress.coinValue(seconds: number, minutesPerStep: number): number
 	return 1 + math.floor(seconds / 60 / minutesPerStep)
 end
 
---- Silver paid when a run ends.
-function Progress.silver(
+export type RunSummary = {
+	stageSeconds: number, -- time survived on the stage clock, up to its end
+	overtimeSeconds: number, -- time survived past it
 	kills: number,
 	minibossKills: number,
 	bossKills: number,
-	perHundredKills: number,
-	perMiniboss: number,
-	perBoss: number,
-	silverGain: number,
-	overtimeTier: number,
-	overtimeStep: number
-): number
-	local raw = math.floor(kills / 100) * perHundredKills + minibossKills * perMiniboss + bossKills * perBoss
-	local mult = math.max(silverGain, 0) * (1 + math.max(overtimeTier, 0) * overtimeStep)
-	return math.floor(raw * mult + 0.5)
+	escaped: boolean, -- left through the portal after the boss
+}
+
+--- Silver paid when a run ends, and the parts that paid it. Kills and overtime
+--- pay with diminishing returns towards a ceiling each, Silver Gain counts up
+--- to its cap, and the run as a whole is capped: a long run earns more than a
+--- short one, never without limit. `c` holds the GameConfig Silver* tunables.
+function Progress.silver(run: RunSummary, silverGain: number, c: any): (number, { [string]: number })
+	local parts = {
+		stage = c.SilverPerStageMinute * math.clamp(run.stageSeconds, 0, c.StageSeconds) / 60,
+		kills = c.SilverKillMax * (1 - math.exp(-math.max(run.kills, 0) / c.SilverKillScale)),
+		minibosses = c.SilverPerMinibossKill * math.max(run.minibossKills, 0),
+		boss = c.SilverPerBossKill * math.max(run.bossKills, 0),
+		escape = if run.escaped then c.SilverForEscape else 0,
+		overtime = c.SilverOvertimeMax * (1 - 0.5 ^ (math.max(run.overtimeSeconds, 0) / c.SilverOvertimeHalfLife)),
+	}
+	local raw = 0
+	for _, v in parts do
+		raw += v
+	end
+	local gain = math.clamp(silverGain, 0, c.SilverGainCap)
+	return math.min(math.floor(raw * gain + 0.5), c.SilverRunCap), parts
 end
 
 return Progress

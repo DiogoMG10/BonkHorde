@@ -374,6 +374,19 @@ local PRESETS: { [string]: { any } } = {
 		},
 		{ tex = "ring_thin", count = 1, colour = rgb(120, 190, 255), size = grow(16, 1), life = { 0.4, 0.4 }, speed = { 0, 0 }, glow = 1 },
 	},
+	-- gems and coins reaching the hero: a small twinkle (tinted gold for coins)
+	GemCollect = {
+		{
+			tex = "star4",
+			count = 3,
+			colour = rgb(130, 200, 255),
+			size = grow(0.9, 0),
+			life = { 0.18, 0.28 },
+			speed = { 3, 7 },
+			glow = 1,
+			up = true,
+		},
+	},
 	FrenzyFlare = {
 		{
 			tex = "burst",
@@ -594,6 +607,18 @@ local ATTACHED: { [string]: { any } } = {
 	},
 	EliteGlint = {
 		{ tex = "star4", rate = 5, colour = rgb(255, 225, 90), size = grow(0.2, 1.1, 0), life = { 0.4, 0.6 }, speed = { 0, 1 }, glow = 1 },
+	},
+	RunnerEmbers = {
+		{
+			tex = "dot",
+			rate = 14,
+			colour = ColorSequence.new(rgb(255, 196, 70), rgb(255, 70, 30)),
+			size = grow(0.45, 0.1),
+			life = { 0.3, 0.5 },
+			speed = { 1, 3 },
+			up = true,
+			glow = 1,
+		},
 	},
 	GhostWisp = {
 		{

@@ -104,7 +104,7 @@ local function shots(rec, w): number
 	if rng:NextNumber() < c - whole then
 		whole += 1
 	end
-	return math.max(whole, 1)
+	return math.clamp(whole, 1, GameConfig.MaxShotsPerFire)
 end
 
 local function sizeOf(rec, w): number
@@ -172,7 +172,8 @@ function CombatService:_hit(rec, w, slot: number, base: number, now: number, isP
 		if dirx and (s.Knockback or 0) > 0 then
 			enemies:Knock(slot, dirx, dirz, s.Knockback * stats.Knockback * 0.5)
 		end
-		if freezeChance > 0 and rng:NextNumber() < freezeChance then
+		-- never a certainty, or a ring of frost becomes a cage nothing escapes
+		if freezeChance > 0 and rng:NextNumber() < math.min(freezeChance, GameConfig.FreezeChanceMax) then
 			enemies:Freeze(slot, s.FreezeSeconds or 1.5, now)
 		end
 		if items.StinkyCheese and rng:NextNumber() < ITEMS.StinkyCheese.n.chance then
@@ -181,7 +182,7 @@ function CombatService:_hit(rec, w, slot: number, base: number, now: number, isP
 		end
 	end
 	if stats.Lifesteal > 0 then
-		self._players:Heal(rec, math.min(amount * stats.Lifesteal, 4))
+		self._players:Lifesteal(rec, math.min(amount * stats.Lifesteal, 4))
 	end
 
 	if not isProc then
@@ -224,6 +225,9 @@ function CombatService:_blast(rec, w, x: number, z: number, r: number, base: num
 end
 
 function CombatService:_spawnProj(p)
+	if #self._projs >= GameConfig.MaxProjectiles then
+		return -- the sky is full: this one is never fired (nor sent)
+	end
 	p.id = self._nextProj
 	self._nextProj = self._nextProj % 60000 + 1
 	table.insert(self._projs, p)

@@ -4,7 +4,9 @@
 -- tools/map/preview_blender.py, so the preview is drawn from the same tree as
 -- the game and cannot disagree with it.
 --
---     lune run tools/map/export_world.luau [out.json]
+--     lune run tools/map/export_world.luau [out.json] [grass mode]
+--
+-- The grass mode is Config/Wardwood.Grass unless given.
 --
 -- Part-built props are exported as their exact primitives (Core/Blueprints);
 -- mesh props as proxies with their measured bounds (assets/meshes/manifest.json).
@@ -19,6 +21,7 @@ local Wardwood = require("../../src/shared/Config/Wardwood")
 local World = require("../../src/shared/Core/World")
 
 local out = process.args[1] or "work/map/world.json"
+local grass = process.args[2] or Wardwood.Grass
 local c = GameConfig
 local world = World.build(c)
 local map = world.map
@@ -30,7 +33,7 @@ for iz = 0, map.n - 1 do
 	for ix = 0, map.n - 1 do
 		local x = -map.half + ix * map.cell
 		table.insert(heights, math.floor(map.heights[iz * map.n + ix + 1] * 100 + 0.5) / 100)
-		table.insert(surfaces, World.surface(world, x, z))
+		table.insert(surfaces, World.surface(world, x, z, grass))
 	end
 end
 
