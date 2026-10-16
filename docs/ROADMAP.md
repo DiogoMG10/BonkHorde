@@ -61,7 +61,10 @@ explicit decision by Tiago and Diogo.
   steering); server-authoritative, freeze, pause and height overlap respected. Blender
   models for the Goblin Runt, Goblin Bruiser and Slime in colours that read against the
   grass. `pack` and `bench` dev commands. Details: `docs/M4A-enemy-variety.md`. Offline
-  checks only.
+  checks only. `bonk-0.18.1-m4a`: the three models redone after the team's references:
+  bigger (Runt 3.8, Bruiser 6.2, Slime 2.9 studs, contact radii with them), stronger
+  silhouettes, muted colours (khaki goblin in rust, burgundy brute in iron and bone, mauve
+  slime). Offline checks only.
 - **Next playable result:** Studio: the charge and the leap in a horde (telegraphs read,
   dodges fair, punish windows), the new models against the forest, `bench 250` on `main`
   and here for a first performance baseline.

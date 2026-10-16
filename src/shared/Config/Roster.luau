@@ -548,9 +548,10 @@ Roster.Enemies = {
 		hp = 7,
 		dmg = 15,
 		speed = 5.0,
-		radius = 1.3, -- movement and spacing
-		body = 1.2, -- visible body radius: contact reach
-		height = 3.2,
+		-- M4.A redesign: drawn larger (3.2 -> 3.8 studs), its body and spacing with it
+		radius = 1.5, -- movement and spacing
+		body = 1.4, -- visible body radius: contact reach
+		height = 3.8,
 		xp = 1,
 		colour = { 96, 190, 60 },
 	},
@@ -559,9 +560,10 @@ Roster.Enemies = {
 		hp = 15,
 		dmg = 25,
 		speed = 5.5,
-		radius = 1.7, -- movement and spacing
-		body = 1.35, -- visible body radius: contact reach
-		height = 4.6,
+		-- M4.A redesign: a heavy now, taller than a hero (4.6 -> 6.2 studs)
+		radius = 2.2, -- movement and spacing
+		body = 1.8, -- visible body radius: contact reach
+		height = 6.2,
 		xp = 2,
 		colour = { 60, 140, 50 },
 		-- M4.A: the charger. It stops, braces and shows its lane, then runs it
@@ -575,7 +577,7 @@ Roster.Enemies = {
 			run = 18, -- studs the charge covers (less if a cliff is in the way)
 			time = 0.42, -- seconds the full run takes
 			recover = 1.1, -- winded, still, afterwards
-			width = 1.5, -- half the width of the lane it hits
+			width = 1.8, -- half the width of the lane it hits (its body, near enough)
 			dmg = 1.5, -- x its contact damage
 		},
 	},
@@ -584,9 +586,10 @@ Roster.Enemies = {
 		hp = 6,
 		dmg = 8,
 		speed = 6.5,
-		radius = 1.4, -- movement and spacing
-		body = 0.95, -- visible body radius: contact reach
-		height = 2.4,
+		-- M4.A redesign: drawn larger and rounder (2.4 -> 2.9 studs)
+		radius = 1.65, -- movement and spacing
+		body = 1.2, -- visible body radius: contact reach
+		height = 2.9,
 		xp = 1,
 		hop = true,
 		colour = { 140, 235, 60 },

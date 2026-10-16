@@ -15,7 +15,7 @@ attack hits as its contact does (x1.5).
 | starts | 8-15 studs from its hero, every 4.5-7 s | 6-13 studs, every 3.5-5.5 s |
 | windup | 0.85 s braced and still, its lane drawn on the ground (orange, filling) | 0.55 s squatting, the landing ring drawn (amber, filling) |
 | the attack | 18 studs straight at where the hero stood, in 0.42 s, committed | an arc to where the hero stood (14 studs at most), 0.5 s, no steering |
-| hits | heroes the lane passes over (1.5 studs + body), once each, x1.5 contact damage | heroes in the 3-stud splash when it lands, x1.4 contact damage |
+| hits | heroes the lane passes over (1.8 studs + body), once each, x1.5 contact damage | heroes in the 3-stud splash when it lands, x1.4 contact damage |
 | recover | 1.1 s winded, swaying, no contact damage: punish it | 0.6 s splattered flat |
 | dodge | step sideways out of the lane | move, slide or jump out of the ring (a hero in the air is clear) |
 
@@ -37,24 +37,36 @@ ring (1.05 s for 4.2 studs) with room to spare.
 `tools/art/enemies.py`, built with the rest of the kit (`"$BLENDER" -b -P tools/art/kit.py`)
 into `assets/art/wardwood_kit.blend`, `assets/art/export/KitEnemy*.glb` and
 `src/server/Wardwood/ArtMeshes/KitEnemy*.luau`; baked by the server at start, enemies
-first, and used by `EnemyRenderController` when baked (else the old meshes):
+first, and used by `EnemyRenderController` when baked (else the old meshes). Second pass
+(`bonk-0.18.1-m4a`) after the references in `D:/Dev.2/Enemie References`: bigger, stronger
+silhouettes, muted colours.
 
-| | Old | Kit | Read |
+| | Height (hero 5.4) | Look | Tris, parts |
 |---|---|---|---|
-| Goblin Runt (fodder) | green, 1,498 tris, 6 parts | ochre skin, tall red drooping cap, big ears and eyes, brown tunic; 1,410 tris, 8 parts | small, a red point |
-| Goblin Bruiser (charger) | green, 1,798 tris | dusky purple, iron helm and pauldrons, bone horns and tusks, glowing eyes, orange loincloth, huge fists; 1,694 tris, 10 parts | big, wide, horned |
-| Slime (leaper) | lime green, 600 tris | magenta dome, big white eyes; 880 tris, 4 parts | a pink blob |
+| Goblin Runt (fodder) | 3.2 -> **3.8** studs | a big expressive head on a scrawny body: huge leaf ears out to the sides, heavy brow, long nose, big eyes, a toothy grin; rust tunic with a leather strap, pointy shoes; khaki-olive skin | 1,899, 9 |
+| Goblin Bruiser (heavy) | 4.6 -> **6.2** studs | a hunched burgundy brute, head low between massive shoulders and a hump; iron cap with sweeping bone horns, tusks, amber eyes; one spiked iron pauldron; long bandaged forearms to the knees; leather loincloth | 2,391, 10 |
+| Slime (leaper) | 2.4 -> **2.9** studs | a soft mauve egg-dome on a spreading foot, a glossy highlight, two little nubs, dark oval eyes with catch-lights | 1,060, 3 |
 
-Every part is one colour (no textures, nothing uploaded); the limbs are the parts the
-renderer already swings. Preview: `work/art/enemies_sheet.jpg`.
+Contact stays fair at the new sizes (M2.D: reach matches what is drawn): their body and
+spacing radii grow with them (Runt 1.2/1.3 -> 1.4/1.5, Bruiser 1.35/1.7 -> 1.8/2.2, Slime
+0.95/1.4 -> 1.2/1.65) and the charge's lane widens to the Bruiser's body (half-width 1.5 ->
+1.8). Nothing else about them changes.
+
+Influences: the goblin from the big-eared, big-nosed, grinning goblin references (head
+size, ears, nose, teeth, pointy shoes) and the Bokoblin's hunched stance; the Bruiser from
+the hunched horned brute (burgundy skin, bandaged forearms, loincloth, sweeping horns) and
+the orc warriors (iron cap and pauldron, tusks, sheer bulk); the slime from the simple
+glossy egg-slimes and the dome slimes with small nubs and oval eyes, in a muted mauve.
+Previews: `work/art/enemies_lineup.jpg` (game scale beside a hero-sized stand-in,
+`tools/art/render_lineup.py`), `work/art/enemies_sheet.jpg`.
 
 ## Performance
 
 Offline (estimates, not Studio):
 - an attack starting costs ~2 microseconds (its path walk, Lune); running one is a few
   comparisons a tick
-- the bench mix of 250 enemies: ~333k enemy triangles (was ~328k), 1,940 parts moved a
-  frame (was 1,440: the kit models are split by colour)
+- the bench mix of 250 enemies: ~413k enemy triangles (was ~328k with the old meshes),
+  ~1,970 parts moved a frame (was 1,440: the kit models are split by colour)
 
 In Studio, `bench 250` in `Workspace.BonkDev` spawns the early-run mix round the hero and
 times 15 s: the server's enemy tick (mean and worst) and each client's frames (mean fps,
