@@ -18,9 +18,9 @@
 --                      enchanted; `sky` alone says which is up and why
 --   leaves Grass       re-material every tree's foliage live (LeafyGrass, Grass,
 --                      SmoothPlastic, Plastic...; `leaves` alone puts it back)
---   grass short        rewrite the terrain live: `short` a soft even carpet with
---                      few blades and scattered flowers, `less` grass in drifts
---                      between moss and worn earth (default), `full` all-grass
+--   grass less         rewrite the terrain live: `short` one continuous, almost
+--                      flat grassy surface (default), `less` grass in drifts
+--                      between moss and worn earth, `full` all blades
 --   font fredoka all   try a face on the whole game (Config/Fonts): `ui` the
 --                      interface only, `numbers` / `popups` one role, no role
 --                      both of those; `font` alone lists faces and what's worn

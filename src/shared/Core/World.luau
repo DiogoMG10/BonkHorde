@@ -428,9 +428,6 @@ local function patchNoise(x: number, z: number): number
 	return math.clamp(0.5 + (acc / 3 - 0.5) * 1.7, 0, 1)
 end
 
--- the short carpet: where the patch noise rises past this, real blades grow
-local SHORT_DRIFT = 0.62
-
 -- How worn the ground is where fights gather, 0..1: the spawn clearing and
 -- the landmarks' clearings, trampled to earth and moss in their middles.
 local function wear(x: number, z: number): number
@@ -452,10 +449,10 @@ end
 --- them in the meadows, a moss-and-litter floor under the trees with leafy
 --- tufts in patches, and the clearings where fights gather mostly trampled.
 --- "full" is the earlier all-grass look, for comparison (`grass full` in BonkDev).
---- "short" is a soft, even carpet: LeafyGrass, which grows no blades, over
---- nearly all the open ground and the woods, Roblox's blades (Grass) only in
---- light drifts away from where fights gather, moss in the deep woods' heart,
---- with World.flowers scattered over it (`grass short`).
+--- "short" (the default) is one continuous, almost flat grassy surface:
+--- LeafyGrass, whose texture reads as short grass and which Roblox grows no
+--- blades on, over all the open ground and the woods; no tufts, no flowers,
+--- moss only in the deep woods' heart (`grass short`).
 function World.surface(world: World, x: number, z: number, grass: string?): string
 	local map = world.map
 	local h = MapGen.heightAt(map, x, z)
@@ -505,11 +502,7 @@ function World.surface(world: World, x: number, z: number, grass: string?): stri
 		end
 		return "Meadow"
 	elseif grass == "short" then
-		if f > 0.55 and cool > 0.5 then
-			return "ForestFloor"
-		end
-		local drift = patchNoise(x, z) - 0.5 * wear(x, z) - 0.6 * f
-		return if drift > SHORT_DRIFT then "Meadow" else "Carpet"
+		return if f > 0.55 and cool > 0.5 then "ForestFloor" else "Carpet"
 	end
 	local fine = patchNoise(x, z)
 	if f > 0.5 and cool > 0.5 then
@@ -526,132 +519,6 @@ function World.surface(world: World, x: number, z: number, grass: string?): stri
 		return "ForestFloor"
 	end
 	return "Meadow"
-end
-
--- ------------------------------------------------------------------ the short meadow's flowers
-
--- soft colours, so no bloom reads as a coin (gold) or a gem (blue)
-local BLOOMS = { { 248, 246, 236 }, { 248, 246, 236 }, { 242, 188, 208 }, { 206, 186, 238 } }
-local LEAFAGE = { 74, 122, 50 }
-local PLUME = { 238, 228, 196 }
-local STALK = { 150, 164, 96 }
-
-local function low(shape: string, size: { number }, x: number, y: number, z: number, color: { number }, yaw: number)
-	local c, s = math.cos(yaw), math.sin(yaw)
-	return {
-		shape = shape,
-		size = size,
-		cf = { x, y, z, c, 0, s, 0, 1, 0, -s, 0, c },
-		color = color,
-		mat = "SmoothPlastic",
-		collide = false,
-		shadow = false,
-		neon = false,
-	}
-end
-
---- The short meadow's (grass "short") occasional flowers and small plants, as
---- primitives in the World.parts format: a patch every few dozen studs of
---- open meadow, never on a path, in a fight's clearing, in the woods or
---- against a solid. Nothing collides, casts a shadow or stands taller than
---- about a stud, so no enemy, gem, coin or number is ever hidden by one.
-function World.flowers(world: World): { any }
-	local map = world.map
-	-- solid footprints in a coarse bucket grid
-	local B = 32
-	local buckets = {}
-	local function addSolid(x: number, z: number, r: number)
-		local k = math.floor(x / B) * 4096 + math.floor(z / B)
-		buckets[k] = buckets[k] or {}
-		table.insert(buckets[k], { x, z, r })
-	end
-	for _, p in world.props do
-		if p.blocks then
-			for _, b in p.blocks do
-				addSolid(b[1], b[2], b[3])
-			end
-		elseif p.radius > 0 then
-			addSolid(p.x, p.z, p.radius)
-		end
-	end
-	local function crowded(x: number, z: number): boolean
-		local cx, cz = math.floor(x / B), math.floor(z / B)
-		for ix = cx - 1, cx + 1 do
-			for iz = cz - 1, cz + 1 do
-				for _, s in buckets[ix * 4096 + iz] or {} do
-					local r = s[3] + 6
-					if (s[1] - x) ^ 2 + (s[2] - z) ^ 2 < r * r then
-						return true
-					end
-				end
-			end
-		end
-		return false
-	end
-
-	local out = {}
-	local CELL = 26
-	local count = math.floor((map.half - 8) / CELL)
-	for ix = -count, count do
-		for iz = -count, count do
-			if hash(ix, iz, 701) >= 0.45 then
-				continue
-			end
-			local x = (ix + 0.15 + 0.7 * hash(ix, iz, 703)) * CELL
-			local z = (iz + 0.15 + 0.7 * hash(ix, iz, 707)) * CELL
-			local surface = World.surface(world, x, z, "short")
-			if
-				MapGen.outside(x, z) > -10
-				or (surface ~= "Carpet" and surface ~= "Meadow")
-				or World.forest(x, z) > 0.3
-				or wear(x, z) > 0.15
-				or MapGen.slopeAt(map, x, z) > 0.5
-				or World.pathDistance(x, z) < 6
-				or crowded(x, z)
-			then
-				continue
-			end
-			local function r(i: number): number
-				return hash(ix * 37 + i, iz * 53 - i, 709)
-			end
-			local kind = r(0)
-			if kind < 0.62 then
-				-- a little drift of blooms, mostly one colour
-				local main = BLOOMS[1 + math.floor(r(1) * #BLOOMS)]
-				local reach = 2.2 + 2.2 * r(2)
-				for i = 1, 5 + math.floor(r(3) * 6) do
-					local a, d = r(10 + i) * math.pi * 2, math.sqrt(r(20 + i)) * reach
-					local bx, bz = x + math.cos(a) * d, z + math.sin(a) * d
-					local size = 0.42 + 0.24 * r(30 + i)
-					local color = if r(40 + i) < 0.82 then main else BLOOMS[1 + math.floor(r(50 + i) * #BLOOMS)]
-					local y = MapGen.heightAt(map, bx, bz) + size * 0.22
-					table.insert(out, low("ellipsoid", { size, size * 0.6, size }, bx, y, bz, color, 0))
-				end
-			elseif kind < 0.88 then
-				-- a low leafy clump, a shade darker than the carpet
-				for i = 1, 2 + math.floor(r(4) * 2) do
-					local a, d = r(60 + i) * math.pi * 2, r(70 + i) * 1.6
-					local bx, bz = x + math.cos(a) * d, z + math.sin(a) * d
-					local w = 1.2 + 0.6 * r(80 + i)
-					local shade = 0.9 + 0.2 * r(90 + i)
-					local color = { LEAFAGE[1] * shade, LEAFAGE[2] * shade, LEAFAGE[3] * shade }
-					local y = MapGen.heightAt(map, bx, bz) + 0.06
-					table.insert(out, low("ellipsoid", { w, 0.42, w * 0.75 }, bx, y, bz, color, r(100 + i) * math.pi))
-				end
-			else
-				-- a few pale seed plumes, knee-high at most
-				for i = 1, 3 + math.floor(r(5) * 3) do
-					local a, d = r(110 + i) * math.pi * 2, r(120 + i) * 1.3
-					local bx, bz = x + math.cos(a) * d, z + math.sin(a) * d
-					local tall = 0.7 + 0.25 * r(130 + i)
-					local ground = MapGen.heightAt(map, bx, bz)
-					table.insert(out, low("block", { 0.12, tall, 0.12 }, bx, ground + tall / 2, bz, STALK, 0))
-					table.insert(out, low("ellipsoid", { 0.3, 0.5, 0.3 }, bx, ground + tall + 0.15, bz, PLUME, 0))
-				end
-			end
-		end
-	end
-	return out
 end
 
 -- ------------------------------------------------------------------ placing things
@@ -1623,7 +1490,8 @@ end
 
 local function placeCover(ctx)
 	local add, map, solids, limit = ctx.add, ctx.map, ctx.solids, ctx.limit
-	-- ground cover, walked through: ferns, glowcaps, bushes, logs, stumps, flowers
+	-- ground cover, walked through: ferns, glowcaps, bushes, logs, stumps. The
+	-- open meadows stay bare grass: no flower drifts to read as clutter at speed
 	local cover = 6.5
 	local cn = math.floor(limit / cover)
 	for iz = -cn, cn do
@@ -1656,13 +1524,8 @@ local function placeCover(ctx)
 				elseif roll < 0.085 then
 					kind, scale = "Fern", 0.9 + hash(ix, iz, 239) * 0.6
 				end
-			elseif open > 0.6 and World.pathDistance(x, z) > 1.5 then
-				-- the meadows: flowers in drifts, following the noise
-				if roll < 0.028 + 0.05 * smooth((noise(x * 2.3, z * 2.3) - 0.55) / 0.2) then
-					kind, scale = "Flowers", 0.9 + hash(ix, iz, 241) * 0.5
-				elseif roll > 0.988 then
-					kind, scale = "Bush", 0.6 + hash(ix, iz, 251) * 0.5
-				end
+			elseif open > 0.6 and World.pathDistance(x, z) > 1.5 and roll > 0.988 then
+				kind, scale = "Bush", 0.6 + hash(ix, iz, 251) * 0.5
 			end
 			if kind and solids:clear(x, z, 0.5, 0.5) then
 				add({ kind = kind, x = x, z = z, yaw = hash(ix, iz, 257) * math.pi * 2, scale = scale, radius = 0, seed = seedOf(x, z) })

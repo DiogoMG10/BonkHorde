@@ -6,8 +6,7 @@
 --
 --     lune run tools/map/export_world.luau [out.json] [grass mode]
 --
--- The grass mode is Config/Wardwood.Grass unless given; under "short" the
--- meadow's flowers (World.flowers) come along as one more prop, "Flowers".
+-- The grass mode is Config/Wardwood.Grass unless given.
 --
 -- Part-built props are exported as their exact primitives (Core/Blueprints);
 -- mesh props as proxies with their measured bounds (assets/meshes/manifest.json).
@@ -68,10 +67,6 @@ for _, prop in world.props do
 		entry.bounds = if m then m.bounds_studs else { 4, 4, 4 }
 	end
 	table.insert(props, entry)
-end
-
-if grass == "short" then
-	table.insert(props, { kind = "Flowers", x = 0, z = 0, y = 0, yaw = 0, scale = 1, parts = World.flowers(world) })
 end
 
 local anchors = {}

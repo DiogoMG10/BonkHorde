@@ -16,16 +16,16 @@ local Wardwood = {
 		{ name = "enchanted", weight = 1 },
 		{ name = "night", weight = 1 },
 	},
-	-- how the ground is grassed (Core/World.surface): "less", grass in drifts
-	-- between moss and worn earth; "full", the earlier all-grass look; or
-	-- "short", a soft even carpet with few blades and scattered flowers
-	-- (`grass full|less|short` in BonkDev rewrites the terrain live)
-	Grass = "less",
+	-- how the ground is grassed (Core/World.surface): "short", one continuous,
+	-- almost flat grassy surface with no blades or tufts; "less", grass in
+	-- drifts between moss and worn earth; or "full", the earlier all-blades look
+	-- (`grass short|less|full` in BonkDev rewrites the terrain live)
+	Grass = "short",
 	Surfaces = {
 		Meadow = { material = "Grass", color = { 128, 162, 62 } },
 		Lush = { material = "LeafyGrass", color = { 86, 130, 56 } },
-		-- the short meadow's carpet: LeafyGrass too, so it takes over that
-		-- material's tint while `grass short` is down (Look.paint)
+		-- the short grass carpet: LeafyGrass too (it grows no blades), so it
+		-- takes over that material's tint while `grass short` is down (Look.paint)
 		Carpet = { material = "LeafyGrass", color = { 118, 166, 60 } },
 		-- moss and leaf litter: under the trees, and in the meadows' hollows
 		ForestFloor = { material = "Mud", color = { 78, 96, 54 } },

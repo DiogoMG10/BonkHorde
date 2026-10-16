@@ -306,33 +306,6 @@ function Builder.build(world): number
 	return built
 end
 
---- The short meadow's flowers (World.flowers) under Workspace.Map.Flowers:
---- built when `show` and not up yet, taken down when not. Returns the parts.
-function Builder.flowers(world, show: boolean): number
-	local map = Workspace:FindFirstChild("Map")
-	local old = map and map:FindFirstChild("Flowers")
-	if not (show and map) then
-		if old then
-			old:Destroy()
-		end
-		return 0
-	end
-	if old then
-		return #old:GetChildren()
-	end
-	local folder = Instance.new("Folder")
-	folder.Name = "Flowers"
-	local prims = World.flowers(world)
-	for i, p in prims do
-		makePart(p, folder)
-		if i % 300 == 0 then
-			task.wait()
-		end
-	end
-	folder.Parent = map
-	return #prims
-end
-
 --- The terrain material and colour key for one column (see Look.Surfaces).
 function Builder.surface(world, x: number, z: number, grass: string?): string
 	return World.surface(world, x, z, grass)

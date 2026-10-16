@@ -92,8 +92,13 @@ explicit decision by Tiago and Diogo.
   drifts (~12%, none in the spawn or landmark clearings), and ~1.5k low flower/leaf/plume
   parts in loose meadow patches (no collision, no shadows, under 1.4 studs). `less` stays the
   default; `grass full|less|short` switches live. Offline checks only.
+  `bonk-0.15.2-m5a` (after review: no tufts, no flowers wanted): `short` is now one continuous,
+  almost flat grassy surface and the default: blade-free LeafyGrass carpet on all grassy
+  ground (no Grass blades at all), the scattered flower patches and plumes gone, and the
+  older meadow flower drifts removed too (~400 tufts, ~1.6k parts; the Elder hill's ring
+  stays). Paths, rock, ruins and deep-wood moss unchanged. Offline checks only.
 - **Next playable result:** Studio: Fredoka across every menu and panel, several run starts
-  under different skies (night's readability especially), `grass short` vs `less` at speed;
+  under different skies (night's readability especially), the flat `grass short` default at speed;
   then integrate (M3.A first).
 - **Blockers:** M3.A's tree pass needs human review before either branch merges.
 
