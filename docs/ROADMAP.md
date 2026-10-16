@@ -31,40 +31,24 @@ explicit decision by Tiago and Diogo.
 - **Next playable result:** M3.A Wardwood (see M3).
 - **Blockers:** none.
 
-## M3 Art Direction & Wardwood — in progress
+## M3 Art Direction & Wardwood — done
 
-- **State:** M3.A (`feat/m3a-wardwood`, up to `bonk-0.11.0-m3a`) merged to `main` together
-  with its follow-ups from the M5.A line: the Wardwood's 1200-stud terrain, ~940-stud playable
-  world, regions and landmarks, the forest thinned with crown spacing, lanes and glades,
-  six skies with one drawn at random per run (golden in the lobby), and the flat
-  `grass short` ground. Layout, movement and atmosphere approved by Tiago and Diogo in
-  Studio playtests. The part-built trees and the LeafyGrass ground are accepted as
-  provisional art, to be replaced in M3.B.
-- **M3.B Blender art overhaul:** branch `feat/m3b-blender-art`. `bonk-0.16.0-m3b` showcase
-  approved in Studio by Tiago and Diogo. `bonk-0.17.0-m3b` dresses the whole Wardwood: every
-  tree family (variants, far and horizon versions), the ancients, the Elder, bushes, ferns,
-  stumps, logs, rocks, menhirs, pillars and ruin walls from the Blender kit; the server bakes
-  each model once (no upload) and keeps only colliders, clients draw from shared templates
-  with distance detail, per-plant tint and short 3D grass streamed round the hero; hand edits
-  kept in `Config/WardwoodOverrides` (`art pick`); `art off` restores the old props. Details:
-  `docs/M3B-art-pipeline.md`. Offline checks and Blender previews only.
-  `bonk-0.17.0-m3b` approved in a Studio playtest but for two faults, fixed in
-  `bonk-0.17.1-m3b`: the Fallen Giant (a green cylinder with a round root disc) is now a
-  kit model on the same collider; the grass no longer pops in front of the hero (it is kept
-  where the camera looks, led by the hero's speed, re-planned on camera turns, grown in a
-  per-frame budget without the old half-height outer ring). Offline checks only.
-  `bonk-0.17.2-m3b`: the streamed grass still showed its edge and looked like islands
-  (measured: discs of uneven density and their own tints), so it is gone. Two options on
-  trial instead: A, Roblox's own Grass blades on the short ground (`grass native`); B,
-  static world-aligned 3D grass chunks in a 128x128 test meadow (`grass chunks on`,
-  `grass test`). Default stays the bladeless carpet. Offline checks only.
-  `bonk-0.17.3-m3b`: native grass chosen in Studio and made the default (the chunks are
-  gone); near enemies get a thin Occluded ink outline from two pooled Highlights so the
-  grass cannot hide them (`enemy clarity on|off|through`). Offline checks only.
-  `bonk-0.17.4-m3b`: outlines kept only as an option, off by default: Settings > Enemy
-  outlines, per player, saved with the volumes. Offline checks only.
-- **Next playable result:** Studio: the Settings toggle (mouse, touch, gamepad) and its
-  effect in a fight, saved across sessions; then decide on uploading the kit for good.
+- **State:** M3.A (`bonk-0.11.0-m3a`, with its M5.A-line follow-ups) and M3.B
+  (`bonk-0.17.4-m3b`) merged to `main`, both approved in Studio by Tiago and Diogo.
+  The Wardwood: 1200-stud terrain, ~940-stud playable world, regions and landmarks,
+  thinned forest with lanes and glades, six skies (one drawn at random per run, golden in
+  the lobby). M3.B dresses all of it with the seeded Blender kit (`tools/art`, source
+  `assets/art/wardwood_kit.blend`): tree families with variants and far/horizon versions,
+  the ancients, the Elder, the Fallen Giant, bushes, ferns, stumps, logs, rocks, menhirs,
+  pillars and ruin walls; the server bakes each model once and keeps only colliders,
+  clients draw from shared templates; hand edits in `Config/WardwoodOverrides`
+  (`art pick`); `art off` restores the old props. Roblox's native terrain grass is the
+  ground (`grass native`). Enemy outlines are a per-player setting, off by default.
+  Details: `docs/M3B-art-pipeline.md`.
+- **Not yet verified for production:** the kit's meshes are baked at each server start
+  through EditableMesh/DataModelContent (no uploads); the published game should use
+  uploaded meshes, a separate authorization decision (GLBs in `assets/art/export`). No
+  frame-time measurement under a full horde on mobile yet (see M4).
 - **Blockers:** none.
 
 ## M4 Horde & Performance — not started
