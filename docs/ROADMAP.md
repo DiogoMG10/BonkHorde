@@ -55,19 +55,19 @@ explicit decision by Tiago and Diogo.
 
 - **Scope:** distinct enemy behaviours, telegraphs, pressure; enemy models redone for
   readability; optimisations only where a measurement justifies them.
-- **State:** M4.A on branch `feat/m4a-enemy-variety`, `bonk-0.18.0-m4a`: the Goblin
-  Bruiser charges (braced 0.85 s with its lane drawn, 18 studs committed, winded 1.1 s)
-  and the Slime leaps (squats 0.55 s with its landing ring drawn, a 0.5 s arc, no
-  steering); server-authoritative, freeze, pause and height overlap respected. Blender
-  models for the Goblin Runt, Goblin Bruiser and Slime in colours that read against the
-  grass. `pack` and `bench` dev commands. Details: `docs/M4A-enemy-variety.md`. Offline
-  checks only. `bonk-0.18.1-m4a`: the three models redone after the team's references:
-  bigger (Runt 3.8, Bruiser 6.2, Slime 2.9 studs, contact radii with them), stronger
-  silhouettes, muted colours (khaki goblin in rust, burgundy brute in iron and bone, mauve
-  slime). Offline checks only.
-- **Next playable result:** Studio: the charge and the leap in a horde (telegraphs read,
-  dodges fair, punish windows), the new models against the forest, `bench 250` on `main`
-  and here for a first performance baseline.
+- **State:** M4.A (`feat/m4a-enemy-variety`, `bonk-0.18.1-m4a`) merged to `main`. Gameplay
+  approved in human Studio playtests: the Goblin Bruiser charges (braced 0.85 s with its
+  lane drawn, 18 studs committed, winded 1.1 s) and the Slime leaps (squats 0.55 s with its
+  landing ring drawn, a 0.5 s arc, no steering); server-authoritative, freeze, pause and
+  height overlap respected. Enemy art is **provisional**: Blender models for the Goblin
+  Runt, Goblin Bruiser and Slime (sources and references kept; to be revisited, not
+  redesigned now). `pack` and `bench` dev commands. Details: `docs/M4A-enemy-variety.md`.
+- **Performance:** offline estimate only: the 250-enemy bench mix draws ~413k enemy
+  triangles (was ~328k) and moves ~1,970 parts a frame (was ~1,440), in one BulkMoveTo; an
+  attack start costs ~2 microseconds. No Studio frame-time numbers recorded, and nothing
+  about mobile or other hardware is validated.
+- **Next playable result:** M4.B Horde & Pressure (`feat/m4b-horde-pressure`): pacing with
+  lulls and surges and recognisable enemy packs.
 - **Blockers:** none.
 
 ## M5 Builds & Replayability — in progress

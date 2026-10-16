@@ -75,7 +75,11 @@ once here for the before and after; record the numbers below.
 
 | Build | Where | Server tick mean / worst | Client fps / worst frame | Enemy drawing |
 |---|---|---|---|---|
-| (to measure in Studio) | | | | |
+| (not yet measured in Studio) | | | | |
+
+At merge (`bonk-0.18.1-m4a`) the gameplay was approved in human Studio playtests and the
+models accepted as provisional; the numbers above are the offline estimate only. Mobile
+and other hardware are not validated.
 
 ## Playtest
 
