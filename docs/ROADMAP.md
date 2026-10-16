@@ -40,11 +40,16 @@ explicit decision by Tiago and Diogo.
   `grass short` ground. Layout, movement and atmosphere approved by Tiago and Diogo in
   Studio playtests. The part-built trees and the LeafyGrass ground are accepted as
   provisional art, to be replaced in M3.B.
-- **M3.B Blender art overhaul:** branch `feat/m3b-blender-art`. A cohesive Blender-made
-  environment kit (broadleaf and conifer trees, an ancient tree, low 3D grass, mossy rocks,
-  a ruin piece) shown in a small showcase clearing for human visual approval before any
-  map-wide replacement.
-- **Next playable result:** the M3.B showcase reviewed in Studio from the game camera.
+- **M3.B Blender art overhaul:** branch `feat/m3b-blender-art`, `bonk-0.16.0-m3b`. A seeded
+  Blender kit (`tools/art`, source `assets/art/wardwood_kit.blend`, GLBs in
+  `assets/art/export`): Oak, OakLeaning, Beech, Birch, Sapling, Spruce, Pine, AncientOak,
+  three low 3D grass patches, three mossy rocks, a fluted Pillar and a broken one. In game
+  with no upload: the server rebuilds each mesh (EditableMesh, baked to replicating
+  content) and re-skins the Old Grove's props in place, colliders kept, 3D grass over its
+  ground (Studio only; `art on|off|goto`). Pipeline and next steps:
+  `docs/M3B-art-pipeline.md`. Offline checks and Blender previews only.
+- **Next playable result:** the M3.B showcase reviewed in Studio from the game camera
+  (`art goto`, compare with `art off`); then the map-wide replacement plan.
 - **Blockers:** none.
 
 ## M4 Horde & Performance — not started

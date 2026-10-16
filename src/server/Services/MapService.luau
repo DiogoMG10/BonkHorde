@@ -9,6 +9,7 @@
 -- builds its scenery (Wardwood/Builder).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
@@ -19,6 +20,7 @@ local World = require(ReplicatedStorage.Shared.Core.World)
 
 local Builder = require(script.Parent.Parent.Wardwood.Builder)
 local Look = require(script.Parent.Parent.Wardwood.Look)
+local Showcase = require(script.Parent.Parent.Wardwood.Showcase)
 
 local MapService = Knit.CreateService({ Name = "MapService" })
 
@@ -49,6 +51,9 @@ function MapService:KnitStart()
 		end
 		local okProps, errProps = pcall(function()
 			self._propsPlaced = Builder.build(self._world)
+			if Wardwood.ArtShowcase and RunService:IsStudio() then
+				task.spawn(Showcase.set, self._world, true)
+			end
 		end)
 		if not okProps then
 			warn(`[MapService] prop placement failed: {errProps}`)
@@ -112,6 +117,11 @@ end
 --- Back in the lobby: its own sky again.
 function MapService:LobbySky()
 	self:SetSky(Wardwood.Sky, "lobby")
+end
+
+--- Studio only (DevService `art`): the M3.B art showcase on or off.
+function MapService:SetArt(on: boolean): number
+	return Showcase.set(self._world, on)
 end
 
 function MapService:GetAnchors()

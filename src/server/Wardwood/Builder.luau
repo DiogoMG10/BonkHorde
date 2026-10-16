@@ -290,6 +290,7 @@ function Builder.build(world): number
 		end
 		if model then
 			model.Name = prop.kind
+			model:SetAttribute("Prop", i) -- its index in world.props (Wardwood/Showcase)
 			model.Parent = folder
 			built += 1
 		end

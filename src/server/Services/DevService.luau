@@ -18,6 +18,9 @@
 --                      enchanted; `sky` alone says which is up and why
 --   leaves Grass       re-material every tree's foliage live (LeafyGrass, Grass,
 --                      SmoothPlastic, Plastic...; `leaves` alone puts it back)
+--   art off            the M3.B art showcase in the Old Grove: `art on` the new
+--                      Blender kit, `art off` the old props, `art goto` stand at
+--                      its edge, `art grass 118 166 60` tint its 3D grass
 --   grass less         rewrite the terrain live: `short` one continuous, almost
 --                      flat grassy surface (default), `less` grass in drifts
 --                      between moss and worn earth, `full` all blades
@@ -65,7 +68,8 @@ function DevService:KnitStart()
 
 	local commands = {}
 	-- these need no hero, so they also work in the lobby
-	local lobbyCommands = { clock = true, unlock = true, marker = true, hop = true, sky = true, leaves = true, font = true, grass = true }
+	local lobbyCommands =
+		{ clock = true, unlock = true, marker = true, hop = true, sky = true, leaves = true, font = true, grass = true, art = true }
 
 	function commands.unlock(_, id)
 		local player = Players:GetPlayers()[1]
@@ -139,6 +143,43 @@ function DevService:KnitStart()
 			Workspace:SetAttribute(Fonts.Attributes[key], name)
 		end
 		print(`[Dev] font {name} on {table.concat(roles, ", ")}`)
+	end
+	function commands.art(_, what, r, g, b)
+		local Showcase = require(script.Parent.Parent.Wardwood.Showcase)
+		if what == "on" or what == "off" then
+			task.spawn(function()
+				mapService:SetArt(what == "on")
+				print(`[Dev] art {what}: the Old Grove shows the {if what == "on" then "new kit" else "old props"}`)
+			end)
+		elseif what == "goto" then
+			local player = Players:GetPlayers()[1]
+			local character = player and player.Character
+			if character then
+				local c = Showcase.Centre
+				local x, z = c.x + Showcase.Radius * 0.75, c.z + 8
+				character:PivotTo(
+					CFrame.lookAt(Vector3.new(x, mapService:HeightAt(x, z) + 4, z), Vector3.new(c.x, mapService:HeightAt(x, z) + 4, c.z))
+				)
+				print(`[Dev] at the art showcase, looking into the Old Grove`)
+			end
+		elseif what == "grass" and tonumber(r) and tonumber(g) and tonumber(b) then
+			local folder = Workspace:FindFirstChild("WardwoodArt")
+			local colour = Color3.fromRGB(tonumber(r), tonumber(g), tonumber(b))
+			local n = 0
+			for _, model in if folder then folder:GetChildren() else {} do
+				if string.find(model.Name, "^Grass") then
+					for _, part in model:GetChildren() do
+						if part:IsA("MeshPart") then
+							part.Color = colour
+							n += 1
+						end
+					end
+				end
+			end
+			print(`[Dev] art grass tinted on {n} patches`)
+		else
+			print(`[Dev] art on | art off | art goto | art grass <r> <g> <b> (showcase {if Showcase.active() then "on" else "off"})`)
+		end
 	end
 	function commands.grass(_, mode)
 		if mode ~= "full" and mode ~= "less" and mode ~= "short" then

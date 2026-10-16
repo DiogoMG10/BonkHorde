@@ -9,6 +9,7 @@
 -- Grass on rounded or wedge parts; moss bands are Grass cylinders and blocks),
 -- and kept in a coarse grid as it streams in. Purely local and cosmetic.
 
+local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -25,6 +26,9 @@ local CHECK_EVERY = 1 / 20
 local function isFoliage(d: Instance): boolean
 	if not d:IsA("BasePart") then
 		return false
+	end
+	if CollectionService:HasTag(d, "WWFoliage") then
+		return true -- the M3.B art kit's leaf and needle meshes (server/Wardwood/ArtKit)
 	end
 	local m = d.Material
 	if m == Enum.Material.LeafyGrass then
@@ -97,8 +101,12 @@ function CanopyController:KnitStart()
 	if map then
 		self:_watch(map)
 	end
+	local art = Workspace:FindFirstChild("WardwoodArt")
+	if art then
+		self:_watch(art)
+	end
 	Workspace.ChildAdded:Connect(function(child)
-		if child.Name == "Map" then
+		if child.Name == "Map" or child.Name == "WardwoodArt" then
 			self:_watch(child)
 		end
 	end)

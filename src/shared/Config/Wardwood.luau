@@ -21,6 +21,9 @@ local Wardwood = {
 	-- drifts between moss and worn earth; or "full", the earlier all-blades look
 	-- (`grass short|less|full` in BonkDev rewrites the terrain live)
 	Grass = "short",
+	-- M3.B: show the Blender-made art kit in the Old Grove (server/Wardwood/
+	-- Showcase), Studio only, for human review; `art on|off` in BonkDev
+	ArtShowcase = true,
 	Surfaces = {
 		Meadow = { material = "Grass", color = { 128, 162, 62 } },
 		Lush = { material = "LeafyGrass", color = { 86, 130, 56 } },
