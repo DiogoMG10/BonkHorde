@@ -564,6 +564,20 @@ Roster.Enemies = {
 		height = 4.6,
 		xp = 2,
 		colour = { 60, 140, 50 },
+		-- M4.A: the charger. It stops, braces and shows its lane, then runs it
+		-- flat out, committed, and stands winded after: step out of the lane,
+		-- then punish it (Core/Attacks, EnemyService)
+		attack = {
+			kind = "charge",
+			range = { 8, 15 }, -- studs from its hero to start one (the run reaches past)
+			every = { 4.5, 7 }, -- seconds between charges (and before the first)
+			windup = 0.85, -- braced and still, the lane on the ground
+			run = 18, -- studs the charge covers (less if a cliff is in the way)
+			time = 0.42, -- seconds the full run takes
+			recover = 1.1, -- winded, still, afterwards
+			width = 1.5, -- half the width of the lane it hits
+			dmg = 1.5, -- x its contact damage
+		},
 	},
 	Slime = {
 		name = "Slime",
@@ -576,6 +590,19 @@ Roster.Enemies = {
 		xp = 1,
 		hop = true,
 		colour = { 140, 235, 60 },
+		-- M4.A: the leaper. It squats, then springs at the spot its hero stood
+		-- on, and cannot steer in the air: move, slide or jump clear of the ring
+		attack = {
+			kind = "leap",
+			range = { 6, 13 }, -- studs from its hero (the leap reaches it)
+			every = { 3.5, 5.5 },
+			windup = 0.55, -- squatting, the landing ring on the ground
+			air = 0.5, -- seconds in the air
+			reach = 14, -- the longest leap
+			recover = 0.6, -- splattered flat afterwards
+			radius = 3, -- the landing splash
+			dmg = 1.4,
+		},
 	},
 	Skeleton = {
 		name = "Skeleton",

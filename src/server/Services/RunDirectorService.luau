@@ -137,6 +137,7 @@ function RunDirectorService:SetPause(reason: string, on: boolean)
 		else
 			-- a warning drawn before the pause ran out on screen while the strike waited
 			self._bosses:Resync(self:Now())
+			self._enemies:Resync(self:Now())
 		end
 	end
 end

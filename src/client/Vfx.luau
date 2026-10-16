@@ -965,6 +965,66 @@ function Vfx.ground(
 	return f
 end
 
+-- lanes: a flat pill on a thin part, a fill growing along it
+local lanes: { any } = {}
+
+local function lane(): any
+	local l = table.remove(lanes)
+	if l then
+		return l
+	end
+	local p = host(1)
+	local gui = Instance.new("SurfaceGui")
+	gui.Face = Enum.NormalId.Top
+	gui.SizingMode = Enum.SurfaceGuiSizingMode.FixedSize
+	gui.CanvasSize = Vector2.new(64, 256)
+	gui.LightInfluence = 0
+	gui.Brightness = 1
+	gui.Parent = p
+	local back = Instance.new("Frame")
+	back.BorderSizePixel = 0
+	back.Size = UDim2.fromScale(1, 1)
+	back.Parent = gui
+	local fill = Instance.new("Frame")
+	fill.BorderSizePixel = 0
+	fill.AnchorPoint = Vector2.new(0, 1)
+	fill.Position = UDim2.fromScale(0, 1)
+	fill.Parent = gui
+	for _, f in { back, fill } do
+		local corner = Instance.new("UICorner")
+		corner.CornerRadius = UDim.new(0.5, 0)
+		corner.Parent = f
+	end
+	return { part = p, back = back, fill = fill }
+end
+
+--- A lane on the ground from `from` to `to`, `width` studs wide: its fill runs
+--- the length of it over `fillSeconds` (a charge's windup), then the lane
+--- fades by `seconds`. Tilted to the ground at both ends.
+function Vfx.lane(from: Vector3, to: Vector3, width: number, colour: Color3, fillSeconds: number, seconds: number)
+	local flatDir = Vector3.new(to.X - from.X, 0, to.Z - from.Z)
+	if flatDir.Magnitude < 0.2 then
+		return
+	end
+	local l = lane()
+	local length = (to - from).Magnitude
+	l.part.Size = Vector3.new(width, 0.05, length)
+	l.part.CFrame = CFrame.lookAt((from + to) / 2, to)
+	l.back.BackgroundColor3 = colour
+	l.back.BackgroundTransparency = 0.72
+	l.fill.BackgroundColor3 = colour
+	l.fill.BackgroundTransparency = 0.4
+	l.fill.Size = UDim2.fromScale(1, 0)
+	TweenService:Create(l.fill, TweenInfo.new(fillSeconds, Enum.EasingStyle.Linear), { Size = UDim2.fromScale(1, 1) }):Play()
+	local fade = TweenInfo.new(math.max(seconds - fillSeconds, 0.05), Enum.EasingStyle.Quad, Enum.EasingDirection.In, 0, false, fillSeconds)
+	TweenService:Create(l.back, fade, { BackgroundTransparency = 1 }):Play()
+	TweenService:Create(l.fill, fade, { BackgroundTransparency = 1 }):Play()
+	task.delay(seconds + 0.03, function()
+		l.part.CFrame = CFrame.new(0, -500, 0)
+		table.insert(lanes, l)
+	end)
+end
+
 --- A lightning strip between two points, gone in a blink.
 function Vfx.bolt(from: Vector3, to: Vector3, colour: Color3, width: number?, seconds: number?)
 	local p = host(0.2)

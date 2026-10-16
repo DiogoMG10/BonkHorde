@@ -11,6 +11,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
+local Attacks = require(ReplicatedStorage.Shared.Core.Attacks)
 local Contact = require(ReplicatedStorage.Shared.Core.Contact)
 local Grid = require(ReplicatedStorage.Shared.Core.Grid)
 local MapGen = require(ReplicatedStorage.Shared.Core.MapGen)
@@ -64,6 +65,19 @@ local dashX = table.create(MAX, 0)
 local dashZ = table.create(MAX, 0)
 local tag = table.create(MAX, false)
 local runner = table.create(MAX, false) -- an overtime runner: frenzied and fast
+-- a special attack (Roster.Enemies.<Type>.attack, Core/Attacks): 0 none,
+-- 1 windup, 2 under way, 3 recovering; from A to B over atkDur seconds
+local atkPhase = table.create(MAX, 0)
+local atkUntil = table.create(MAX, 0)
+local atkNext = table.create(MAX, 0) -- 0: not yet scheduled
+local atkDur = table.create(MAX, 0)
+local atkAX = table.create(MAX, 0)
+local atkAZ = table.create(MAX, 0)
+local atkBX = table.create(MAX, 0)
+local atkBZ = table.create(MAX, 0)
+local atkHit = table.create(MAX, false) -- heroes this attack has already hurt
+
+local ACT_CHARGE, ACT_LEAP, ACT_OFF = 1, 2, 3
 
 local typeIndex = {}
 for i, name in Roster.EnemyOrder do
@@ -95,6 +109,7 @@ function EnemyService:KnitInit()
 	self._goneEvent = Net.server("EnemyGone")
 	self._hitsEvent = Net.server("Hits")
 	self._frozenEvent = Net.server("EnemyFrozen")
+	self._actEvent = Net.server("EnemyAct")
 end
 
 -- queue a freeze for the clients' ice shell (bounded, like hits)
@@ -245,6 +260,7 @@ function EnemyService:Spawn(typeName: string, x: number, z: number, opts): numbe
 	dmg[slot] = d.dmg * GameConfig.EnemyDamageScale * (opts.dmgMult or 1)
 	bossKind[slot] = if d.boss == "stage" then 2 elseif d.boss == "mini" then 1 else 0
 	dashUntil[slot] = 0
+	atkPhase[slot], atkNext[slot] = 0, 0
 	tag[slot] = opts.tag or false
 	self._count += 1
 	if bossKind[slot] == 0 and not opts.tag then
@@ -452,13 +468,142 @@ function EnemyService:Dash(slot: number, dx: number, dz: number, seconds: number
 	end
 end
 
+-- ------------------------------------------------------------------ special attacks
+
+-- whether a hero stands on the ground (not up a tree or a rock: those are
+-- the camping strike's business, BossService)
+local function grounded(rec): boolean
+	return rec.y - (rec.rootHeight or 3) - (rec.groundY or 0) < 3
+end
+
+-- the heroes an attack at (x, z) within `reach` of the line A-B (a point when
+-- A = B) and overlapping its height hurts, once each per attack
+function EnemyService:_attackHits(slot: number, mult: number, ax: number, az: number, bx: number, bz: number, reach: number, now: number)
+	local hit = atkHit[slot]
+	local low = MapGen.heightAt(self._map, bx, bz)
+	local top = low + def[slot].height * (if elite[slot] then GameConfig.EliteScale else 1)
+	for _, rec in self._players:All() do
+		if not hit[rec] and not rec.downed and rec.active then
+			if Attacks.segmentDistance(rec.x, rec.z, ax, az, bx, bz) <= reach + GameConfig.HeroBodyRadius then
+				local feet = rec.y - (rec.rootHeight or 3)
+				if Contact.overlapsY(feet, GameConfig.HeroHeight, low, top, GameConfig.ContactHeightTolerance) then
+					hit[rec] = true
+					self._players:Hurt(rec, self:ContactDamage(slot) * mult, slot, now)
+					contactAt[slot] = now + GameConfig.ContactCooldown
+				end
+			end
+		end
+	end
+end
+
+local function schedule(slot: number, atk, now: number)
+	atkNext[slot] = now + atk.every[1] + rng:NextNumber() * (atk.every[2] - atk.every[1])
+end
+
+--- Run a regular enemy's special attack. True while it owns the enemy this
+--- tick (it moves it, or holds it still), false to chase as usual.
+function EnemyService:_attack(slot: number, atk, t, x: number, z: number, dist: number, now: number): boolean
+	local phase = atkPhase[slot]
+	if phase == 0 then
+		if atkNext[slot] == 0 then
+			schedule(slot, atk, now)
+			return false
+		end
+		if now < atkNext[slot] or dist < atk.range[1] or dist > atk.range[2] or not grounded(t) then
+			return false
+		end
+		local cliff = GameConfig.CliffSlope
+		atkAX[slot], atkAZ[slot] = x, z
+		local code
+		if atk.kind == "charge" then
+			atkBX[slot], atkBZ[slot], atkDur[slot] = Attacks.charge(self._map, x, z, t.x, t.z, atk.run, atk.time, cliff)
+			code = ACT_CHARGE
+		else
+			atkBX[slot], atkBZ[slot] = Attacks.leap(self._map, x, z, t.x, t.z, atk.reach, cliff)
+			atkDur[slot] = atk.air
+			code = ACT_LEAP
+		end
+		atkPhase[slot], atkUntil[slot] = 1, now + atk.windup
+		if atkHit[slot] then
+			table.clear(atkHit[slot])
+		else
+			atkHit[slot] = {}
+		end
+		self._actEvent:FireAllClients(slot, code, atkBX[slot], atkBZ[slot], atk.windup, atkDur[slot])
+		return true
+	elseif phase == 1 then
+		if now >= atkUntil[slot] then
+			atkPhase[slot], atkUntil[slot] = 2, now + atkDur[slot]
+		end
+		return true
+	elseif phase == 2 then
+		local s = math.clamp(1 - (atkUntil[slot] - now) / atkDur[slot], 0, 1)
+		local ax, az, bx, bz = atkAX[slot], atkAZ[slot], atkBX[slot], atkBZ[slot]
+		local nx, nz = ax + (bx - ax) * s, az + (bz - az) * s
+		if atk.kind == "charge" then
+			-- the ground it covered this tick
+			self:_attackHits(slot, atk.dmg, x, z, nx, nz, atk.width, now)
+		end
+		ex[slot], ez[slot] = nx, nz
+		if s >= 1 then
+			if atk.kind == "leap" then
+				-- the splash where it lands: a hero in the air or out of the ring is clear
+				self:_attackHits(slot, atk.dmg, bx, bz, bx, bz, atk.radius, now)
+			end
+			atkPhase[slot], atkUntil[slot] = 3, now + atk.recover
+		end
+		return true
+	elseif now >= atkUntil[slot] then
+		atkPhase[slot] = 0
+		schedule(slot, atk, now)
+		return false
+	end
+	return true
+end
+
+--- Called off (frozen mid-windup or mid-attack): it stays where it is.
+function EnemyService:_callOff(slot: number, atk, now: number)
+	atkPhase[slot] = 0
+	schedule(slot, atk, now)
+	self._actEvent:FireAllClients(slot, ACT_OFF, ex[slot], ez[slot], 0, 0)
+end
+
+--- Called when a pause ends: a windup's lane or ring ran out on screen while
+--- the attack waited, so show it again for the gameplay time left.
+function EnemyService:Resync(now: number)
+	for slot = 1, MAX do
+		if alive[slot] and atkPhase[slot] == 1 then
+			local atk = def[slot].attack
+			self._actEvent:FireAllClients(
+				slot,
+				if atk.kind == "charge" then ACT_CHARGE else ACT_LEAP,
+				atkBX[slot],
+				atkBZ[slot],
+				math.max(atkUntil[slot] - now, 0.05),
+				atkDur[slot]
+			)
+		end
+	end
+end
+
 function EnemyService:TargetOf(slot: number)
 	return target[slot] or nil
 end
 
 -- ------------------------------------------------------------------ the tick
 
+--- Studio only (DevService `bench`): time every Step for `seconds`, then
+--- report the mean and worst, with the enemy count.
+function EnemyService:Bench(seconds: number): { mean: number, worst: number, ticks: number, enemies: number }
+	self._bench = { sum = 0, worst = 0, ticks = 0, enemies = 0 }
+	task.wait(seconds)
+	local b = self._bench
+	self._bench = nil
+	return { mean = b.sum / math.max(b.ticks, 1), worst = b.worst, ticks = b.ticks, enemies = b.enemies }
+end
+
 function EnemyService:Step(dt: number, now: number)
+	local benchStart = if self._bench then os.clock() else 0
 	local map = self._map
 	local grid = self._grid
 	local players = self._players
@@ -523,6 +668,18 @@ function EnemyService:Step(dt: number, now: number)
 		local mx, mz = 0, 0
 		-- contact is body to body; the approach stops just inside it
 		local reach = Contact.reach(body[slot], heroBody, margin)
+
+		-- a special attack, when it has one (bosses keep their own scripts)
+		local atk = def[slot].attack
+		if atk and bossKind[slot] == 0 then
+			if frozen then
+				if atkPhase[slot] ~= 0 then
+					self:_callOff(slot, atk, now)
+				end
+			elseif self:_attack(slot, atk, t, x, z, dist, now) then
+				continue
+			end
+		end
 
 		if not frozen then
 			local sp = speed[slot]
@@ -624,6 +781,14 @@ function EnemyService:Step(dt: number, now: number)
 	self:FlushNet()
 	if self._tick % math.max(1, math.floor(GameConfig.SimHz / GameConfig.SnapshotHz)) == 0 then
 		self:_sendSnapshot(now)
+	end
+	local bench = self._bench
+	if bench then
+		local took = os.clock() - benchStart
+		bench.sum += took
+		bench.worst = math.max(bench.worst, took)
+		bench.ticks += 1
+		bench.enemies = math.max(bench.enemies, self._count)
 	end
 end
 
