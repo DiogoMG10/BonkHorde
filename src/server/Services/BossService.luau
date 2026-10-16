@@ -70,6 +70,15 @@ function BossService:AnyStageBoss(): boolean
 	return false
 end
 
+function BossService:AnyMiniboss(): boolean
+	for _, b in self._bosses do
+		if not b.stage then
+			return true
+		end
+	end
+	return false
+end
+
 local function scale(players: number, difficulty: number): number
 	return (1 + GameConfig.BossHPPerExtraPlayer * math.max(players - 1, 0)) * (1 + difficulty)
 end

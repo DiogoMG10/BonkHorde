@@ -65,6 +65,21 @@ function Attacks.leap(map: MapGen.Map, x: number, z: number, tx: number, tz: num
 	return x + ux * s, z + uz * s
 end
 
+--- M4.B: whether an attack of `kind` may start on a hero at `now`, given that
+--- hero's gates (kind -> the time it opens; `any` holds every kind). When it
+--- may, the gates close behind it, `gap` for its own kind and `anyGap` for all,
+--- so a pack's chargers and leapers wind up one after another, never in step.
+--- Returns whether it may, and when the gates open.
+function Attacks.turn(gates: { [string]: number }, kind: string, now: number, gap: number, anyGap: number): (boolean, number)
+	local opens = math.max(gates[kind] or 0, gates.any or 0)
+	if now < opens then
+		return false, opens
+	end
+	gates[kind] = now + gap
+	gates.any = now + anyGap
+	return true, now
+end
+
 --- The distance from (px, pz) to the segment (ax, az)-(bx, bz).
 function Attacks.segmentDistance(px: number, pz: number, ax: number, az: number, bx: number, bz: number): number
 	local vx, vz = bx - ax, bz - az

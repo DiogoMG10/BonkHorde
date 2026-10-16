@@ -25,6 +25,7 @@ local HudController = Knit.CreateController({ Name = "HudController" })
 local player = Players.LocalPlayer
 
 local BANNER_SECONDS = 3.2
+local SURGE_BANNER_SECONDS = 2
 local TOAST_SECONDS = 4
 local PICKUP_SECONDS = 1.6
 local LEVELUP_SECONDS = 1.6
@@ -228,13 +229,17 @@ function HudController:_wireEvents()
 		UiKit.text(e.bannerText, text)
 		UiKit.textColour(
 			e.bannerText,
-			if style == "alarm" then UiKit.Colours.red elseif style == "win" then UiKit.Colours.gold else UiKit.Colours.ink
+			if style == "alarm"
+				then UiKit.Colours.red
+				elseif style == "win" or style == "surge" then UiKit.Colours.gold
+				else UiKit.Colours.ink
 		)
 		UiKit.text(e.bannerSub, if typeof(extra) == "string" then extra else "")
 		UiKit.show(e.banner, true)
 		local stamp = os.clock()
 		self._bannerStamp = stamp
-		task.delay(BANNER_SECONDS, function()
+		-- a surge's banner is brief: they come every minute or so
+		task.delay(if style == "surge" then SURGE_BANNER_SECONDS else BANNER_SECONDS, function()
 			if self._bannerStamp == stamp then
 				UiKit.show(e.banner, false)
 			end

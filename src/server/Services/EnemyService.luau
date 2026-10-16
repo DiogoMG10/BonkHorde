@@ -8,6 +8,7 @@
 -- hundred enemies fit on Roblox.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
@@ -16,6 +17,7 @@ local Contact = require(ReplicatedStorage.Shared.Core.Contact)
 local Grid = require(ReplicatedStorage.Shared.Core.Grid)
 local MapGen = require(ReplicatedStorage.Shared.Core.MapGen)
 local Net = require(ReplicatedStorage.Shared.Net)
+local Pacing = require(ReplicatedStorage.Shared.Core.Pacing)
 local Roster = require(ReplicatedStorage.Shared.Config.Roster)
 local Signal = require(ReplicatedStorage.Packages.Signal)
 local Snapshot = require(ReplicatedStorage.Shared.Core.Snapshot)
@@ -110,6 +112,15 @@ function EnemyService:KnitInit()
 	self._hitsEvent = Net.server("Hits")
 	self._frozenEvent = Net.server("EnemyFrozen")
 	self._actEvent = Net.server("EnemyAct")
+	self._banner = Net.server("Banner")
+	-- M4.B: per hero, when the next special attack may start on them
+	self._gates = setmetatable({}, { __mode = "k" })
+	self:_resetPace()
+end
+
+function EnemyService:_resetPace()
+	-- shift: seconds added to the clock for the rhythm (DevService `surge`)
+	self._pace = { phase = "", surged = 0, seen = {}, last = nil, shift = 0, force = nil }
 end
 
 -- queue a freeze for the clients' ice shell (bounded, like hits)
@@ -295,8 +306,68 @@ function EnemyService:SpawnNear(rec, typeName: string, opts, minR: number?, maxR
 	return self:Spawn(typeName, x, z, opts)
 end
 
+-- A walkable point `r` studs from a hero towards `angle`, nudged a little if
+-- that spot is not walkable.
+function EnemyService:_packPoint(rec, angle: number, r: number): (number?, number?)
+	local limit = GameConfig.PlaySizeStuds / 2
+	for i = 0, 3 do
+		local a = angle + (if i == 0 then 0 else (rng:NextNumber() - 0.5) * 0.4)
+		local x = math.clamp(rec.x + math.cos(a) * r, -limit, limit)
+		local z = math.clamp(rec.z + math.sin(a) * r, -limit, limit)
+		if self._mapService:IsReachable(x, z) then
+			return x, z
+		end
+	end
+	return nil, nil
+end
+
+-- A pack arrives round one hero: every group gathers on its own arc, so it
+-- comes from one side (or, later, from several). Returns how many came.
+function EnemyService:_sendPack(pack, rec, cycleIndex: number, players: number, cap: number, opts: (any) -> any): number
+	local c = GameConfig
+	-- a heading with walkable ground, so the pack does not pile up on the map's edge
+	local heading = rng:NextNumber() * math.pi * 2
+	for _ = 1, 6 do
+		if self:_packPoint(rec, heading, c.PackRing) then
+			break
+		end
+		heading = rng:NextNumber() * math.pi * 2
+	end
+	local made = 0
+	for _, group in pack.groups do
+		local n = Pacing.count(group.n, cycleIndex, players, c.PackGrowth, c.PackGrowthMax, c.PackPerExtraPlayer)
+		local centre = heading + math.rad(group.side or 0)
+		local spread = math.rad(group.spread or 14)
+		local r = c.PackRing + (group.depth or 0)
+		for _ = 1, n do
+			if self._regular >= cap then
+				return made
+			end
+			local x, z = self:_packPoint(rec, centre + (rng:NextNumber() * 2 - 1) * spread, r + (rng:NextNumber() * 2 - 1) * 4)
+			if x and self:Spawn(group.type, x, z, opts(rec)) then
+				made += 1
+			end
+		end
+	end
+	return made
+end
+
+--- Where the horde's rhythm is (DevService `pace`): phase, cycle, the next
+--- surge on the stage clock.
+function EnemyService:Pace(clock: number): (string, number, number)
+	local c = GameConfig
+	local shift = self._pace.shift
+	local phase, _, cycleIndex = Pacing.phase(clock + shift, c.PaceCalmSeconds, c.PaceCycle, c.PaceRates)
+	return phase, cycleIndex, Pacing.nextSurge(clock + shift, c.PaceCalmSeconds, c.PaceCycle) - shift
+end
+
+--- Studio: start the next surge now, with the pack `id` if given.
+function EnemyService:ForceSurge(id: string?)
+	self._pace.force = id or true
+end
+
 --- The spawn director: feed the horde for this tick.
-function EnemyService:Direct(dt: number, clock: number, tier: number, difficulty: number, bossActive: boolean)
+function EnemyService:Direct(dt: number, clock: number, tier: number, difficulty: number, bossActive: boolean, miniActive: boolean?)
 	local recs = self._players:All()
 	local standing = {}
 	for _, rec in recs do
@@ -312,6 +383,28 @@ function EnemyService:Direct(dt: number, clock: number, tier: number, difficulty
 	if tier > 0 then
 		rate *= c.OvertimeSpawnMultiplier * (1 + 0.25 * (tier - 1))
 	end
+	-- M4.B the rhythm: a boss fight is its own spike, so the rhythm waits for it
+	local pace = self._pace
+	if pace.force then
+		local at = clock + pace.shift
+		pace.shift += Pacing.nextSurge(at, c.PaceCalmSeconds, c.PaceCycle) - at
+	end
+	local phase, mult, cycleIndex = "boss", 1, 0
+	if not bossActive and not miniActive then
+		phase, mult, cycleIndex = Pacing.phase(clock + pace.shift, c.PaceCalmSeconds, c.PaceCycle, c.PaceRates)
+		if tier > 0 and (phase == "ebb" or phase == "lull") then
+			mult = math.max(mult, c.PaceOvertimeLull)
+		end
+	end
+	rate *= mult
+	local studio = RunService:IsStudio()
+	local stamp = string.format("[Pace] %d:%02d", math.floor(clock / 60), math.floor(clock % 60))
+	if phase ~= pace.phase then
+		pace.phase = phase
+		if studio and phase ~= "surge" then
+			print(`{stamp} {phase} x{string.format("%.2f", mult)}`)
+		end
+	end
 	self._budget = math.min(self._budget + rate * dt, 40)
 	local cap = Spawn.cap(#recs, c.EnemyCapSolo, c.EnemyCapPerExtraPlayer, c.EnemyHardCap)
 	local types = if tier > 0
@@ -320,7 +413,7 @@ function EnemyService:Direct(dt: number, clock: number, tier: number, difficulty
 		else Spawn.typesAt(Roster.SpawnTimeline, clock)
 	local hpMult = Spawn.hpMult(clock, difficulty, tier, c.EnemyHPPerMinute, c.OvertimeHPGrowth, c.OvertimeHPMax)
 	local dmgMult = (1 + c.EnemyDamagePerMinute * (clock / 60)) * Spawn.overtimeDamage(tier, c.OvertimeDamageGrowth, c.OvertimeDamageMax)
-	local pace = Spawn.overtimeSpeed(tier, c.OvertimeSpeedPerTier, c.OvertimeSpeedMax)
+	local speedMult = Spawn.overtimeSpeed(tier, c.OvertimeSpeedPerTier, c.OvertimeSpeedMax)
 	local runShare, runBoost = Spawn.runners(
 		tier,
 		c.OvertimeRunnerPerTier,
@@ -329,23 +422,53 @@ function EnemyService:Direct(dt: number, clock: number, tier: number, difficulty
 		c.OvertimeRunnerBoostPerTier,
 		c.OvertimeRunnerBoostMax
 	)
+	local function opts(rec)
+		local chance =
+			Spawn.eliteChance(c.EliteBaseChance, rec.stats.EliteSpawnIncrease, clock, tier, c.OvertimeElitePerTier, c.OvertimeEliteMax)
+		local run = runShare > 0 and rng:NextNumber() < runShare
+		return {
+			elite = rng:NextNumber() < chance,
+			hpMult = hpMult,
+			dmgMult = dmgMult,
+			speedMult = if run then speedMult * runBoost else speedMult,
+			runner = run,
+		}
+	end
+	-- a surge opens with a pack, once a cycle
+	if phase == "surge" and cycleIndex ~= pace.surged then
+		pace.surged = cycleIndex
+		local eligible = Pacing.packsAt(Roster.Packs, clock, tier > 0)
+		local pack
+		if typeof(pace.force) == "string" then
+			for _, p in Roster.Packs do
+				if p.id == pace.force then
+					pack = p
+				end
+			end
+		end
+		pack = pack or Pacing.pick(eligible, pace.seen, pace.last, rng:NextNumber())
+		if pack then
+			local first = not pace.seen[pack.id]
+			pace.seen[pack.id] = true
+			pace.last = pack.id
+			local rec = standing[rng:NextInteger(1, #standing)]
+			local made = self:_sendPack(pack, rec, cycleIndex, #recs, cap, opts)
+			if made > 0 then
+				self._banner:FireAllClients(pack.name, "surge", if first then pack.hint or "" else "")
+			end
+			if studio then
+				print(`{stamp} surge {cycleIndex}: {pack.name}, {made} enemies x{string.format("%.2f", mult)}`)
+			end
+		end
+	end
+	pace.force = nil
 	while self._budget >= 1 do
 		self._budget -= 1
 		if self._regular >= cap then
 			continue
 		end
 		local rec = standing[rng:NextInteger(1, #standing)]
-		local name = types[rng:NextInteger(1, #types)]
-		local chance =
-			Spawn.eliteChance(c.EliteBaseChance, rec.stats.EliteSpawnIncrease, clock, tier, c.OvertimeElitePerTier, c.OvertimeEliteMax)
-		local run = runShare > 0 and rng:NextNumber() < runShare
-		self:SpawnNear(rec, name, {
-			elite = rng:NextNumber() < chance,
-			hpMult = hpMult,
-			dmgMult = dmgMult,
-			speedMult = if run then pace * runBoost else pace,
-			runner = run,
-		})
+		self:SpawnNear(rec, types[rng:NextInteger(1, #types)], opts(rec))
 	end
 end
 
@@ -361,6 +484,8 @@ function EnemyService:Clear()
 	self._count = 0
 	self._regular = 0
 	self._budget = 0
+	table.clear(self._gates)
+	self:_resetPace()
 	Grid.clear(self._grid)
 	self:FlushNet()
 end
@@ -510,6 +635,17 @@ function EnemyService:_attack(slot: number, atk, t, x: number, z: number, dist: 
 			return false
 		end
 		if now < atkNext[slot] or dist < atk.range[1] or dist > atk.range[2] or not grounded(t) then
+			return false
+		end
+		-- M4.B: attacks on one hero take turns, so a pack never winds up in step
+		local gates = self._gates[t]
+		if not gates then
+			gates = {}
+			self._gates[t] = gates
+		end
+		local ok, opens = Attacks.turn(gates, atk.kind, now, atk.stagger or 0.5, GameConfig.AttackGapAny)
+		if not ok then
+			atkNext[slot] = opens + rng:NextNumber() * (atk.stagger or 0.5)
 			return false
 		end
 		local cliff = GameConfig.CliffSlope

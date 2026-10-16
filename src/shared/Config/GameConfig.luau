@@ -6,7 +6,7 @@
 -- what makes a balance pass a data edit.
 
 local GameConfig = {
-	BuildStamp = "bonk-0.18.1-m4a",
+	BuildStamp = "bonk-0.19.0-m4b",
 
 	-- squad
 	MaxPlayers = 3,
@@ -49,6 +49,19 @@ local GameConfig = {
 	SpawnRatePerExtraPlayer = 0.6,
 	SpawnRingMin = 70,
 	SpawnRingMax = 110,
+	-- M4.B the horde's rhythm (Core/Pacing): a calm opening, then a cycle of
+	-- build -> surge (a pack, Roster.Packs) -> ebb -> lull, in seconds; the
+	-- spawn rate is multiplied by PaceRates in each. The cycle averages about
+	-- x1.0 with its packs, so the run is as dense as before, in spikes
+	PaceCalmSeconds = 40,
+	PaceCycle = { build = 25, surge = 10, ebb = 6, lull = 14 },
+	PaceRates = { calm = 1, buildFrom = 0.8, buildTo = 1.25, surge = 1.7, ebb = 0.6, lull = 0.3 },
+	PaceOvertimeLull = 0.75, -- overtime barely lets up
+	PackRing = 66, -- studs from the hero a pack gathers (it arrives in about 5 s)
+	PackGrowth = 0.05, -- a pack is this much bigger each cycle...
+	PackGrowthMax = 1.6, -- ...to this
+	PackPerExtraPlayer = 0.5,
+	AttackGapAny = 0.25, -- M4.B: seconds between any two special attacks starting on one hero
 	LeashDistance = 190,
 	EnemyHPPerMinute = 0.12,
 	EnemyDamagePerMinute = 0.04,
