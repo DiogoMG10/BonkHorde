@@ -15,6 +15,7 @@ local UserInputService = game:GetService("UserInputService")
 local Workspace = game:GetService("Workspace")
 
 local Icons = require(ReplicatedStorage.Shared.Config.Icons)
+local UiFonts = require(script.Parent.UiFonts)
 
 local UiKit = {}
 
@@ -353,6 +354,7 @@ function UiKit.gui(name: string): ScreenGui?
 	if screen then
 		screens[name] = screen
 		UiKit.safe("UiKit", installScale, screen)
+		UiKit.safe("UiKit", UiFonts.watch, screen)
 	else
 		screens[name] = false
 		warn(`[UiKit] ScreenGui {name} never arrived`)

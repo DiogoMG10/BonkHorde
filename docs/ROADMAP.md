@@ -81,8 +81,14 @@ explicit decision by Tiago and Diogo.
   pace (horde x1.45 by 8 min, up to 30% ember-trailing runners that beat a walk within a
   minute and a full bunny hop by ~12 min) and finite HP/damage ceilings; the magnet's +XP
   tally is gone; fonts on trial (`font <name>`, LuckiestGuy still default). Offline only.
-- **Next playable result:** Studio playtest: fonts compared, LVL MAX (`maxbuild`), overtime
-  pace for a strong build, a normal run's Silver, the magnet sweep, frame rate late on.
+  `bonk-0.14.1-m5a` approved in a human Studio playtest (grass less, numbers, magnet, LVL MAX,
+  balance). `bonk-0.15.0-m5a`: Fredoka is the default for damage numbers and popups; a
+  whole-interface font trial (`font fredoka all`, `font fredoka ui`, `font luckiest all`;
+  the interface stays as built until approved); each run draws its sky at random from
+  golden, clear, sunset, enchanted and night (20% each, server-side, shared by the squad and
+  late joiners), the lobby stays golden. Offline checks only.
+- **Next playable result:** Studio: Fredoka across every menu and panel, several run starts
+  under different skies (night's readability especially); then integrate (M3.A first).
 - **Blockers:** M3.A's tree pass needs human review before either branch merges.
 
 ## M6 Complete Experience — not started

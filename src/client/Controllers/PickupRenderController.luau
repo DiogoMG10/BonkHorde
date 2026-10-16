@@ -21,6 +21,7 @@ local Knit = require(ReplicatedStorage.Packages.Knit)
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Roster = require(ReplicatedStorage.Shared.Config.Roster)
+local UiFonts = require(script.Parent.Parent.UiFonts)
 local Vfx = require(script.Parent.Parent.Vfx)
 
 local PickupRenderController = Knit.CreateController({ Name = "PickupRenderController" })
@@ -96,6 +97,7 @@ function PickupRenderController:_make(kind: string): BasePart
 			text.TextStrokeTransparency = 0
 			text.Text = look.label
 			text.Parent = gui
+			UiFonts.track(text)
 			gui.Parent = part
 		end
 	end

@@ -34,6 +34,8 @@ function MapService:KnitInit()
 	self._reach = MapGen.reachable(self._map, 0, 0, GameConfig.CliffSlope)
 	self._terrainReady = false
 	self._grass = Wardwood.Grass
+	self._rng = Random.new()
+	self._skyWhy = "lobby"
 end
 
 function MapService:KnitStart()
@@ -78,6 +80,37 @@ end
 function MapService:SetGrass(mode: string)
 	self._grass = mode
 	self:_writeTerrain()
+end
+
+--- Put one of Look.Skies over the map; false for an unknown name. `why` is
+--- what the `sky` dev command reports (lobby, drawn for this run, set by hand).
+function MapService:SetSky(name: string, why: string): boolean
+	if not Look.sky(name) then
+		return false
+	end
+	self._skyWhy = why
+	return true
+end
+
+--- The sky in use, and why.
+function MapService:Sky(): (string?, string)
+	return Look.current(), self._skyWhy
+end
+
+--- A run's start: draw its sky from Wardwood.RunSkies. Only the light
+--- changes; the terrain and the scenery stay as they are.
+function MapService:DrawRunSky(): string
+	local name = Wardwood.runSky(self._rng:NextNumber())
+	if not self:SetSky(name, "drawn for this run") then
+		name = Wardwood.Sky
+		self:SetSky(name, "lobby")
+	end
+	return name
+end
+
+--- Back in the lobby: its own sky again.
+function MapService:LobbySky()
+	self:SetSky(Wardwood.Sky, "lobby")
 end
 
 function MapService:GetAnchors()

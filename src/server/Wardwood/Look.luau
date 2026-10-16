@@ -2,9 +2,10 @@
 -- Wardwood Look - the light over the Wardwood. Built in code so the place file
 -- carries no hand-set lighting to drift out of step.
 --
--- Skies to compare (Config/Wardwood.Sky picks the one a run starts with, and
--- stays golden until a person picks otherwise; `sky <name>` in
--- Workspace.BonkDev switches live in a Studio playtest):
+-- Skies (the lobby wears Config/Wardwood.Sky, golden; each run draws one of
+-- Wardwood.RunSkies, every one of these but dusk; `sky <name>` in
+-- Workspace.BonkDev switches live in a Studio playtest). Lighting is set on the
+-- server only, so it replicates: the whole squad, late joiners too, share it.
 --   golden   the default: a late golden afternoon, warm low sun, cool teal
 --            shade and distance, a soft haze that gives depth without fogging
 --            the fight

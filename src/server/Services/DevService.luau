@@ -13,14 +13,16 @@
 --   site Falls         stand in front of a Wardwood landmark (site alone lists them)
 --   marker             show or hide the Sword's aim marker on the ground
 --   hop                show or hide real vs intended movement speed (M2.B playtest)
---   sky night          switch the sky live: golden (the default), clear, dusk,
---                      sunset, night, enchanted
+--   sky night          switch the sky live until the next run draws its own:
+--                      golden (the lobby's), clear, dusk, sunset, night,
+--                      enchanted; `sky` alone says which is up and why
 --   leaves Grass       re-material every tree's foliage live (LeafyGrass, Grass,
 --                      SmoothPlastic, Plastic...; `leaves` alone puts it back)
 --   grass full         rewrite the terrain all-grass as before; `grass less` back
 --                      to grass in drifts between moss and worn earth (default)
---   font bangers       try a face on the damage numbers and popups (Config/Fonts);
---                      `font bangers numbers` / `font fredoka popups` one of them
+--   font fredoka all   try a face on the whole game (Config/Fonts): `ui` the
+--                      interface only, `numbers` / `popups` one role, no role
+--                      both of those; `font` alone lists faces and what's worn
 -- In a run:
 --   maxbuild           fill every weapon and tome slot at the cap (LVL MAX);
 --                      `maxbuild 1` leaves the last one a level short
@@ -79,15 +81,16 @@ function DevService:KnitStart()
 	end
 	function commands.sky(_, name)
 		local Look = require(script.Parent.Parent.Wardwood.Look)
-		if Look.sky(name or "") then
-			print(`[Dev] sky {name}`)
+		if name and mapService:SetSky(name, "set by hand") then
+			print(`[Dev] sky {name}, until the next run draws its own`)
 		else
 			local names = {}
 			for key in Look.Skies do
 				table.insert(names, key)
 			end
 			table.sort(names)
-			print(`[Dev] sky is {Look.current()}; skies: {table.concat(names, ", ")}`)
+			local current, why = mapService:Sky()
+			print(`[Dev] sky is {current} ({why}); skies: {table.concat(names, ", ")}`)
 		end
 	end
 	-- every tree's foliage, found once by its material and shape (moss bands are
@@ -120,16 +123,21 @@ function DevService:KnitStart()
 	end
 	function commands.font(_, name, role)
 		local Fonts = require(ReplicatedStorage.Shared.Config.Fonts)
-		if not Fonts.Faces[name or ""] then
-			print(`[Dev] fonts: {table.concat(Fonts.Order, ", ")} (default {Fonts.Default})`)
+		local roles = if role == nil then { "numbers", "popups" } elseif role == "all" then { "numbers", "popups", "ui" } else { role }
+		if not Fonts.Faces[name or ""] or not Fonts.Attributes[roles[1]] then
+			local worn = {}
+			for _, key in { "numbers", "popups", "ui" } do
+				local pick = Workspace:GetAttribute(Fonts.Attributes[key])
+				local fallback = if key == "ui" then "as built" else Fonts.Default
+				table.insert(worn, `{key} {pick or fallback}`)
+			end
+			print(`[Dev] font <{table.concat(Fonts.Order, "|")}> [numbers|popups|ui|all]; now {table.concat(worn, ", ")}`)
 			return
 		end
-		for key, attr in Fonts.Attributes do
-			if role == nil or role == key then
-				Workspace:SetAttribute(attr, name)
-			end
+		for _, key in roles do
+			Workspace:SetAttribute(Fonts.Attributes[key], name)
 		end
-		print(`[Dev] font {name} on {role or "numbers and popups"}`)
+		print(`[Dev] font {name} on {table.concat(roles, ", ")}`)
 	end
 	function commands.grass(_, mode)
 		if mode ~= "full" and mode ~= "less" then

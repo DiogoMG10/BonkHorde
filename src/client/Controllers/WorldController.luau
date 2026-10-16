@@ -16,6 +16,7 @@ local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Roster = require(ReplicatedStorage.Shared.Config.Roster)
 local Signal = require(ReplicatedStorage.Packages.Signal)
+local UiFonts = require(script.Parent.Parent.UiFonts)
 local Vfx = require(script.Parent.Parent.Vfx)
 
 local WorldController = Knit.CreateController({ Name = "WorldController" })
@@ -83,6 +84,7 @@ function WorldController:_label(part: BasePart, text: string): TextLabel
 	label.TextStrokeTransparency = 0
 	label.Text = text
 	label.Parent = gui
+	UiFonts.track(label)
 	gui.Parent = part
 	return label
 end

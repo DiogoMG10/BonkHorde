@@ -261,12 +261,13 @@ function RunDirectorService:_startRun()
 	self._bosses:Reset()
 	self._xp:Reset()
 	self._interactables:Place()
+	local sky = self._mapService:DrawRunSky()
 	self._players:BeginRun(self._party:GetPlayers())
 	self._phaseUntil = os.clock() + GameConfig.IntroSeconds
 	self:_sendPhase(nil)
 	local map = Roster.Maps[self._party:GetMap()]
 	self._banner:FireAllClients(map.name, "stage", map.joke)
-	print(`[RunDirectorService] run started with {#self._party:GetPlayers()} player(s)`)
+	print(`[RunDirectorService] run started with {#self._party:GetPlayers()} player(s), sky {sky}`)
 end
 
 function RunDirectorService:_lateJoin(player: Player)
@@ -333,6 +334,7 @@ function RunDirectorService:_toLobby()
 	self._upgrades:Reset()
 	self._bosses:Reset()
 	self._interactables:Clear()
+	self._mapService:LobbySky()
 	self._players:EndRun()
 	self._party:ClearReady()
 	table.clear(self._pauses)

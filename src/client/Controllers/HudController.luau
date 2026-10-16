@@ -10,15 +10,14 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
-local Workspace = game:GetService("Workspace")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
-local Fonts = require(ReplicatedStorage.Shared.Config.Fonts)
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Roster = require(ReplicatedStorage.Shared.Config.Roster)
 local Spawn = require(ReplicatedStorage.Shared.Core.Spawn)
 local Stats = require(ReplicatedStorage.Shared.Core.Stats)
+local UiFonts = require(script.Parent.Parent.UiFonts)
 local UiKit = require(script.Parent.Parent.UiKit)
 
 local HudController = Knit.CreateController({ Name = "HudController" })
@@ -132,19 +131,10 @@ function HudController:_start()
 	UiKit.fillIcons(hud)
 	UiKit.setIcon(e.toastPortrait, "IconExclaim")
 
-	-- the big popups wear the face on trial (Config/Fonts; `font` in Studio)
-	local fontAttr = Fonts.Attributes.popups
-	local function popupFont()
-		local face = Fonts.face(Workspace:GetAttribute(fontAttr))
-		for _, key in { "levelUp", "bannerText", "stageName", "pickupToast" } do
-			local label = e[key]
-			if label and label:IsA("TextLabel") then
-				label.FontFace = face
-			end
-		end
+	-- the big popups wear the popups role's face (Config/Fonts; `font` in Studio)
+	for _, key in { "levelUp", "bannerText", "stageName", "pickupToast" } do
+		UiFonts.role(e[key], "popups")
 	end
-	popupFont()
-	Workspace:GetAttributeChangedSignal(fontAttr):Connect(popupFont)
 
 	-- everything that ships visible only as a mockup state starts hidden
 	for _, key in
