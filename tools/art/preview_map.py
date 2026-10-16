@@ -1,7 +1,7 @@
 """Before/after previews of the M3.B art across the Wardwood, from the game's
 own camera, offline (Blender renders: shape and palette only, never Studio).
 
-    python tools/art/preview_map.py [outdir]
+    python tools/art/preview_map.py [outdir] [spot ...]
 
 For each spot: exports the world once as the old props and once as a client
 standing there draws the kit (tools/map/export_world.luau ... art x z), renders
@@ -24,7 +24,9 @@ SPOTS = [
     ("dense_wood", -300, 120, 160),
     ("north_meadow", 90, 300, 200),
     ("thornwood", 250, -150, 250),
+    ("fallen_giant", 290, -262, 250),
 ]
+ONLY = sys.argv[2:]
 
 os.makedirs(OUT, exist_ok=True)
 
@@ -50,6 +52,8 @@ def height(x, z):
 
 rows = []
 for name, x, z, yaw in SPOTS:
+    if ONLY and name not in ONLY:
+        continue
     after = os.path.join(OUT, f"world_{name}.json")
     # a leading space, or lune takes "-372" for one of its own flags
     run(["lune", "run", "tools/map/export_world.luau", after, "short", "art", f" {x}", f" {z}"])

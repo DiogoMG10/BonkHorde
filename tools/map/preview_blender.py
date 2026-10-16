@@ -385,7 +385,9 @@ if art:
         for key in inst["parts"]:
             ob = bpy.data.objects.new(key, art_mesh[key])
             ob.location = to_bl(inst["x"], inst["y"] + lift, inst["z"])
-            ob.rotation_euler = (0, 0, inst["yaw"])
+            # roblox Ry(yaw) * Rz(roll) is blender Rz(yaw) * Ry(-roll)
+            ob.rotation_mode = "ZYX"
+            ob.rotation_euler = (0, -(inst.get("roll") or 0), inst["yaw"])
             ob.scale = (inst["scale"],) * 3
             link(ob)
 

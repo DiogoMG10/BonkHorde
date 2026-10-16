@@ -28,9 +28,14 @@ local Wardwood = {
 	-- far version ("_LOD") to `far`, their horizon version ("_FAR") beyond;
 	-- `slack` studs of hysteresis, so nothing flickers at a boundary
 	ArtLod = { near = 110, far = 280, slack = 12 },
-	-- short 3D grass, grown on the client around the camera only: a patch per
-	-- `cell` studs of grassy ground within `radius` studs
-	ArtGrass = { cell = 6, radius = 42 },
+	-- short 3D grass, grown on each client only where its camera looks: a patch
+	-- per `cell` studs of grassy ground within `radius` studs of a point `ahead`
+	-- studs in front of the hero along the camera's view, pushed on by `lead`
+	-- seconds of the hero's speed (at most `leadMax` studs); always within
+	-- `keep` studs of the hero; grown nearest the hero first, `budgetMs` of each
+	-- frame at most (four times that while ground within `urgent` studs of the
+	-- hero, in plain view, is still bare: a teleport, a sharp turn)
+	ArtGrass = { cell = 8, radius = 54, ahead = 20, lead = 0.4, leadMax = 26, keep = 30, urgent = 48, budgetMs = 0.8 },
 	Surfaces = {
 		Meadow = { material = "Grass", color = { 128, 162, 62 } },
 		Lush = { material = "LeafyGrass", color = { 86, 130, 56 } },

@@ -32,6 +32,7 @@ ArtPlan.Families = {
 	Fern = { "FernA", "FernB" },
 	Stump = { "StumpA", "StumpB" },
 	FallenLog = { "FallenLog" },
+	FallenGiant = { "FallenGiant" },
 	BoulderLarge = { "BoulderLargeA", "BoulderLargeB" },
 	RockSmall = { "RockSmallA", "RockSmallB" },
 	BoulderFlat = { "BoulderFlat" },
@@ -91,6 +92,21 @@ function ArtPlan.footY(world: World.World, prop: World.Prop): number
 	return ground
 end
 
+--- Where a prop's model goes: its pivot (x, y, z), its turn and its tilt about
+--- its own length (radians). The Fallen Giant lies bank to bank across its
+--- gully, tilted as Blueprints.FallenGiant lays the trunk its collider follows.
+function ArtPlan.place(world: World.World, prop: World.Prop): (number, number, number, number, number)
+	if prop.kind == "FallenGiant" then
+		local c, s = math.cos(prop.yaw), math.sin(prop.yaw)
+		local function h(lx: number): number
+			return MapGen.heightAt(world.map, prop.x + lx * c, prop.z - lx * s)
+		end
+		local yA, yB = h(-33), h(33)
+		return prop.x, (yA + yB) / 2 + 9.5 / 2 - 0.8, prop.z, prop.yaw, math.atan((yB - yA) / 66)
+	end
+	return prop.x, ArtPlan.footY(world, prop), prop.z, prop.yaw, 0
+end
+
 --- A small, fixed colour shift per plant, so a wood of the same few models
 --- never reads as copies: a little lighter or darker, warmer or cooler.
 function ArtPlan.tint(prop: World.Prop): (number, number, number)
@@ -102,6 +118,79 @@ end
 -- ------------------------------------------------------------------ grass
 
 local GRASSY = { Carpet = true, Meadow = true, Lush = true }
+
+--- The point the grass is kept round (Config/Wardwood.ArtGrass): `ahead`
+--- studs in front of the hero along the camera's flattened view, pushed on by
+--- `lead` seconds of the hero's velocity, at most `leadMax` studs.
+function ArtPlan.grassCentre(hx: number, hz: number, lookX: number, lookZ: number, vx: number, vz: number): (number, number)
+	local g = Wardwood.ArtGrass
+	local l = math.sqrt(lookX * lookX + lookZ * lookZ)
+	if l > 1e-3 then
+		hx += lookX / l * g.ahead
+		hz += lookZ / l * g.ahead
+	end
+	local lx, lz = vx * g.lead, vz * g.lead
+	local ll = math.sqrt(lx * lx + lz * lz)
+	if ll > g.leadMax then
+		lx, lz = lx / ll * g.leadMax, lz / ll * g.leadMax
+	end
+	return hx + lx, hz + lz
+end
+
+--- Whether grid cell (cx, cz) should hold grass, the hero at (hx, hz) and the
+--- grass centred on (gx, gz): within `radius` of the centre or `keep` of the
+--- hero, both widened by `slack` (releasing uses a cell of slack, so a patch
+--- at the edge never comes and goes as the camera sways).
+function ArtPlan.grassWanted(cx: number, cz: number, hx: number, hz: number, gx: number, gz: number, slack: number): boolean
+	local g = Wardwood.ArtGrass
+	local x, z = (cx + 0.5) * g.cell, (cz + 0.5) * g.cell
+	local r1, r2 = g.radius + slack, g.keep + slack
+	return (x - gx) ^ 2 + (z - gz) ^ 2 <= r1 * r1 or (x - hx) ^ 2 + (z - hz) ^ 2 <= r2 * r2
+end
+
+export type GrassCell = { key: number, cx: number, cz: number, d: number }
+
+--- A grid cell's key in the client's tables, and back.
+function ArtPlan.grassKey(cx: number, cz: number): number
+	return cx * 65536 + (cz + 32768)
+end
+
+function ArtPlan.grassCell(key: number): (number, number)
+	return key // 65536, key % 65536 - 32768
+end
+
+--- One re-plan of the grass round a hero at (hx, hz) with the grass centred on
+--- (gx, gz): the keys in `active` to drop (outside, with a cell of slack) and
+--- the cells still to grow, nearest the hero first.
+function ArtPlan.grassPlan(active: { [number]: any }, hx: number, hz: number, gx: number, gz: number): ({ number }, { GrassCell })
+	local g = Wardwood.ArtGrass
+	local cell = g.cell
+	local drop = {}
+	for key in active do
+		local cx, cz = ArtPlan.grassCell(key)
+		if not ArtPlan.grassWanted(cx, cz, hx, hz, gx, gz, cell) then
+			table.insert(drop, key)
+		end
+	end
+	local pending = {}
+	local x0 = math.floor(math.min(gx - g.radius, hx - g.keep) / cell)
+	local x1 = math.floor(math.max(gx + g.radius, hx + g.keep) / cell)
+	local z0 = math.floor(math.min(gz - g.radius, hz - g.keep) / cell)
+	local z1 = math.floor(math.max(gz + g.radius, hz + g.keep) / cell)
+	for cx = x0, x1 do
+		for cz = z0, z1 do
+			local key = ArtPlan.grassKey(cx, cz)
+			if active[key] == nil and ArtPlan.grassWanted(cx, cz, hx, hz, gx, gz, 0) then
+				local x, z = (cx + 0.5) * cell, (cz + 0.5) * cell
+				table.insert(pending, { key = key, cx = cx, cz = cz, d = (x - hx) ^ 2 + (z - hz) ^ 2 })
+			end
+		end
+	end
+	table.sort(pending, function(a, b)
+		return a.d < b.d
+	end)
+	return drop, pending
+end
 
 export type GrassPatch = { asset: string, x: number, y: number, z: number, yaw: number, scale: number, up: { number } }
 

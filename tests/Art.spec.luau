@@ -78,7 +78,7 @@ return {
 				then 20000
 				elseif string.find(name, "_FAR$") then 2000
 				elseif string.find(name, "_LOD$") then 3500
-				elseif string.find(name, "^Grass") then 1000
+				elseif string.find(name, "^Grass") then 1400
 				else 9000
 			assert(n <= cap, `{name} has {n} triangles, budget {cap}`)
 		end
@@ -153,6 +153,52 @@ return {
 		assert(math.abs(oak.x - (x + 3)) < 1e-6 and math.abs(oak.z - (z - 2)) < 1e-6, "the oak did not move")
 		assert(math.abs(oak.yaw - math.pi / 2) < 1e-6 and oak.scale == 1.5, "the oak did not turn or grow")
 		assert(ArtPlan.asset(oak) == "OakC", "the oak did not take its variation")
+	end,
+
+	["the Fallen Giant's new trunk covers the collider it keeps, and lies as the old one did"] = function()
+		-- the collider: Blueprints.FallenGiant's solid trunk, a 9.5-stud cylinder along local x, 72 long
+		local giant
+		for _, p in world.props do
+			if p.kind == "FallenGiant" then
+				giant = p
+			end
+		end
+		assert(giant and ArtPlan.asset(giant) == "FallenGiant", "the Fallen Giant is not dressed")
+		local prims = World.parts(world, giant) :: any
+		local trunk
+		for _, q in prims do
+			if q.collide then
+				assert(not trunk, "more than one collider")
+				trunk = q
+			end
+		end
+		assert(trunk and trunk.shape == "cylinder" and math.abs(trunk.size[1] - 72) < 1e-6, "the collider changed")
+		-- the model is placed where the collider's axis is
+		local x, y, z = ArtPlan.place(world, giant)
+		assert(
+			math.abs(x - trunk.cf[1]) < 1e-3 and math.abs(y - trunk.cf[2]) < 1e-3 and math.abs(z - trunk.cf[3]) < 1e-3,
+			`the trunk sits at {x}, {y}, {z}, its collider at {trunk.cf[1]}, {trunk.cf[2]}, {trunk.cf[3]}`
+		)
+		-- and its bark is never inside the collider along the collider's length
+		local checked = false
+		for _, part in ASSETS.FallenGiant.parts do
+			if part.name == "trunk" then
+				local mesh = ArtKit.decode(part)
+				local thinnest = math.huge
+				for v = 0, mesh.verts - 1 do
+					local px = mesh.pos[v * 3 + 1] + mesh.centre[1]
+					local py = mesh.pos[v * 3 + 2] + mesh.centre[2]
+					local pz = mesh.pos[v * 3 + 3] + mesh.centre[3]
+					if math.abs(px) < 35.5 then
+						thinnest = math.min(thinnest, math.sqrt(py * py + pz * pz))
+					end
+				end
+				-- 4.75 plus the flat facets' sag between ring vertices
+				assert(thinnest >= 4.85, `the bark comes within {thinnest} studs of the axis`)
+				checked = true
+			end
+		end
+		assert(checked, "the Fallen Giant has no trunk part")
 	end,
 
 	["short 3D grass grows only on grassy ground, clear of trunks, rocks and walls"] = function()

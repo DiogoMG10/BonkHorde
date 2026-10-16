@@ -62,6 +62,7 @@ PAL = {
     "fernMid": (76, 130, 56),
     "fernLight": (110, 158, 64),
     "wood": (176, 140, 96),
+    "earth": (92, 74, 54),
     "elderDark": (36, 84, 62),
     "elderMid": (64, 124, 82),
     "elderLight": (108, 164, 96),
@@ -418,7 +419,7 @@ def pine(name="Pine", seed=31, height=33.0, lod=False):
 # ------------------------------------------------------------------ grass
 
 
-def grass_patch(name, seed, color_key, blades=330, radius=3.4):
+def grass_patch(name, seed, color_key, blades=540, radius=4.6):
     """Low 3D grass: thin blades 0.2 to 0.5 studs above the ground, thinning
     to a soft edge so overlapping patches read as one continuous lawn. Blades
     come in three tones and their normals lean toward the way each one faces,
@@ -737,6 +738,64 @@ def ruin_wall(name, seed):
     return a
 
 
+
+def fallen_giant(name="FallenGiant", seed=1002):
+    """The Fallen Giant: an ancient trunk come down across its gully. It lies
+    along +x, its axis at the origin, never thinner than the 4.75-stud collider
+    the game keeps for it (Blueprints.FallenGiant), so nothing invisible ever
+    stops a hero: ridged bark, moss along its back, broken limbs, a splintered
+    crown end, and at +x a reared-up plate of roots and torn earth."""
+    rng = random.Random(seed)
+    a = Asset(name)
+    barkp = a.part("bark", PAL["barkAncient"])
+    dark = a.part("barkDark", PAL["barkDark"])
+    moss = a.part("moss", PAL["mossRock"])
+    earth = a.part("earth", PAL["earth"])
+    half, r = 36.0, 5.1
+    path = [(-half + 2 * half * i / 26, 0.0, 0.0) for i in range(27)]
+    radii = [r * (1.0 + 0.015 * math.sin(i * 0.65)) for i in range(27)]
+
+    def ridges(i, ang):
+        # bark ridges, never cutting inside the collider (radius 4.75)
+        return 0.985 + 0.015 * math.cos(ang * 9 + i * 0.35)
+
+    trunk = a.part("trunk", PAL["barkAncient"])
+    tube(trunk, path, radii, sides=18, lobes=ridges, seed=seed, cap=False, moss=moss, moss_up=0.62, wobble=0.02)
+    # the crown end: a ragged break, shards of splintered wood, no flat face
+    for k in range(9):
+        ang = k / 9 * math.tau + rng.uniform(-0.2, 0.2)
+        rr = r * rng.uniform(0.45, 0.85)
+        base = (-half + 0.6, math.cos(ang) * rr, math.sin(ang) * rr)
+        length_ = rng.uniform(2.5, 7.5)
+        tip = add(base, (-length_, math.cos(ang) * rng.uniform(0.3, 1.6), math.sin(ang) * rng.uniform(0.3, 1.6)))
+        tube(dark if k % 3 else barkp, [base, lerp(base, tip, 0.5), tip], [rng.uniform(0.9, 1.5), 0.6, 0.08],
+             sides=4, seed=seed + k, cap=True)
+    blob(dark, (-half + 0.3, 0, 0), (1.2, r * 0.9, r * 0.9), subdiv=1, lump=0.35, seed=seed + 20, flat=True)
+    # broken limbs reaching up from the trunk
+    for k, lx in enumerate((-18.0, 2.0, 21.0)):
+        side = 1 if k % 2 else -1
+        base = (lx, side * r * 0.4, r * 0.75)
+        tip = add(base, (rng.uniform(-3, 3), side * rng.uniform(3, 6), rng.uniform(6, 10)))
+        knee = add(lerp(base, tip, 0.5), (0, side * 1.0, 0))
+        tube(barkp, [base, knee, tip], [1.8, 1.2, 0.6], sides=7, seed=seed + 30 + k, moss=moss, moss_up=0.6)
+        for j in range(3):
+            sp = add(tip, (rng.uniform(-0.8, 0.8), rng.uniform(-0.8, 0.8), rng.uniform(1.0, 2.2)))
+            tube(dark, [tip, sp], [0.4, 0.05], sides=3, seed=seed + 40 + j, cap=True)
+    # the root plate: earth torn up with the roots, reared on the far bank
+    plate = (half + 3.0, 0.0, 4.5)
+    blob(earth, plate, (3.2, 11.5, 10.5), subdiv=2, lump=0.3, seed=seed + 50, flat=True)
+    for k in range(13):
+        ang = k / 13 * math.tau + rng.uniform(-0.15, 0.15)
+        d = (0.0, math.cos(ang), math.sin(ang))
+        start = add(plate, (rng.uniform(-0.5, 1.5), d[1] * 7.0, d[2] * 6.5))
+        reach = rng.uniform(6, 12)
+        pts = [start]
+        for i in range(1, 5):
+            t = i / 4
+            pts.append(add(start, (rng.uniform(0.5, 2.5) * t * 3, d[1] * reach * t, d[2] * reach * t - 1.5 * t * t)))
+        tube(dark if k % 2 else barkp, pts, [1.5, 1.1, 0.7, 0.4, 0.12], sides=6, seed=seed + 60 + k, cap=True)
+    return a
+
 # ------------------------------------------------------------------ the kit
 
 
@@ -824,6 +883,7 @@ def build_all():
     kit.append(stump("StumpA", 701))
     kit.append(stump("StumpB", 703))
     kit.append(fallen_log("FallenLog", 711))
+    kit.append(fallen_giant())
     kit.append(fit(rock("BoulderLargeA", 301, (4.4, 4.5, 2.9), sink=0.18, moss_amount=0.6), (8.8, 9.0, 4.6)))
     kit.append(fit(rock("BoulderLargeB", 311, (4.6, 4.2, 3.2), sink=0.2, moss_amount=0.55), (8.8, 9.0, 4.8)))
     kit.append(fit(rock("RockSmallA", 303, (0.95, 0.9, 1.15), sink=0.15, moss_amount=0.45, subdiv=1), (1.8, 1.8, 2.0)))

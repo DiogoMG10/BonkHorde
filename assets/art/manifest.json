@@ -3138,15 +3138,15 @@
    "luau": "src/server/Wardwood/ArtMeshes/BushC_LOD.luau"
   },
   "GrassA": {
-   "tris": 660,
+   "tris": 1080,
    "size_studs": [
-    6.15,
+    8.3,
     0.7,
-    5.67
+    8.27
    ],
    "parts": {
     "bladesDark": {
-     "tris": 238,
+     "tris": 378,
      "color": [
       93,
       129,
@@ -3155,7 +3155,7 @@
      "material": "SmoothPlastic"
     },
     "bladesMid": {
-     "tris": 302,
+     "tris": 512,
      "color": [
       122,
       170,
@@ -3164,7 +3164,7 @@
      "material": "SmoothPlastic"
     },
     "bladesLight": {
-     "tris": 120,
+     "tris": 190,
      "color": [
       138,
       192,
@@ -3177,15 +3177,15 @@
    "luau": "src/server/Wardwood/ArtMeshes/GrassA.luau"
   },
   "GrassB": {
-   "tris": 660,
+   "tris": 1080,
    "size_studs": [
-    5.61,
+    7.8,
     0.7,
-    6.06
+    8.48
    ],
    "parts": {
     "bladesDark": {
-     "tris": 156,
+     "tris": 278,
      "color": [
       99,
       134,
@@ -3194,7 +3194,7 @@
      "material": "SmoothPlastic"
     },
     "bladesMid": {
-     "tris": 354,
+     "tris": 580,
      "color": [
       130,
       176,
@@ -3203,7 +3203,7 @@
      "material": "SmoothPlastic"
     },
     "bladesLight": {
-     "tris": 150,
+     "tris": 222,
      "color": [
       147,
       199,
@@ -3216,15 +3216,15 @@
    "luau": "src/server/Wardwood/ArtMeshes/GrassB.luau"
   },
   "GrassC": {
-   "tris": 660,
+   "tris": 1080,
    "size_studs": [
-    6.2,
+    8.35,
     0.7,
-    6.02
+    8.29
    ],
    "parts": {
     "bladesDark": {
-     "tris": 208,
+     "tris": 320,
      "color": [
       87,
       123,
@@ -3233,7 +3233,7 @@
      "material": "SmoothPlastic"
     },
     "bladesMid": {
-     "tris": 308,
+     "tris": 532,
      "color": [
       114,
       162,
@@ -3242,7 +3242,7 @@
      "material": "SmoothPlastic"
     },
     "bladesLight": {
-     "tris": 144,
+     "tris": 228,
      "color": [
       129,
       183,
@@ -3430,6 +3430,63 @@
    },
    "glb": "assets/art/export/FallenLog.glb",
    "luau": "src/server/Wardwood/ArtMeshes/FallenLog.luau"
+  },
+  "FallenGiant": {
+   "tris": 2636,
+   "size_studs": [
+    88.81,
+    27.36,
+    33.91
+   ],
+   "parts": {
+    "bark": {
+     "tris": 543,
+     "color": [
+      96,
+      76,
+      60
+     ],
+     "material": "SmoothPlastic"
+    },
+    "barkDark": {
+     "tris": 605,
+     "color": [
+      82,
+      62,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "moss": {
+     "tris": 232,
+     "color": [
+      74,
+      108,
+      44
+     ],
+     "material": "SmoothPlastic"
+    },
+    "earth": {
+     "tris": 320,
+     "color": [
+      92,
+      74,
+      54
+     ],
+     "material": "SmoothPlastic"
+    },
+    "trunk": {
+     "tris": 936,
+     "color": [
+      96,
+      76,
+      60
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/FallenGiant.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/FallenGiant.luau"
   },
   "BoulderLargeA": {
    "tris": 391,

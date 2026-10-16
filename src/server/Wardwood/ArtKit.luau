@@ -112,7 +112,9 @@ local function meshPart(part, asset: string): MeshPart?
 	local ok, mp = pcall(function()
 		return AssetService:CreateMeshPartAsync(baked, {
 			CollisionFidelity = Enum.CollisionFidelity.Box,
-			RenderFidelity = Enum.RenderFidelity.Automatic,
+			-- the engine's own simplification would thin blades away; grass is
+			-- only ever drawn near the hero anyway
+			RenderFidelity = if string.find(asset, "^Grass") then Enum.RenderFidelity.Precise else Enum.RenderFidelity.Automatic,
 		})
 	end)
 	em:Destroy()

@@ -55,7 +55,7 @@ if withArt then
 	local fx, fz = tonumber(process.args[4]) or 0, tonumber(process.args[5]) or 0
 	local lod = Wardwood.ArtLod
 	local meshes, instances = {}, {}
-	local function place(name, x, y, z, yaw, scale, up)
+	local function place(name, x, y, z, yaw, scale, up, roll)
 		if not fs.isFile(`src/server/Wardwood/ArtMeshes/{name}.luau`) then
 			return false
 		end
@@ -79,7 +79,7 @@ if withArt then
 			end
 			table.insert(parts, key)
 		end
-		table.insert(instances, { parts = parts, x = x, y = y, z = z, yaw = yaw, scale = scale, up = up })
+		table.insert(instances, { parts = parts, x = x, y = y, z = z, yaw = yaw, scale = scale, up = up, roll = roll })
 		return true
 	end
 	for i, p in world.props do
@@ -93,7 +93,8 @@ if withArt then
 					name = asset .. "_LOD"
 				end
 			end
-			if place(name, p.x, ArtPlan.footY(world, p), p.z, p.yaw, p.scale) then
+			local px, py, pz, yaw, roll = ArtPlan.place(world, p)
+			if place(name, px, py, pz, yaw, p.scale, nil, roll) then
 				swapped[i] = true
 			end
 		end

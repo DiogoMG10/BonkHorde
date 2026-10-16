@@ -12,13 +12,14 @@ pathing, skies and gameplay are unchanged.
 | Spruce, SpruceFar, SpruceRidge, Pine | SpruceA/B/C, PineA/B | near, `_LOD`, `_FAR` |
 | AncientOak, AncientPine, Elder | AncientOakA/B, AncientPine, Elder | near, `_LOD`, `_FAR` |
 | Bush, Fern, Stump, FallenLog | BushA/B/C (near, `_LOD`), FernA/B, StumpA/B, FallenLog | |
+| FallenGiant (landmark) | FallenGiant: ridged mossy trunk on the same collider, splintered crown end, torn root plate | |
 | BoulderLarge, RockSmall, BoulderFlat, Menhir | BoulderLargeA/B, RockSmallA/B, BoulderFlat, MenhirA/B | |
 | Pillar, PillarBroken, RuinWall | PillarA/B, PillarBrokenA/B, RuinWallA/B | |
 | ElderRoots | retired while the kit is on (the Elder grows its own roots) | |
 
 Still the old models: the landmarks' architecture (Ward, Gate, Sun Temple, ruin tower and
 arches, steps, paving, braziers, cairns), rune and moon stones, lanterns, glowcaps, the
-Elder's flower ring, the Fallen Giant, the falls. They are the next candidates.
+Elder's flower ring, the falls. They are the next candidates.
 
 Each plant picks its variation from its seed and gets a small fixed shift of foliage
 colour (`ArtPlan.tint`), so a wood of a few models never reads as copies.
@@ -53,11 +54,18 @@ A Blender render is evidence of shape and palette only, never of the look in Stu
   once) and draw every dressed prop from the templates (`Core/ArtPlan` picks the model),
   pooled and reused. Trees: full detail within 110 studs of the camera, `_LOD` to 280,
   `_FAR` beyond, with 12 studs of slack at each boundary (`Config/Wardwood.ArtLod`).
-- **Short 3D grass**: grown on each client only round the hero: a patch (0.2-0.5 studs tall,
-  three tones) per 6-stud cell of grassy ground within 42 studs, nearest first, pooled, and
-  never on paths, rock, sand or under trunks and rocks (`Config/Wardwood.ArtGrass`). Beyond
-  it the terrain's own grass carpet carries the distance; at 42 studs the blades are a pixel
-  or two, so they do not pop at bunny-hop speed.
+- **Short 3D grass**: grown on each client where its camera looks: a patch (0.2-0.5 studs
+  tall, three tones, ~9 studs across) per 8-stud cell of grassy ground, within 54 studs of a
+  point 20 studs ahead of the hero along the camera's view, pushed a further 0.4 s of the
+  hero's speed (up to 26 studs) ahead, and always within 30 studs of the hero. Re-planned ten
+  times a second and whenever the hero moves a cell or the camera swings ~25 degrees; grown
+  nearest the hero first in 0.8 ms of each frame (four times that while ground within 48
+  studs is still bare); dropped a cell outside; pooled. Never on paths, rock, sand or under
+  trunks and rocks (`Config/Wardwood.ArtGrass`). The edge ahead sits 60-80 studs from the
+  camera, where blades are a pixel or two tall; the terrain's grass carpet carries the rest.
+  `tests/GrassStream.spec.luau` simulates it frame by frame: bunny hopping at 50 studs/s
+  leaves no bare cell ahead, a quarter-turn of the camera at most a few frames of the new
+  view's edge, a teleport is grown round within 0.25 s.
 - **Canopy fade**: the kit's leaf meshes carry the `WWFoliage` tag; the client's canopy fade
   ghosts them out of the camera's way like the old crowns.
 
@@ -65,10 +73,10 @@ A Blender render is evidence of shape and palette only, never of the look in Stu
 
 | Spot | Old (est.) | New trees and props | New grass |
 |---|---|---|---|
-| Spawn clearing | ~1.56M tris, 9.8k parts | ~0.61M tris, 5.0k parts | ~97k tris |
-| Open meadow | ~1.13M, 7.5k | ~0.54M, 3.8k | ~97k |
-| Old Grove | ~0.99M, 6.7k | ~0.62M, 3.5k | ~93k |
-| Dense wood | ~1.13M, 7.3k | ~0.68M, 3.8k | ~93k |
+| Spawn clearing | ~1.56M tris, 9.8k parts | ~0.61M tris, 5.0k parts | ~145k tris, ~135 patches |
+| Open meadow | ~1.13M, 7.5k | ~0.54M, 3.8k | ~149k, ~138 |
+| Old Grove | ~0.99M, 6.7k | ~0.62M, 3.5k | ~137k, ~127 |
+| Dense wood | ~1.13M, 7.3k | ~0.68M, 3.8k | ~140k, ~130 |
 
 The old figures estimate Roblox's primitive spheres and cylinders, so they are approximate.
 Frame time under a horde needs Studio.

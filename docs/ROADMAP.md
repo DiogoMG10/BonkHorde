@@ -48,8 +48,13 @@ explicit decision by Tiago and Diogo.
   with distance detail, per-plant tint and short 3D grass streamed round the hero; hand edits
   kept in `Config/WardwoodOverrides` (`art pick`); `art off` restores the old props. Details:
   `docs/M3B-art-pipeline.md`. Offline checks and Blender previews only.
-- **Next playable result:** Studio: the whole Wardwood under every sky, bunny hops through
-  woods and meadows, frame rate in a big fight; then decide on uploading the kit for good.
+  `bonk-0.17.0-m3b` approved in a Studio playtest but for two faults, fixed in
+  `bonk-0.17.1-m3b`: the Fallen Giant (a green cylinder with a round root disc) is now a
+  kit model on the same collider; the grass no longer pops in front of the hero (it is kept
+  where the camera looks, led by the hero's speed, re-planned on camera turns, grown in a
+  per-frame budget without the old half-height outer ring). Offline checks only.
+- **Next playable result:** Studio: grass at full bunny-hop and slide speed, the Fallen
+  Giant's gully, frame rate in a big fight; then decide on uploading the kit for good.
 - **Blockers:** none.
 
 ## M4 Horde & Performance — not started

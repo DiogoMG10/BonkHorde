@@ -12,7 +12,7 @@
 --                     (Config/Wardwood.ArtLod, with slack so nothing flickers);
 --                     copies are pooled and reused, never rebuilt
 --   every plant       a small fixed shift of its foliage colour (ArtPlan.tint)
---   short 3D grass    grown only around the hero, a patch per grid
+--   short 3D grass    grown only where the camera looks, a patch per grid
 --                     cell of grassy ground (Config/Wardwood.ArtGrass); the
 --                     terrain's own grass carpet carries the distance
 --
@@ -37,21 +37,18 @@ local ArtController = Knit.CreateController({ Name = "ArtController" })
 local LOD = Wardwood.ArtLod
 local GRASS = Wardwood.ArtGrass
 local TREE_EVERY = 0.2 -- seconds between detail checks
-local GRASS_EVERY = 0.1
+local GRASS_REPLAN = 0.1 -- seconds between re-planning which grass cells to keep
 local SWAPS_PER_TICK = 60
-local GRASS_PER_TICK = 90
 local SUFFIX = { [0] = "", [1] = "_LOD", [2] = "_FAR" }
 local GRASS_TONE = { bladesDark = 0.76, bladesMid = 1, bladesLight = 1.13 }
--- the outer ring of the grass grows shorter, so its edge melts into the
--- terrain's carpet instead of drawing a circle round the hero
-local GRASS_EDGE = 12
-local EDGE_SCALE = 0.5
 
 function ArtController:KnitInit()
 	self._items = {}
 	self._pools = {} -- template name -> { free models }
-	self._grassActive = {} -- cell key -> model | false
-	self._grassEdge = {} -- cell key -> in the shorter outer ring
+	self._grassActive = {} -- cell key -> model | false (no grass there)
+	self._grassPending = {} -- cells to grow, nearest the hero first
+	self._grassNext = 1
+	self._grassPlanT = math.huge
 	self._classic = {}
 	self._on = false
 end
@@ -76,7 +73,10 @@ function ArtController:KnitStart()
 					lod = ArtPlan.hasLod(prop),
 					x = prop.x,
 					z = prop.z,
-					cf = CFrame.new(prop.x, ArtPlan.footY(self._world, prop), prop.z) * CFrame.Angles(0, prop.yaw, 0),
+					cf = (function()
+						local x, y, z, yaw, roll = ArtPlan.place(self._world, prop)
+						return CFrame.new(x, y, z) * CFrame.Angles(0, yaw, 0) * CFrame.Angles(0, 0, roll)
+					end)(),
 					scale = prop.scale,
 					tint = { r, g, b },
 					level = nil,
@@ -105,13 +105,12 @@ function ArtController:KnitStart()
 		end)
 		self:_setOn(Workspace:GetAttribute("BonkArt") == true)
 
-		local treeT, grassT = 0, 0
+		local treeT = 0
 		RunService.Heartbeat:Connect(function(dt)
 			if not self._on then
 				return
 			end
 			treeT += dt
-			grassT += dt
 			local camera = Workspace.CurrentCamera
 			if not camera then
 				return
@@ -120,13 +119,7 @@ function ArtController:KnitStart()
 				treeT = 0
 				self:_updateTrees(camera.CFrame.Position)
 			end
-			if grassT >= GRASS_EVERY then
-				grassT = 0
-				-- grass grows round the hero (the camera's own focus is not kept up to date)
-				local character = Players.LocalPlayer.Character
-				local root = character and character:FindFirstChild("HumanoidRootPart")
-				self:_updateGrass(if root then root.Position else camera.CFrame.Position)
-			end
+			self:_grass(dt, camera)
 		end)
 	end)
 end
@@ -162,7 +155,9 @@ function ArtController:_setOn(on: boolean)
 		end
 		table.clear(self._pools)
 		table.clear(self._grassActive)
-		table.clear(self._grassEdge)
+		self._grassPending = {}
+		self._grassNext = 1
+		self._grassPlanT = math.huge
 		if self._folder then
 			self._folder:Destroy()
 		end
@@ -311,65 +306,79 @@ local function grassFrame(patch): CFrame
 	return at * CFrame.Angles(0, patch.yaw, 0)
 end
 
-function ArtController:_updateGrass(focus: Vector3)
-	local cell, radius = GRASS.cell, GRASS.radius
-	local keep = radius + cell
-	local edge = radius - GRASS_EDGE
-	-- what has fallen behind goes back to its pool; what crosses into or out
-	-- of the outer ring is resized
-	for key, model in self._grassActive do
-		local cx, cz = key // 65536, key % 65536 - 32768
-		local x, z = (cx + 0.5) * cell, (cz + 0.5) * cell
-		local d2 = (x - focus.X) ^ 2 + (z - focus.Z) ^ 2
-		if d2 > keep * keep then
-			if model then
-				self:_give(model.Name, model)
-			end
-			self._grassActive[key] = nil
-			self._grassEdge[key] = nil
-		elseif model then
-			local outer = d2 > edge * edge
-			if outer ~= self._grassEdge[key] then
-				self._grassEdge[key] = outer
-				model:ScaleTo(self._field(cx, cz).scale * (if outer then EDGE_SCALE else 1))
-			end
-		end
+-- Grass is kept where the camera actually looks: a circle centred ahead of
+-- the hero along the camera's view, pushed further on by the hero's speed so
+-- a bunny hop or a slide runs into ground that is already grown, plus a
+-- smaller circle round the hero so turning the camera never shows bare earth
+-- at its feet. Re-planned ten times a second; grown nearest the hero first,
+-- a fraction of a millisecond of each frame, so creation never stutters and
+-- the far edge (60-80 studs from the camera, where blades are a pixel or two
+-- tall) is the only place a patch ever appears.
+
+function ArtController:_grass(dt: number, camera: Camera)
+	local character = Players.LocalPlayer.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart")
+	local hero = if root then root.Position else camera.CFrame.Position
+	self._grassPlanT += dt
+	local moved = self._grassHero and (hero - self._grassHero).Magnitude or math.huge
+	local look = camera.CFrame.LookVector
+	-- a camera swung more than ~25 degrees shows new ground: plan for it now
+	local turned = self._grassLook
+		and (look.X * self._grassLook.X + look.Z * self._grassLook.Z)
+			< 0.9 * math.sqrt((look.X ^ 2 + look.Z ^ 2) * (self._grassLook.X ^ 2 + self._grassLook.Z ^ 2))
+	if self._grassPlanT >= GRASS_REPLAN or moved > GRASS.cell or turned then
+		self._grassPlanT = 0
+		self._grassHero = hero
+		self._grassLook = look
+		local velocity = if root then root.AssemblyLinearVelocity else Vector3.zero
+		local gx, gz = ArtPlan.grassCentre(hero.X, hero.Z, look.X, look.Z, velocity.X, velocity.Z)
+		self:_planGrass(hero, Vector3.new(gx, hero.Y, gz))
 	end
-	-- and the ground ahead is grown, nearest first
-	local r = math.ceil(radius / cell)
-	local fx, fz = math.floor(focus.X / cell), math.floor(focus.Z / cell)
-	local grown = 0
-	for ring = 0, r do
-		for cx = fx - ring, fx + ring do
-			for cz = fz - ring, fz + ring do
-				if math.max(math.abs(cx - fx), math.abs(cz - fz)) == ring then
-					local key = cx * 65536 + (cz + 32768)
-					if self._grassActive[key] == nil then
-						local x, z = (cx + 0.5) * cell, (cz + 0.5) * cell
-						if (x - focus.X) ^ 2 + (z - focus.Z) ^ 2 <= radius * radius then
-							local patch = self._field(cx, cz)
-							local model = patch and self:_take(patch.asset)
-							if model then
-								model.Name = patch.asset
-								local outer = (x - focus.X) ^ 2 + (z - focus.Z) ^ 2 > edge * edge
-								self._grassEdge[key] = outer
-								local scale = patch.scale * (if outer then EDGE_SCALE else 1)
-								if math.abs(model:GetScale() - scale) > 1e-3 then
-									model:ScaleTo(scale)
-								end
-								model:PivotTo(grassFrame(patch))
-								self:_tintGrass(model)
-								model.Parent = self._grassFolder
-							end
-							self._grassActive[key] = model or false
-							grown += 1
-							if grown >= GRASS_PER_TICK then
-								return
-							end
-						end
-					end
+	self:_growGrass()
+end
+
+function ArtController:_planGrass(hero: Vector3, centre: Vector3)
+	local drop, pending = ArtPlan.grassPlan(self._grassActive, hero.X, hero.Z, centre.X, centre.Z)
+	for _, key in drop do
+		local model = self._grassActive[key]
+		if model then
+			self:_give(model.Name, model)
+		end
+		self._grassActive[key] = nil
+	end
+	self._grassPending = pending
+	self._grassNext = 1
+end
+
+function ArtController:_growGrass()
+	local pending = self._grassPending
+	local first = pending[self._grassNext]
+	if not first then
+		return
+	end
+	-- ground in plain view still bare (a teleport, a respawn, a sharp turn):
+	-- catch up harder
+	local budget = GRASS.budgetMs / 1000
+	if first.d < GRASS.urgent * GRASS.urgent then
+		budget *= 4
+	end
+	local started = os.clock()
+	while self._grassNext <= #pending and os.clock() - started < budget do
+		local c = pending[self._grassNext]
+		self._grassNext += 1
+		if self._grassActive[c.key] == nil then
+			local patch = self._field(c.cx, c.cz)
+			local model = patch and self:_take(patch.asset)
+			if model then
+				model.Name = patch.asset
+				if math.abs(model:GetScale() - patch.scale) > 1e-3 then
+					model:ScaleTo(patch.scale)
 				end
+				model:PivotTo(grassFrame(patch))
+				self:_tintGrass(model)
+				model.Parent = self._grassFolder
 			end
+			self._grassActive[c.key] = model or false
 		end
 	end
 end

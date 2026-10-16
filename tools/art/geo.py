@@ -171,7 +171,7 @@ def frames(path):
     return out
 
 
-def tube(part, path, radii, sides=6, lobes=None, seed=0, cap=True, moss=None, moss_up=0.62):
+def tube(part, path, radii, sides=6, lobes=None, seed=0, cap=True, moss=None, moss_up=0.62, wobble=0.08):
     """A tapered, smooth-shaded tube along `path`. `lobes(i, angle)` scales the
     ring's radius (root flare, gnarls). `moss` gets the upward-facing faces
     again, lifted a hair, so limbs and roots carry moss on their backs."""
@@ -183,7 +183,7 @@ def tube(part, path, radii, sides=6, lobes=None, seed=0, cap=True, moss=None, mo
         for k in range(sides):
             a = (k / sides) * math.tau + i * 0.35
             scale = lobes(i, a) if lobes else 1.0
-            wob = 1 + 0.08 * (fbm((p[0] * 0.4 + k, p[1] * 0.4, p[2] * 0.4), seed) - 0.5)
+            wob = 1 + wobble * (fbm((p[0] * 0.4 + k, p[1] * 0.4, p[2] * 0.4), seed) - 0.5)
             d = add(mul(u, math.cos(a)), mul(v, math.sin(a)))
             q = add(p, mul(d, r * scale * wob))
             ring.append((part.vert(q), norm(d), q))
