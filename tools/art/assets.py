@@ -849,4 +849,6 @@ def build_all():
     kit.append(pillar("PillarB", 411, broken=False))
     kit.append(pillar("PillarBrokenA", 403, broken=True))
     kit.append(pillar("PillarBrokenB", 413, broken=True))
+    import enemies
+    kit += enemies.build_all()
     return kit

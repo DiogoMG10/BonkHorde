@@ -35,6 +35,10 @@
 -- In a run:
 --   maxbuild           fill every weapon and tome slot at the cap (LVL MAX);
 --                      `maxbuild 1` leaves the last one a level short
+--   pack               a mixed pack round the hero to try M4.A's attacks:
+--                      4 Goblin Bruisers (charge), 8 Slimes (leap), 10 Runts
+--   bench 250          a dense horde (default 250) and 15 s of timing: the
+--                      server's enemy tick and each client's frames, in Output
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -355,6 +359,41 @@ function DevService:KnitStart()
 		for _ = 1, tonumber(n) or 1 do
 			enemies:SpawnNear(rec, name, { hpMult = tonumber(hpMult) or 1 }, 30, 60)
 		end
+	end
+	function commands.pack(rec)
+		for _, spec in { { "GoblinBruiser", 4 }, { "Slime", 8 }, { "GoblinRunt", 10 } } do
+			for _ = 1, spec[2] do
+				enemies:SpawnNear(rec, spec[1], {}, 22, 40)
+			end
+		end
+		print("[Dev] a pack: 4 Goblin Bruisers, 8 Slimes, 10 Goblin Runts")
+	end
+	function commands.bench(rec, n)
+		-- the mix the early run throws, crowded round the hero; the cap still applies
+		local count = math.clamp(tonumber(n) or 250, 1, 400)
+		local mix = { "GoblinRunt", "GoblinRunt", "Slime", "GoblinBruiser", "GoblinRunt", "Skeleton", "Slime", "Twiglet" }
+		local made = 0
+		for i = 1, count do
+			if enemies:SpawnNear(rec, mix[(i - 1) % #mix + 1], {}, 18, 70) then
+				made += 1
+			end
+		end
+		local seconds = 15
+		Workspace:SetAttribute("BonkBench", seconds)
+		print(`[Bench] {made} enemies spawned; timing {seconds} s (stand still, then move, slide and fight)`)
+		task.spawn(function()
+			local r = enemies:Bench(seconds)
+			Workspace:SetAttribute("BonkBench", nil)
+			print(
+				string.format(
+					"[Bench] server: enemy tick %.2f ms mean, %.2f ms worst, over %d ticks, up to %d enemies",
+					r.mean * 1000,
+					r.worst * 1000,
+					r.ticks,
+					r.enemies
+				)
+			)
+		end)
 	end
 	function commands.boss(rec)
 		local portal = interactables:GetPortal()

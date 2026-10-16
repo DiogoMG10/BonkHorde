@@ -51,15 +51,24 @@ explicit decision by Tiago and Diogo.
   frame-time measurement under a full horde on mobile yet (see M4).
 - **Blockers:** none.
 
-## M4 Horde & Performance — not started
+## M4 Horde & Performance — in progress
 
-- **Scope:** distinct enemy behaviours, telegraphs, pressure; optimisations only where a
-  measurement justifies them. Enemy models redone in Blender for readability (distinct
-  silhouettes, contrast against the native grass, clearer faces, stronger differences
-  between types, legible at the game camera's distance), so the M3.B outline option is a
-  preference rather than a need.
-- **Next playable result:** enemy types that ask for different responses.
-- **Blockers:** no performance baseline recorded yet; take one before optimising.
+- **Scope:** distinct enemy behaviours, telegraphs, pressure; enemy models redone for
+  readability; optimisations only where a measurement justifies them.
+- **State:** M4.A on branch `feat/m4a-enemy-variety`, `bonk-0.18.0-m4a`: the Goblin
+  Bruiser charges (braced 0.85 s with its lane drawn, 18 studs committed, winded 1.1 s)
+  and the Slime leaps (squats 0.55 s with its landing ring drawn, a 0.5 s arc, no
+  steering); server-authoritative, freeze, pause and height overlap respected. Blender
+  models for the Goblin Runt, Goblin Bruiser and Slime in colours that read against the
+  grass. `pack` and `bench` dev commands. Details: `docs/M4A-enemy-variety.md`. Offline
+  checks only. `bonk-0.18.1-m4a`: the three models redone after the team's references:
+  bigger (Runt 3.8, Bruiser 6.2, Slime 2.9 studs, contact radii with them), stronger
+  silhouettes, muted colours (khaki goblin in rust, burgundy brute in iron and bone, mauve
+  slime). Offline checks only.
+- **Next playable result:** Studio: the charge and the leap in a horde (telegraphs read,
+  dodges fair, punish windows), the new models against the forest, `bench 250` on `main`
+  and here for a first performance baseline.
+- **Blockers:** none.
 
 ## M5 Builds & Replayability — in progress
 

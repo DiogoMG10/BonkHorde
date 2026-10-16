@@ -83,12 +83,13 @@ for coll in colls:
     coll.hide_render = False
     lo, hi = bounds(coll.objects)
     centre = (lo + hi) / 2
-    ground.location = (centre.x, centre.y, 0)
+    # enemies are centred on their middle for the game: stand them on the ground here
+    ground.location = (centre.x, centre.y, lo.z if coll.name.startswith("KitEnemy") else 0)
     size = max(hi.x - lo.x, hi.y - lo.y, hi.z - lo.z)
     cam_data.lens = 50
     dist = size * 1.85 + 2
-    elev = math.radians(14 if hi.z - lo.z > 4 else 32)
-    az = math.radians(-35)
+    elev = math.radians(14 if hi.z - lo.z > 4 or coll.name.startswith("KitEnemy") else 32)
+    az = math.radians(-35 if not coll.name.startswith("KitEnemy") else 60)
     target = Vector((centre.x, centre.y, (lo.z + hi.z) * 0.45))
     cam.location = target + Vector((math.cos(az) * math.cos(elev), math.sin(az) * math.cos(elev), math.sin(elev))) * dist
     cam.rotation_euler = (target - cam.location).to_track_quat("-Z", "Y").to_euler()

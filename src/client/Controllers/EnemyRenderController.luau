@@ -6,8 +6,10 @@
 -- living slot, slides it between snapshots, puts it on the ground using the same
 -- heightfield the server uses, and moves every part in one BulkMoveTo per frame.
 --
--- A visual comes from ReplicatedStorage.Assets.Enemies.<Type> when that model
--- exists (parts named Body, Head, ArmL, ArmR, LegL, LegR are animated), and is a
+-- A visual comes from the Blender kit (ReplicatedStorage.WardwoodArt.Kit<Model>,
+-- baked by the server's ArtKit: the Goblin Runt, Goblin Bruiser and Slime so
+-- far) when it has baked, else from ReplicatedStorage.Assets.Enemies.<Model>
+-- (parts named Body, Head, ArmL, ArmR, LegL, LegR are animated), and is a
 -- plain coloured block otherwise, so the game always has something to draw.
 --
 -- Enemy outlines, a setting each player chooses (Settings: "Enemy outlines",
@@ -45,6 +47,12 @@ local MAX_NUMBERS = 60
 -- enemy types whose model is not simply "Enemy" .. type
 local MODEL_NAME = { BoulderBro = "EnemyRockGolem", Hamlet = "EnemyHogBrute", OldManTimber = "BossOldManTimber" }
 
+-- special attacks (EnemyService, Core/Attacks): what each act looks like
+local ACT_CHARGE, ACT_LEAP, ACT_OFF = 1, 2, 3
+local CHARGE_LANE = Color3.fromRGB(255, 120, 40) -- a heavy hit coming down a line
+local LEAP_RING = Color3.fromRGB(255, 196, 60) -- a light one coming down in a ring
+local LEAP_HEIGHT = 4.5 -- the top of a slime's arc, studs
+
 -- enemy clarity
 local CLARITY_EVERY = 0.2 -- seconds between choosing who is outlined
 local CLARITY_NEAR = 70 -- studs from the hero
@@ -52,6 +60,8 @@ local CLARITY_SLACK = 8 -- an outlined enemy keeps it until this much further
 local CLARITY_MAX = 90 -- the nearest this many at most
 local CLARITY_SMALL = 3.5 -- studs tall or less: the grass can hide most of one
 local INK_DAY = Color3.fromRGB(30, 24, 18)
+
+local kitModel: (typeName: string) -> Model?
 local INK_NIGHT = Color3.fromRGB(214, 224, 255)
 
 function EnemyRenderController:KnitInit()
@@ -218,12 +228,20 @@ local function placeholder(def, scale: number): Model
 	return model
 end
 
+-- the Blender kit's model for an enemy type, once the server has baked it
+kitModel = function(typeName: string): Model?
+	local art = ReplicatedStorage:FindFirstChild("WardwoodArt")
+	local found = art and art:FindFirstChild("Kit" .. (MODEL_NAME[typeName] or ("Enemy" .. typeName)))
+	return if found and found:IsA("Model") then found else nil
+end
+
 function EnemyRenderController:_build(typeName: string, elite: boolean, runner: boolean)
 	local def = Roster.Enemies[typeName]
 	local scale = if elite then GameConfig.EliteScale else 1
 	local assets = ReplicatedStorage:FindFirstChild("Assets")
 	local modelName = MODEL_NAME[typeName] or ("Enemy" .. typeName)
-	local source = assets and assets:FindFirstChild("Enemies") and assets.Enemies:FindFirstChild(modelName)
+	local kit = kitModel(typeName)
+	local source = kit or (assets and assets:FindFirstChild("Enemies") and assets.Enemies:FindFirstChild(modelName))
 	local model: Model
 	if source and source:IsA("Model") then
 		model = source:Clone()
@@ -292,13 +310,26 @@ function EnemyRenderController:_build(typeName: string, elite: boolean, runner: 
 		end
 	end
 	model.Parent = self._folder
-	return { model = model, parts = parts, offsets = offsets, limbs = limbs, colours = colours, isPlaceholder = source == nil }
+	return {
+		model = model,
+		parts = parts,
+		offsets = offsets,
+		limbs = limbs,
+		colours = colours,
+		isPlaceholder = source == nil,
+		isKit = kit ~= nil,
+	}
 end
 
 function EnemyRenderController:_acquire(typeName: string, elite: boolean, runner: boolean)
 	local key = typeName .. (if elite then "#E" else "") .. (if runner then "#R" else "")
 	local list = self._pool[key]
 	local visual = list and table.remove(list)
+	if visual and not visual.isKit and kitModel(typeName) then
+		-- built before the kit's model had baked: retire it for the new one
+		visual.model:Destroy()
+		visual = nil
+	end
 	if not visual then
 		visual = self:_build(typeName, elite, runner)
 	elseif visual.isPlaceholder then
@@ -463,6 +494,7 @@ end
 
 function EnemyRenderController:KnitStart()
 	self._state = Knit.GetController("StateController")
+	self:_watchBench()
 	local half = GameConfig.MapSizeStuds / 2
 
 	local function on(name, fn)
@@ -534,6 +566,46 @@ function EnemyRenderController:KnitStart()
 		end
 	end)
 
+	-- a special attack starting: its telegraph for everyone, its moves for the model
+	on("EnemyAct", function(slot: number, code: number, bx: number, bz: number, windup: number, dur: number)
+		local e = self._active[slot]
+		if not e or not e.x then
+			return
+		end
+		if code == ACT_OFF then
+			e.act = nil
+			return
+		end
+		local atk = e.def.attack
+		if not atk then
+			return
+		end
+		local state = self._state
+		e.act = { code = code, t0 = os.clock(), windup = windup, dur = dur, recover = atk.recover }
+		e.act.yaw = math.atan2(-(bx - e.x), -(bz - e.z))
+		pcall(function()
+			if code == ACT_CHARGE then
+				-- the lane it will run, filling as the windup runs out
+				local from = Vector3.new(e.x, state:HeightAt(e.x, e.z) + 0.35, e.z)
+				local to = Vector3.new(bx, state:HeightAt(bx, bz) + 0.35, bz)
+				Vfx.lane(from, to, atk.width * 2 + 0.6, CHARGE_LANE, windup, windup + dur + 0.1)
+				task.delay(windup, function()
+					Vfx.burst("DustPuff", from)
+				end)
+			elseif code == ACT_LEAP then
+				-- the ring it will land in, filling as it comes down
+				local at = Vector3.new(bx, state:HeightAt(bx, bz) + 0.4, bz)
+				local life = windup + dur
+				Vfx.ground(at, "ring", LEAP_RING, atk.radius, atk.radius, life + 0.05, { alpha = 0.15, hold = 0.95 })
+				Vfx.ground(at, "dot", LEAP_RING, 0.4, atk.radius * 0.94, life + 0.05, { alpha = 0.6, hold = 0.95 })
+				task.delay(life, function()
+					Vfx.ground(at, "ring_thin", Color3.fromRGB(255, 240, 200), atk.radius * 0.5, atk.radius * 1.6, 0.3)
+					Vfx.burst("DustPuff", at)
+				end)
+			end
+		end)
+	end)
+
 	on("EnemyFrozen", function(b: buffer)
 		for i = 0, buffer.len(b) / 3 - 1 do
 			local e = self._active[buffer.readu16(b, i * 3)]
@@ -574,7 +646,46 @@ function EnemyRenderController:KnitStart()
 	end)
 end
 
+-- Studio only (DevService `bench`): while Workspace.BonkBench is set, time
+-- every frame and this controller's own share of it, then print them.
+function EnemyRenderController:_watchBench()
+	Workspace:GetAttributeChangedSignal("BonkBench"):Connect(function()
+		local seconds = Workspace:GetAttribute("BonkBench")
+		if typeof(seconds) ~= "number" or self._bench then
+			return
+		end
+		local b = { frames = 0, sum = 0, worst = 0, own = 0, enemies = 0, parts = 0 }
+		self._bench = b
+		local conn = RunService.Heartbeat:Connect(function(dt)
+			b.frames += 1
+			b.sum += dt
+			b.worst = math.max(b.worst, dt)
+			local n = 0
+			for _ in self._active do
+				n += 1
+			end
+			b.enemies = math.max(b.enemies, n)
+			b.parts = math.max(b.parts, #self._parts)
+		end)
+		task.delay(seconds, function()
+			conn:Disconnect()
+			self._bench = nil
+			print(
+				string.format(
+					"[Bench] client: %.0f fps mean, worst frame %.1f ms; enemy drawing %.2f ms a frame; up to %d enemies, %d parts moved a frame",
+					b.frames / math.max(b.sum, 1e-3),
+					b.worst * 1000,
+					b.own / math.max(b.frames, 1) * 1000,
+					b.enemies,
+					b.parts
+				)
+			)
+		end)
+	end)
+end
+
 function EnemyRenderController:_frame(dt: number)
+	local benchStart = if self._bench then os.clock() else 0
 	self._sparkBudget = 6
 	local now = os.clock()
 	local state = self._state
@@ -610,7 +721,40 @@ function EnemyRenderController:_frame(dt: number)
 		elseif moving then
 			lift = math.abs(math.sin(e.phase)) * 0.25
 		end
-		local root = CFrame.new(x, ground + e.height * 0.5 + lift, z) * CFrame.Angles(0, e.yaw, 0)
+		-- a special attack's moves: a charger braces back, runs leaning in, then
+		-- sways winded; a leaper squats, arcs through the air, lands splattered
+		local tilt = 0
+		local act = e.act
+		if act then
+			local ta = now - act.t0
+			local w, d = act.windup, act.dur
+			if ta > w + d + act.recover then
+				e.act = nil
+			elseif act.code == ACT_CHARGE then
+				e.yaw = act.yaw
+				if ta < w then
+					tilt = 0.16 + math.sin(ta * 40) * 0.03
+					lift = 0
+				elseif ta < w + d then
+					tilt = -0.28
+					e.phase += dt * 18
+				else
+					tilt = math.sin(ta * 9) * 0.08
+					lift = 0
+				end
+			else
+				e.yaw = act.yaw
+				if ta < w then
+					lift = -0.3 * (ta / w)
+				elseif ta < w + d then
+					local s = (ta - w) / d
+					lift = 4 * LEAP_HEIGHT * s * (1 - s)
+				else
+					lift = -0.25 * (1 - (ta - w - d) / act.recover)
+				end
+			end
+		end
+		local root = CFrame.new(x, ground + e.height * 0.5 + lift, z) * CFrame.Angles(0, e.yaw, 0) * CFrame.Angles(tilt, 0, 0)
 
 		local visual = e.visual
 		local vParts, offsets, limbs = visual.parts, visual.offsets, visual.limbs
@@ -660,6 +804,9 @@ function EnemyRenderController:_frame(dt: number)
 	end
 	self:_stepNumbers(now)
 	self:_stepClarity(dt)
+	if self._bench then
+		self._bench.own += os.clock() - benchStart
+	end
 end
 
 return EnemyRenderController

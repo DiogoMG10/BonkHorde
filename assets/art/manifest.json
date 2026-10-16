@@ -3868,6 +3868,240 @@
    },
    "glb": "assets/art/export/PillarBrokenB.glb",
    "luau": "src/server/Wardwood/ArtMeshes/PillarBrokenB.luau"
+  },
+  "KitEnemyGoblinRunt": {
+   "tris": 1899,
+   "size_studs": [
+    3.05,
+    2.86,
+    1.87
+   ],
+   "parts": {
+    "Body": {
+     "tris": 160,
+     "color": [
+      132,
+      62,
+      48
+     ],
+     "material": "SmoothPlastic"
+    },
+    "Leather": {
+     "tris": 104,
+     "color": [
+      88,
+      60,
+      42
+     ],
+     "material": "SmoothPlastic"
+    },
+    "Head": {
+     "tris": 675,
+     "color": [
+      172,
+      164,
+      104
+     ],
+     "material": "SmoothPlastic"
+    },
+    "Eyes": {
+     "tris": 200,
+     "color": [
+      232,
+      224,
+      204
+     ],
+     "material": "SmoothPlastic"
+    },
+    "Pupils": {
+     "tris": 240,
+     "color": [
+      36,
+      28,
+      26
+     ],
+     "material": "SmoothPlastic"
+    },
+    "ArmL": {
+     "tris": 115,
+     "color": [
+      172,
+      164,
+      104
+     ],
+     "material": "SmoothPlastic"
+    },
+    "ArmR": {
+     "tris": 115,
+     "color": [
+      172,
+      164,
+      104
+     ],
+     "material": "SmoothPlastic"
+    },
+    "LegL": {
+     "tris": 145,
+     "color": [
+      80,
+      66,
+      54
+     ],
+     "material": "SmoothPlastic"
+    },
+    "LegR": {
+     "tris": 145,
+     "color": [
+      80,
+      66,
+      54
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/KitEnemyGoblinRunt.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/KitEnemyGoblinRunt.luau"
+  },
+  "KitEnemyGoblinBruiser": {
+   "tris": 2391,
+   "size_studs": [
+    3.46,
+    4.9,
+    2.54
+   ],
+   "parts": {
+    "Body": {
+     "tris": 550,
+     "color": [
+      146,
+      72,
+      60
+     ],
+     "material": "SmoothPlastic"
+    },
+    "Head": {
+     "tris": 640,
+     "color": [
+      146,
+      72,
+      60
+     ],
+     "material": "SmoothPlastic"
+    },
+    "Armor": {
+     "tris": 240,
+     "color": [
+      86,
+      94,
+      108
+     ],
+     "material": "SmoothPlastic"
+    },
+    "Bone": {
+     "tris": 233,
+     "color": [
+      226,
+      214,
+      184
+     ],
+     "material": "SmoothPlastic"
+    },
+    "Cloth": {
+     "tris": 108,
+     "color": [
+      104,
+      74,
+      50
+     ],
+     "material": "SmoothPlastic"
+    },
+    "Eyes": {
+     "tris": 160,
+     "color": [
+      228,
+      176,
+      86
+     ],
+     "material": "SmoothPlastic"
+    },
+    "ArmL": {
+     "tris": 115,
+     "color": [
+      172,
+      156,
+      122
+     ],
+     "material": "SmoothPlastic"
+    },
+    "ArmR": {
+     "tris": 115,
+     "color": [
+      172,
+      156,
+      122
+     ],
+     "material": "SmoothPlastic"
+    },
+    "LegL": {
+     "tris": 115,
+     "color": [
+      88,
+      60,
+      42
+     ],
+     "material": "SmoothPlastic"
+    },
+    "LegR": {
+     "tris": 115,
+     "color": [
+      88,
+      60,
+      42
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/KitEnemyGoblinBruiser.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/KitEnemyGoblinBruiser.luau"
+  },
+  "KitEnemySlime": {
+   "tris": 1060,
+   "size_studs": [
+    2.27,
+    1.91,
+    2.09
+   ],
+   "parts": {
+    "Body": {
+     "tris": 640,
+     "color": [
+      162,
+      116,
+      160
+     ],
+     "material": "SmoothPlastic"
+    },
+    "Shine": {
+     "tris": 180,
+     "color": [
+      220,
+      194,
+      218
+     ],
+     "material": "SmoothPlastic"
+    },
+    "Eyes": {
+     "tris": 240,
+     "color": [
+      58,
+      38,
+      60
+     ],
+     "material": "SmoothPlastic"
+    }
+   },
+   "glb": "assets/art/export/KitEnemySlime.glb",
+   "luau": "src/server/Wardwood/ArtMeshes/KitEnemySlime.luau"
   }
  }
 }

@@ -178,15 +178,17 @@ function ArtKit.build(name: string): Model?
 	return model
 end
 
--- the horizon and far versions first, so the whole wood stands at once; then
--- the close-up trees and the rest of the kit
+-- the enemies first (a run can start any moment), then the horizon and far
+-- trees, so the whole wood stands at once; then the close-up trees and the rest
 local function priority(name: string): number
-	if string.find(name, "_FAR$") then
+	if string.find(name, "^KitEnemy") then
 		return 0
-	elseif string.find(name, "_LOD$") then
+	elseif string.find(name, "_FAR$") then
 		return 1
+	elseif string.find(name, "_LOD$") then
+		return 2
 	end
-	return 2
+	return 3
 end
 
 --- Bake every asset into ReplicatedStorage.WardwoodArt, a few at a time.
