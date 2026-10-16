@@ -59,11 +59,19 @@ explicit decision by Tiago and Diogo.
 - **Next playable result:** enemy types that ask for different responses.
 - **Blockers:** no performance baseline recorded yet; take one before optimising.
 
-## M5 Builds & Replayability — not started
+## M5 Builds & Replayability — in progress
 
 - **Scope:** balance, caps, synergies, evolutions, a mechanical identity per hero.
-- **Next playable result:** builds that play differently from run to run.
-- **Blockers:** depends on M1 settling how each hero's primary works.
+- **State:** M5.A on branch `feat/m5a-balance-feedback`, stacked on `feat/m3a-wardwood` (merge
+  M3.A first). `bonk-0.13.1-m5a`: weapons, tomes and stackable items cap at 20 (maxed-out
+  picks pay gold); overtime compounds (enemy HP x1.2 and damage x1.13 per 30 s tier, more
+  elites); Armor cap 70%, Evasion 60%, lifesteal 4% max HP/s, freeze chance 75% per hit;
+  Silver bounded (early defeat 6, normal win 53, strong run 90, cap 120 a run); gems and
+  coins fly home, magnet and vacuum shrine sweep coins too; one-shot kills show numbers,
+  crits by colour; projectile caps. Offline checks only.
+- **Next playable result:** Studio playtest: a normal run's Silver, how long overtime lasts
+  for a strong build, the magnet sweep, numbers on one-shot kills, frame rate late on.
+- **Blockers:** M3.A's tree pass needs human review before either branch merges.
 
 ## M6 Complete Experience — not started
 
