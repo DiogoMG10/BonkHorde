@@ -49,7 +49,7 @@
     }
   ],
   "map": "ForestGrove",
-  "props": 1856,
+  "props": 1460,
   "props_by_kind": {
     "AncientOak": 8,
     "AncientPine": 4,
@@ -64,7 +64,7 @@
     "FallenGiant": 1,
     "FallenLog": 7,
     "Fern": 100,
-    "Flowers": 402,
+    "Flowers": 6,
     "Gate": 1,
     "Glowcaps": 14,
     "LanternPost": 34,
