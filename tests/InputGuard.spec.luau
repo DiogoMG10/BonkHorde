@@ -74,6 +74,25 @@ return {
 		assert(not g:accepts("mouse", 11.5), "the press that picked the last one")
 	end,
 
+	["the other panels lock for the agreed lengths"] = function()
+		local p = GameConfig.PanelLockSeconds
+		assert(p.shrine == 0.5, "the shrine opens by itself mid-fight")
+		assert(p.statue == 0.35 and p.shop == 0.35 and p.chest == 0.35, "opened on purpose with E / X")
+		assert(GameConfig.PanelLockAgainSeconds == 0.35, "after a purchase or a chest's Banish")
+	end,
+
+	["a panel re-sent with no lock still never takes a held press"] = function()
+		local g = InputGuard.new()
+		g:lock(0.35, 10)
+		g:press("mouse", 10.5) -- buys, and keeps the button down
+		g:lock(0, 10.55) -- the refused purchase comes back with no lock
+		assert(not g:locked(10.55))
+		assert(not g:accepts("mouse", 10.6), "the held button cannot buy again")
+		g:release("mouse", 10.7)
+		g:press("mouse", 10.9)
+		assert(g:accepts("mouse", 10.9))
+	end,
+
 	["clearing the panel forgets the lock and stale keys"] = function()
 		local g = InputGuard.new()
 		g:press("mouse", 9)

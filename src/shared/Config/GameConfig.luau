@@ -6,7 +6,7 @@
 -- what makes a balance pass a data edit.
 
 local GameConfig = {
-	BuildStamp = "bonk-0.20.0-t1",
+	BuildStamp = "bonk-0.20.1-t1",
 
 	-- squad
 	MaxPlayers = 3,
@@ -167,6 +167,10 @@ local GameConfig = {
 	OfferLockSeconds = 0.7, -- a level-up's cards ignore every input this long (T1), then only a fresh press picks
 	OfferLockFollowSeconds = 0.35, -- the same for the next level-up in a row and a fresh hand after Refresh or Banish
 	PanelSecondsCoop = 15,
+	-- a chest, shrine, shop or statue panel ignores every input this long when it
+	-- opens (T1); the shrine longest, as it opens by itself mid-fight
+	PanelLockSeconds = { shrine = 0.5, statue = 0.35, shop = 0.35, chest = 0.35 },
+	PanelLockAgainSeconds = 0.35, -- after a purchase at Dodgy Dan's or a chest's Banish
 	BanishCharges = 1,
 	SkipCharges = 5,
 	RefreshCharges = 3,
