@@ -238,12 +238,15 @@ end
 
 function InteractableService:_open(rec, kind: string, it, data)
 	local solo = #self._players:All() <= 1
+	-- the client locks the panel for a moment (T1); co-op gets that time back
+	local lock = GameConfig.PanelLockSeconds[kind] or GameConfig.PanelLockAgainSeconds
 	local panel = {
 		id = self._nextPanel,
 		kind = kind,
 		it = it,
 		data = data,
-		deadline = if solo then math.huge else os.clock() + GameConfig.PanelSecondsCoop,
+		lock = lock,
+		deadline = if solo then math.huge else os.clock() + GameConfig.PanelSecondsCoop + lock,
 	}
 	self._nextPanel += 1
 	self._panels[rec] = panel
@@ -263,7 +266,15 @@ function InteractableService:_sendPanel(rec, panel)
 		charges = rec.charges,
 		gold = rec.gold,
 		seconds = if panel.deadline == math.huge then 0 else math.max(0, panel.deadline - os.clock()),
+		lock = panel.lock,
 	})
+end
+
+-- a panel that changed under the player (a purchase, a reroll) locks again, and
+-- co-op's clock gets that back; a refused answer changes nothing and adds nothing
+function InteractableService:_relock(panel)
+	panel.lock = GameConfig.PanelLockAgainSeconds
+	panel.deadline += panel.lock
 end
 
 function InteractableService:_close(rec)
@@ -305,6 +316,7 @@ function InteractableService:_panelChoice(rec, panel, action: string, index: num
 			local again = self:_rollItem(rec, nil)
 			if again then
 				data.item, data.rarity, data.rerolled = again, Roster.Items[again].rarity, true
+				self:_relock(panel)
 				self:_sendPanel(rec, panel)
 			else
 				self:_close(rec)
@@ -325,12 +337,14 @@ function InteractableService:_panelChoice(rec, panel, action: string, index: num
 	elseif panel.kind == "shop" then
 		local entry = data.stock[index]
 		if action == "buy" and entry and not entry.sold then
+			panel.lock = 0
 			if not self._players:CanTakeItem(rec, entry.item) then
 				-- maxed since Dan stocked it: never take gold for nothing
 				self._toast:FireClient(rec.player, "Maxed out", "You can't carry any more of those.")
 			elseif self._players:Spend(rec, entry.price) then
 				entry.sold = true
 				self._players:GrantItem(rec, entry.item)
+				self:_relock(panel)
 			end
 			self:_sendPanel(rec, panel)
 		else

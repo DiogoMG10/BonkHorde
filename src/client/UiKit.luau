@@ -376,12 +376,12 @@ end
 --- Wire a button for mouse, touch and gamepad: `Activated` covers all three.
 --- A child called Focus (corner brackets) follows hover and gamepad selection,
 --- unless `ownFocus` says the caller drives it (a "this one is selected" mark).
-function UiKit.button(button: Instance?, fn: () -> (), ownFocus: boolean?): GuiButton?
+function UiKit.button(button: Instance?, fn: (InputObject?) -> (), ownFocus: boolean?): GuiButton?
 	if not button or not button:IsA("GuiButton") then
 		return nil
 	end
-	button.Activated:Connect(function()
-		UiKit.safe(button.Name, fn)
+	button.Activated:Connect(function(input: InputObject?)
+		UiKit.safe(button.Name, fn, input) -- the input lets a caller tell a fresh press from a stale one
 	end)
 	local focus = button:FindFirstChild("Focus")
 	if focus and focus:IsA("GuiObject") and not focus.Visible and not ownFocus then
