@@ -102,7 +102,11 @@ From the multiplayer playtest after M4.B. Separate tasks, one at a time, each wi
 questions, branch and playtest approval. Untouched by all of them unless asked: enemy art,
 Wardwood, native grass; no publishing or permanent uploads without authorization.
 
-- **T1** Level-up: no accidental upgrade picks (entrance animation, ~0.7 s input guard). Next.
+- **T1** Level-up: no accidental upgrade picks. On `feat/t1-levelup-guard`, `bonk-0.20.0-t1`,
+  not merged, offline checks only: cards pop in dimmed and ignore all input for 0.7 s
+  (0.35 s for a follow-up level-up or a Refresh/Banish hand); then only a press begun after
+  the lock picks (cards, Banish, Skip, Refresh, keys 1-9); the gamepad selects card 1 only on
+  unlock; a soft tick; co-op's 12 s starts after the lock (`Core/InputGuard`). Next: Studio.
 - **T2** HUD/UI overhaul: clarity, consistency, Roblox top-bar safe area, responsive, readable.
 - **T3** Pause menu: inventory, item descriptions, weapon levels, tomes, current stats
   (three columns: inventory, actions, stats).

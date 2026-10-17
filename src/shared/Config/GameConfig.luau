@@ -6,7 +6,7 @@
 -- what makes a balance pass a data edit.
 
 local GameConfig = {
-	BuildStamp = "bonk-0.19.0-m4b",
+	BuildStamp = "bonk-0.20.0-t1",
 
 	-- squad
 	MaxPlayers = 3,
@@ -164,6 +164,8 @@ local GameConfig = {
 	PickupFlySpeed = 60,
 	OfferCount = 3,
 	OfferChoiceSecondsCoop = 12,
+	OfferLockSeconds = 0.7, -- a level-up's cards ignore every input this long (T1), then only a fresh press picks
+	OfferLockFollowSeconds = 0.35, -- the same for the next level-up in a row and a fresh hand after Refresh or Banish
 	PanelSecondsCoop = 15,
 	BanishCharges = 1,
 	SkipCharges = 5,

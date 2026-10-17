@@ -6,6 +6,10 @@
 -- The server sends an offer or a panel and waits for one answer; this
 -- controller draws it and sends back "id, action, index". It never applies a
 -- choice itself.
+--
+-- A level-up offer locks for a moment when it lands (T1, Core/InputGuard): the
+-- cards pop in dimmed, nothing on the panel answers, and after the lock only a
+-- press that began after it picks, so a click meant for the fight cannot.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -14,6 +18,7 @@ local UserInputService = game:GetService("UserInputService")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
+local InputGuard = require(ReplicatedStorage.Shared.Core.InputGuard)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Roster = require(ReplicatedStorage.Shared.Config.Roster)
 local Stats = require(ReplicatedStorage.Shared.Core.Stats)
@@ -33,6 +38,31 @@ local CONFETTI = {
 	Color3.fromHex("#FFFFFF"),
 }
 local SOLD_FILL = Color3.fromHex("#2B2B2B")
+-- a locked offer's veil: nearly opaque while a card pops in, then a dim haze
+local VEIL = Color3.fromHex("#08130D")
+local VEIL_IN, VEIL_DIM = 0.1, 0.45
+local POP_SECONDS, POP_STAGGER = 0.13, 0.06 -- three cards in about 0.25 s
+
+-- one name per physical input; each finger on a touch screen is its own
+local function inputKey(input: InputObject): any
+	local kind = input.UserInputType
+	if kind == Enum.UserInputType.Touch then
+		return input
+	elseif kind == Enum.UserInputType.Keyboard or string.sub(kind.Name, 1, 7) == "Gamepad" then
+		return input.KeyCode
+	end
+	return kind
+end
+
+-- a locked button neither answers nor takes the gamepad selection
+local function setLive(button: Instance?, live: boolean)
+	if button and button:IsA("GuiButton") then
+		button.Selectable = live
+		pcall(function()
+			button.Interactable = live
+		end)
+	end
+end
 
 local function signature(list, a: string, b: string): string
 	local parts = table.create(#list)
@@ -51,6 +81,11 @@ function ChoiceController:KnitInit()
 	self._showing = nil
 	self._banishMode = false
 	self._deadline = nil
+	self._guard = InputGuard.new()
+	self._unlocked = true -- the open offer's lock has ended (or there is none)
+	self._freshHand = false -- the next render draws a new hand: veil it in
+	self._popIn = false -- ... and pop the cards in (a new offer, not a reroll)
+	self._veils = {}
 	self._hot = {}
 	self._statValues = {}
 	self._weaponSlots = {}
@@ -60,6 +95,7 @@ end
 function ChoiceController:KnitStart()
 	self._state = Knit.GetController("StateController")
 	self._camera = Knit.GetController("CameraController")
+	self._audio = Knit.GetController("AudioController")
 	UiKit.safe("ChoiceController", function()
 		self:_start()
 	end)
@@ -216,23 +252,42 @@ function ChoiceController:_start()
 	self._choose = choose
 	self._send = send
 
-	UiKit.button(e.banish, function()
-		local data = self._offers
-		if not data then
-			return
+	-- an offer's buttons answer only a fresh press after the lock
+	local function guarded(fn: () -> ()): (InputObject?) -> ()
+		return function(input: InputObject?)
+			if self:_accepts(input) then
+				fn()
+			end
 		end
-		if not self._banishMode and (data.charges and data.charges.banish or 0) <= 0 then
-			return
-		end
-		self._banishMode = not self._banishMode
-		self:_renderOffers()
-	end)
-	UiKit.button(e.skip, function()
-		choose("skip", 0)
-	end)
-	UiKit.button(e.refresh, function()
-		choose("refresh", 0)
-	end)
+	end
+	self._guarded = guarded
+
+	UiKit.button(
+		e.banish,
+		guarded(function()
+			local data = self._offers
+			if not data then
+				return
+			end
+			if not self._banishMode and (data.charges and data.charges.banish or 0) <= 0 then
+				return
+			end
+			self._banishMode = not self._banishMode
+			self:_renderOffers()
+		end)
+	)
+	UiKit.button(
+		e.skip,
+		guarded(function()
+			choose("skip", 0)
+		end)
+	)
+	UiKit.button(
+		e.refresh,
+		guarded(function()
+			choose("refresh", 0)
+		end)
+	)
 	UiKit.button(e.chestTake, function()
 		send("take")
 	end)
@@ -255,8 +310,20 @@ function ChoiceController:_start()
 	if offers then
 		offers.OnClientEvent:Connect(function(data)
 			UiKit.safe("ChoiceController.Offers", function()
-				self._offers = if typeof(data) == "table" then data else nil
+				local hand = if typeof(data) == "table" then data else nil
+				local reroll = hand ~= nil and self._offers ~= nil and self._offers.id == hand.id
+				self._offers = hand
 				self._banishMode = false
+				if hand then
+					local fallback = if reroll then GameConfig.OfferLockFollowSeconds else GameConfig.OfferLockSeconds
+					self._guard:lock(tonumber(hand.lock) or fallback, os.clock())
+					self._unlocked = false
+					self._freshHand = true
+					self._popIn = not reroll
+				else
+					self._guard:clear()
+					self._unlocked = true
+				end
 				self._deadline = if self._offers and (tonumber(data.seconds) or 0) > 0 then os.clock() + data.seconds else nil
 				self:_refresh()
 			end)
@@ -286,8 +353,20 @@ function ChoiceController:_start()
 		end)
 	end)
 
+	-- every press and release, even the ones the interface takes, so a press
+	-- held across a panel opening is known to be stale
+	UserInputService.InputBegan:Connect(function(input)
+		self._guard:press(inputKey(input), os.clock())
+	end)
+	UserInputService.InputEnded:Connect(function(input)
+		self._guard:release(inputKey(input), os.clock())
+	end)
+	UserInputService.WindowFocusReleased:Connect(function()
+		self._guard:dropHeld()
+	end)
+
 	UserInputService.InputBegan:Connect(function(input, processed)
-		if processed or not self._showing then
+		if processed or not self._showing or self:_locked() then
 			return
 		end
 		local index = input.KeyCode.Value - Enum.KeyCode.One.Value + 1
@@ -302,6 +381,7 @@ function ChoiceController:_start()
 		if self._showing ~= "offers" then
 			return
 		end
+		self:_locked() -- unlocks the panel on the frame its lock ends
 		if e.rays and e.rays:IsA("GuiObject") then
 			e.rays.Rotation = (e.rays.Rotation + dt * 10) % 360
 		end
@@ -369,7 +449,9 @@ function ChoiceController:_renderTimer()
 		UiKit.show(e.timer, false) -- solo: the game is paused, there is no clock
 		return
 	end
-	UiKit.text(e.timer, tostring(math.max(0, math.ceil(deadline - os.clock()))))
+	-- the server added the lock to co-op's clock: it counts down once the cards answer
+	local from = math.max(os.clock(), self._guard:unlockAt() or 0)
+	UiKit.text(e.timer, tostring(math.max(0, math.ceil(deadline - from))))
 	UiKit.show(e.timer, true)
 end
 
@@ -384,6 +466,10 @@ function ChoiceController:_renderOffers()
 		return
 	end
 	local banishing = self._banishMode
+	local locked = not self._unlocked
+	local fresh = self._freshHand
+	self._freshHand = false
+	table.clear(self._veils)
 	local pending = tonumber(data.pending) or 0
 	UiKit.text(e.upgradeTitle, if pending > 1 then `UPGRADE OFFERS  ({pending} waiting)` else "UPGRADE OFFERS")
 
@@ -426,11 +512,23 @@ function ChoiceController:_renderOffers()
 			local function pick()
 				self._choose(if self._banishMode then "banish" else "pick", i)
 			end
-			UiKit.button(card, pick)
+			UiKit.button(card, self._guarded(pick))
 			self._hot[i] = pick
 			card.Parent = e.upgradeCards
 			table.insert(clones, card)
 			first = first or card
+			if locked then
+				setLive(card, false)
+				local veil = self:_veil(card)
+				if veil then
+					veil.BackgroundTransparency = if fresh then VEIL_IN else VEIL_DIM
+					if fresh then
+						local info =
+							TweenInfo.new(POP_SECONDS, Enum.EasingStyle.Quad, Enum.EasingDirection.Out, 0, false, (i - 1) * POP_STAGGER)
+						TweenService:Create(veil, info, { BackgroundTransparency = VEIL_DIM }):Play()
+					end
+				end
+			end
 		end
 	end
 
@@ -440,7 +538,106 @@ function ChoiceController:_renderOffers()
 	UiKit.text(e.refreshCount, tostring(charges.refresh or 0))
 	UiKit.text(e.banishLabel, if banishing then "CANCEL" else "BANISH")
 	self:_renderTimer()
-	UiKit.focus(first or e.skip)
+	self._first = first
+	if locked then
+		-- no gamepad selection until the lock ends: A is also jump
+		UiKit.unfocus(e.upgrade)
+		for _, button in { e.banish, e.skip, e.refresh } do
+			setLive(button, false)
+			local veil = self:_veil(button)
+			if veil then
+				veil.BackgroundTransparency = VEIL_DIM
+			end
+		end
+		if fresh and self._popIn then
+			self:_pop(0.92, 0.25, Enum.EasingStyle.Back)
+		end
+	else
+		UiKit.focus(first or e.skip)
+	end
+end
+
+--- Is the open offer still locked? Ends the lock on its first call after it ran out.
+function ChoiceController:_locked(): boolean
+	if self._showing ~= "offers" or self._unlocked then
+		return false
+	end
+	if self._guard:locked(os.clock()) then
+		return true
+	end
+	self:_unlock()
+	return false
+end
+
+--- May this press (from a button's Activated, nil when unknown) answer the offer?
+function ChoiceController:_accepts(input: InputObject?): boolean
+	if self:_locked() then
+		return false
+	end
+	local key = if input then inputKey(input) else nil
+	return self._guard:accepts(key, os.clock())
+end
+
+--- The lock ran out: the veils lift, a soft tick, the gamepad lands on the first card.
+function ChoiceController:_unlock()
+	self._unlocked = true
+	local e = self._e
+	for _, button in { e.banish, e.skip, e.refresh } do
+		setLive(button, true)
+	end
+	for _, card in self._clones.offers do
+		setLive(card, true)
+	end
+	local lift = TweenInfo.new(0.12, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+	for _, veil in self._veils do
+		TweenService:Create(veil, lift, { BackgroundTransparency = 1 }):Play()
+	end
+	self:_pop(1.025, 0.15, Enum.EasingStyle.Quad)
+	local tick = self._audio and self._audio:Play("ui_hover", nil, 1.25)
+	if tick then
+		tick.Volume *= 0.7
+	end
+	UiKit.focus(self._first or e.skip)
+end
+
+--- Scale the offer cards from `from` back to full size.
+function ChoiceController:_pop(from: number, seconds: number, style: Enum.EasingStyle)
+	local cards = self._e.upgradeCards
+	if not cards then
+		return
+	end
+	local scale = cards:FindFirstChild("LockPop")
+	if not scale then
+		scale = Instance.new("UIScale")
+		scale.Name = "LockPop"
+		scale.Parent = cards
+	end
+	scale.Scale = from
+	TweenService:Create(scale, TweenInfo.new(seconds, style, Enum.EasingDirection.Out), { Scale = 1 }):Play()
+end
+
+--- A veil over a button that dims it while the offer is locked.
+function ChoiceController:_veil(button: Instance?): Frame?
+	if not button or not button:IsA("GuiObject") then
+		return nil
+	end
+	local veil = button:FindFirstChild("LockVeil")
+	if not veil then
+		veil = Instance.new("Frame")
+		veil.Name = "LockVeil"
+		veil.BorderSizePixel = 0
+		veil.Size = UDim2.fromScale(1, 1)
+		veil.ZIndex = 10
+		veil.BackgroundColor3 = VEIL
+		local face = button:FindFirstChild("Face")
+		local corner = button:FindFirstChildOfClass("UICorner") or (face and face:FindFirstChildOfClass("UICorner"))
+		if corner then
+			corner:Clone().Parent = veil
+		end
+		veil.Parent = button
+	end
+	table.insert(self._veils, veil)
+	return veil
 end
 
 function ChoiceController:_confetti()

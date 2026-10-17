@@ -102,7 +102,7 @@ function UpgradeService:_roll(rec)
 	return offers
 end
 
-function UpgradeService:_present(rec)
+function UpgradeService:_present(rec, followUp: boolean?)
 	if self._open[rec] or (self._pending[rec] or 0) <= 0 or not rec.active then
 		return
 	end
@@ -115,10 +115,13 @@ function UpgradeService:_present(rec)
 		return
 	end
 	local solo = #self._players:All() <= 1
+	-- the client locks the cards for a moment (T1); co-op gets that time back
+	local lock = if followUp then GameConfig.OfferLockFollowSeconds else GameConfig.OfferLockSeconds
 	local open = {
 		id = self._nextId,
 		offers = offers,
-		deadline = if solo then math.huge else os.clock() + GameConfig.OfferChoiceSecondsCoop,
+		lock = lock,
+		deadline = if solo then math.huge else os.clock() + GameConfig.OfferChoiceSecondsCoop + lock,
 	}
 	self._nextId += 1
 	self._open[rec] = open
@@ -133,6 +136,7 @@ function UpgradeService:_send(rec, open, solo: boolean)
 		seconds = if solo then 0 else math.max(0, open.deadline - os.clock()),
 		charges = rec.charges,
 		pending = self._pending[rec] or 0,
+		lock = open.lock,
 	})
 end
 
@@ -157,6 +161,10 @@ end
 -- this level paid out in gold
 function UpgradeService:_reroll(rec, open, solo: boolean)
 	open.offers = self:_roll(rec)
+	open.lock = GameConfig.OfferLockFollowSeconds
+	if not solo then
+		open.deadline += open.lock
+	end
 	rec.dirty = true
 	if #open.offers == 0 then
 		self._players:MaxedOut(rec)
@@ -206,7 +214,7 @@ function UpgradeService:_resolve(rec)
 	rec.dirty = true
 	self._offersEvent:FireClient(rec.player, nil) -- close the panel
 	if self._pending[rec] > 0 then
-		self:_present(rec) -- the next card follows at once
+		self:_present(rec, true) -- the next card follows at once
 	end
 	if not self:HasOpen() then
 		-- the last choice of the squad: straight back into the fight (level-ups are
