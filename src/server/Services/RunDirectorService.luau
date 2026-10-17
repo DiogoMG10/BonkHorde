@@ -428,7 +428,7 @@ function RunDirectorService:_tick(dt: number, now: number)
 	end
 
 	self._players:Step(dt, now)
-	self._enemies:Direct(dt, self._clock, self._tier, self._difficulty, self._bosses:AnyStageBoss())
+	self._enemies:Direct(dt, self._clock, self._tier, self._difficulty, self._bosses:AnyStageBoss(), self._bosses:AnyMiniboss())
 	self._enemies:Step(dt, now)
 	self._combat:Step(dt, now)
 	self._bosses:Step(dt, now)

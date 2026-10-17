@@ -579,6 +579,7 @@ Roster.Enemies = {
 			recover = 1.1, -- winded, still, afterwards
 			width = 1.8, -- half the width of the lane it hits (its body, near enough)
 			dmg = 1.5, -- x its contact damage
+			stagger = 0.7, -- M4.B: seconds before another charge may start on the same hero
 		},
 	},
 	Slime = {
@@ -605,6 +606,7 @@ Roster.Enemies = {
 			recover = 0.6, -- splattered flat afterwards
 			radius = 3, -- the landing splash
 			dmg = 1.4,
+			stagger = 0.45, -- M4.B: seconds before another leap may start on the same hero
 		},
 	},
 	Skeleton = {
@@ -717,6 +719,84 @@ Roster.SpawnTimeline = {
 	{ from = 180, types = { "Slime", "GoblinBruiser", "Skeleton" } },
 	{ from = 300, types = { "GoblinBruiser", "Skeleton", "Skeleton", "ShieldSkeleton" } },
 	{ from = 420, types = { "Skeleton", "ShieldSkeleton", "RockGolem" } },
+}
+-- M4.B packs (Core/Pacing): one arrives as every surge starts, together and
+-- from one side (later from several), so a spike reads as an event. Each group
+-- is { type, n (how many), side = degrees round the hero from the pack's heading,
+-- depth = studs nearer (-) or further (+), spread = half its arc in degrees }.
+-- A pack comes from `from` until `to` on the stage clock; `overtime` ones only
+-- past it. Counts grow a little each cycle and with every extra player.
+Roster.Packs = {
+	{ id = "mob", name = "Goblin mob", to = 240, groups = { { type = "GoblinRunt", n = 9, spread = 16 } } },
+	{
+		id = "slimes",
+		name = "Slime swarm",
+		hint = "Slimes leap where you stand: keep moving",
+		from = 90,
+		to = 420,
+		groups = { { type = "Slime", n = 7, spread = 22 }, { type = "GoblinRunt", n = 4, depth = -8 } },
+	},
+	{
+		id = "escort",
+		name = "Bruiser escort",
+		hint = "Bruisers charge in a straight line: step aside",
+		from = 120,
+		groups = { { type = "GoblinRunt", n = 7, depth = -10, spread = 18 }, { type = "GoblinBruiser", n = 2, depth = 4, spread = 8 } },
+	},
+	{
+		id = "pincer",
+		name = "Pincer",
+		hint = "From both sides",
+		from = 180,
+		groups = {
+			{ type = "GoblinBruiser", n = 2, spread = 8 },
+			{ type = "GoblinRunt", n = 4, depth = -8 },
+			{ type = "Slime", n = 7, side = 180, spread = 20 },
+		},
+	},
+	{
+		id = "boneline",
+		name = "Bone line",
+		hint = "Shields in front",
+		from = 300,
+		groups = { { type = "ShieldSkeleton", n = 4, depth = -8, spread = 26 }, { type = "Skeleton", n = 7, depth = 6, spread = 20 } },
+	},
+	{
+		id = "stampede",
+		name = "Stampede",
+		from = 300,
+		groups = { { type = "GoblinBruiser", n = 5, spread = 34 }, { type = "Slime", n = 5, side = 90, spread = 16 } },
+	},
+	{
+		id = "ring",
+		name = "Surrounded",
+		from = 420,
+		groups = {
+			{ type = "RockGolem", n = 3, spread = 12 },
+			{ type = "Skeleton", n = 5, side = 120, spread = 14 },
+			{ type = "Slime", n = 6, side = 240, spread = 16 },
+		},
+	},
+	{
+		id = "ghosts",
+		name = "Ghost tide",
+		overtime = true,
+		groups = {
+			{ type = "Ghost", n = 6, spread = 14 },
+			{ type = "Ghost", n = 6, side = 120, spread = 14 },
+			{ type = "Ghost", n = 6, side = 240, spread = 14 },
+		},
+	},
+	{
+		id = "wall",
+		name = "Shield wall",
+		overtime = true,
+		groups = {
+			{ type = "ShieldSkeleton", n = 5, depth = -8, spread = 30 },
+			{ type = "Ghost", n = 8, depth = 6, spread = 20 },
+			{ type = "RockGolem", n = 2, side = 180, spread = 10 },
+		},
+	},
 }
 Roster.BossSpawnTypes = { "Twiglet", "Skeleton", "RockGolem" }
 Roster.OvertimeTypes = { "Ghost", "Ghost", "Ghost", "ShieldSkeleton", "RockGolem" }

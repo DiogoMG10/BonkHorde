@@ -39,6 +39,10 @@
 --                      4 Goblin Bruisers (charge), 8 Slimes (leap), 10 Runts
 --   bench 250          a dense horde (default 250) and 15 s of timing: the
 --                      server's enemy tick and each client's frames, in Output
+--   surge [pack]       M4.B: the next surge now, with that pack if named
+--                      (mob, slimes, escort, pincer, boneline, stampede, ring,
+--                      ghosts, wall); `clock 300` reaches the later packs
+--   pace               where the horde's rhythm is, and when the next surge comes
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -394,6 +398,18 @@ function DevService:KnitStart()
 				)
 			)
 		end)
+	end
+	function commands.surge(_, id)
+		enemies:ForceSurge(id)
+		print(`[Dev] surge now{if id then ": " .. id else ""}`)
+	end
+	function commands.pace()
+		local clock = director:GetClock()
+		local phase, cycleIndex, nextAt = enemies:Pace(clock)
+		print(
+			`[Dev] pace: {phase} (cycle {cycleIndex}), next surge in {math.max(0, math.floor(nextAt - clock))} s; `
+				.. `{enemies:Count()} enemies, {enemies._regular} regular`
+		)
 	end
 	function commands.boss(rec)
 		local portal = interactables:GetPortal()

@@ -230,6 +230,17 @@ function AudioController:KnitStart()
 		local _ = a1
 	end)
 
+	-- M4.B: a pack arriving sounds its horn, a ghost tide wails
+	on("Banner", function(text, style)
+		if style == "surge" then
+			if string.find(tostring(text), "Ghost") then
+				self:Play("ghost_wail", 0.05)
+			else
+				self:Play("boss_roar", 0.05, 1.45)
+			end
+		end
+	end)
+
 	-- spawn: id, kind, ...; end: id, x, z, boom, ...
 	on("Proj", function(op, _id, kind, _z, boom)
 		if op == "spawn" then
