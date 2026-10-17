@@ -66,15 +66,15 @@ explicit decision by Tiago and Diogo.
   triangles (was ~328k) and moves ~1,970 parts a frame (was ~1,440), in one BulkMoveTo; an
   attack start costs ~2 microseconds. No Studio frame-time numbers recorded, and nothing
   about mobile or other hardware is validated.
-- **M4.B** on branch `feat/m4b-horde-pressure`, `bonk-0.19.0-m4b`, not merged: the horde
+- **M4.B** (`feat/m4b-horde-pressure`, `bonk-0.19.0-m4b`) approved in a human multiplayer
+  Studio playtest and merged to `main`: the horde
   comes in a rhythm (40 s calm, then build, surge, ebb and a 14 s lull, every 55 s, as dense
   on average as before); each surge brings a named pack from one side or several (Goblin
   mob, Bruiser escort, Slime swarm, Pincer, Bone line, Stampede, Surrounded; Ghost tide and
   Shield wall in overtime) with a short banner and horn; charges and leaps on one hero take
   turns. Bosses hold the rhythm. `surge [pack]` and `pace` dev commands. Details:
-  `docs/M4B-horde-pressure.md`. Offline checks only.
-- **Next playable result:** Studio playtest of M4.B: do the spikes and lulls feel good, do
-  packs read, is the first minute easy enough.
+  `docs/M4B-horde-pressure.md`.
+- **Next playable result:** the post-playtest backlog below.
 - **Blockers:** none.
 
 ## M5 Builds & Replayability — in progress
@@ -95,3 +95,24 @@ explicit decision by Tiago and Diogo.
 - **Scope:** bosses, co-op, progression, polish, publishing.
 - **Next playable result:** to be set when M1 to M5 are further along.
 - **Blockers:** release to the shared place is not rehearsed (`docs/ROJO-WORKFLOW.md`).
+
+## Post-playtest backlog (2026-10-17)
+
+From the multiplayer playtest after M4.B. Separate tasks, one at a time, each with its own
+questions, branch and playtest approval. Untouched by all of them unless asked: enemy art,
+Wardwood, native grass; no publishing or permanent uploads without authorization.
+
+- **T1** Level-up: no accidental upgrade picks (entrance animation, ~0.7 s input guard). Next.
+- **T2** HUD/UI overhaul: clarity, consistency, Roblox top-bar safe area, responsive, readable.
+- **T3** Pause menu: inventory, item descriptions, weapon levels, tomes, current stats
+  (three columns: inventory, actions, stats).
+- **T4** Audio audit and references for a softer sound direction.
+- **T5** SFX, ambience and music redone; volume balance, nothing harsh or fatiguing.
+- **T6** Solo and co-op runs isolated: joiners never enter or disturb a running run; parties
+  and run instances.
+- **T7** A stylized 3D floating-island hub replaces the 2D menu flow: gather, heroes, parties,
+  start runs.
+- **T8** A short portal-arrival sequence into Wardwood.
+- **T9** Replayability: build variety, unlocks, challenges, persistent progression, no
+  excessive power creep.
+- **T10** Reliable published playtest builds: runtime Blender assets, multi-place testing.

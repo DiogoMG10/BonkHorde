@@ -9,10 +9,23 @@ are records of the original build run, not current instructions.
 - Act as the implementer of whole features. Plan briefly before a substantial change, then
   build it through to something playable.
 - Gameplay, game feel and visible art come first.
-- Do not ask for approval on reversible technical decisions inside the agreed scope. Ask only
-  when scope, design direction or something hard to undo is at stake.
 - No prompt loops, long reports, unrequested refactors or new infrastructure without a
   concrete reason. Keep the existing architecture and decisions; do not add complexity early.
+
+## Before every feature or task (mandatory)
+
+1. Read the request, the references supplied and the relevant existing implementation.
+2. Ask one concise, grouped set of questions on the intended design, gameplay, UX, visual
+   direction and edge cases, with options and a recommendation where useful. Never ask for
+   what the request already states.
+3. Wait for the answers. Do not implement before the direction is approved.
+4. Then implement autonomously: technical decisions, tests, bug fixes and integration within
+   the agreed scope, without asking about minor or reversible details.
+5. If a new design decision that materially changes the approved scope comes up, ask one
+   focused question before going on.
+
+This takes priority over any older instruction to ask only about scope or irreversible
+decisions.
 
 ## Testing
 
