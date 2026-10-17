@@ -102,15 +102,15 @@ From the multiplayer playtest after M4.B. Separate tasks, one at a time, each wi
 questions, branch and playtest approval. Untouched by all of them unless asked: enemy art,
 Wardwood, native grass; no publishing or permanent uploads without authorization.
 
-- **T1** No accidental picks on any choice panel. On `feat/t1-levelup-guard`, not merged.
-  Level-up part (`bonk-0.20.0-t1`) approved in a human Studio playtest: cards pop in dimmed
-  and ignore all input for 0.7 s (0.35 s for a follow-up level-up, a Refresh/Banish hand, or
-  an offer shown again from under a panel); then only a press begun after the lock picks
-  (cards, Banish, Skip, Refresh, keys 1-9); the gamepad selects card 1 only on unlock; a soft
-  tick; co-op timers start after the lock (`Core/InputGuard`). Extension (`bonk-0.20.1-t1`,
-  offline checks only): the same lock on Charge Shrine 0.5 s, Smug Statue, Dodgy Dan and
-  Chest 0.35 s, and 0.35 s again after a purchase or a chest Banish; Shrine Ignore and Statue
-  Skip protected, Dan's Leave never locked; one answer in flight at a time. Next: Studio.
+- **T1 — done.** No accidental picks on any choice panel (`feat/t1-levelup-guard`,
+  `bonk-0.20.2-t1`), approved in human Studio playtests and merged to `main`. Level-up cards
+  pop in dimmed and ignore all input for 0.5 s (0.35 s for a follow-up level-up, a
+  Refresh/Banish hand, or an offer shown again from under a panel); Charge Shrine 0.5 s;
+  Smug Statue, Dodgy Dan and Chest 0.35 s, and 0.35 s again after a purchase or a chest
+  Banish. Then only a press begun after the lock commits (cards, rewards, Banish, Skip,
+  Refresh, Ignore, keys 1-9); Dan's Leave is never locked; one answer in flight at a time;
+  the gamepad selects only on unlock; a soft tick; co-op timers get the lock back
+  (`Core/InputGuard`).
 - **T2** HUD/UI overhaul: clarity, consistency, Roblox top-bar safe area, responsive, readable.
 - **T3** Pause menu: inventory, item descriptions, weapon levels, tomes, current stats
   (three columns: inventory, actions, stats).

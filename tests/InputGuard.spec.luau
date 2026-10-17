@@ -8,15 +8,15 @@ local LOCK, FOLLOW = GameConfig.OfferLockSeconds, GameConfig.OfferLockFollowSeco
 
 return {
 	["the locks are the agreed lengths"] = function()
-		assert(LOCK == 0.7, `first lock {LOCK}`)
+		assert(LOCK == 0.5, `first lock {LOCK}`)
 		assert(FOLLOW == 0.35, `follow-up lock {FOLLOW}`)
 	end,
 
 	["nothing answers during the lock, a fresh press does after it"] = function()
 		local g = InputGuard.new()
 		g:lock(LOCK, 10)
-		assert(g:locked(10.69) and not g:accepts("mouse", 10.69))
-		assert(not g:locked(10.7))
+		assert(g:locked(10 + LOCK - 0.01) and not g:accepts("mouse", 10 + LOCK - 0.01))
+		assert(not g:locked(10 + LOCK))
 		g:press("mouse", 10.8)
 		assert(g:accepts("mouse", 10.85))
 		g:release("mouse", 10.85)
