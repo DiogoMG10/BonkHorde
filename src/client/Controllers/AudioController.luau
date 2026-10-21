@@ -142,7 +142,10 @@ function AudioController:_hookButtons(gui: Instance)
 				self:Play("ui_click", 0.05)
 			end)
 			inst.MouseEnter:Connect(function()
-				self:Play("ui_hover", 0.05)
+				-- a grid of tiles (the pause menu's build) would tick on every one passed over
+				if not inst:GetAttribute("QuietHover") then
+					self:Play("ui_hover", 0.05)
+				end
 			end)
 		end
 	end

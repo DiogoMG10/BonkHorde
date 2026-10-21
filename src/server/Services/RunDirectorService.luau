@@ -4,12 +4,18 @@
 -- reason each: "levelup", "panel", "player") and the
 -- difficulty value. It also drives the one simulation tick every other service
 -- steps on, so the order things happen in is written down in one place.
+--
+-- A run's end: Silver is paid and saved the moment it ends, then Victory or
+-- Wipe holds for a moment and Results follows. The squad goes back to the
+-- lobby as soon as every player still here has pressed CONTINUE (T3,
+-- Core/EndVote), or when the Results time runs out, whichever comes first.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
+local EndVote = require(ReplicatedStorage.Shared.Core.EndVote)
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Progress = require(ReplicatedStorage.Shared.Core.Progress)
@@ -39,6 +45,9 @@ function RunDirectorService:KnitInit()
 	self._nextMini = 1
 	self._exitAt = nil
 	self._phaseUntil = nil
+	self._runId = 0 -- numbers each run, so a CONTINUE meant for one cannot touch the next
+	self._endVote = nil -- who has pressed CONTINUE on the results (Core/EndVote)
+	self._endSig = nil
 	self._accum = 0
 	-- gameplay time: every simulation timestamp is taken from this, never from
 	-- os.clock(), so nothing comes due while the run is paused
@@ -48,6 +57,7 @@ function RunDirectorService:KnitInit()
 	self._clockEvent = Net.server("Clock")
 	self._banner = Net.server("Banner")
 	self._results = Net.server("Results")
+	self._resultsReady = Net.server("ResultsReady")
 	self._toast = Net.server("Toast")
 end
 
@@ -84,6 +94,16 @@ function RunDirectorService:KnitStart()
 				end
 			end
 		end)
+	end)
+	-- CONTINUE on the results: counted once, for the run it names, from a player
+	-- who was in that run; the frame below sends the squad home when all have
+	Net.server("ResultsContinue").OnServerEvent:Connect(function(player: Player, run: unknown)
+		if typeof(run) ~= "number" or not self._endVote or not self:_ending() then
+			return
+		end
+		if EndVote.press(self._endVote, run, player.UserId) then
+			self:_sendReady()
+		end
 	end)
 
 	RunService.Heartbeat:Connect(function(dt)
@@ -221,6 +241,42 @@ function RunDirectorService:_portalPos()
 	return if portal then { x = portal.x, z = portal.z } else nil
 end
 
+--- The run is over and its results are up (Victory, Wipe or Results).
+function RunDirectorService:_ending(): boolean
+	local phase = self._phase
+	return phase == RunState.Victory or phase == RunState.Wipe or phase == RunState.Results
+end
+
+local function presentIds(): { number }
+	local ids = {}
+	for _, player in Players:GetPlayers() do
+		table.insert(ids, player.UserId)
+	end
+	return ids
+end
+
+--- Has every player still here from the run that ended pressed CONTINUE?
+function RunDirectorService:_allContinued(): boolean
+	return self._endVote ~= nil and EndVote.everyone(self._endVote, presentIds())
+end
+
+--- Who is done with the results, whenever that changes (a press, or a player
+--- leaving, which also lowers how many are needed).
+function RunDirectorService:_sendReady()
+	local vote = self._endVote
+	if not vote then
+		return
+	end
+	local present = presentIds()
+	local ready, need = EndVote.count(vote, present)
+	local sig = `{vote.run}:{ready}:{need}`
+	if sig == self._endSig then
+		return
+	end
+	self._endSig = sig
+	self._resultsReady:FireAllClients({ run = vote.run, ready = EndVote.readyList(vote, present), need = need })
+end
+
 function RunDirectorService:_sendPhase(player: Player?)
 	if player then
 		self._phaseEvent:FireClient(player, self:_payload())
@@ -240,6 +296,7 @@ function RunDirectorService:_startRun()
 	if not self:_setPhase(RunState.Intro) then
 		return
 	end
+	self._runId += 1
 	self._clock = 0
 	self._tier = 0
 	self._difficulty = 0
@@ -289,6 +346,7 @@ function RunDirectorService:_endRun(victory: boolean)
 	end
 	self._players:SetFrozen(true)
 	local rows = {}
+	local members = {}
 	local c = GameConfig
 	local run = {
 		stageSeconds = math.min(self._clock, c.StageSeconds),
@@ -298,10 +356,14 @@ function RunDirectorService:_endRun(victory: boolean)
 		bossKills = self._bossKills,
 		escaped = victory,
 	}
+	-- what each part of the run paid before Silver Gain: the same for the whole squad
+	local _, parts = Progress.silver(run, 1, c)
+	-- every reward is paid and saved here, before anyone sees the results
 	for _, rec in self._players:All() do
 		local silver = Progress.silver(run, rec.stats.SilverGain, c)
 		self._data:AddSilver(rec.player, silver)
-		self._data:RecordRun(rec.player, rec.hero, self._kills, self._bossDeadAt)
+		local bestKills, bestTime = self._data:RecordRun(rec.player, rec.hero, self._kills, self._bossDeadAt)
+		table.insert(members, rec.player.UserId)
 		table.insert(rows, {
 			userId = rec.player.UserId,
 			name = rec.player.DisplayName,
@@ -310,22 +372,32 @@ function RunDirectorService:_endRun(victory: boolean)
 			damage = math.floor(rec.damage),
 			gold = rec.gold,
 			silver = silver,
+			gain = math.clamp(rec.stats.SilverGain, 0, c.SilverGainCap), -- the Silver Gain that counted
+			best = { kills = bestKills == true, time = bestTime == true },
 		})
 		task.spawn(function()
 			self._data:Save(rec.player)
 		end)
 	end
+	self._endVote = EndVote.new(self._runId, members)
+	self._endSig = nil
 	self._results:FireAllClients({
+		run = self._runId,
 		victory = victory,
 		kills = self._kills,
 		level = self._xp:GetLevel(),
 		clock = self._clock,
 		bossTime = self._bossDeadAt,
 		tier = self._tier,
+		map = self._party:GetMap(),
+		minibosses = self._minibossKills,
+		bosses = self._bossKills,
+		silverParts = parts,
+		silverCap = c.SilverRunCap,
 		joke = Roster.DeathJokes[math.random(1, #Roster.DeathJokes)],
 		players = rows,
 	})
-	self._phaseUntil = os.clock() + 2.5
+	self._phaseUntil = os.clock() + c.EndHoldSeconds
 end
 
 function RunDirectorService:_toLobby()
@@ -340,6 +412,8 @@ function RunDirectorService:_toLobby()
 	self._party:ClearReady()
 	table.clear(self._pauses)
 	self._paused = false
+	self._endVote = nil
+	self._endSig = nil
 	self._phase = RunState.Lobby
 	self:_sendPhase(nil)
 end
@@ -366,13 +440,19 @@ function RunDirectorService:_frame(dt: number)
 		end
 		return
 	elseif phase == RunState.Victory or phase == RunState.Wipe then
-		if now >= self._phaseUntil then
+		self:_sendReady()
+		local everyone = self:_allContinued()
+		if now >= self._phaseUntil or everyone then
 			self:_setPhase(RunState.Results)
 			self._phaseUntil = now + GameConfig.ResultsSeconds
+			if everyone then
+				self:_toLobby() -- the whole squad skipped ahead: nobody is left waiting on the results
+			end
 		end
 		return
 	elseif phase == RunState.Results then
-		if now >= self._phaseUntil then
+		self:_sendReady()
+		if now >= self._phaseUntil or self:_allContinued() then
 			self:_toLobby()
 		end
 		return

@@ -33,7 +33,9 @@ export type EventName =
 	| "Clock" -- S>C all: clock seconds, tier, paused, kills
 	| "Banner" -- S>C all: text, style
 	| "Toast" -- S>C one/all: title, text
-	| "Results" -- S>C all: results table
+	| "Results" -- S>C all: results table (RunDirectorService:_endRun)
+	| "ResultsContinue" -- C>S: run number; this player is done with that run's results
+	| "ResultsReady" -- S>C all: { run, ready = { userId }, need }
 	| "Pause" -- S>C all: { mode, by, byName, votes, ready = { userId }, need, seconds, resuming, cooldown }
 	| "PauseAsk" -- C>S: action ("request" | "accept" | "withdraw" | "resume")
 	-- player state
@@ -122,6 +124,8 @@ Net.All = {
 	"Banner",
 	"Toast",
 	"Results",
+	"ResultsContinue",
+	"ResultsReady",
 	"Pause",
 	"PauseAsk",
 	"PlayerState",

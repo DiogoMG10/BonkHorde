@@ -1,0 +1,462 @@
+[
+ {
+  "path": "DeathScreen",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "DeathScreen.Backdrop",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "DeathScreen.Safe",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "DeathScreen.Safe.Stage",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "DeathScreen.Safe.Stage.DeathTitle",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "DeathScreen.Safe.Stage.DeathJoke",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "DeathScreen.Safe.Stage.Halo",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "DeathScreen.Safe.Stage.HeroViewport",
+  "class": "ViewportFrame",
+  "visible": true
+ },
+ {
+  "path": "DeathScreen.Safe.Stage.SkipButton",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "DeathScreen.Safe.Stage.SkipButton.Label",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "DeathScreen.Safe.Stage.SkipButton.KeyCap",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "DeathScreen.Safe.Stage.SkipButton.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "DeathScreen.Safe.Stage.AutoBar",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "DeathScreen.Safe.Stage.AutoBar.Fill",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Results",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Results.Backdrop",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.ResultTitle",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.Subtitle",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.StatTable",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.StatTable.Kills",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.StatTable.Kills.Label",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.StatTable.Kills.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.StatTable.Kills.Best",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.StatTable.Level",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.StatTable.Level.Label",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.StatTable.Level.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.StatTable.Level.Best",
+  "class": "TextLabel",
+  "visible": false
+ },
+ {
+  "path": "Results.Safe.Panel.StatTable.Time",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.StatTable.Time.Label",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.StatTable.Time.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.StatTable.Time.Best",
+  "class": "TextLabel",
+  "visible": false
+ },
+ {
+  "path": "Results.Safe.Panel.StatTable.BossTime",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.StatTable.BossTime.Label",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.StatTable.BossTime.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.StatTable.BossTime.Best",
+  "class": "TextLabel",
+  "visible": false
+ },
+ {
+  "path": "Results.Safe.Panel.SilverCard",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.SilverCard.Title",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.SilverCard.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.SilverCard.Amount",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.SilverCard.Total",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.SilverCard.Breakdown",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.SilverCard.Breakdown.Part",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.SilverCard.Breakdown.Part.Label",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.SilverCard.Breakdown.Part.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.SilverCard.Breakdown.Part",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.SilverCard.Breakdown.Part.Label",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.SilverCard.Breakdown.Part.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.SilverCard.Breakdown.Part",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.SilverCard.Breakdown.Part.Label",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.SilverCard.Breakdown.Part.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.SilverCard.Breakdown.Part",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.SilverCard.Breakdown.Part.Label",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.SilverCard.Breakdown.Part.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.SilverCard.Breakdown.Part",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.SilverCard.Breakdown.Part.Label",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.SilverCard.Breakdown.Part.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.SilverCard.Gain",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.Squad",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.Squad.ColumnHeads",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.Squad.ColumnHeads.HeadPlayer",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.Squad.ColumnHeads.HeadKills",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.Squad.ColumnHeads.HeadDamage",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.Squad.ColumnHeads.HeadGold",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.Squad.ColumnHeads.HeadSilver",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.Squad.PlayerRows",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.Squad.PlayerRows.PlayerRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.Squad.PlayerRows.PlayerRow.Portrait",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.Squad.PlayerRows.PlayerRow.ReadyTag",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Results.Safe.Panel.Squad.PlayerRows.PlayerRow.ReadyTag.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.Squad.PlayerRows.PlayerRow.Name",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.Squad.PlayerRows.PlayerRow.Hero",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.Squad.PlayerRows.PlayerRow.Kills",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.Squad.PlayerRows.PlayerRow.Damage",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.Squad.PlayerRows.PlayerRow.Gold",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.Squad.PlayerRows.PlayerRow.Silver",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.Squad.PlayerRows.PlayerRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.Squad.PlayerRows.PlayerRow.Portrait",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.Squad.PlayerRows.PlayerRow.ReadyTag",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.Squad.PlayerRows.PlayerRow.ReadyTag.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.Squad.PlayerRows.PlayerRow.Name",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.Squad.PlayerRows.PlayerRow.Hero",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.Squad.PlayerRows.PlayerRow.Kills",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.Squad.PlayerRows.PlayerRow.Damage",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.Squad.PlayerRows.PlayerRow.Gold",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.Squad.PlayerRows.PlayerRow.Silver",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.ContinueButton",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.ContinueButton.Label",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.ContinueButton.KeyCap",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Results.Safe.Panel.ContinueButton.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Results.Safe.Panel.ContinueLabel",
+  "class": "TextLabel",
+  "visible": true
+ }
+]

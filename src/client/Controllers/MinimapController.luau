@@ -1,11 +1,13 @@
 --!nonstrict
--- MinimapController - the round minimap in the Hud and the big map in the Overlay.
+-- MinimapController - the round minimap in the Hud, the big map in the Overlay
+-- and the map page of the pause menu.
 --
 -- The minimap is centred on the hero and turns with the camera, so "up" is
 -- always where the camera looks; N/E/S/W ride the rim. The big map (Tab, or the
--- gamepad Select button) shows the whole playable world with north up. Both
--- draw the same dots from WorldController's interactables, the boss portal
--- once the squad has found it, and the teammates.
+-- gamepad Select button) shows the whole playable world with north up; while
+-- the pause menu is open the same keys open its map page instead (T3). All
+-- three draw the same dots from WorldController's interactables, the boss
+-- portal once the squad has found it, and the teammates.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -78,6 +80,8 @@ end
 
 function MinimapController:KnitInit()
 	self._bigOpen = false
+	self._pauseFrame = nil -- the pause menu's map (PauseMenuController)
+	self._pauseOpen = false
 end
 
 function MinimapController:KnitStart()
@@ -89,9 +93,25 @@ function MinimapController:KnitStart()
 	end)
 end
 
---- Open or close the big map. The touch MAP button calls this too.
+--- Open or close the big map. The touch MAP button calls this too. While the
+--- pause menu is open, its own map page answers instead.
 function MinimapController:ToggleBigMap()
+	local menu = Knit.GetController("PauseMenuController")
+	if menu:IsOpen() then
+		menu:ToggleMap()
+		return
+	end
 	self:SetBigMap(not self._bigOpen)
+end
+
+--- The pause menu's map: a frame holding Dots and PlayerArrow, drawn like the
+--- big map while it is shown.
+function MinimapController:AttachPauseMap(frame: Instance?)
+	self._pauseFrame = frame
+end
+
+function MinimapController:SetPauseMapOpen(open: boolean)
+	self._pauseOpen = open and self._pauseFrame ~= nil
 end
 
 function MinimapController:SetBigMap(open: boolean)
@@ -223,7 +243,8 @@ function MinimapController:_frame()
 	local root = state:Root()
 	local miniOn = self._mini ~= nil and root ~= nil
 	local bigOn = self._bigOpen and self._big ~= nil
-	if not miniOn and not bigOn then
+	local pauseOn = self._pauseOpen and self._pauseFrame ~= nil
+	if not miniOn and not bigOn and not pauseOn then
 		poolFinish(self._miniPool)
 		return
 	end
@@ -301,6 +322,31 @@ function MinimapController:_frame()
 			arrow.Position = UDim2.new(0.5, math.clamp(px * scale, -half, half), 0.5, math.clamp(pz * scale, -half, half))
 			arrow.Rotation = math.deg(math.atan2(lookX, -lookZ))
 			UiKit.show(arrow, root ~= nil)
+		end
+	end
+
+	if pauseOn then
+		local frame = self._pauseFrame
+		if not self._pausePool then
+			self._pausePool = newPool(frame:FindFirstChild("Dots"), self._miniPool.template)
+		end
+		-- the page's size follows the screen, so the span is read each frame
+		local span = (if frame:IsA("GuiObject") then frame.Size.X.Offset else 680) - 12
+		local scale = span / GameConfig.PlaySizeStuds
+		local half = span * 0.5
+		local pool = self._pausePool
+		for _, dot in dots do
+			local x, y = dot.x * scale, dot.z * scale
+			if math.abs(x) <= half and math.abs(y) <= half then
+				poolPut(pool, x, y, dot.colour, dot.size + 2)
+			end
+		end
+		poolFinish(pool)
+		local arrow = frame:FindFirstChild("PlayerArrow")
+		if arrow and arrow:IsA("GuiObject") then
+			arrow.Position = UDim2.new(0.5, math.clamp(px * scale, -half, half), 0.5, math.clamp(pz * scale, -half, half))
+			arrow.Rotation = math.deg(math.atan2(lookX, -lookZ))
+			arrow.Visible = root ~= nil
 		end
 	end
 end

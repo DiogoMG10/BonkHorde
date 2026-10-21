@@ -33,6 +33,9 @@ local MARKER_DISTANCE = 4.5
 
 function PrimaryController:KnitInit()
 	self._down = false -- the physical button
+	-- a press made on the pause menu, or held while it was open: never an
+	-- attack, not even once the menu closes under it (T3)
+	self._stale = false
 	self._sent = false -- the held state the server was last told
 	self._sentYaw = 0
 	self._sentPitch = 0
@@ -130,6 +133,7 @@ end
 function PrimaryController:KnitStart()
 	self._state = Knit.GetController("StateController")
 	self._camera = Knit.GetController("CameraController")
+	self._overlay = Knit.GetController("OverlayController")
 	self._remote = Net.client("PrimaryInput")
 	if not self._remote then
 		return -- no remote: the weapon simply never fires by hand
@@ -140,23 +144,27 @@ function PrimaryController:KnitStart()
 			return
 		end
 		self._down = true
+		self._stale = self._overlay:IsPaused()
 		-- sent at once, not on the next frame: a click released within the same
 		-- frame must still reach the server as a press and then a release
-		if self:_enabled() and not self._sent then
+		if not self._stale and self:_enabled() and not self._sent then
 			self:_send(true, self._camera:Yaw(), self._camera:Pitch(), os.clock())
 		end
 	end)
 	UserInputService.InputEnded:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 then
 			self._down = false
+			self._stale = false
 		end
 	end)
 	-- the button-up never arrives if the window lost focus while it was down
 	UserInputService.WindowFocusReleased:Connect(function()
 		self._down = false
+		self._stale = false
 	end)
 	Players.LocalPlayer.CharacterRemoving:Connect(function()
 		self._down = false
+		self._stale = false
 	end)
 
 	-- after the camera has turned for this frame
@@ -164,7 +172,10 @@ function PrimaryController:KnitStart()
 		local now = os.clock()
 		local enabled, kind = self:_enabled()
 		local yaw, pitch = self._camera:Yaw(), self._camera:Pitch()
-		local want = self._down and enabled
+		if self._down and self._overlay:IsPaused() then
+			self._stale = true -- held into the menu: it stays a menu click
+		end
+		local want = self._down and not self._stale and enabled
 
 		if want ~= self._sent then
 			self:_send(want, yaw, pitch, now)
