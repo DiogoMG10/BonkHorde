@@ -56,13 +56,63 @@ record of those answers and of the plan.
 - Later: Roblox parties (`Player.PartyId`, `SocialService:GetPlayersByPartyId`) to put
   friends who arrive together in one circle; direct invites.
 
-## Plan
+## What is built
 
-1. Hub characters: spawn on the island dressed as the hero, re-dress in place, last hero.
-2. Run isolation: a run audience for every run broadcast, per-player look, hub and run
-   modes on the client, return to the hub.
-3. Rune circles: party rules in `Core/HubParty`, prompts, circle visuals, nameplates.
-4. Hall of Heroes: plinths, camera focus, hero card.
-5. Skyhold art: island plan, Blender kit (`tools/art/skyhold.py`,
-   `assets/art/skyhold_kit.blend`), terrain, lighting, VFX.
-6. Specs, gates, Studio checks, playtest checklist.
+**The island.** Skyhold floats at `Config/Skyhold.Origin`, far from the Wardwood. Its
+ground is Roblox Terrain written from `Core/SkyholdGen` (rim, terraces, paths; native
+grass like the Wardwood's). Spawn on the meadow facing north, a lantern-lit way up under
+bunting to the round Portal Plaza, the Skygate on its dais between two crystal obelisks
+with rune monoliths circling it, four rune circles before it, the Hall of Heroes on the
+west terrace, the Elder on the east knoll with benches over the clouds, a lookout with a
+telescope in the south-west, a trophy wall with empty niches in the north-east, the
+market islet over a rope bridge (stalls closed until there is something to sell),
+floating isles, a waterfall off the east cliff, a sea of clouds below and a far peak.
+An invisible wall follows the rim; anyone who still falls is put back on the meadow.
+
+**Server.**
+- `RunAudience`: every run broadcast goes to the run's party only (it replaced every
+  `FireAllClients` in the run services).
+- `PartyService` (rules in `Core/HubParty`): the server's players with stable indices and
+  their hero; parties at the circles; `Launch` when a countdown ends and the run is free.
+- `HubService`: builds the island once the Wardwood is down (`Skyhold/Builder`), gives
+  each player an island character dressed as their hero (`HeroDress`, welded from the
+  rig's rest pose), re-dresses it in place, catches falls, and returns a party from its run
+  at the portal.
+- `RunDirectorService`: `StartRun(players, circle)`; no late joins; the run's sky is drawn
+  per run and sent to its party (`Phase.sky`); `RunEnded` hands the party back.
+- `DataService`: remembers `lastHero`.
+
+**Client.** `HubController` (circle glow and slots, the party boards, prompts, party card,
+nameplates, portal state, the white crossing), `HeroHallController` (statues, plinth
+prompts, the hero card, the borrowed camera shot), `HubDecorController` (clouds, far
+scenery, the orbiting monoliths), `SkyController` (each player's own sky). The camera
+follows the hero on the island; slides read the island's slopes; the old 2D menus are gone.
+
+**Art pipeline (Blender is the source).**
+
+    lune run tools/art/skyhold_plan.luau            # the island's plan, from the game's own code
+    "$BLENDER" -b -P tools/art/skyhold.py -- [--render DIR] [--no-glb]
+    "$BLENDER" -b assets/art/skyhold_kit.blend -P tools/art/skyhold.py -- --from-blend
+
+`skyhold_land.py` (the island's rock hung from the Terrain's rim: strata, moss, vines,
+crystals; isles, clouds, far peak, falls) and `skyhold_props.py` (portal, plaza, circles,
+plinths, hall, ruins, lanterns, braziers, stalls, bridge, bunting, banners, flowers...)
+build with bmesh and modifiers (bevel, Voronoi displacement, decimate, voxel remesh,
+boolean, solidify), bake ambient occlusion into vertex colours and export packed meshes
+(`src/server/Skyhold/Meshes`), the layout (`Skyhold/Layout`), the client scenery
+(`Config/SkyholdDecor`), GLBs and `assets/art/skyhold_manifest.json`. The `.blend` keeps
+every asset under "Kit" and the island under "Layout": move a piece there and export with
+`--from-blend`. The server bakes the meshes at start (EditableMesh, vertex colours
+included); nothing is uploaded. A Blender render shows shape and palette only.
+
+**Dev commands** (Workspace attribute `BonkDev`, Studio only): `solo` (straight into a
+solo run), `island` (back to the meadow), `party` (circles and run state), `sky <name>` /
+`sky off` (every client's sky).
+
+## Limits of this milestone
+
+- Locally one Wardwood run per server: a second ready party waits for the portal.
+- A player who disconnects mid-run comes back to the island, not to the run.
+- The kit's meshes are rebuilt at every server start (like the Wardwood's); a published
+  game should use uploaded meshes, which is a separate authorisation.
+- Reserved run servers are designed above, not built; nothing about teleports is tested.

@@ -13,9 +13,12 @@
 --   site Falls         stand in front of a Wardwood landmark (site alone lists them)
 --   marker             show or hide the Sword's aim marker on the ground
 --   hop                show or hide real vs intended movement speed (M2.B playtest)
---   sky night          switch the sky live until the next run draws its own:
---                      golden (the lobby's), clear, dusk, sunset, night,
---                      enchanted; `sky` alone says which is up and why
+--   sky night          every client wears that sky, on the island and in a run,
+--                      until `sky off`: skyhold (the island's), golden, clear,
+--                      dusk, sunset, night, enchanted; `sky` alone lists them
+--   solo               the first player straight into a solo run (skips the circles)
+--   island             the first player back on Skyhold's meadow
+--   party              the rune circles and the run, as the server sees them
 --   leaves Grass       re-material every tree's foliage live (LeafyGrass, Grass,
 --                      SmoothPlastic, Plastic...; `leaves` alone puts it back)
 --   art off            the old props back over the whole Wardwood (`art on` the
@@ -94,6 +97,9 @@ function DevService:KnitStart()
 		grass = true,
 		art = true,
 		enemy = true,
+		solo = true,
+		island = true,
+		party = true,
 	}
 
 	function commands.unlock(_, id)
@@ -102,6 +108,40 @@ function DevService:KnitStart()
 			print(`[Dev] {id} unlocked for this session`)
 		else
 			print(`[Dev] cannot unlock {id}`)
+		end
+	end
+	function commands.solo()
+		local player = Players:GetPlayers()[1]
+		if player and director:StartRun({ player }, nil) then
+			print(`[Dev] solo run for {player.Name}`)
+		else
+			print("[Dev] no solo run: a run is already on, or the Wardwood is not ready")
+		end
+	end
+	function commands.island()
+		local player = Players:GetPlayers()[1]
+		local hub = Knit.GetService("HubService")
+		if player and hub:IsOnIsland(player) and player.Character then
+			player.Character:PivotTo(hub:PlaceCFrame("spawn"))
+			print("[Dev] back on the meadow")
+		else
+			print("[Dev] not on the island")
+		end
+	end
+	function commands.party()
+		local HubParty = require(ReplicatedStorage.Shared.Core.HubParty)
+		local party = Knit.GetService("PartyService")
+		local lines = {}
+		for _, e in HubParty.snapshot(party._hub, os.clock()) do
+			table.insert(
+				lines,
+				`circle {e.circle}: {e.mode} {e.phase} leader {e.leader} members {table.concat(e.members, ",")} ready {#e.ready}`
+			)
+		end
+		local run = director:RunInfo()
+		print(`[Dev] {#lines} parties; run {if run then `{run.phase} circle {run.circle}` else "none"}`)
+		for _, line in lines do
+			print(`[Dev]   {line}`)
 		end
 	end
 	function commands.hop()
