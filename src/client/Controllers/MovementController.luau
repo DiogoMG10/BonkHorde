@@ -32,7 +32,6 @@ local Workspace = game:GetService("Workspace")
 local Knit = require(ReplicatedStorage.Packages.Knit)
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local Hop = require(ReplicatedStorage.Shared.Core.Hop)
-local MapGen = require(ReplicatedStorage.Shared.Core.MapGen)
 
 local MovementController = Knit.CreateController({ Name = "MovementController" })
 
@@ -291,7 +290,7 @@ function MovementController:_frame(dt: number)
 
 	-- sliding: speed bleeds off on the flat and builds going downhill
 	self._slideFor += dt
-	local dx, dz, steep = MapGen.downhill(self._state.map, root.Position.X, root.Position.Z)
+	local dx, dz, steep = self._state:Downhill(root.Position.X, root.Position.Z)
 	local along = (dx * self._slideDir.X + dz * self._slideDir.Z) * steep -- >0 when heading downhill
 	if grounded then
 		self._slideMult += (along * GameConfig.SlideDownhillAccel / base - GameConfig.SlideDecayPerSecond * (1 - math.clamp(along * 2, 0, 1))) * dt

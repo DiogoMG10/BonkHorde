@@ -18,6 +18,8 @@ local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Roster = require(ReplicatedStorage.Shared.Config.Roster)
 
+local RunAudience = require(script.Parent.Parent.RunAudience)
+
 local BossService = Knit.CreateService({ Name = "BossService" })
 
 local rng = Random.new()
@@ -58,7 +60,7 @@ function BossService:Reset()
 	table.clear(self._pending)
 	table.clear(self._thorns)
 	table.clear(self._camp)
-	self._bossEvent:FireAllClients({})
+	RunAudience.fire(self._bossEvent, {})
 end
 
 function BossService:AnyStageBoss(): boolean
@@ -96,7 +98,7 @@ function BossService:SummonStage(x: number, z: number, now: number)
 	local slot = self._enemies:Spawn(Roster.StageBoss, x, z, { hpMult = scale(#recs, self._director:GetDifficulty()) })
 	if slot then
 		self:_register(slot, Roster.StageBoss, now)
-		self._banner:FireAllClients(Roster.Enemies[Roster.StageBoss].name, "boss")
+		RunAudience.fire(self._banner, Roster.Enemies[Roster.StageBoss].name, "boss")
 	end
 end
 
@@ -116,7 +118,7 @@ function BossService:SpawnMini(typeName: string, now: number)
 	local slot = self._enemies:SpawnNear(rec, typeName, { hpMult = hpMult }, 55, 80)
 	if slot then
 		self:_register(slot, typeName, now)
-		self._banner:FireAllClients(Roster.Enemies[typeName].name, "miniboss")
+		RunAudience.fire(self._banner, Roster.Enemies[typeName].name, "miniboss")
 	end
 end
 
@@ -124,7 +126,7 @@ end
 -- tree) instead of on the ground; the hit itself is the same circle.
 function BossService:_strike(x: number, z: number, radius: number, delay: number, damage: number, kind: string, now: number, y: number?)
 	table.insert(self._pending, { x = x, z = z, y = y, r = radius, at = now + delay, dmg = damage, kind = kind })
-	self._telegraph:FireAllClients(x, z, radius, delay, kind, y)
+	RunAudience.fire(self._telegraph, x, z, radius, delay, kind, y)
 end
 
 local CAMP: Contact.Camp = { seconds = GameConfig.CampSeconds, every = GameConfig.CampEvery }
@@ -158,7 +160,7 @@ end
 --- gameplay time the strike still has left.
 function BossService:Resync(now: number)
 	for _, s in self._pending do
-		self._telegraph:FireAllClients(s.x, s.z, s.r, math.max(s.at - now, 0.05), s.kind, s.y)
+		RunAudience.fire(self._telegraph, s.x, s.z, s.r, math.max(s.at - now, 0.05), s.kind, s.y)
 	end
 end
 
@@ -167,7 +169,7 @@ function BossService:_throwThorn(x: number, z: number, dx: number, dz: number, d
 	self._nextThorn = if id >= 65000 then 61000 else id + 1
 	local thorn = { id = id, x = x, z = z, dx = dx, dz = dz, speed = 42, life = 3, dmg = damage }
 	table.insert(self._thorns, thorn)
-	self._proj:FireAllClients("spawn", id, P_THORN, 0, x, z, dx, dz, thorn.speed, 0, 1.6)
+	RunAudience.fire(self._proj, "spawn", id, P_THORN, 0, x, z, dx, dz, thorn.speed, 0, 1.6)
 end
 
 local Script = {}
@@ -233,7 +235,7 @@ function Script.Hamlet(self, slot, b, now, x, z, dmg)
 			local dx, dz = t.x - x, t.z - z
 			local m = math.max(math.sqrt(dx * dx + dz * dz), 0.05)
 			self._enemies:Dash(slot, dx / m, dz / m, 1.2, now)
-			self._telegraph:FireAllClients(x, z, 6, 0.5, "charge")
+			RunAudience.fire(self._telegraph, x, z, 6, 0.5, "charge")
 		end
 	end
 	if now >= b.b then
@@ -301,7 +303,7 @@ function BossService:Step(dt: number, now: number)
 		end
 		if done then
 			table.remove(thorns, i)
-			self._proj:FireAllClients("end", t.id, t.x, t.z, 0)
+			RunAudience.fire(self._proj, "end", t.id, t.x, t.z, 0)
 		end
 	end
 
@@ -313,7 +315,7 @@ function BossService:Step(dt: number, now: number)
 			table.insert(bars, { slot = slot, name = b.name, hp = math.max(hp, 0), maxHp = maxHp, stage = b.stage })
 		end
 		if #bars > 0 or self._hadBars then
-			self._bossEvent:FireAllClients(bars)
+			RunAudience.fire(self._bossEvent, bars)
 		end
 		self._hadBars = #bars > 0
 	end

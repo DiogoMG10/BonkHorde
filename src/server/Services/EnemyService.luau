@@ -23,6 +23,8 @@ local Signal = require(ReplicatedStorage.Packages.Signal)
 local Snapshot = require(ReplicatedStorage.Shared.Core.Snapshot)
 local Spawn = require(ReplicatedStorage.Shared.Core.Spawn)
 
+local RunAudience = require(script.Parent.Parent.RunAudience)
+
 local EnemyService = Knit.CreateService({ Name = "EnemyService" })
 
 local MAX = GameConfig.EnemyHardCap + 60 -- regulars plus bosses, summons and challenge packs
@@ -454,7 +456,7 @@ function EnemyService:Direct(dt: number, clock: number, tier: number, difficulty
 			local rec = standing[rng:NextInteger(1, #standing)]
 			local made = self:_sendPack(pack, rec, cycleIndex, #recs, cap, opts)
 			if made > 0 then
-				self._banner:FireAllClients(pack.name, "surge", if first then pack.hint or "" else "")
+				RunAudience.fire(self._banner, pack.name, "surge", if first then pack.hint or "" else "")
 			end
 			if studio then
 				print(`{stamp} surge {cycleIndex}: {pack.name}, {made} enemies x{string.format("%.2f", mult)}`)
@@ -665,7 +667,7 @@ function EnemyService:_attack(slot: number, atk, t, x: number, z: number, dist: 
 		else
 			atkHit[slot] = {}
 		end
-		self._actEvent:FireAllClients(slot, code, atkBX[slot], atkBZ[slot], atk.windup, atkDur[slot])
+		RunAudience.fire(self._actEvent, slot, code, atkBX[slot], atkBZ[slot], atk.windup, atkDur[slot])
 		return true
 	elseif phase == 1 then
 		if now >= atkUntil[slot] then
@@ -701,7 +703,7 @@ end
 function EnemyService:_callOff(slot: number, atk, now: number)
 	atkPhase[slot] = 0
 	schedule(slot, atk, now)
-	self._actEvent:FireAllClients(slot, ACT_OFF, ex[slot], ez[slot], 0, 0)
+	RunAudience.fire(self._actEvent, slot, ACT_OFF, ex[slot], ez[slot], 0, 0)
 end
 
 --- Called when a pause ends: a windup's lane or ring ran out on screen while
@@ -710,7 +712,8 @@ function EnemyService:Resync(now: number)
 	for slot = 1, MAX do
 		if alive[slot] and atkPhase[slot] == 1 then
 			local atk = def[slot].attack
-			self._actEvent:FireAllClients(
+			RunAudience.fire(
+				self._actEvent,
 				slot,
 				if atk.kind == "charge" then ACT_CHARGE else ACT_LEAP,
 				atkBX[slot],
@@ -938,7 +941,7 @@ function EnemyService:_sendSnapshot(now: number)
 			sentX[slot], sentZ[slot] = ex[slot], ez[slot]
 		end
 	end
-	self._snapEvent:FireAllClients(Snapshot.encode(count, slots, xs, zs, self._map.half, now % 4096))
+	RunAudience.fire(self._snapEvent, Snapshot.encode(count, slots, xs, zs, self._map.half, now % 4096))
 end
 
 --- Send this tick's spawns, removals and hits.
@@ -953,7 +956,7 @@ function EnemyService:FlushNet()
 			buffer.writeu8(b, o + 3, (if elite[slot] then FLAG_ELITE else 0) + (if runner[slot] then FLAG_RUNNER else 0))
 		end
 		table.clear(spawned)
-		self._spawnEvent:FireAllClients(b)
+		RunAudience.fire(self._spawnEvent, b)
 	end
 	-- hits before removals: a killing blow's number is drawn where the enemy
 	-- still stands on the client, and only then does it go
@@ -968,7 +971,7 @@ function EnemyService:FlushNet()
 			buffer.writeu8(b, o + 4, hits[i * 3])
 		end
 		table.clear(hits)
-		self._hitsEvent:FireAllClients(b)
+		RunAudience.fire(self._hitsEvent, b)
 	end
 	local gone = self._gone
 	if #gone > 0 then
@@ -980,7 +983,7 @@ function EnemyService:FlushNet()
 			buffer.writeu8(b, o + 2, gone[i * 2])
 		end
 		table.clear(gone)
-		self._goneEvent:FireAllClients(b)
+		RunAudience.fire(self._goneEvent, b)
 	end
 	-- the client now knows these slots are empty: they may be used again
 	local recycle = self._recycle
@@ -998,29 +1001,8 @@ function EnemyService:FlushNet()
 			buffer.writeu8(b, o + 2, frozen[i * 2])
 		end
 		table.clear(frozen)
-		self._frozenEvent:FireAllClients(b)
+		RunAudience.fire(self._frozenEvent, b)
 	end
-end
-
---- For a client that joins mid-run: every living enemy as a spawn packet.
-function EnemyService:SendAllTo(player: Player)
-	local list = {}
-	for slot = 1, MAX do
-		if alive[slot] then
-			table.insert(list, slot)
-		end
-	end
-	if #list == 0 then
-		return
-	end
-	local b = buffer.create(#list * 4)
-	for i, slot in list do
-		local o = (i - 1) * 4
-		buffer.writeu16(b, o, slot)
-		buffer.writeu8(b, o + 2, typeId[slot])
-		buffer.writeu8(b, o + 3, (if elite[slot] then FLAG_ELITE else 0) + (if runner[slot] then FLAG_RUNNER else 0))
-	end
-	self._spawnEvent:FireClient(player, b)
 end
 
 return EnemyService

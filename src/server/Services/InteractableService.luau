@@ -15,6 +15,8 @@ local Net = require(ReplicatedStorage.Shared.Net)
 local Offers = require(ReplicatedStorage.Shared.Core.Offers)
 local Roster = require(ReplicatedStorage.Shared.Config.Roster)
 
+local RunAudience = require(script.Parent.Parent.RunAudience)
+
 local InteractableService = Knit.CreateService({ Name = "InteractableService" })
 
 local rng = Random.new()
@@ -78,7 +80,7 @@ function InteractableService:KnitStart()
 				if it.remaining <= 0 then
 					it.remaining = nil
 					self:SpawnFreeChest(it.x + 5, it.z)
-					self._toast:FireAllClients("Challenge cleared", "A free chest appears.")
+					RunAudience.fire(self._toast, "Challenge cleared", "A free chest appears.")
 				end
 			end
 		end
@@ -92,7 +94,7 @@ function InteractableService:KnitStart()
 		it.owner = rec
 		it.progress = 0
 		rec.tombId = it.id
-		self._stateEvent:FireAllClients(it.id, "spawn", { kind = it.kind, x = it.x, y = it.y, z = it.z, owner = rec.player.UserId })
+		RunAudience.fire(self._stateEvent, it.id, "spawn", { kind = it.kind, x = it.x, y = it.y, z = it.z, owner = rec.player.UserId })
 	end)
 	self._players.Revived:Connect(function(rec)
 		self:_removeTomb(rec)
@@ -112,7 +114,7 @@ function InteractableService:Clear()
 	table.clear(self._list)
 	table.clear(self._panels)
 	self._portal = nil
-	self._listEvent:FireAllClients({})
+	RunAudience.fire(self._listEvent, {})
 end
 
 --- Place this run's interactables on randomly chosen anchors.
@@ -190,30 +192,26 @@ function InteractableService:Place()
 	end
 	cluster("Pot", counts.Pot or 0, 3)
 	cluster("Crate", counts.Crate or 0, 2)
-	self:SendAll(nil)
+	self:SendAll()
 end
 
 function InteractableService:_public(it)
 	return { id = it.id, kind = it.kind, x = it.x, y = it.y, z = it.z, state = it.state, free = it.free }
 end
 
---- Send the full list to one player, or to everyone when `player` is nil.
-function InteractableService:SendAll(player: Player?)
+--- Send the full list to the run's players.
+function InteractableService:SendAll()
 	local list = {}
 	for _, it in self._list do
 		table.insert(list, self:_public(it))
 	end
-	if player then
-		self._listEvent:FireClient(player, list)
-	else
-		self._listEvent:FireAllClients(list)
-	end
+	RunAudience.fire(self._listEvent, list)
 end
 
 function InteractableService:SpawnFreeChest(x: number, z: number)
 	local it = self:_add("Chest", x, z)
 	it.free = true
-	self._stateEvent:FireAllClients(it.id, "spawn", { kind = it.kind, x = it.x, y = it.y, z = it.z, free = true })
+	RunAudience.fire(self._stateEvent, it.id, "spawn", { kind = it.kind, x = it.x, y = it.y, z = it.z, free = true })
 end
 
 function InteractableService:GetPortal()
@@ -222,14 +220,14 @@ end
 
 function InteractableService:SetState(it, state: string, data)
 	it.state = state
-	self._stateEvent:FireAllClients(it.id, state, data)
+	RunAudience.fire(self._stateEvent, it.id, state, data)
 end
 
 function InteractableService:_removeTomb(rec)
 	local it = rec.tombId and self._list[rec.tombId]
 	if it then
 		self._list[it.id] = nil
-		self._stateEvent:FireAllClients(it.id, "gone")
+		RunAudience.fire(self._stateEvent, it.id, "gone")
 	end
 	rec.tombId = nil
 end
@@ -435,7 +433,8 @@ function InteractableService:_interact(rec, it, now: number)
 		it.uses = (it.uses or 0) + 1
 		self._director:AddDifficulty(GameConfig.GreedDifficultyStep)
 		self._players:AddBonus(rec, "GoldGain", GameConfig.GreedGoldStep)
-		self._toast:FireAllClients(
+		RunAudience.fire(
+			self._toast,
 			"Greed",
 			`+{math.floor(GameConfig.GreedDifficultyStep * 100)}% Difficulty. {rec.player.DisplayName} gets richer.`
 		)
@@ -457,14 +456,14 @@ function InteractableService:_interact(rec, it, now: number)
 			end
 		end
 		it.remaining = if spawned > 0 then spawned else nil
-		self._toast:FireAllClients("Challenge", "Clear the elites for a free chest.")
+		RunAudience.fire(self._toast, "Challenge", "Clear the elites for a free chest.")
 	elseif kind == "VacuumShrine" then
 		if it.state ~= "idle" then
 			return
 		end
 		self:SetState(it, "used")
 		self._pickups:Vacuum(rec, now)
-		Net.server("Fx"):FireAllClients("Pickup", rec.index, "Magnet")
+		RunAudience.fire(Net.server("Fx"), "Pickup", rec.index, "Magnet")
 	elseif kind == "BossPortal" then
 		self._director:PortalUsed(it)
 	end
@@ -523,7 +522,7 @@ function InteractableService:Step(dt: number, now: number)
 					end
 				elseif sendCharge then
 					it.state = "charging"
-					self._stateEvent:FireAllClients(id, "charging", it.progress / GameConfig.ChargeShrineSeconds)
+					RunAudience.fire(self._stateEvent, id, "charging", it.progress / GameConfig.ChargeShrineSeconds)
 				end
 			elseif (it.progress or 0) > 0 then
 				-- stepping out of the dome loses the charge
@@ -553,7 +552,7 @@ function InteractableService:Step(dt: number, now: number)
 			local owner = it.owner
 			if not owner or not owner.active or not owner.downed then
 				self._list[id] = nil
-				self._stateEvent:FireAllClients(id, "gone")
+				RunAudience.fire(self._stateEvent, id, "gone")
 			else
 				local helping = false
 				for _, rec in recs do
@@ -567,7 +566,7 @@ function InteractableService:Step(dt: number, now: number)
 					if it.progress >= GameConfig.ReviveSeconds then
 						self._players:Revive(owner)
 					elseif sendCharge then
-						self._stateEvent:FireAllClients(id, "charging", it.progress / GameConfig.ReviveSeconds)
+						RunAudience.fire(self._stateEvent, id, "charging", it.progress / GameConfig.ReviveSeconds)
 					end
 				elseif it.progress > 0 then
 					it.progress = math.max(0, it.progress - dt * 2)

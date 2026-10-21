@@ -1,6 +1,10 @@
 --!nonstrict
 -- StateController - the client's copy of what the server has told it: run
--- phase and clock, the squad, the local hero's state, XP and the profile.
+-- phase and clock, the squad, the local hero's state, XP and the profile, and
+-- on the island hub (T6/T7) everyone's hero and the rune circles' parties.
+--
+-- The phase stays "Lobby" for a player on the island: run messages only ever
+-- reach the party in the run (server/RunAudience).
 --
 -- Every other controller reads from here and listens to `Changed(key)`. Nothing
 -- on the client decides any of these values; this is a mirror.
@@ -13,6 +17,8 @@ local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local MapGen = require(ReplicatedStorage.Shared.Core.MapGen)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Signal = require(ReplicatedStorage.Packages.Signal)
+local Skyhold = require(ReplicatedStorage.Shared.Config.Skyhold)
+local SkyholdGen = require(ReplicatedStorage.Shared.Core.SkyholdGen)
 
 local StateController = Knit.CreateController({ Name = "StateController" })
 
@@ -27,6 +33,9 @@ function StateController:KnitInit()
 	self.quests = {}
 	self.portal = nil
 	self.roster = { players = {}, map = "MossyWoods", max = GameConfig.MaxPlayers }
+	self.hub = { circles = {}, run = nil } -- the rune circles' parties, and the server's run if one is on
+	self.hubAt = os.clock() -- when `hub` arrived (its countdowns run from here)
+	self.sky = nil -- the sky the run drew (Phase), worn while in it
 	self.profile = nil
 	self.me = nil
 	self.squad = {}
@@ -36,6 +45,33 @@ function StateController:KnitInit()
 	self.clockAt = os.clock()
 	-- the same heightfield the server simulates on
 	self.map = MapGen.build(GameConfig.MapSizeStuds, GameConfig.HeightCellStuds, GameConfig.WallHeight)
+	-- and the island hub's ground (T6/T7)
+	self.island = SkyholdGen.build(Skyhold)
+end
+
+--- The way downhill on the ground under (x, z) (world), as MapGen.downhill:
+--- the Wardwood's heightfield, or the island's while on the island.
+function StateController:Downhill(x: number, z: number): (number, number, number)
+	if not self:OnIsland() then
+		return MapGen.downhill(self.map, x, z)
+	end
+	local o = Skyhold.Origin
+	local lx, lz = x - o[1], z - o[3]
+	local plan = self.island
+	local function h(ax: number, az: number): number?
+		return SkyholdGen.heightAt(plan, ax, az)
+	end
+	local c = 2
+	local e, w, s, n = h(lx + c, lz), h(lx - c, lz), h(lx, lz + c), h(lx, lz - c)
+	if not (e and w and s and n) then
+		return 0, 0, 0
+	end
+	local gx, gz = (e - w) / (2 * c), (s - n) / (2 * c)
+	local m = math.sqrt(gx * gx + gz * gz)
+	if m < 1e-4 then
+		return 0, 0, 0
+	end
+	return -gx / m, -gz / m, m
 end
 
 function StateController:HeightAt(x: number, z: number): number
@@ -70,6 +106,39 @@ function StateController:RootOfIndex(index: number): BasePart?
 		end
 	end
 	return nil
+end
+
+--- The local player's roster entry (hero, party circle, leader, ready).
+function StateController:Mine()
+	for _, entry in self.roster.players do
+		if entry.userId == Players.LocalPlayer.UserId then
+			return entry
+		end
+	end
+	return nil
+end
+
+--- The party on rune circle `circle`, as the server last sent it, or nil.
+function StateController:PartyAt(circle: number)
+	for _, party in self.hub.circles do
+		if party.circle == circle then
+			return party
+		end
+	end
+	return nil
+end
+
+--- Seconds left on a party's countdown, run on locally between messages.
+function StateController:CountdownLeft(party): number?
+	if not party or not party.seconds then
+		return nil
+	end
+	return math.max(0, party.seconds - (os.clock() - self.hubAt))
+end
+
+--- On the island hub (not in a run)?
+function StateController:OnIsland(): boolean
+	return self.phase == "Lobby"
 end
 
 function StateController:MyIndex(): number
@@ -115,6 +184,7 @@ function StateController:KnitStart()
 		self.kills = p.kills
 		self.quests = p.quests
 		self.portal = p.portal
+		self.sky = p.sky
 		self.clockAt = os.clock()
 		if p.phase == "Lobby" then
 			self.me = nil
@@ -130,6 +200,11 @@ function StateController:KnitStart()
 	on("Roster", function(roster)
 		self.roster = roster
 		self.Changed:Fire("roster")
+	end)
+	on("Hub", function(hub)
+		self.hub = hub
+		self.hubAt = os.clock()
+		self.Changed:Fire("hub")
 	end)
 	on("Profile", function(profile)
 		self.profile = profile

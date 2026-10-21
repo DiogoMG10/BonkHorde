@@ -16,6 +16,8 @@ local PrimaryTrigger = require(ReplicatedStorage.Shared.Core.PrimaryTrigger)
 local Roster = require(ReplicatedStorage.Shared.Config.Roster)
 local RunState = require(ReplicatedStorage.Shared.Core.RunState)
 
+local RunAudience = require(script.Parent.Parent.RunAudience)
+
 local CombatService = Knit.CreateService({ Name = "CombatService" })
 
 local rng = Random.new()
@@ -190,12 +192,12 @@ function CombatService:_hit(rec, w, slot: number, base: number, now: number, isP
 		if items.StaticMitts and rec.hitCounter % ITEMS.StaticMitts.n.every == 0 then
 			local n = ITEMS.StaticMitts.n
 			enemies:DamageCircle(x, z, n.radius, amount * n.mult * items.StaticMitts, rec, 0)
-			self._fx:FireAllClients("Bolt", x, z, n.radius)
+			RunAudience.fire(self._fx, "Bolt", x, z, n.radius)
 		end
 		if items.VolatileMeatball and rng:NextNumber() < stackChance(ITEMS.VolatileMeatball.n.chance, items.VolatileMeatball) then
 			local n = ITEMS.VolatileMeatball.n
 			enemies:DamageCircle(x, z, n.radius, amount * n.mult, rec, 0)
-			self._fx:FireAllClients("Burst", x, 0, z, n.radius, "meatball")
+			RunAudience.fire(self._fx, "Burst", x, 0, z, n.radius, "meatball")
 		end
 	end
 	return killed
@@ -232,12 +234,12 @@ function CombatService:_spawnProj(p)
 	self._nextProj = self._nextProj % 60000 + 1
 	table.insert(self._projs, p)
 	-- y and dy only for a shot that flies at a height of its own (a hand-aimed fireball)
-	self._proj:FireAllClients("spawn", p.id, p.kind, p.rec.index, p.x, p.z, p.dx, p.dz, p.speed, p.a or 0, p.b or 0, p.y, p.dy)
+	RunAudience.fire(self._proj, "spawn", p.id, p.kind, p.rec.index, p.x, p.z, p.dx, p.dz, p.speed, p.a or 0, p.b or 0, p.y, p.dy)
 end
 
 function CombatService:_endProj(p, boom: number)
 	p.dead = true
-	self._proj:FireAllClients("end", p.id, p.x, p.z, boom, p.y)
+	RunAudience.fire(self._proj, "end", p.id, p.x, p.z, boom, p.y)
 end
 
 -- ------------------------------------------------------------------ weapon kinds
@@ -274,7 +276,7 @@ function Fire.Arc(self, rec, w, now, aim)
 				self:_hit(rec, w, slot, s.Damage, now, false, dx, dz)
 			end
 		end
-		self._fx:FireAllClients("Slash", rec.index, rec.x, rec.y, rec.z, dx, dz, range, s.Arc)
+		RunAudience.fire(self._fx, "Slash", rec.index, rec.x, rec.y, rec.z, dx, dz, range, s.Arc)
 	end
 end
 
@@ -332,7 +334,7 @@ end
 function Fire.Aura(self, rec, w, now)
 	local radius = w.s.Range * sizeOf(rec, w)
 	self:_blast(rec, w, rec.x, rec.z, radius, w.s.Damage, now)
-	self._fx:FireAllClients("Frost", rec.index, radius, (w.s.Duration or 1) * rec.stats.Duration * 0.4)
+	RunAudience.fire(self._fx, "Frost", rec.index, radius, (w.s.Duration or 1) * rec.stats.Duration * 0.4)
 end
 
 function Fire.Lightning(self, rec, w, now)
@@ -356,7 +358,7 @@ function Fire.Lightning(self, rec, w, now)
 			struck[slot] = true
 			local x, _, z = enemies:Pos(slot)
 			self:_blast(rec, w, x, z, radius, s.Damage, now)
-			self._fx:FireAllClients("Bolt", x, z, radius)
+			RunAudience.fire(self._fx, "Bolt", x, z, radius)
 			slot = enemies:Nearest(x, z, 24, struck)
 		end
 	end
@@ -444,7 +446,7 @@ function Fire.Linger(self, rec, w, now)
 			self._zones,
 			{ rec = rec, w = w, x = tx, z = tz, r = radius, next = now + 0.35, tick = s.Tick, untilAt = now + 0.35 + duration }
 		)
-		self._fx:FireAllClients("Axe", rec.index, rec.x, rec.z, tx, tz, radius, duration)
+		RunAudience.fire(self._fx, "Axe", rec.index, rec.x, rec.z, tx, tz, radius, duration)
 	end
 end
 
@@ -631,7 +633,7 @@ function CombatService:_stepProj(p, dt: number, now: number)
 					local wm = math.max(math.sqrt(wx * wx + wz * wz), 0.05)
 					p.dx, p.dz = wx / wm, wz / wm
 					p.life = math.max(p.life, 1.5)
-					self._proj:FireAllClients("turn", p.id, p.x, p.z, p.dx, p.dz, nextSlot)
+					RunAudience.fire(self._proj, "turn", p.id, p.x, p.z, p.dx, p.dz, nextSlot)
 				else
 					self:_endProj(p, 0)
 				end
@@ -643,7 +645,7 @@ function CombatService:_stepProj(p, dt: number, now: number)
 			local nextSlot = enemies:Nearest(p.x, p.z, 40, p.seen)
 			if nextSlot then
 				p.target = nextSlot
-				self._proj:FireAllClients("turn", p.id, p.x, p.z, p.dx, p.dz, nextSlot)
+				RunAudience.fire(self._proj, "turn", p.id, p.x, p.z, p.dx, p.dz, nextSlot)
 			else
 				p.target = nil
 			end
@@ -667,7 +669,7 @@ function CombatService:_stepProj(p, dt: number, now: number)
 			if p.travelled >= p.range then
 				p.back = true
 				table.clear(p.seen) -- it hits again on the way home
-				self._proj:FireAllClients("turn", p.id, p.x, p.z, p.dx, p.dz, -1)
+				RunAudience.fire(self._proj, "turn", p.id, p.x, p.z, p.dx, p.dz, -1)
 			end
 		end
 		p.x += p.dx * step
@@ -687,7 +689,7 @@ function CombatService:_stepProj(p, dt: number, now: number)
 			target = enemies:Nearest(p.x, p.z, 90)
 			p.target = target
 			if target then
-				self._proj:FireAllClients("turn", p.id, p.x, p.z, p.dx, p.dz, target)
+				RunAudience.fire(self._proj, "turn", p.id, p.x, p.z, p.dx, p.dz, target)
 			end
 		end
 		if target then
@@ -748,7 +750,7 @@ function CombatService:Step(dt: number, now: number)
 			rec.nightAt = now + n.every
 			local base = (10 + self._xp:GetLevel() * 0.5) * rec.stats.Damage * n.mult * lights
 			self._enemies:DamageCircle(rec.x, rec.z, n.radius, base, rec, 0)
-			self._fx:FireAllClients("Burst", rec.x, rec.y, rec.z, n.radius, "night")
+			RunAudience.fire(self._fx, "Burst", rec.x, rec.y, rec.z, n.radius, "night")
 		end
 	end
 

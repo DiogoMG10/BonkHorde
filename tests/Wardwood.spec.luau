@@ -355,9 +355,13 @@ return {
 			end
 		end
 	end,
-	["each run draws one of five skies, evenly, and the lobby stays golden"] = function()
+	["each run draws one of five skies, evenly, and the island hub keeps its own"] = function()
 		local Wardwood = require("../src/shared/Config/Wardwood")
-		assert(Wardwood.Sky == "golden", "the lobby's sky is golden")
+		local Skyhold = require("../src/shared/Config/Skyhold")
+		assert(Skyhold.Sky == "skyhold", "the island hub wears its own sky (T6/T7)")
+		for _, entry in Wardwood.RunSkies do
+			assert(entry.name ~= Skyhold.Sky, "a run never draws the island's sky")
+		end
 		local want = { golden = true, clear = true, sunset = true, enchanted = true, night = true }
 		local counts = {}
 		for _, entry in Wardwood.RunSkies do

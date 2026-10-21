@@ -7,14 +7,20 @@
 --
 -- A run's end: Silver is paid and saved the moment it ends, then Victory or
 -- Wipe holds for a moment and Results follows. The squad goes back to the
--- lobby as soon as every player still here has pressed CONTINUE (T3,
+-- island as soon as every player still here has pressed CONTINUE (T3,
 -- Core/EndVote), or when the Results time runs out, whichever comes first.
+--
+-- T6: a server holds the island hub and at most one Wardwood run. A run starts
+-- only for the party that entered the portal (PartyService.Launch), and only
+-- that party hears it (server/RunAudience): its phase and clock, the horde, its
+-- sky and its results. Nobody joins a run once it is going. When it ends the
+-- party is handed back to the island together (RunEnded).
 
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
+local Signal = require(ReplicatedStorage.Packages.Signal)
 local EndVote = require(ReplicatedStorage.Shared.Core.EndVote)
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local Net = require(ReplicatedStorage.Shared.Net)
@@ -23,6 +29,8 @@ local Roster = require(ReplicatedStorage.Shared.Config.Roster)
 local RunState = require(ReplicatedStorage.Shared.Core.RunState)
 local SimClock = require(ReplicatedStorage.Shared.Core.SimClock)
 local Spawn = require(ReplicatedStorage.Shared.Core.Spawn)
+
+local RunAudience = require(script.Parent.Parent.RunAudience)
 
 local RunDirectorService = Knit.CreateService({ Name = "RunDirectorService" })
 
@@ -48,6 +56,11 @@ function RunDirectorService:KnitInit()
 	self._runId = 0 -- numbers each run, so a CONTINUE meant for one cannot touch the next
 	self._endVote = nil -- who has pressed CONTINUE on the results (Core/EndVote)
 	self._endSig = nil
+	self._members = {} -- the run's party, as it entered the portal
+	self._circle = nil -- the rune circle that party came from
+	self._sky = "golden" -- drawn at the start, worn by the run's players only
+	self._startedAt = 0
+	self.RunEnded = Signal.new() -- (players still here, circle): the party is back on the island
 	self._accum = 0
 	-- gameplay time: every simulation timestamp is taken from this, never from
 	-- os.clock(), so nothing comes due while the run is paused
@@ -78,22 +91,11 @@ function RunDirectorService:KnitStart()
 	self._enemies.Killed:Connect(function()
 		self._kills += 1
 	end)
-	self._party.ReadyChanged:Connect(function(player, ready)
-		if ready and RunState.isLive(self._phase) and not self._players:Get(player) then
-			self:_lateJoin(player)
+	-- a party's countdown on the island is over: into the Wardwood
+	self._party.Launch:Connect(function(players, circle)
+		if not self:StartRun(players, circle) then
+			self._party:LaunchFailed(circle)
 		end
-	end)
-	Players.PlayerAdded:Connect(function(player)
-		task.delay(1.5, function()
-			if player.Parent == Players then
-				self:_sendPhase(player)
-				if RunState.isLive(self._phase) then
-					self._enemies:SendAllTo(player)
-					self._interactables:SendAll(player)
-					self._xp:Broadcast()
-				end
-			end
-		end)
 	end)
 	-- CONTINUE on the results: counted once, for the run it names, from a player
 	-- who was in that run; the frame below sends the squad home when all have
@@ -132,6 +134,42 @@ end
 
 function RunDirectorService:IsPaused(): boolean
 	return self._paused
+end
+
+--- Is the server's one Wardwood run taken (starting, going or ending)?
+function RunDirectorService:IsRunActive(): boolean
+	return self._phase ~= RunState.Lobby
+end
+
+--- What the island shows about the run, or nil when there is none.
+function RunDirectorService:RunInfo()
+	if self._phase == RunState.Lobby then
+		return nil
+	end
+	local members = {}
+	for _, player in self._members do
+		table.insert(members, player.UserId)
+	end
+	return { circle = self._circle, members = members, phase = self._phase, since = os.clock() - self._startedAt }
+end
+
+--- Take `players` (a party from rune circle `circle`) into the Wardwood. False
+--- when the run is taken or the Wardwood is not ready yet.
+function RunDirectorService:StartRun(players: { Player }, circle: number): boolean
+	if self._phase ~= RunState.Lobby or #players == 0 or not self._mapService:IsTerrainReady() then
+		return false
+	end
+	self._members = table.clone(players)
+	self._circle = circle
+	RunAudience.set(players)
+	self:_startRun()
+	if self._phase == RunState.Lobby then
+		RunAudience.clear()
+		self._members = {}
+		self._circle = nil
+		return false
+	end
+	return true
 end
 
 --- Gameplay time in seconds. Anything that acts outside the simulation tick
@@ -190,7 +228,7 @@ function RunDirectorService:PortalUsed(it)
 		self:_sendPhase(nil)
 	elseif self._bossDead and not self._exitAt then
 		self._exitAt = self:Now() + GameConfig.ExitCountdownSeconds
-		self._banner:FireAllClients(`Leaving in {GameConfig.ExitCountdownSeconds}...`, "exit")
+		RunAudience.fire(self._banner, `Leaving in {GameConfig.ExitCountdownSeconds}...`, "exit")
 	end
 end
 
@@ -202,7 +240,7 @@ function RunDirectorService:BossDied()
 	if portal then
 		self._interactables:SetState(portal, "exit")
 	end
-	self._banner:FireAllClients("BOSS BONKED", "win")
+	RunAudience.fire(self._banner, "BOSS BONKED", "win")
 	self:_sendPhase(nil)
 end
 
@@ -231,6 +269,7 @@ function RunDirectorService:_payload()
 		paused = self._paused,
 		kills = self._kills,
 		map = self._party:GetMap(),
+		sky = self._sky,
 		quests = RunState.quests(self._portalFound, self._bossSummoned, self._bossDead),
 		portal = if self._portalFound then self:_portalPos() else nil,
 	}
@@ -249,7 +288,7 @@ end
 
 local function presentIds(): { number }
 	local ids = {}
-	for _, player in Players:GetPlayers() do
+	for _, player in RunAudience.list() do
 		table.insert(ids, player.UserId)
 	end
 	return ids
@@ -274,19 +313,19 @@ function RunDirectorService:_sendReady()
 		return
 	end
 	self._endSig = sig
-	self._resultsReady:FireAllClients({ run = vote.run, ready = EndVote.readyList(vote, present), need = need })
+	RunAudience.fire(self._resultsReady, { run = vote.run, ready = EndVote.readyList(vote, present), need = need })
 end
 
 function RunDirectorService:_sendPhase(player: Player?)
 	if player then
 		self._phaseEvent:FireClient(player, self:_payload())
 	else
-		self._phaseEvent:FireAllClients(self:_payload())
+		RunAudience.fire(self._phaseEvent, self:_payload())
 	end
 end
 
 function RunDirectorService:_sendClock()
-	self._clockEvent:FireAllClients(self._clock, self._tier, self._paused, self._kills)
+	RunAudience.fire(self._clockEvent, self._clock, self._tier, self._paused, self._kills)
 end
 
 function RunDirectorService:_startRun()
@@ -319,25 +358,14 @@ function RunDirectorService:_startRun()
 	self._bosses:Reset()
 	self._xp:Reset()
 	self._interactables:Place()
-	local sky = self._mapService:DrawRunSky()
-	self._players:BeginRun(self._party:GetPlayers())
+	self._sky = self._mapService:DrawRunSky()
+	self._startedAt = os.clock()
+	self._players:BeginRun(self._members)
 	self._phaseUntil = os.clock() + GameConfig.IntroSeconds
 	self:_sendPhase(nil)
 	local map = Roster.Maps[self._party:GetMap()]
-	self._banner:FireAllClients(map.name, "stage", map.joke)
-	print(`[RunDirectorService] run started with {#self._party:GetPlayers()} player(s), sky {sky}`)
-end
-
-function RunDirectorService:_lateJoin(player: Player)
-	self._players:JoinRun(player)
-	self._enemies:SendAllTo(player)
-	self._interactables:SendAll(player)
-	local rec = self._players:Get(player)
-	local catchUp = math.floor((self._xp:GetLevel() - 1) * GameConfig.LateJoinLevelFraction)
-	if rec and catchUp > 0 then
-		self._upgrades:QueueFor(rec, catchUp)
-	end
-	self:_sendPhase(player)
+	RunAudience.fire(self._banner, map.name, "stage", map.joke)
+	print(`[RunDirectorService] run started with {#self._members} player(s) from circle {self._circle}, sky {self._sky}`)
 end
 
 function RunDirectorService:_endRun(victory: boolean)
@@ -381,7 +409,7 @@ function RunDirectorService:_endRun(victory: boolean)
 	end
 	self._endVote = EndVote.new(self._runId, members)
 	self._endSig = nil
-	self._results:FireAllClients({
+	RunAudience.fire(self._results, {
 		run = self._runId,
 		victory = victory,
 		kills = self._kills,
@@ -400,6 +428,7 @@ function RunDirectorService:_endRun(victory: boolean)
 	self._phaseUntil = os.clock() + c.EndHoldSeconds
 end
 
+--- The run is over: the party goes back to the island, together.
 function RunDirectorService:_toLobby()
 	self._enemies:Clear()
 	self._combat:Reset()
@@ -407,15 +436,22 @@ function RunDirectorService:_toLobby()
 	self._upgrades:Reset()
 	self._bosses:Reset()
 	self._interactables:Clear()
-	self._mapService:LobbySky()
 	self._players:EndRun()
-	self._party:ClearReady()
 	table.clear(self._pauses)
 	self._paused = false
 	self._endVote = nil
 	self._endSig = nil
 	self._phase = RunState.Lobby
-	self:_sendPhase(nil)
+	self:_sendPhase(nil) -- the last word the party hears from this run
+	local back = RunAudience.list()
+	local circle = self._circle
+	RunAudience.clear()
+	self._members = {}
+	self._circle = nil
+	if circle then
+		self._party:RunEnded(circle)
+	end
+	self.RunEnded:Fire(back, circle)
 end
 
 -- ------------------------------------------------------------------ the frame
@@ -430,10 +466,7 @@ function RunDirectorService:_frame(dt: number)
 	self._pause:Step(now)
 
 	if phase == RunState.Lobby then
-		if self._party:AllReady() then
-			self:_startRun()
-		end
-		return
+		return -- a run starts only when a party enters the portal (StartRun)
 	elseif phase == RunState.Intro then
 		if now >= self._phaseUntil then
 			self:_setPhase(RunState.Playing)
@@ -493,7 +526,7 @@ function RunDirectorService:_tick(dt: number, now: number)
 
 	if self._phase == RunState.Playing and self._clock >= c.StageSeconds then
 		self:_setPhase(RunState.Overtime)
-		self._banner:FireAllClients("FINAL HORDE INCOMING!", "alarm")
+		RunAudience.fire(self._banner, "FINAL HORDE INCOMING!", "alarm")
 	end
 	local tier = Spawn.overtimeTier(self._clock - c.StageSeconds, c.OvertimeTierSeconds)
 	if tier ~= self._tier then

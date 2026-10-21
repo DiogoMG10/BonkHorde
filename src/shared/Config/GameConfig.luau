@@ -6,7 +6,7 @@
 -- what makes a balance pass a data edit.
 
 local GameConfig = {
-	BuildStamp = "bonk-0.22.0-t3",
+	BuildStamp = "bonk-0.23.0-t6t7",
 
 	-- squad
 	MaxPlayers = 3,
@@ -186,7 +186,6 @@ local GameConfig = {
 	UpgradeMaxLevel = 20, -- every weapon and tome stops here, and every stackable item at this many
 	MaxedOutGold = 15, -- what a level-up, chest or pick with nothing left to give pays instead
 	SkipGold = 5,
-	LateJoinLevelFraction = 0.75,
 
 	-- economy
 	GoldDropChance = 0.5,

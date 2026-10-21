@@ -1,0 +1,212 @@
+{
+ "source": "tools/art/skyhold.py",
+ "blend": "assets/art/skyhold_kit.blend",
+ "assets": {
+  "IslandRock": {
+   "tris": 11968,
+   "parts": 3,
+   "colliders": 0
+  },
+  "IsletRock": {
+   "tris": 2979,
+   "parts": 3,
+   "colliders": 0
+  },
+  "FloatIsleA": {
+   "tris": 1606,
+   "parts": 4,
+   "colliders": 0
+  },
+  "FloatIsleB": {
+   "tris": 1636,
+   "parts": 4,
+   "colliders": 0
+  },
+  "FloatIsleC": {
+   "tris": 1524,
+   "parts": 4,
+   "colliders": 0
+  },
+  "CloudA": {
+   "tris": 2214,
+   "parts": 1,
+   "colliders": 0
+  },
+  "CloudB": {
+   "tris": 3108,
+   "parts": 1,
+   "colliders": 0
+  },
+  "CloudC": {
+   "tris": 2978,
+   "parts": 1,
+   "colliders": 0
+  },
+  "CloudD": {
+   "tris": 2808,
+   "parts": 1,
+   "colliders": 0
+  },
+  "FarPeak": {
+   "tris": 3280,
+   "parts": 1,
+   "colliders": 0
+  },
+  "Falls": {
+   "tris": 236,
+   "parts": 1,
+   "colliders": 0
+  },
+  "Portal": {
+   "tris": 8996,
+   "parts": 9,
+   "colliders": 7
+  },
+  "RuneStone": {
+   "tris": 156,
+   "parts": 2,
+   "colliders": 0
+  },
+  "Plaza": {
+   "tris": 10644,
+   "parts": 3,
+   "colliders": 1
+  },
+  "RuneCircle": {
+   "tris": 1746,
+   "parts": 8,
+   "colliders": 1
+  },
+  "HeroPlinth": {
+   "tris": 300,
+   "parts": 4,
+   "colliders": 2
+  },
+  "Colonnade": {
+   "tris": 2770,
+   "parts": 1,
+   "colliders": 11
+  },
+  "HallFloor": {
+   "tris": 4398,
+   "parts": 1,
+   "colliders": 1
+  },
+  "Brazier": {
+   "tris": 128,
+   "parts": 2,
+   "colliders": 1
+  },
+  "Stairs": {
+   "tris": 352,
+   "parts": 1,
+   "colliders": 3
+  },
+  "RuinWallLong": {
+   "tris": 968,
+   "parts": 1,
+   "colliders": 1
+  },
+  "RuinWallShort": {
+   "tris": 264,
+   "parts": 1,
+   "colliders": 1
+  },
+  "RuinWallLow": {
+   "tris": 220,
+   "parts": 1,
+   "colliders": 1
+  },
+  "TrophyWall": {
+   "tris": 364,
+   "parts": 1,
+   "colliders": 5
+  },
+  "Lantern": {
+   "tris": 124,
+   "parts": 3,
+   "colliders": 1
+  },
+  "Bench": {
+   "tris": 172,
+   "parts": 2,
+   "colliders": 1
+  },
+  "StallTeal": {
+   "tris": 472,
+   "parts": 2,
+   "colliders": 1
+  },
+  "StallCoral": {
+   "tris": 472,
+   "parts": 2,
+   "colliders": 1
+  },
+  "StallSaffron": {
+   "tris": 472,
+   "parts": 2,
+   "colliders": 1
+  },
+  "Barrels": {
+   "tris": 180,
+   "parts": 1,
+   "colliders": 0
+  },
+  "BannerTeal": {
+   "tris": 168,
+   "parts": 2,
+   "colliders": 1
+  },
+  "BannerSaffron": {
+   "tris": 168,
+   "parts": 2,
+   "colliders": 1
+  },
+  "FlowersWhite": {
+   "tris": 576,
+   "parts": 2,
+   "colliders": 0
+  },
+  "FlowersPink": {
+   "tris": 576,
+   "parts": 2,
+   "colliders": 0
+  },
+  "FlowersBlue": {
+   "tris": 576,
+   "parts": 2,
+   "colliders": 0
+  },
+  "FlowersGold": {
+   "tris": 576,
+   "parts": 2,
+   "colliders": 0
+  },
+  "Telescope": {
+   "tris": 120,
+   "parts": 2,
+   "colliders": 0
+  },
+  "LookoutRail": {
+   "tris": 1288,
+   "parts": 1,
+   "colliders": 6
+  },
+  "Bridge": {
+   "tris": 1356,
+   "parts": 2,
+   "colliders": 24
+  },
+  "Bunting": {
+   "tris": 908,
+   "parts": 2,
+   "colliders": 0
+  },
+  "FarPeakRock": {
+   "tris": 1455,
+   "parts": 1,
+   "colliders": 0
+  },
+  "_total_tris": 75302
+ }
+}

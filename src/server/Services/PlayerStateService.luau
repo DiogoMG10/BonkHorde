@@ -8,7 +8,6 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Workspace = game:GetService("Workspace")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
 local Damage = require(ReplicatedStorage.Shared.Core.Damage)
@@ -20,6 +19,9 @@ local Progress = require(ReplicatedStorage.Shared.Core.Progress)
 local Roster = require(ReplicatedStorage.Shared.Config.Roster)
 local Signal = require(ReplicatedStorage.Packages.Signal)
 local Stats = require(ReplicatedStorage.Shared.Core.Stats)
+
+local HeroDress = require(script.Parent.Parent.HeroDress)
+local RunAudience = require(script.Parent.Parent.RunAudience)
 
 local PlayerStateService = Knit.CreateService({ Name = "PlayerStateService" })
 
@@ -130,21 +132,16 @@ end
 
 -- ------------------------------------------------------------------ run lifecycle
 
+--- A run's start: a record and a fresh hero in the Wardwood for each of the
+--- party's players (nobody joins a run once it is going, T6).
 function PlayerStateService:BeginRun(players: { Player })
 	self:EndRun()
 	for _, player in players do
-		self:_join(player, false)
+		self:_join(player)
 	end
 end
 
---- Add one player to a run already in progress.
-function PlayerStateService:JoinRun(player: Player)
-	if not self._recs[player] then
-		self:_join(player, true)
-	end
-end
-
-function PlayerStateService:_join(player: Player, late: boolean)
+function PlayerStateService:_join(player: Player)
 	local index = self._party:IndexOf(player)
 	local rec = newRecord(player, index, self._party:GetHero(player))
 	self._recs[player] = rec
@@ -158,14 +155,16 @@ function PlayerStateService:_join(player: Player, late: boolean)
 	rec.hp = rec.stats.MaxHP
 	rec.shield = rec.stats.Shield
 	task.spawn(function()
-		self:_spawnCharacter(rec, late)
+		self:_spawnCharacter(rec)
 	end)
 end
 
-function PlayerStateService:_spawnCharacter(rec, late: boolean)
+function PlayerStateService:_spawnCharacter(rec)
 	local player = rec.player
+	local at = self._map:SpawnPoint(rec.index)
 	local ok, err = pcall(function()
 		player.ReplicationFocus = nil -- follow the hero from here on
+		player:RequestStreamAroundAsync(at, 4)
 		player:LoadCharacter()
 	end)
 	if not ok then
@@ -173,7 +172,7 @@ function PlayerStateService:_spawnCharacter(rec, late: boolean)
 		return
 	end
 	local character = player.Character
-	if not character then
+	if not character or not rec.active then
 		return
 	end
 	local humanoid = character:WaitForChild("Humanoid", 5)
@@ -181,113 +180,20 @@ function PlayerStateService:_spawnCharacter(rec, late: boolean)
 	if not humanoid or not root then
 		return
 	end
-	humanoid.BreakJointsOnDeath = false
-	humanoid:SetStateEnabled(Enum.HumanoidStateType.Dead, false)
-	humanoid.UseJumpPower = false
-	humanoid.MaxHealth = 100
-	humanoid.Health = 100
-	humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
-	local health = character:FindFirstChild("Health")
-	if health then
-		health:Destroy() -- Roblox's regen script; HP lives in this service
-	end
-	local okDress, errDress = pcall(function()
-		self:_dress(rec, character, humanoid, root)
-	end)
+	HeroDress.prepare(character, humanoid)
+	local okDress, height = pcall(HeroDress.dress, character, rec.hero)
 	if not okDress then
-		warn(`[PlayerStateService] hero dressing failed, playing as the avatar: {errDress}`)
-	end
-	local at = self._map:SpawnPoint(rec.index)
-	if late then
-		-- drop in beside whoever is still standing
-		for _, other in self._list do
-			if other ~= rec and not other.downed then
-				at = Vector3.new(other.x + 4, other.y + 3, other.z + 4)
-				break
-			end
-		end
+		warn(`[PlayerStateService] hero dressing failed, playing as the avatar: {height}`)
+	elseif height then
+		rec.rootHeight = height -- root above feet, for contact and camping
 	end
 	character:PivotTo(CFrame.new(at))
 	rec.x, rec.y, rec.z = at.X, at.Y, at.Z
 	self:_applyMovement(rec)
 end
 
--- which avatar limb each piece of a hero model rides on, so the avatar's own
--- animations move the hero
-local HERO_LIMB = {
-	Body = "UpperTorso",
-	Head = "Head",
-	ArmL = "LeftUpperArm",
-	ArmR = "RightUpperArm",
-	LegL = "LeftUpperLeg",
-	LegR = "RightUpperLeg",
-}
-
--- Turn the player's avatar into the chosen hero: hide the avatar, then weld each
--- piece of ReplicatedStorage.Assets.Heroes.Hero<Id> to the matching limb, and
--- the starting weapon to the right hand. Without a hero model the avatar stays.
-function PlayerStateService:_dress(rec, character: Model, humanoid: Humanoid, root: BasePart)
-	local assets = ReplicatedStorage:FindFirstChild("Assets")
-	local template = assets and assets:FindFirstChild("Heroes") and assets.Heroes:FindFirstChild("Hero" .. rec.hero)
-	if not template then
-		return
-	end
-	humanoid:RemoveAccessories()
-	for _, d in character:GetDescendants() do
-		if d:IsA("BasePart") then
-			d.Transparency = 1
-		elseif d:IsA("Decal") or d:IsA("Shirt") or d:IsA("Pants") or d:IsA("ShirtGraphic") or d:IsA("CharacterMesh") then
-			d:Destroy()
-		end
-	end
-
-	local hero = template:Clone()
-	local _, size = hero:GetBoundingBox()
-	hero:ScaleTo(GameConfig.HeroHeight / math.max(size.Y, 0.1))
-	local _, scaled = hero:GetBoundingBox()
-	-- stand the model where the avatar stands: feet on the floor under the root
-	local feet = root.Position.Y - humanoid.HipHeight - root.Size.Y / 2
-	rec.rootHeight = humanoid.HipHeight + root.Size.Y / 2 -- root above feet, for contact and camping
-	hero:PivotTo(CFrame.new(root.Position.X, feet + scaled.Y / 2, root.Position.Z) * root.CFrame.Rotation)
-	for _, part in hero:GetChildren() do
-		if part:IsA("BasePart") and part.Name ~= "Root" then
-			local limb = character:FindFirstChild(HERO_LIMB[part.Name] or "UpperTorso") or root
-			part.Anchored = false
-			part.CanCollide = false
-			part.CanQuery = false
-			part.CanTouch = false
-			part.Massless = true
-			local weld = Instance.new("Weld")
-			weld.Part0 = limb
-			weld.Part1 = part
-			weld.C0 = limb.CFrame:ToObjectSpace(part.CFrame)
-			weld.Parent = part
-			part.Parent = character
-		end
-	end
-	hero:Destroy()
-
-	local weaponTemplate = assets:FindFirstChild("Weapons") and assets.Weapons:FindFirstChild("Weapon" .. rec.heroDef.weapon)
-	local hand = character:FindFirstChild("RightHand")
-	local mesh = weaponTemplate and weaponTemplate:FindFirstChild("Body")
-	if hand and mesh then
-		local weapon = mesh:Clone()
-		weapon.Name = "HeldWeapon"
-		weapon.Anchored = false
-		weapon.CanCollide = false
-		weapon.CanQuery = false
-		weapon.CanTouch = false
-		weapon.Massless = true
-		local weld = Instance.new("Weld")
-		weld.Part0 = hand
-		weld.Part1 = weapon
-		-- gripped a third of the way up, pointing forward and up out of the fist
-		weld.C0 = CFrame.new(0, -0.2, -weapon.Size.Y * 0.3) * CFrame.Angles(math.rad(-90), 0, 0)
-		weld.Parent = weapon
-		weapon.Parent = character
-	end
-end
-
+--- A run's end: every hero leaves the Wardwood. The party's players get their
+--- hub character back from HubService.
 function PlayerStateService:EndRun()
 	for _, rec in self._list do
 		rec.active = false
@@ -295,7 +201,6 @@ function PlayerStateService:EndRun()
 		if character then
 			character:Destroy()
 			rec.player.Character = nil
-			rec.player.ReplicationFocus = Workspace:FindFirstChild("LobbyFocus") -- keep the clearing streamed in behind the menu
 		end
 	end
 	table.clear(self._list)
@@ -617,7 +522,7 @@ function PlayerStateService:Hurt(rec, amount: number, sourceSlot: number?, now: 
 		rec.mirrorAt = now + n.cooldown
 		rec.invulnUntil = now + n.invuln
 		self._enemies:DamageCircle(rec.x, rec.z, n.radius, landed * n.mult * mirrors, rec, 0, true)
-		Net.server("Fx"):FireAllClients("Burst", rec.x, rec.y, rec.z, n.radius, "mirror")
+		RunAudience.fire(Net.server("Fx"), "Burst", rec.x, rec.y, rec.z, n.radius, "mirror")
 	end
 
 	if rec.hp <= 0 then
@@ -742,7 +647,7 @@ function PlayerStateService:Flush(now: number)
 				downed = rec.downed,
 			})
 		end
-		self._squadEvent:FireAllClients(squad)
+		RunAudience.fire(self._squadEvent, squad)
 	end
 end
 

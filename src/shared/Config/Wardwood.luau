@@ -4,11 +4,9 @@
 -- tint. Plain numbers, so the headless tools can load it.
 
 local Wardwood = {
-	-- the lobby's sky: "golden", "clear", "dusk", "sunset", "night" or
-	-- "enchanted" (server/Wardwood/Look; `sky <name>` in BonkDev compares them)
-	Sky = "golden",
-	-- each run draws its sky from these, by weight, once at its start; the
-	-- whole squad shares it (MapService:DrawRunSky)
+	-- each run draws its sky from these (shared/Look), by weight, once at its
+	-- start; the whole squad wears it, and nobody on the island hub sees it
+	-- (MapService:DrawRunSky, SkyController; `sky <name>` in BonkDev compares them)
 	RunSkies = {
 		{ name = "golden", weight = 1 },
 		{ name = "clear", weight = 1 },

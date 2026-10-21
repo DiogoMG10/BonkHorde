@@ -32,6 +32,7 @@ local ArtController = Knit.CreateController({ Name = "ArtController" })
 
 local LOD = Wardwood.ArtLod
 local TREE_EVERY = 0.2 -- seconds between detail checks
+local HIDE_BEYOND = 1500 -- studs from the Wardwood's centre: past this its art is put away
 local SWAPS_PER_TICK = 60
 local SUFFIX = { [0] = "", [1] = "_LOD", [2] = "_FAR" }
 
@@ -94,6 +95,18 @@ function ArtController:KnitStart()
 			treeT += dt
 			local camera = Workspace.CurrentCamera
 			if not camera then
+				return
+			end
+			-- far from the Wardwood (on the island hub, T6/T7) none of it is drawn
+			local at = camera.CFrame.Position
+			local away = at.X * at.X + at.Z * at.Z > HIDE_BEYOND * HIDE_BEYOND
+			if away ~= self._away then
+				self._away = away
+				if self._folder then
+					self._folder.Parent = if away then nil else Workspace
+				end
+			end
+			if away then
 				return
 			end
 			if treeT >= TREE_EVERY then

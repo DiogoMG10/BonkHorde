@@ -593,11 +593,15 @@ function OverlayController:_start()
 			return
 		end
 		acc = 0
-		-- only while the horde is live: the death screen and the results have
-		-- their own buttons, and these would sit on top of them
+		-- while the horde is live (the death screen and the results have their
+		-- own buttons, and these would sit on top of them), and on the island
+		-- hub, where only moving and the menu apply (its prompts are tappable)
 		local inRun = state:IsLive() and state.me ~= nil and state:Root() ~= nil
-		local visible = inRun and not self._menuMode and not self._choices:IsOpen()
+		local onIsland = state:OnIsland() and state:Root() ~= nil
+		local visible = (inRun or onIsland) and not self._menuMode and not self._choices:IsOpen()
 		UiKit.show(touch, visible)
+		UiKit.show(interactButton, inRun)
+		UiKit.show(tabButton, inRun)
 		if not visible then
 			if self._jumpHeld then
 				self._jumpHeld = false

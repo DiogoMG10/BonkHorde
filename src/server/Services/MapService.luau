@@ -12,6 +12,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
+local Signal = require(ReplicatedStorage.Packages.Signal)
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local MapGen = require(ReplicatedStorage.Shared.Core.MapGen)
 local Wardwood = require(ReplicatedStorage.Shared.Config.Wardwood)
@@ -20,7 +21,8 @@ local World = require(ReplicatedStorage.Shared.Core.World)
 local Builder = require(script.Parent.Parent.Wardwood.Builder)
 local ArtKit = require(script.Parent.Parent.Wardwood.ArtKit)
 local ArtPlan = require(ReplicatedStorage.Shared.Core.ArtPlan)
-local Look = require(script.Parent.Parent.Wardwood.Look)
+local Look = require(ReplicatedStorage.Shared.Look)
+local Skyhold = require(ReplicatedStorage.Shared.Config.Skyhold)
 
 local MapService = Knit.CreateService({ Name = "MapService" })
 
@@ -35,9 +37,12 @@ function MapService:KnitInit()
 	self._props = self._world.props
 	self._reach = MapGen.reachable(self._map, 0, 0, GameConfig.CliffSlope)
 	self._terrainReady = false
+	-- the Wardwood's terrain was (re)written; it clears all terrain first, so
+	-- the island hub writes its own again after it (HubService)
+	self.TerrainWritten = Signal.new()
+	self._artReady = false -- the kit's templates are baked (the island hub uses its trees too)
 	self._grass = Wardwood.Grass
 	self._rng = Random.new()
-	self._skyWhy = "lobby"
 	-- the prop kinds the M3.B art kit dresses; a kind falls back to its old
 	-- models if one of its variations will not bake
 	self._art = Wardwood.Art
@@ -105,12 +110,17 @@ function MapService:GetWorld()
 end
 
 function MapService:KnitStart()
-	Look.apply()
+	-- the server's light never changes after this: every client wears the sky
+	-- of where it is (SkyController), so a run cannot darken the island hub
+	Look.apply(Skyhold.Sky)
 	self:_publishArt()
 	if self._art then
 		task.spawn(function()
 			self:_bakeArt()
+			self._artReady = true
 		end)
+	else
+		self._artReady = true
 	end
 	task.spawn(function()
 		local ok, err = pcall(function()
@@ -155,35 +165,11 @@ function MapService:SetGrass(mode: string)
 	self:_writeTerrain()
 end
 
---- Put one of Look.Skies over the map; false for an unknown name. `why` is
---- what the `sky` dev command reports (lobby, drawn for this run, set by hand).
-function MapService:SetSky(name: string, why: string): boolean
-	if not Look.sky(name) then
-		return false
-	end
-	self._skyWhy = why
-	return true
-end
-
---- The sky in use, and why.
-function MapService:Sky(): (string?, string)
-	return Look.current(), self._skyWhy
-end
-
---- A run's start: draw its sky from Wardwood.RunSkies. Only the light
---- changes; the terrain and the scenery stay as they are.
+--- A run's start: draw its sky from Wardwood.RunSkies. Nothing changes here:
+--- the run's players wear it (the Phase message carries it to them).
 function MapService:DrawRunSky(): string
 	local name = Wardwood.runSky(self._rng:NextNumber())
-	if not self:SetSky(name, "drawn for this run") then
-		name = Wardwood.Sky
-		self:SetSky(name, "lobby")
-	end
-	return name
-end
-
---- Back in the lobby: its own sky again.
-function MapService:LobbySky()
-	self:SetSky(Wardwood.Sky, "lobby")
+	return if Look.Skies[name] then name else "golden"
 end
 
 function MapService:GetAnchors()
@@ -192,6 +178,11 @@ end
 
 function MapService:IsTerrainReady(): boolean
 	return self._terrainReady
+end
+
+--- Have the art kit's templates finished baking (ReplicatedStorage.WardwoodArt)?
+function MapService:IsArtReady(): boolean
+	return self._artReady
 end
 
 function MapService:SpawnPoint(index: number): Vector3
@@ -260,6 +251,7 @@ function MapService:_writeTerrain()
 		end
 		task.wait()
 	end
+	self.TerrainWritten:Fire()
 end
 
 return MapService

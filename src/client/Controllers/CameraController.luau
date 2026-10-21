@@ -3,6 +3,11 @@
 --
 -- Third person, mouse-look: the camera orbits the hero, movement is relative to
 -- it, and the hero faces where they run. In menus and panels the mouse is free.
+--
+-- On the island hub (T6/T7) it is the same camera on the same hero. A plinth
+-- in the Hall of Heroes can borrow it (SetShot): it eases to that framing and
+-- back. With no hero yet (the first moments, or between a run and the island)
+-- it takes a slow wide look at Skyhold.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -12,6 +17,7 @@ local Workspace = game:GetService("Workspace")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
+local Skyhold = require(ReplicatedStorage.Shared.Config.Skyhold)
 
 local CameraController = Knit.CreateController({ Name = "CameraController" })
 
@@ -24,6 +30,17 @@ function CameraController:KnitInit()
 	self._lookTouch = nil
 	self._stick = Vector2.zero
 	self._distance = GameConfig.CameraDistance
+	self._shot = nil -- a borrowed framing (CFrame), eased to and from
+	self._blend = 0 -- 0 the hero's camera, 1 the borrowed shot
+	self._occluders = {} -- what the camera may not pass through, besides the terrain
+end
+
+--- Borrow the camera for a framed shot (a hero on a plinth), or give it back
+--- with nil. The mouse is free while it is borrowed.
+function CameraController:SetShot(cframe: CFrame?)
+	self._shot = cframe or self._shot
+	self._wantShot = cframe ~= nil
+	self:SetUiOpen("shot", cframe ~= nil)
 end
 
 --- Panels call this so the mouse is released while they are open.
@@ -89,6 +106,15 @@ function CameraController:KnitStart()
 	local rayParams = RaycastParams.new()
 	rayParams.FilterType = Enum.RaycastFilterType.Include
 	rayParams.FilterDescendantsInstances = { Workspace.Terrain }
+	-- the island's solid scenery (its colliders) stops the camera as the terrain does
+	task.spawn(function()
+		local island = Workspace:WaitForChild("Skyhold", 60)
+		local colliders = island and island:WaitForChild("Colliders", 30)
+		if colliders then
+			rayParams.FilterDescendantsInstances = { Workspace.Terrain, colliders }
+		end
+	end)
+	local origin = Vector3.new(Skyhold.Origin[1], Skyhold.Origin[2], Skyhold.Origin[3])
 
 	RunService:BindToRenderStep("BonkCamera", Enum.RenderPriority.Camera.Value + 1, function(dt)
 		local camera = Workspace.CurrentCamera
@@ -98,20 +124,20 @@ function CameraController:KnitStart()
 		-- a touch wider at bunny-hop speed, so momentum can be felt
 		camera.FieldOfView = GameConfig.CameraFOV + movement:SpeedFeel() * GameConfig.SpeedFovKick
 		local root = self._state:Root()
-		local inRun = root ~= nil and self._state.phase ~= "Lobby"
-		local wantLock = inRun and self._uiOpen == 0 and not UserInputService.TouchEnabled
+		local hasHero = root ~= nil
+		local wantLock = hasHero and self._uiOpen == 0 and not UserInputService.TouchEnabled
 		UserInputService.MouseBehavior = if wantLock then Enum.MouseBehavior.LockCenter else Enum.MouseBehavior.Default
 		UserInputService.MouseIconEnabled = not wantLock
 		camera.CameraType = Enum.CameraType.Scriptable
 
-		if not inRun then
-			-- lobby: look at the squad standing in the clearing, with a slow sway
-			local ground = self._state:HeightAt(0, 0)
-			local sway = math.sin(os.clock() * 0.25) * 1.2
-			local eye = Vector3.new(sway - 1.5, ground + 5.5, -12)
-			camera.FieldOfView = 50
-			camera.CFrame = CFrame.lookAt(eye, Vector3.new(0, ground + 4.2, 0))
-			camera.Focus = CFrame.new(0, ground + 3, 0)
+		if not hasHero then
+			-- no hero yet: a slow turn round Skyhold, its portal in the middle
+			local t = os.clock() * 0.03
+			local focus = origin + Vector3.new(0, 12, -40)
+			local eye = focus + Vector3.new(math.sin(t) * 230, 70, math.cos(t) * 230)
+			camera.FieldOfView = 55
+			camera.CFrame = CFrame.lookAt(eye, focus)
+			camera.Focus = CFrame.new(focus)
 			return
 		end
 
@@ -126,13 +152,36 @@ function CameraController:KnitStart()
 		if hit then
 			distance = math.max((hit.Position - focus).Magnitude - 1, 3)
 		end
-		camera.CFrame = CFrame.lookAt(focus + back * distance, focus)
+		local follow = CFrame.lookAt(focus + back * distance, focus)
+		-- a borrowed shot eases in and out over about half a second
+		local goal = if self._wantShot then 1 else 0
+		self._blend += math.clamp(goal - self._blend, -dt * 2.4, dt * 2.4)
+		local k = self._blend * self._blend * (3 - 2 * self._blend)
+		if k > 0 and self._shot then
+			camera.CFrame = follow:Lerp(self._shot, k)
+			camera.FieldOfView = camera.FieldOfView + (50 - camera.FieldOfView) * k
+		else
+			camera.CFrame = follow
+		end
 		camera.Focus = CFrame.new(focus)
 	end)
 
-	player.CharacterAdded:Connect(function()
-		self._yaw = math.rad(GameConfig.SpawnCameraYaw)
+	player.CharacterAdded:Connect(function(character)
 		self._pitch = math.rad(-18)
+		self._yaw = math.rad(GameConfig.SpawnCameraYaw)
+		if self._state:OnIsland() then
+			-- on the island: look the way the hero was set down facing
+			local root = character:WaitForChild("HumanoidRootPart", 5)
+			-- the server sets the hero down on the island a moment after it exists
+			local deadline = os.clock() + 2
+			while root and root.Parent and os.clock() < deadline and root.Position.Y < origin.Y - 60 do
+				task.wait()
+			end
+			if root then
+				local look = root.CFrame.LookVector
+				self._yaw = math.atan2(-look.X, -look.Z)
+			end
+		end
 	end)
 end
 

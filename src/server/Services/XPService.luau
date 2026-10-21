@@ -4,13 +4,14 @@
 -- XP is shared so a squad levels together: whoever picks up a gem, everyone gets
 -- the level, and everyone gets their own choice of upgrade.
 
-local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Progress = require(ReplicatedStorage.Shared.Core.Progress)
+
+local RunAudience = require(script.Parent.Parent.RunAudience)
 
 local XPService = Knit.CreateService({ Name = "XPService" })
 
@@ -41,7 +42,7 @@ function XPService:Reset()
 end
 
 function XPService:Broadcast()
-	self._event:FireAllClients(self._level, self._xp, self:Need())
+	RunAudience.fire(self._event, self._level, self._xp, self:Need())
 end
 
 --- Add XP collected by `rec` (their XP Gain applies). Queues a level-up choice
@@ -56,7 +57,7 @@ function XPService:Add(amount: number, rec)
 		self._upgrades:QueueAll(gained)
 		-- the fanfare for everyone but a finished build (they are at LVL MAX)
 		local fx = Net.server("Fx")
-		for _, player in Players:GetPlayers() do
+		for _, player in RunAudience.list() do
 			local mate = self._players:Get(player)
 			if not (mate and mate.complete) then
 				fx:FireClient(player, "LevelUp", level)

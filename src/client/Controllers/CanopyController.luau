@@ -48,6 +48,7 @@ function CanopyController:KnitInit()
 	self._where = {} -- part -> cell key
 	self._fading = {} -- part -> current fade (0 clear .. GHOST)
 	self._maxRadius = 8
+	self._watched = {} -- folders already watched (the tree folder leaves and returns, ArtController)
 end
 
 local function key(x: number, z: number): number
@@ -83,6 +84,10 @@ function CanopyController:_remove(part: Instance)
 end
 
 function CanopyController:_watch(map: Instance)
+	if self._watched[map] then
+		return
+	end
+	self._watched[map] = true
 	for _, d in map:GetDescendants() do
 		self:_add(d)
 	end

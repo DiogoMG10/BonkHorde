@@ -1,6 +1,7 @@
 --!nonstrict
 -- DataService - owns the persistent profile: silver, unlocked heroes, run counts,
--- best scores and the player's settings (volumes, enemy outlines: Core/Settings).
+-- best scores, the hero last chosen (T6/T7: the island hub dresses the player
+-- in it) and the player's settings (volumes, enemy outlines: Core/Settings).
 --
 -- If the load fails the player still plays, on defaults, with saving DISABLED for
 -- the session, so a blank profile can never overwrite a real one.
@@ -14,6 +15,7 @@ local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Roster = require(ReplicatedStorage.Shared.Config.Roster)
 local Settings = require(ReplicatedStorage.Shared.Core.Settings)
+local Signal = require(ReplicatedStorage.Packages.Signal)
 
 local DataService = Knit.CreateService({ Name = "DataService" })
 
@@ -31,6 +33,7 @@ local function blank()
 		unlocked = unlocked,
 		runs = {},
 		best = { kills = 0, time = 0 },
+		lastHero = nil, -- the hero last chosen at a plinth, when it is one still owned
 		settings = {},
 		devUnlocked = {}, -- Studio test unlocks: shown and playable, never saved
 		canSave = true,
@@ -40,6 +43,7 @@ end
 function DataService:KnitInit()
 	self._profiles = {}
 	self._settingsAt = {}
+	self.Loaded = Signal.new() -- (player): the profile is in (or the defaults, if it could not load)
 	self._profileEvent = Net.server("Profile")
 	local ok, store = pcall(function()
 		return DataStoreService:GetDataStore(GameConfig.DataStoreName)
@@ -119,6 +123,9 @@ function DataService:_load(player: Player)
 						profile.best.kills = tonumber(data.best.kills) or 0
 						profile.best.time = tonumber(data.best.time) or 0
 					end
+					if typeof(data.lastHero) == "string" and Roster.Heroes[data.lastHero] then
+						profile.lastHero = data.lastHero
+					end
 					profile.settings = Settings.clean(data.settings)
 				end
 				loaded = true
@@ -139,6 +146,7 @@ function DataService:_load(player: Player)
 	end
 	self._profiles[player] = profile
 	self:Push(player)
+	self.Loaded:Fire(player)
 end
 
 --- The profile for a player. Never nil for a connected player once loaded;
@@ -191,6 +199,21 @@ function DataService:Unlock(player: Player, heroId: string): boolean
 	return true
 end
 
+--- Remember the hero this player chose last (written by the next save).
+function DataService:SetLastHero(player: Player, heroId: string)
+	local p = self._profiles[player]
+	if p and Roster.Heroes[heroId] then
+		p.lastHero = heroId
+	end
+end
+
+--- The hero to dress this player in: the last one chosen, if still owned.
+function DataService:LastHero(player: Player): string
+	local p = self:Get(player)
+	local id = p.lastHero
+	return if id and p.unlocked[id] then id else Roster.HeroOrder[1]
+end
+
 --- Studio test hook (DevService): unlock a hero for this session only. It
 --- costs nothing and is left out of every save.
 function DataService:DevUnlock(player: Player, heroId: string): boolean
@@ -236,10 +259,12 @@ function DataService:Save(player: Player)
 			unlocked[id] = value
 		end
 	end
+	-- a hero only unlocked for a Studio session is not remembered either
+	local lastHero = if p.lastHero and not p.devUnlocked[p.lastHero] then p.lastHero else nil
 	local ok, err = pcall(function()
 		self._store:SetAsync(
 			"u" .. player.UserId,
-			{ silver = p.silver, unlocked = unlocked, runs = p.runs, best = p.best, settings = p.settings }
+			{ silver = p.silver, unlocked = unlocked, runs = p.runs, best = p.best, lastHero = lastHero, settings = p.settings }
 		)
 	end)
 	if not ok then

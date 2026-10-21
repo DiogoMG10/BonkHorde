@@ -91,7 +91,7 @@ function DebugUiController:KnitStart()
 
 	-- Until the real screens are wired, keep them out of the way of this one.
 	if not player.PlayerGui:GetAttribute("BonkRealUi") then
-		for _, name in { "Hud", "Choices", "Menu", "EndScreens", "Overlay" } do
+		for _, name in { "Hud", "Choices", "EndScreens", "Overlay" } do
 			task.spawn(function()
 				local screen = player.PlayerGui:WaitForChild(name, 10)
 				if screen and screen:IsA("ScreenGui") then
@@ -250,7 +250,7 @@ function DebugUiController:KnitStart()
 
 	-- ---------------------------------------------------------------- lobby
 
-	local pickHero, setReady, unlockHero = Net.client("PickHero"), Net.client("SetReady"), Net.client("UnlockHero")
+	local pickHero, unlockHero = Net.client("PickHero"), Net.client("UnlockHero")
 	local function showLobby()
 		if state.phase ~= "Lobby" and state.me then
 			return
@@ -291,25 +291,14 @@ function DebugUiController:KnitStart()
 				})
 			end
 		end
-		local ready = mine and mine.ready
+		-- parties form at the rune circles on the island (T6/T7), not here
 		table.insert(entries, {
-			text = if ready then "READY (waiting for the squad) - click to cancel" else "READY UP",
-			colour = if ready then Color3.fromRGB(46, 158, 76) else Color3.fromRGB(46, 127, 209),
-			fn = function()
-				if setReady then
-					setReady:FireServer(not ready)
-				end
-			end,
+			text = "Walk to a rune circle before the portal to start a run",
+			colour = Color3.fromRGB(46, 127, 209),
 		})
-		local midRun = state.phase ~= "Lobby"
 		local silver = if profile then profile.silver else 0
 		local note = if profile and not profile.canSave then "  (progress will not save this session)" else ""
-		showList(
-			"lobby",
-			if midRun then "BONK HORDE: a run is in progress, pick a hero to drop in" else "BONK HORDE",
-			`Silver: {silver}{note}\nSquad: {table.concat(squad, "  |  ")}`,
-			entries
-		)
+		showList("lobby", "BONK HORDE", `Silver: {silver}{note}\nSquad: {table.concat(squad, "  |  ")}`, entries)
 	end
 
 	-- ---------------------------------------------------------------- offers and panels

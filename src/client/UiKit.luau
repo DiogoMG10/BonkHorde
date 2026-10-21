@@ -26,7 +26,7 @@ local playerGui = player:WaitForChild("PlayerGui")
 playerGui:SetAttribute("BonkRealUi", true)
 
 UiKit.DesignSize = Vector2.new(1920, 1080)
-UiKit.ScreenNames = { "Hud", "Choices", "Menu", "EndScreens", "Overlay" }
+UiKit.ScreenNames = { "Hud", "Choices", "EndScreens", "Overlay" }
 
 local function hex(code: string): Color3
 	return Color3.fromHex(code)

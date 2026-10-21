@@ -49,33 +49,40 @@ export type Mesh = {
 	tris: number,
 	pos: { number }, -- x, y, z per vertex, centred on the part's box
 	nrm: { number }, -- x, y, z per vertex
+	col: { number }?, -- r, g, b (0..1) per vertex, for parts packed with colours (`vc`)
 	idx: { number }, -- 0-based vertex ids, three per triangle
 	centre: { number }, -- the box centre, in the asset's own space
 	size: { number },
 }
 
 --- One packed part back into plain arrays (no Roblox types, so the specs can
---- check every asset headless).
+--- check every asset headless). A part packed with vertex colours (`vc`, the
+--- Skyhold kit) carries three more bytes per vertex.
 function ArtKit.decode(part): Mesh
 	local buf = unbase64(part.data)
 	local lo, hi = part.min, part.max
 	local centre = { (lo[1] + hi[1]) / 2, (lo[2] + hi[2]) / 2, (lo[3] + hi[3]) / 2 }
 	local span = { hi[1] - lo[1], hi[2] - lo[2], hi[3] - lo[3] }
+	local stride = if part.vc then 12 else 9
 	local pos = table.create(part.verts * 3)
 	local nrm = table.create(part.verts * 3)
+	local col = if part.vc then table.create(part.verts * 3) else nil
 	for i = 0, part.verts - 1 do
-		local o = i * 9
+		local o = i * stride
 		for k = 0, 2 do
 			pos[i * 3 + k + 1] = lo[k + 1] + buffer.readu16(buf, o + k * 2) / 65535 * span[k + 1] - centre[k + 1]
 			nrm[i * 3 + k + 1] = buffer.readi8(buf, o + 6 + k) / 127
+			if col then
+				col[i * 3 + k + 1] = buffer.readu8(buf, o + 9 + k) / 255
+			end
 		end
 	end
-	local base = part.verts * 9
+	local base = part.verts * stride
 	local idx = table.create(part.tris * 3)
 	for t = 0, part.tris * 3 - 1 do
 		idx[t + 1] = buffer.readu16(buf, base + t * 2)
 	end
-	return { verts = part.verts, tris = part.tris, pos = pos, nrm = nrm, idx = idx, centre = centre, size = span }
+	return { verts = part.verts, tris = part.tris, pos = pos, nrm = nrm, col = col, idx = idx, centre = centre, size = span }
 end
 
 -- ------------------------------------------------------------------ in the engine
@@ -89,17 +96,24 @@ function ArtKit.bakeMesh(mesh: Mesh, name: string, fidelity: Enum.RenderFidelity
 	local AssetService = game:GetService("AssetService")
 	local em = AssetService:CreateEditableMesh()
 	local vids, nids = table.create(mesh.verts), table.create(mesh.verts)
-	local pos, nrm = mesh.pos, mesh.nrm
+	local pos, nrm, col = mesh.pos, mesh.nrm, mesh.col
+	local cids = if col then table.create(mesh.verts) else nil
 	for i = 0, mesh.verts - 1 do
 		vids[i + 1] = em:AddVertex(Vector3.new(pos[i * 3 + 1], pos[i * 3 + 2], pos[i * 3 + 3]))
 		local n = Vector3.new(nrm[i * 3 + 1], nrm[i * 3 + 2], nrm[i * 3 + 3])
 		nids[i + 1] = em:AddNormal(if n.Magnitude > 0 then n.Unit else Vector3.new(0, 1, 0))
+		if col and cids then
+			cids[i + 1] = em:AddColor(Color3.new(col[i * 3 + 1], col[i * 3 + 2], col[i * 3 + 3]), 1)
+		end
 	end
 	local idx = mesh.idx
 	for t = 0, mesh.tris - 1 do
 		local a, b, c = idx[t * 3 + 1] + 1, idx[t * 3 + 2] + 1, idx[t * 3 + 3] + 1
 		local face = em:AddTriangle(vids[a], vids[b], vids[c])
 		em:SetFaceNormals(face, { nids[a], nids[b], nids[c] })
+		if cids then
+			em:SetFaceColors(face, { cids[a], cids[b], cids[c] })
+		end
 	end
 	-- bake it, so it reaches the clients and the editable copy can go
 	local okBake, result, baked = pcall(function()

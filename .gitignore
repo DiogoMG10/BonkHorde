@@ -33,3 +33,6 @@ work/tmp/
 work/art/*/
 work/art/*.png
 *.blend1
+
+# the island hub plan the Blender kit reads (lune run tools/art/skyhold_plan.luau)
+work/skyhold/

@@ -15,6 +15,8 @@ local Net = require(ReplicatedStorage.Shared.Net)
 local PauseVote = require(ReplicatedStorage.Shared.Core.PauseVote)
 local RunState = require(ReplicatedStorage.Shared.Core.RunState)
 
+local RunAudience = require(script.Parent.Parent.RunAudience)
+
 local PauseService = Knit.CreateService({ Name = "PauseService" })
 
 local CFG = {
@@ -66,13 +68,6 @@ function PauseService:KnitStart()
 		end
 	end)
 
-	Players.PlayerAdded:Connect(function(player)
-		task.delay(1.5, function()
-			if player.Parent == Players then
-				self:_send(player)
-			end
-		end)
-	end)
 	Players.PlayerRemoving:Connect(function(player)
 		self._lastMessage[player] = nil
 	end)
@@ -137,7 +132,7 @@ function PauseService:_send(player: Player?)
 	if player then
 		self._event:FireClient(player, self:_payload(player))
 	else
-		self._event:FireAllClients(self:_payload(nil))
+		RunAudience.fire(self._event, self:_payload(nil))
 	end
 end
 

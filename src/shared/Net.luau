@@ -20,16 +20,16 @@ local CLIENT_WAIT_TIMEOUT = 10
 -- S>C = server to client, C>S = client to server. Payload shapes are documented
 -- at the sending site and must match at all three ends (sender, relay, receiver).
 export type EventName =
-	-- lobby and profile
-	"Roster" -- S>C all: { players = { { userId, name, hero, ready, host } }, map }
+	-- the island hub, its parties and the profile (T6/T7)
+	"Roster" -- S>C all: { players = { { userId, name, hero, index, circle?, leader, ready } }, map, max }
+	| "Hub" -- S>C all: { circles = HubParty.snapshot, run = { circle, members, phase, clock }? }
+	| "PartyAction" -- C>S: action ("solo" | "squad" | "join" | "leave" | "prepare" | "cancel" | "ready" | "unready"), circle?
 	| "Profile" -- S>C owner: { silver, unlocked, runs, best, canSave, settings }
-	| "PickHero" -- C>S: heroId
-	| "PickMap" -- C>S: mapId (host only)
-	| "SetReady" -- C>S: boolean
+	| "PickHero" -- C>S: heroId (at a plinth; refused while READY or in a run)
 	| "UnlockHero" -- C>S: heroId
 	| "Settings" -- C>S: { master, music, sfx } volumes 0..1, kept in the profile
-	-- run state
-	| "Phase" -- S>C all: { phase, clock, tier, paused, kills, quests, map }
+	-- run state: every run message goes to the run's party only (server/RunAudience)
+	| "Phase" -- S>C run: { phase, clock, tier, paused, kills, quests, map, sky, members }
 	| "Clock" -- S>C all: clock seconds, tier, paused, kills
 	| "Banner" -- S>C all: text, style
 	| "Toast" -- S>C one/all: title, text
@@ -113,10 +113,10 @@ end
 --- client never waits on one that a late service has not made yet.
 Net.All = {
 	"Roster",
+	"Hub",
+	"PartyAction",
 	"Profile",
 	"PickHero",
-	"PickMap",
-	"SetReady",
 	"UnlockHero",
 	"Settings",
 	"Phase",

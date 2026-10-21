@@ -1,12 +1,17 @@
 --!nonstrict
--- Wardwood Look - the light over the Wardwood. Built in code so the place file
+-- Look - the light over the game's worlds. Built in code so the place file
 -- carries no hand-set lighting to drift out of step.
 --
--- Skies (the lobby wears Config/Wardwood.Sky, golden; each run draws one of
--- Wardwood.RunSkies, every one of these but dusk; `sky <name>` in
--- Workspace.BonkDev switches live in a Studio playtest). Lighting is set on the
--- server only, so it replicates: the whole squad, late joiners too, share it.
---   golden   the default: a late golden afternoon, warm low sun, cool teal
+-- The server builds the sky's instances once (Look.apply) and never changes
+-- them again; each client then wears the sky of where it is (SkyController,
+-- Look.sky): Skyhold's own on the island hub (T6/T7), and in the Wardwood the
+-- sky its run drew from Wardwood.RunSkies (every one of these but dusk and
+-- skyhold). So a party's run never changes the light over the players still on
+-- the island. `sky <name>` in Workspace.BonkDev overrides it for every client in
+-- a Studio playtest.
+--   skyhold  the island hub: a warm golden afternoon high above the clouds,
+--            clean bright air, a sun low enough for long soft shadows
+--   golden   a late golden afternoon, warm low sun, cool teal
 --            shade and distance, a soft haze that gives depth without fogging
 --            the fight
 --   clear    a bright fair-weather day: the sun higher, clean blue air, big
@@ -48,6 +53,22 @@ for key, s in Wardwood.Surfaces do
 end
 
 Look.Skies = {
+	skyhold = {
+		clock = 16.25,
+		brightness = 3.1,
+		ambient = rgb(92, 100, 110),
+		outdoor = rgb(138, 146, 150),
+		shiftTop = rgb(18, 11, 2),
+		shiftBottom = rgb(4, 10, 16),
+		exposure = 0.08,
+		sunSize = 15,
+		-- above the weather: little haze, a warm glow towards the sun
+		haze = { density = 0.18, offset = 0.06, color = rgb(222, 212, 190), decay = rgb(118, 160, 186), glare = 0.45, haze = 0.9 },
+		grade = { saturation = 0.12, contrast = 0.07, tint = rgb(255, 245, 228) },
+		bloom = 0.45,
+		rays = 0.08,
+		clouds = { cover = 0.4, density = 0.45, color = rgb(255, 240, 222) },
+	},
 	golden = {
 		clock = 16.6,
 		brightness = 2.6,
@@ -221,7 +242,9 @@ function Look.paint(grass: string?)
 	end
 end
 
-function Look.apply()
+--- Server: build the sky's instances and start under the sky `name` (every
+--- client then wears its own, Look.sky).
+function Look.apply(name: string)
 	for _, child in Lighting:GetChildren() do
 		if child:IsA("Sky") or child:IsA("Atmosphere") or child:IsA("PostEffect") or child:IsA("Clouds") then
 			child:Destroy()
@@ -263,7 +286,7 @@ function Look.apply()
 	end
 	Instance.new("Clouds").Parent = terrain
 
-	if not Look.sky(Wardwood.Sky) then
+	if not Look.sky(name) then
 		Look.sky("golden")
 	end
 

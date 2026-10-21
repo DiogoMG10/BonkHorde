@@ -16,6 +16,8 @@ local Net = require(ReplicatedStorage.Shared.Net)
 local Progress = require(ReplicatedStorage.Shared.Core.Progress)
 local Roster = require(ReplicatedStorage.Shared.Config.Roster)
 
+local RunAudience = require(script.Parent.Parent.RunAudience)
+
 local PickupService = Knit.CreateService({ Name = "PickupService" })
 
 local rng = Random.new()
@@ -150,17 +152,17 @@ function PickupService:_collect(id: number, item, rec, now: number)
 		end
 	elseif kind == "PowerupMagnet" then
 		self:Vacuum(rec, now)
-		self._fx:FireAllClients("Pickup", rec.index, "Magnet")
+		RunAudience.fire(self._fx, "Pickup", rec.index, "Magnet")
 	elseif kind == "PowerupSnack" then
 		for _, other in self._players:All() do
 			self._players:Heal(other, other.stats.MaxHP * GameConfig.SnackHealFraction * other.stats.PowerupMultiplier)
 		end
-		self._fx:FireAllClients("Pickup", rec.index, "Snack")
+		RunAudience.fire(self._fx, "Pickup", rec.index, "Snack")
 	elseif kind == "PowerupFrenzy" then
 		for _, other in self._players:All() do
 			other.frenzyUntil = now + GameConfig.FrenzySeconds * other.stats.PowerupMultiplier
 		end
-		self._fx:FireAllClients("Pickup", rec.index, "Frenzy")
+		RunAudience.fire(self._fx, "Pickup", rec.index, "Frenzy")
 	end
 end
 
@@ -229,7 +231,7 @@ function PickupService:FlushNet()
 				buffer.writeu16(b, o + 4, quantise(item.x, half))
 				buffer.writeu16(b, o + 6, quantise(item.z, half))
 			end
-			self._spawnEvent:FireAllClients(b)
+			RunAudience.fire(self._spawnEvent, b)
 		end
 	end
 	local taken = self._taken
@@ -242,7 +244,7 @@ function PickupService:FlushNet()
 			buffer.writeu8(b, o + 2, taken[i * 2])
 		end
 		table.clear(taken)
-		self._takenEvent:FireAllClients(b)
+		RunAudience.fire(self._takenEvent, b)
 	end
 end
 

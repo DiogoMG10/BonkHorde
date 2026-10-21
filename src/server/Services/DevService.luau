@@ -110,17 +110,21 @@ function DevService:KnitStart()
 		print(`[Dev] hop speed readout {if on then "on" else "off"}`)
 	end
 	function commands.sky(_, name)
-		local Look = require(script.Parent.Parent.Wardwood.Look)
-		if name and mapService:SetSky(name, "set by hand") then
-			print(`[Dev] sky {name}, until the next run draws its own`)
+		-- every client wears it, on the island and in a run, until `sky off`
+		local Look = require(ReplicatedStorage.Shared.Look)
+		if name == "off" then
+			Workspace:SetAttribute("BonkSky", nil)
+			print("[Dev] sky: each place wears its own again")
+		elseif name and Look.Skies[name] then
+			Workspace:SetAttribute("BonkSky", name)
+			print(`[Dev] sky {name} for every client (sky off to undo)`)
 		else
 			local names = {}
 			for key in Look.Skies do
 				table.insert(names, key)
 			end
 			table.sort(names)
-			local current, why = mapService:Sky()
-			print(`[Dev] sky is {current} ({why}); skies: {table.concat(names, ", ")}`)
+			print(`[Dev] sky override {Workspace:GetAttribute("BonkSky") or "none"}; skies: {table.concat(names, ", ")}`)
 		end
 	end
 	-- every tree's foliage, found once by its material and shape (moss bands are
