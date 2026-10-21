@@ -19,7 +19,7 @@ a dead label in play. `design/ui.json` holds the theme and the screen list;
 2. **Design at 1920x1080 in offset pixels**, anchored by scale to the nearest
    corner, edge or centre (AnchorPoint + scale position + offset size). The game
    adds one `UIScale` per ScreenGui at runtime, so do not use scale sizes.
-3. **Five ScreenGuis**, each one `.model.json` in `src/ui/`, each with
+3. **Six ScreenGuis** (`Pause` since T3), each one `.model.json` in `src/ui/`, each with
    `ResetOnSpawn = false`, `IgnoreGuiInset = true`, `ZIndexBehavior = Sibling`,
    and `Enabled = true`. Top-level screens inside a ScreenGui are Frames that the
    code shows and hides with `Visible`; ship them with the `Visible` value given
@@ -117,20 +117,37 @@ Reference: `frames/a_charselect.jpg`, `frames/b_mapselect.jpg`, `1.png` for the 
 
 ## ScreenGui `EndScreens` (DisplayOrder 40)
 
-Reference: `frames/a_death.jpg`.
+Rebuilt in T3 by `design/ui_specs/Screens_build.py` (`assets/ui/NOTES.Pause.md`). Each
+screen holds a full-screen `Backdrop` and a `Safe` frame that MenuController places on
+Roblox's safe insets.
 
 | Name | Class | Notes |
 |---|---|---|
-| `DeathScreen` | Frame | full screen black, `Visible=false`. `DeathTitle` ("you got bonked"), `DeathJoke`, `HeroViewport` (ViewportFrame, 500x600, centre), `ConfirmButton` with corner brackets |
-| `Results` | Frame | `Visible=false`. Panel: `ResultTitle` ("VICTORY"), `StatTable` with `Kills`, `Level`, `Time`, `BossTime` (each a Frame with `Label` and `Value`), `PlayerRows` (vertical list of `PlayerRow`), `ContinueLabel` ("Back to the lobby in 12") |
-| `PlayerRow` | Frame (sample child) | `Portrait`, `Name`, `Kills`, `Damage`, `Silver` (with `IconSilver`) |
+| `DeathScreen` | Frame | `Visible=false`. `Safe.Stage`: `DeathTitle` ("you got bonked"), `DeathJoke`, `HeroViewport` (ViewportFrame), `SkipButton` (was `ConfirmButton`; `Label`, `KeyCap`), `AutoBar.Fill` |
+| `Results` | Frame | `Visible=false`. `Safe.Panel`: `ResultTitle`, `Subtitle`, `StatTable` with `Kills`, `Level`, `Time`, `BossTime` (each `Label`, `Value`, `Best`), `SilverCard` (`Amount`, `Total`, `Breakdown` of `Part`, `Gain`), `Squad.PlayerRows` (vertical list of `PlayerRow`), `ContinueButton` (`Label`, `KeyCap`), `ContinueLabel` |
+| `PlayerRow` | Frame (sample child) | `Portrait`, `Name`, `Hero`, `Kills`, `Damage`, `Gold`, `Silver`, `ReadyTag` |
+| `Part` | Frame (sample child of `Breakdown`) | `Label`, `Value` |
+
+## ScreenGui `Pause` (DisplayOrder 45)
+
+T3, built by `design/ui_specs/Screens_build.py`; PauseMenuController binds it
+(`assets/ui/NOTES.Pause.md`). Everything sits in `Root` (`Visible=false`): `Scrim`,
+`Edge` and `Safe`.
+
+| Name | Class | Notes |
+|---|---|---|
+| `Safe.Build` | Frame | `WeaponRow` and `TomeRow` (sample `Slot` TextButtons: `Icon`, `Tag`, `Focus`), `ItemGrid` (ScrollingFrame, sample `ItemTile`), `NoItems`, `Details` (`IconTile.Icon`, `Name`, `Tags.KindTag`, `Tags.LevelTag`, `Text`, `Lines` of sample `Line`, `Note`, `Empty`) |
+| `Safe.Centre` | Frame | `Heading`, `Status` (`Dot`, `Text`), `Sub`, `RunCard` (`MapName`, `Phase`, `Facts.Level/Kills/Gold.Value`), `Actions` (`PrimaryButton`, `VoteInfo`, `MapButton`, `SettingsButton`, `CancelButton`, `CloseButton`), `SettingsView` (`Title`, `List`: `MasterRow` / `MusicRow` / `SfxRow` / `SensitivityRow` with `<Key>Label`, `<Key>Value`, `<Key>Slider` (`Fill`, `Knob`, `Focus`); `DamageNumbersToggle` and `EnemyOutlinesToggle` (`Check`, `Label`); `BackButton`), `Hints` |
+| `Safe.Stats` | Frame | `Hero` (`HeroName`, `Portrait`), `StatList` (ScrollingFrame of sample `StatSection`: `Title`, sample `StatRow`: `Name`, `Value`) |
+| `Safe.Tabs` | Frame | `BuildTab`, `StatsTab`, `SettingsTab` (the narrow arrangement) |
+| `Safe.MapView` | Frame | `Map` (`Dots`, `PlayerArrow`, `N` `E` `S` `W`; MinimapController draws in it), `Legend`, `BackButton` |
 
 ## ScreenGui `Overlay` (DisplayOrder 50)
 
 | Name | Class | Notes |
 |---|---|---|
 | `BigMap` | Frame | `Visible=false`. 760 px square, left of centre, dark. `Dots` (clips; the code fills it with `MapDot` clones from `Hud`), `PlayerArrow`, `N` `E` `S` `W`, `Legend` |
-| `PauseMenu` | Frame | `Visible=false`. Panel "PAUSED": `ResumeButton`, `MusicSlider` and `SfxSlider` (Frame with `Fill` and `Knob`), `SensitivitySlider`, `DamageNumbersToggle` (TextButton with `Check`), `LeaveButton` |
+| `PauseNotice`, `ResumeCountdown` | Frame | the co-op vote notice and the 3-2-1 (OverlayController). The old `PauseMenu` sheet was removed in T3: the menu is the `Pause` ScreenGui |
 | `TouchControls` | Frame | `Visible=false`. Bottom right: `JumpButton` (140 px round), `SlideButton`, `InteractButton`, `TabButton` (top right, small). Leave the bottom-left free for Roblox's own move stick |
 
 ## Deliverables

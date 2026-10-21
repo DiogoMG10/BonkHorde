@@ -849,6 +849,14 @@ def manifest_for(root):
 # ------------------------------------------------------------------ main
 
 def main() -> int:
+    if "--overwrite-anyway" not in sys.argv:
+        # T3: the pause menu is the Pause ScreenGui and EndScreens comes from
+        # design/ui_specs/Screens_build.py; this script would put the old pause
+        # sheet back in Overlay, overwrite EndScreens and drop the runtime
+        # features listed in assets/ui/NOTES.Menu.md
+        print("Menu_build.py is behind the shipped Menu, Overlay and EndScreens models: not run.")
+        print("See assets/ui/NOTES.Menu.md. Pass --overwrite-anyway to run it regardless.")
+        return 1
     SPECS.mkdir(parents=True, exist_ok=True)
     MOCKS.mkdir(parents=True, exist_ok=True)
     UI.mkdir(parents=True, exist_ok=True)

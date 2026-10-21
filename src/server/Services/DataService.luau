@@ -204,19 +204,25 @@ function DataService:DevUnlock(player: Player, heroId: string): boolean
 	return true
 end
 
-function DataService:RecordRun(player: Player, heroId: string, kills: number, bossSeconds: number?)
+--- Count a finished run and keep its bests. Returns whether it set a new best
+--- kill count and a new best boss time, for the results screen.
+function DataService:RecordRun(player: Player, heroId: string, kills: number, bossSeconds: number?): (boolean, boolean)
 	local p = self._profiles[player]
 	if not p then
-		return
+		return false, false
 	end
 	p.runs[heroId] = (tonumber(p.runs[heroId]) or 0) + 1
+	local bestKills, bestTime = false, false
 	if kills > p.best.kills then
 		p.best.kills = kills
+		bestKills = true
 	end
 	if bossSeconds and (p.best.time == 0 or bossSeconds < p.best.time) then
 		p.best.time = math.floor(bossSeconds)
+		bestTime = true
 	end
 	self:Push(player)
+	return bestKills, bestTime
 end
 
 function DataService:Save(player: Player)

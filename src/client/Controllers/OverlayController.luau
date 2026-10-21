@@ -1,19 +1,23 @@
 --!nonstrict
--- OverlayController - the Overlay ScreenGui's pause menu, the pause notice and
--- the touch controls. (The big map in the same ScreenGui belongs to
--- MinimapController.)
+-- OverlayController - the pause: the vote with the squad, the notice at the
+-- top of the screen, the 3-2-1 back into play and the paused world's look; the
+-- touch controls; and the settings kept in the profile. The menu itself
+-- (build, actions, stats, settings, map) is PauseMenuController's (T3). The
+-- big map in the Overlay ScreenGui belongs to MinimapController.
 --
--- Roblox owns Esc, so pausing is P or the gamepad Start button (a PAUSE button
--- on touch). In a live run that asks the server (PauseService) for a pause:
--- solo it pauses at once; co-op it asks the squad, and the notice at the top
--- says plainly that the game is still running until everyone agrees. The menu
--- opens for everyone once the run is really paused; co-op plays on once every
--- player has pressed READY. Outside a run, and from the main menu's SETTINGS
--- button, the same sheet opens as plain settings.
+-- Roblox owns Esc, so the menu is P or the gamepad Start button (a PAUSE
+-- button on touch). Solo, that asks the server (PauseService) for a pause,
+-- which comes at once, and the menu opens on its word. In co-op it opens the
+-- same menu straight away while the world keeps running, and the menu says so;
+-- its REQUEST PAUSE asks the squad, and the run only pauses once everyone has
+-- agreed. Closing the menu never takes a request or a vote back (CANCEL does).
+-- Once the run is really paused the menu opens for everyone; co-op plays on
+-- once every player has pressed READY. Outside a run, and from the main
+-- menu's SETTINGS button, the same menu shows the settings alone.
 --
 -- While the run is really paused (any reason) the world is softly desaturated
--- and darkened. Going back in, a 3-2-1 countdown plays over the frozen world
--- and the colour returns with it; the sheet fades out rather than vanishing.
+-- and darkened. Going back in after a co-op pause, a 3-2-1 countdown plays
+-- over the frozen world and the colour returns with it.
 --
 -- The settings live as attributes on PlayerGui so any controller can read
 -- them and listen for changes:
@@ -27,7 +31,6 @@
 -- attributes BonkSlideHeld and BonkJumpHeld on PlayerGui for MovementController.
 
 local ContextActionService = game:GetService("ContextActionService")
-local GuiService = game:GetService("GuiService")
 local Lighting = game:GetService("Lighting")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -36,7 +39,6 @@ local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
-local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local Net = require(ReplicatedStorage.Shared.Net)
 local UiKit = require(script.Parent.Parent.UiKit)
 
@@ -44,7 +46,6 @@ local OverlayController = Knit.CreateController({ Name = "OverlayController" })
 
 local player = Players.LocalPlayer
 
-local SENS_MIN, SENS_MAX = 0.2, 2
 local DEFAULTS = {
 	MasterVolume = 0.7,
 	MusicVolume = 0.45,
@@ -54,11 +55,7 @@ local DEFAULTS = {
 	EnemyOutlines = false,
 }
 local VOLUMES = { master = "MasterVolume", music = "MusicVolume", sfx = "SfxVolume" }
-local PAD_STEP = 0.05
 local AMBER = Color3.fromHex("#FFB23A")
-local RESUME_SECONDS = GameConfig.PauseResumeSeconds
-local AUTO_WARNING = 10 -- seconds of warning before a co-op pause resumes on its own
-local FADE_IN, FADE_OUT = 0.18, 0.35
 -- the paused world: how far colour and light drop at full strength
 local GRADE_SATURATION, GRADE_BRIGHTNESS, GRADE_CONTRAST = -0.6, -0.07, -0.05
 
@@ -67,20 +64,18 @@ local function noPause()
 end
 
 function OverlayController:KnitInit()
-	self._menuMode = nil -- nil, "pause" (the run is paused) or "settings"
+	self._menuMode = nil -- nil, "pause" (the run is paused), "inspect" (co-op, running) or "settings"
 	self._returnFocus = nil
 	self._info = noPause() -- the last word from PauseService
 	self._infoAt = 0
-	self._hint = nil -- { text, untilAt }: a short refusal shown in the notice
+	self._hint = nil -- { text, untilAt }: a short refusal shown in the notice and the menu
 	self._volumesLoaded = false
 	self._volumesSent = nil
-	self._sliders = {}
-	self._dragging = nil
-	self._fadeStamp = 0
 	self._grade = 0 -- the paused-world look, 0..1
 	self._cdShown = nil -- the countdown text on screen
 	self._cdTotal = nil -- how long this countdown was when first seen
 	self._cdStamp = 0
+	self._choicesWere = false
 	local gui = UiKit.playerGui()
 	for name, value in DEFAULTS do
 		if gui:GetAttribute(name) == nil then
@@ -95,12 +90,14 @@ function OverlayController:KnitStart()
 	self._state = Knit.GetController("StateController")
 	self._camera = Knit.GetController("CameraController")
 	self._world = Knit.GetController("WorldController")
+	self._menu = Knit.GetController("PauseMenuController")
+	self._choices = Knit.GetController("ChoiceController")
 	UiKit.safe("OverlayController", function()
 		self:_start()
 	end)
 end
 
---- Is the pause or settings sheet open?
+--- Is the menu open (paused, inspecting or settings)?
 function OverlayController:IsPaused(): boolean
 	return self._menuMode ~= nil
 end
@@ -111,79 +108,59 @@ function OverlayController:OpenSettings(back: Instance?)
 	self:_openMenu("settings")
 end
 
--- The transparencies a fade scales, per kind of instance.
-local function fadedProps(inst: Instance): { string }?
-	if inst:IsA("UIStroke") then
-		return { "Transparency" }
-	elseif inst:IsA("TextLabel") or inst:IsA("TextButton") then
-		return { "BackgroundTransparency", "TextTransparency" }
-	elseif inst:IsA("ImageLabel") or inst:IsA("ImageButton") then
-		return { "BackgroundTransparency", "ImageTransparency" }
-	elseif inst:IsA("GuiObject") then
-		return { "BackgroundTransparency" }
-	end
-	return nil
+-- ---------------------------------------------------------------- what the menu reads
+
+--- The last word from PauseService.
+function OverlayController:Info()
+	return self._info
 end
 
--- Remember every transparency in the sheet as designed, so a fade can scale
--- them and always hand back the exact originals. (A CanvasGroup did this in
--- one property but rendered the full-screen sheet as a black box.)
-function OverlayController:_collectFade()
-	local list = {}
-	for _, inst in { self._pause, table.unpack(self._pause:GetDescendants()) } do
-		for _, prop in fadedProps(inst) or {} do
-			table.insert(list, { inst = inst, prop = prop, base = inst[prop] })
-		end
-	end
-	self._fadeList = list
-	self._fadeLevel = 1
+function OverlayController:UserId(): number
+	return player.UserId
 end
 
-function OverlayController:_applyFade(level: number)
-	self._fadeLevel = level
-	for _, entry in self._fadeList do
-		entry.inst[entry.prop] = entry.base + (1 - entry.base) * level
-	end
+--- Alone in the run: a pause comes at once and has no limit.
+function OverlayController:IsSolo(): boolean
+	return #self._state.squad <= 1
 end
 
--- Fade the sheet to `to` (0 shown, 1 gone); hidden for good once gone.
-function OverlayController:_fade(to: number, seconds: number)
-	local sheet = self._pause
-	self._fadeStamp += 1
-	local stamp = self._fadeStamp
-	if to < 1 then
-		UiKit.show(sheet, true)
-	end
-	local from = self._fadeLevel
-	local started = os.clock()
-	local conn
-	conn = RunService.Heartbeat:Connect(function()
-		if self._fadeStamp ~= stamp then
-			conn:Disconnect()
-			return
-		end
-		local t = math.min((os.clock() - started) / seconds, 1)
-		local eased = 1 - (1 - t) ^ 2
-		self:_applyFade(from + (to - from) * eased)
-		if t >= 1 then
-			conn:Disconnect()
-			if to >= 1 then
-				UiKit.show(sheet, false)
-			end
-		end
-	end)
+--- A refusal to show for a moment ("You can ask again in 12s"), or nil.
+function OverlayController:Hint(): string?
+	local hint = self._hint
+	return if hint and os.clock() < hint.untilAt then hint.text else nil
 end
+
+function OverlayController:Ask(action: string)
+	self:_ask(action)
+end
+
+function OverlayController:CloseMenu()
+	self:_closeMenu()
+end
+
+function OverlayController:Voted(): boolean
+	return self:_voted()
+end
+
+--- Seconds left on the vote or the pause; -1 for a pause with no limit (solo).
+function OverlayController:SecondsLeft(): number
+	return self:_secondsLeft()
+end
+
+-- ---------------------------------------------------------------- the menu
 
 function OverlayController:_openMenu(mode: string)
-	if not self._pause then
+	if self._menuMode == mode then
+		self._menu:Refresh()
 		return
+	elseif not self._menu:Ready() then
+		return -- the menu's ScreenGui has not arrived yet (the first moments after joining)
 	end
 	self._menuMode = mode
-	self:_fade(0, FADE_IN)
+	self._menu:Open(mode)
 	self._camera:SetUiOpen("pause", true)
-	self:_renderSettings()
-	self:_renderMenuText()
-	UiKit.focus(self._resume)
+	Knit.GetController("MinimapController"):SetBigMap(false) -- the menu has its own map
+	self:_renderNotice()
 end
 
 function OverlayController:_closeMenu()
@@ -191,15 +168,14 @@ function OverlayController:_closeMenu()
 		return
 	end
 	self._menuMode = nil
-	self._dragging = nil
-	self:_fade(1, FADE_OUT)
+	self._menu:Close()
 	self._camera:SetUiOpen("pause", false)
-	UiKit.unfocus(self._pause)
 	self:_sendVolumes()
 	if self._returnFocus then
 		UiKit.focus(self._returnFocus)
 		self._returnFocus = nil
 	end
+	self:_renderNotice()
 end
 
 function OverlayController:_inRun(): boolean
@@ -226,7 +202,6 @@ function OverlayController:_countdownEnd(): number?
 	return nil
 end
 
---- Seconds left on the vote or the pause; -1 for a pause with no limit (solo).
 function OverlayController:_secondsLeft(): number
 	local seconds = tonumber(self._info.seconds) or 0
 	if seconds < 0 then
@@ -237,8 +212,9 @@ end
 
 --- P, Start, or the touch PAUSE button.
 function OverlayController:_pausePressed()
+	local menu = self._menuMode
 	if not self:_inRun() then
-		if self._menuMode then
+		if menu then
 			self:_closeMenu()
 		else
 			self:_openMenu("settings")
@@ -249,19 +225,33 @@ function OverlayController:_pausePressed()
 	if info.mode == "paused" then
 		if info.resuming then
 			return
-		elseif self._menuMode == "pause" then
-			self:_ask("resume")
+		elseif menu == "pause" then
+			self:_ask("resume") -- solo: back to play; co-op: READY (or not any more)
 		else
 			self:_openMenu("pause")
 		end
-	elseif info.mode == "vote" then
-		if info.by == player.UserId then
-			self:_ask("withdraw")
-		elseif not self:_voted() then
-			self:_ask("accept")
-		end
+	elseif self:IsSolo() then
+		self:_ask("request") -- a solo pause comes at once; the menu opens on the server's word
+	elseif menu == "inspect" then
+		self:_closeMenu() -- a request or a vote stands: only CANCEL takes it back
 	else
-		self:_ask("request")
+		if info.mode == "vote" and info.by ~= player.UserId and not self:_voted() then
+			self:_ask("accept") -- as ever, P agrees to a teammate's request
+		end
+		self:_openMenu("inspect")
+	end
+end
+
+--- The notice's own button: CANCEL for the asker, ACCEPT for the others.
+function OverlayController:_noticePressed()
+	local info = self._info
+	if info.mode ~= "vote" then
+		return
+	end
+	if info.by == player.UserId then
+		self:_ask("withdraw")
+	elseif not self:_voted() then
+		self:_ask("accept")
 	end
 end
 
@@ -283,7 +273,7 @@ function OverlayController:_onPause(p)
 	elseif self._menuMode == "pause" then
 		self:_closeMenu()
 	end
-	self:_renderMenuText()
+	self._menu:Refresh()
 	self:_renderNotice()
 end
 
@@ -297,30 +287,8 @@ function OverlayController:_keyName(): string
 	return "P"
 end
 
-function OverlayController:_renderMenuText()
-	if not self._menuMode then
-		return
-	end
-	local title, button = "SETTINGS", "CLOSE"
-	if self._menuMode == "pause" then
-		local seconds = self:_secondsLeft()
-		if seconds >= 0 then
-			-- co-op: everyone presses READY; near the limit it resumes on its own
-			local ready = self._info.ready or {}
-			local n, need = #ready, self._info.need or 0
-			local auto = seconds - RESUME_SECONDS
-			title = if auto <= AUTO_WARNING
-				then `AUTO-RESUME IN {math.max(0, math.ceil(auto))}`
-				else `PAUSED  {UiKit.clock(math.ceil(seconds))}`
-			button = if table.find(ready, player.UserId) then `WAITING  {n}/{need}` else `READY  {n}/{need}`
-		else
-			title, button = "PAUSED", "RESUME"
-		end
-	end
-	UiKit.text(self._title, title)
-	UiKit.text(self._resumeLabel, button)
-end
-
+--- The notice at the top of the screen, while the menu is closed (the menu
+--- shows the same thing itself).
 function OverlayController:_renderNotice()
 	local n = self._notice
 	if not n or not n.frame then
@@ -329,7 +297,9 @@ function OverlayController:_renderNotice()
 	local info = self._info
 	local title, sub, action = nil, nil, nil
 	local subColour = AMBER
-	if info.mode == "vote" then
+	if self._menuMode then
+		title = nil
+	elseif info.mode == "vote" then
 		local agreed = #(info.votes or {})
 		local left = math.ceil(self:_secondsLeft())
 		local who = `{info.byName or "A teammate"} wants to pause`
@@ -341,7 +311,7 @@ function OverlayController:_renderNotice()
 		else
 			title, sub, action = who, `Game still running · {self:_keyName()} to agree · {left}s`, "ACCEPT"
 		end
-	elseif info.mode == "paused" and not info.resuming and self._menuMode ~= "pause" and self:_inRun() then
+	elseif info.mode == "paused" and not info.resuming and self:_inRun() then
 		local seconds = self:_secondsLeft()
 		title = if seconds >= 0 then `PAUSED  {UiKit.clock(math.ceil(seconds))}` else "PAUSED"
 		sub, subColour = `{self:_keyName()} to open the menu`, UiKit.Colours.ink
@@ -379,7 +349,6 @@ function OverlayController:_loadVolumes()
 		gui:SetAttribute("EnemyOutlines", saved.outlines)
 	end
 	self._volumesSent = self:_volumeSignature()
-	self:_renderSettings()
 end
 
 function OverlayController:_volumeSignature(): string
@@ -389,7 +358,7 @@ function OverlayController:_volumeSignature(): string
 	)}`
 end
 
---- Hand changed settings to the profile (on closing the sheet).
+--- Hand changed settings to the profile (on closing the menu).
 function OverlayController:_sendVolumes()
 	local signature = self:_volumeSignature()
 	if signature == self._volumesSent or not self._settingsRemote then
@@ -405,6 +374,8 @@ function OverlayController:_sendVolumes()
 	self._settingsRemote:FireServer(out)
 end
 
+-- ---------------------------------------------------------------- setup
+
 function OverlayController:_start()
 	local overlay = UiKit.gui("Overlay")
 	if not overlay then
@@ -412,35 +383,6 @@ function OverlayController:_start()
 	end
 	local gui = UiKit.playerGui()
 	local state = self._state
-
-	-- ------------------------------------------------------------ pause menu
-
-	local pause = UiKit.find(overlay, "PauseMenu")
-	self._pause = pause
-	self._resume = UiKit.find(pause, "ResumeButton")
-	self._resumeLabel = UiKit.find(pause, "ResumeButton.Label")
-	self._title = UiKit.find(pause, "Panel.Header.Title")
-	self._check = UiKit.find(pause, "DamageNumbersToggle.Check")
-	-- Enemy outlines: a second toggle row, a copy of the damage-numbers one, made
-	-- here because the Overlay's generator is behind its hand-built pause sheet
-	-- (assets/ui/NOTES.Menu.md). Made before the fade collects the sheet, so it
-	-- fades with it.
-	local numbersToggle = UiKit.find(pause, "DamageNumbersToggle")
-	if numbersToggle and numbersToggle:IsA("GuiObject") then
-		numbersToggle.Position = UDim2.new(0.5, 0, 0.5, 226)
-		local outlines = numbersToggle:Clone()
-		outlines.Name = "EnemyOutlinesToggle"
-		outlines.Position = UDim2.new(0.5, 0, 0.5, 352)
-		outlines.Parent = pause
-		UiKit.text(UiKit.find(outlines, "Label"), "Enemy outlines")
-		self._outlinesToggle = outlines
-		self._outlinesCheck = UiKit.find(outlines, "Check")
-	end
-	UiKit.fillIcons(pause)
-	UiKit.show(pause, false)
-	UiKit.show(UiKit.find(pause, "LeaveButton"), false) -- there is no way to leave a run yet
-	self:_collectFade()
-	self:_applyFade(1) -- hidden: the first open fades in from clear
 
 	local countdown = UiKit.find(overlay, "ResumeCountdown")
 	self._countdown = countdown
@@ -468,7 +410,7 @@ function OverlayController:_start()
 	}
 	UiKit.show(notice, false)
 	UiKit.button(self._notice.action, function()
-		self:_pausePressed()
+		self:_noticePressed()
 	end)
 
 	self._askRemote = Net.client("PauseAsk")
@@ -482,85 +424,12 @@ function OverlayController:_start()
 		end)
 	end
 
-	UiKit.button(self._resume, function()
-		if self._menuMode == "pause" and self:_inRun() then
-			self:_ask("resume")
-		else
-			self:_closeMenu()
-		end
-	end)
-	UiKit.button(self._outlinesToggle, function()
-		-- takes effect at once; kept in the profile when the sheet closes
-		gui:SetAttribute("EnemyOutlines", gui:GetAttribute("EnemyOutlines") ~= true)
-		self:_renderSettings()
-	end)
-	UiKit.button(UiKit.find(pause, "DamageNumbersToggle"), function()
-		gui:SetAttribute("DamageNumbers", gui:GetAttribute("DamageNumbers") == false)
-		self:_renderSettings()
-	end)
-
-	local function addSlider(path: string, attribute: string, low: number, high: number)
-		local slider = UiKit.find(pause, path)
-		if not slider or not slider:IsA("GuiObject") then
-			return
-		end
-		local entry = {
-			frame = slider,
-			fill = UiKit.find(slider, "Fill"),
-			knob = UiKit.find(slider, "Knob"),
-			attribute = attribute,
-			low = low,
-			high = high,
-		}
-		table.insert(self._sliders, entry)
-		slider.Active = true
-		slider.Selectable = true
-		local function begin(input: InputObject)
-			if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-				self._dragging = entry
-				self:_dragTo(entry, input.Position.X)
-			end
-		end
-		slider.InputBegan:Connect(begin)
-		if entry.knob and entry.knob:IsA("GuiObject") then
-			entry.knob.Active = true
-			entry.knob.InputBegan:Connect(begin)
-		end
-	end
-	addSlider("MasterSlider", "MasterVolume", 0, 1)
-	addSlider("MusicSlider", "MusicVolume", 0, 1)
-	addSlider("SfxSlider", "SfxVolume", 0, 1)
-	addSlider("SensitivitySlider", "Sensitivity", SENS_MIN, SENS_MAX)
-
-	UserInputService.InputChanged:Connect(function(input)
-		local entry = self._dragging
-		if entry and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-			UiKit.safe("OverlayController.slider", function()
-				self:_dragTo(entry, input.Position.X)
-			end)
-		end
-	end)
-	UserInputService.InputEnded:Connect(function(input)
-		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-			self._dragging = nil
-		end
-	end)
-
 	UserInputService.InputBegan:Connect(function(input, processed)
 		local key = input.KeyCode
 		if key == Enum.KeyCode.ButtonStart or (key == Enum.KeyCode.P and not processed) then
 			UiKit.safe("OverlayController.pause", function()
 				self:_pausePressed()
 			end)
-		elseif self._menuMode and (key == Enum.KeyCode.DPadLeft or key == Enum.KeyCode.DPadRight) then
-			-- a gamepad nudges the slider it has selected
-			local selected = GuiService.SelectedObject
-			for _, entry in self._sliders do
-				if entry.frame == selected then
-					local step = if key == Enum.KeyCode.DPadLeft then -PAD_STEP else PAD_STEP
-					self:_setFraction(entry, self:_fraction(entry) + step)
-				end
-			end
 		end
 	end)
 
@@ -570,7 +439,8 @@ function OverlayController:_start()
 				self:_loadVolumes()
 			elseif key == "phase" then
 				local live = state:IsLive()
-				if (self._menuMode == "settings" and live) or (self._menuMode == "pause" and not live) then
+				local menu = self._menuMode
+				if (menu == "settings" and live) or ((menu == "pause" or menu == "inspect") and not live) then
 					self:_closeMenu()
 				end
 				if not live then
@@ -582,10 +452,9 @@ function OverlayController:_start()
 		end)
 	end)
 	self:_loadVolumes()
-	self:_renderSettings()
 
 	-- every frame: the paused-world look and the 3-2-1; ten times a second:
-	-- the timers in the notice and the menu title
+	-- the timers in the notice, and a co-op inspection making way for a panel
 	local tick = 0
 	local broken = false
 	RunService.Heartbeat:Connect(function(dt)
@@ -599,16 +468,24 @@ function OverlayController:_start()
 			end
 		end
 		tick += dt
-		if tick < 0.1 or (self._info.mode == "none" and not self._hint) then
+		if tick < 0.1 then
 			return
 		end
 		tick = 0
 		UiKit.safe("OverlayController.notice", function()
+			-- a level-up or a chest that opens while inspecting needs the
+			-- screen, and its clock is running: the inspection gives way
+			local choicesOpen = self._choices:IsOpen()
+			if choicesOpen and not self._choicesWere and self._menuMode == "inspect" then
+				self:_closeMenu()
+			end
+			self._choicesWere = choicesOpen
 			if self._hint and os.clock() >= self._hint.untilAt then
 				self._hint = nil
 			end
-			self:_renderMenuText()
-			self:_renderNotice()
+			if self._info.mode ~= "none" or self._hint then
+				self:_renderNotice()
+			end
 		end)
 	end)
 
@@ -716,9 +593,10 @@ function OverlayController:_start()
 			return
 		end
 		acc = 0
-		local choices = Knit.GetController("ChoiceController")
-		local inRun = state.phase ~= "Lobby" and state.me ~= nil and state:Root() ~= nil
-		local visible = inRun and not self._menuMode and not choices:IsOpen()
+		-- only while the horde is live: the death screen and the results have
+		-- their own buttons, and these would sit on top of them
+		local inRun = state:IsLive() and state.me ~= nil and state:Root() ~= nil
+		local visible = inRun and not self._menuMode and not self._choices:IsOpen()
 		UiKit.show(touch, visible)
 		if not visible then
 			if self._jumpHeld then
@@ -795,45 +673,6 @@ function OverlayController:_jump()
 	if humanoid and not character:GetAttribute("Downed") then
 		humanoid.Jump = true
 	end
-end
-
--- ---------------------------------------------------------------- sliders
-
-function OverlayController:_fraction(entry): number
-	local value = tonumber(UiKit.playerGui():GetAttribute(entry.attribute)) or entry.low
-	return math.clamp((value - entry.low) / (entry.high - entry.low), 0, 1)
-end
-
-function OverlayController:_setFraction(entry, fraction: number)
-	fraction = math.clamp(fraction, 0, 1)
-	local value = entry.low + (entry.high - entry.low) * fraction
-	UiKit.playerGui():SetAttribute(entry.attribute, math.floor(value * 100 + 0.5) / 100)
-	self:_renderSlider(entry)
-end
-
-function OverlayController:_dragTo(entry, screenX: number)
-	local frame = entry.frame
-	local width = frame.AbsoluteSize.X
-	if width > 0 then
-		self:_setFraction(entry, (screenX - frame.AbsolutePosition.X) / width)
-	end
-end
-
-function OverlayController:_renderSlider(entry)
-	local fraction = self:_fraction(entry)
-	UiKit.fill(entry.fill, fraction)
-	local knob = entry.knob
-	if knob and knob:IsA("GuiObject") then
-		knob.Position = UDim2.new(fraction, 0, knob.Position.Y.Scale, knob.Position.Y.Offset)
-	end
-end
-
-function OverlayController:_renderSettings()
-	for _, entry in self._sliders do
-		self:_renderSlider(entry)
-	end
-	UiKit.show(self._check, UiKit.playerGui():GetAttribute("DamageNumbers") ~= false)
-	UiKit.show(self._outlinesCheck, UiKit.playerGui():GetAttribute("EnemyOutlines") == true)
 end
 
 return OverlayController

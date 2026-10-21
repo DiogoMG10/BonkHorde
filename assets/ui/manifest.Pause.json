@@ -1,0 +1,1832 @@
+[
+ {
+  "path": "Root",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Scrim",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Edge",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Edge.Top",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Edge.Bottom",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Edge.Left",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Edge.Right",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Title",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Counts",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Rule",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.WeaponsCaption",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.WeaponRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.WeaponRow.Slot",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.WeaponRow.Slot.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.WeaponRow.Slot.Tag",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.WeaponRow.Slot.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Build.WeaponRow.Slot",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.WeaponRow.Slot.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.WeaponRow.Slot.Tag",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.WeaponRow.Slot.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Build.WeaponRow.Slot",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.WeaponRow.Slot.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.WeaponRow.Slot.Tag",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.WeaponRow.Slot.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Build.WeaponRow.Slot",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.WeaponRow.Slot.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.WeaponRow.Slot.Tag",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.WeaponRow.Slot.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Build.TomesCaption",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.TomeRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.TomeRow.Slot",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.TomeRow.Slot.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.TomeRow.Slot.Tag",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.TomeRow.Slot.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Build.TomeRow.Slot",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.TomeRow.Slot.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.TomeRow.Slot.Tag",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.TomeRow.Slot.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Build.TomeRow.Slot",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.TomeRow.Slot.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.TomeRow.Slot.Tag",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.TomeRow.Slot.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Build.TomeRow.Slot",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.TomeRow.Slot.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.TomeRow.Slot.Tag",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.TomeRow.Slot.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Build.ItemsCaption",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid",
+  "class": "ScrollingFrame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Tag",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Tag",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Tag",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Tag",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Tag",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Tag",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Tag",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Tag",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Tag",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Tag",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Tag",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Tag",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Tag",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Tag",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.ItemGrid.ItemTile.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Build.NoItems",
+  "class": "TextLabel",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Build.Details",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Details.IconTile",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Details.IconTile.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Details.Name",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Details.Tags",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Details.Tags.KindTag",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Details.Tags.LevelTag",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Details.Text",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Details.Lines",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Details.Lines.Line",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Details.Lines.Line.Label",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Details.Lines.Line.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Details.Lines.Line",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Details.Lines.Line.Label",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Details.Lines.Line.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Details.Lines.Line",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Details.Lines.Line.Label",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Details.Lines.Line.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Details.Lines.Line",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Details.Lines.Line.Label",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Details.Lines.Line.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Details.Lines.Line",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Details.Lines.Line.Label",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Details.Lines.Line.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Details.Lines.Line",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Details.Lines.Line.Label",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Details.Lines.Line.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Details.Lines.Line",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Details.Lines.Line.Label",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Details.Lines.Line.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Details.Note",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Build.Details.Empty",
+  "class": "TextLabel",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Centre",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.Heading",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.Status",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.Status.Dot",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.Status.Text",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.Sub",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.RunCard",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.RunCard.MapName",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.RunCard.Phase",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.RunCard.Facts",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.RunCard.Facts.Level",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.RunCard.Facts.Level.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.RunCard.Facts.Kills",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.RunCard.Facts.Kills.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.RunCard.Facts.Kills.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.RunCard.Facts.Gold",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.RunCard.Facts.Gold.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.RunCard.Facts.Gold.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.Actions",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.Actions.PrimaryButton",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.Actions.PrimaryButton.Label",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.Actions.PrimaryButton.KeyCap",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.Actions.PrimaryButton.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Centre.Actions.VoteInfo",
+  "class": "TextLabel",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Centre.Actions.MapButton",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.Actions.MapButton.Label",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.Actions.MapButton.KeyCap",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.Actions.MapButton.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Centre.Actions.SettingsButton",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.Actions.SettingsButton.Label",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.Actions.SettingsButton.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Centre.Actions.CancelButton",
+  "class": "TextButton",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Centre.Actions.CancelButton.Label",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.Actions.CancelButton.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Centre.Actions.CloseButton",
+  "class": "TextButton",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Centre.Actions.CloseButton.Label",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.Actions.CloseButton.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.Title",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List",
+  "class": "ScrollingFrame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.MasterRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.MasterRow.MasterLabel",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.MasterRow.MasterValue",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.MasterRow.MasterSlider",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.MasterRow.MasterSlider.Fill",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.MasterRow.MasterSlider.Knob",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.MasterRow.MasterSlider.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.MusicRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.MusicRow.MusicLabel",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.MusicRow.MusicValue",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.MusicRow.MusicSlider",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.MusicRow.MusicSlider.Fill",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.MusicRow.MusicSlider.Knob",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.MusicRow.MusicSlider.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.SfxRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.SfxRow.SfxLabel",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.SfxRow.SfxValue",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.SfxRow.SfxSlider",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.SfxRow.SfxSlider.Fill",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.SfxRow.SfxSlider.Knob",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.SfxRow.SfxSlider.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.SensitivityRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.SensitivityRow.SensitivityLabel",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.SensitivityRow.SensitivityValue",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.SensitivityRow.SensitivitySlider",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.SensitivityRow.SensitivitySlider.Fill",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.SensitivityRow.SensitivitySlider.Knob",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.SensitivityRow.SensitivitySlider.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.DamageNumbersToggle",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.DamageNumbersToggle.Box",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.DamageNumbersToggle.Check",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.DamageNumbersToggle.Label",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.DamageNumbersToggle.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.EnemyOutlinesToggle",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.EnemyOutlinesToggle.Box",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.EnemyOutlinesToggle.Check",
+  "class": "ImageLabel",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.EnemyOutlinesToggle.Label",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.EnemyOutlinesToggle.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.BackButton",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.BackButton.Label",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Centre.SettingsView.List.BackButton.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Centre.Hints",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.Title",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.Hero",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.Hero.HeroName",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.Hero.Portrait",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.Rule",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList",
+  "class": "ScrollingFrame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.Title",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Name",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Name",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Name",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Name",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Name",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Name",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.Title",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Name",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Name",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Name",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Name",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Name",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Name",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Name",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.Title",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Name",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Name",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Name",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Name",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.Title",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Name",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Name",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Name",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.Title",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Name",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Name",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Name",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Name",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Name",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.Title",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Name",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Name",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Name",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Name",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Stats.StatList.StatSection.StatRow.Value",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Tabs",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Tabs.BuildTab",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Tabs.BuildTab.Label",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Tabs.BuildTab.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Tabs.StatsTab",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Tabs.StatsTab.Label",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Tabs.StatsTab.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.Tabs.SettingsTab",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Tabs.SettingsTab.Label",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.Tabs.SettingsTab.Focus",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.MapView",
+  "class": "Frame",
+  "visible": false
+ },
+ {
+  "path": "Root.Safe.MapView.Title",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.MapView.Map",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.MapView.Map.Dots",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.MapView.Map.PlayerArrow",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.MapView.Map.N",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.MapView.Map.E",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.MapView.Map.S",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.MapView.Map.W",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.MapView.Legend",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.MapView.Legend.LegendItem",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.MapView.Legend.LegendItem.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.MapView.Legend.LegendItem.Text",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.MapView.Legend.LegendItem",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.MapView.Legend.LegendItem.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.MapView.Legend.LegendItem.Text",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.MapView.Legend.LegendItem",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.MapView.Legend.LegendItem.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.MapView.Legend.LegendItem.Text",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.MapView.Legend.LegendItem",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.MapView.Legend.LegendItem.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.MapView.Legend.LegendItem.Text",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.MapView.Legend.LegendItem",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.MapView.Legend.LegendItem.Icon",
+  "class": "ImageLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.MapView.Legend.LegendItem.Text",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.MapView.BackButton",
+  "class": "TextButton",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.MapView.BackButton.Label",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.MapView.BackButton.KeyCap",
+  "class": "TextLabel",
+  "visible": true
+ },
+ {
+  "path": "Root.Safe.MapView.BackButton.Focus",
+  "class": "Frame",
+  "visible": false
+ }
+]

@@ -1,5 +1,5 @@
 {
- "_note": "Menu, EndScreens and Overlay. Paths are instance paths inside the ScreenGui. Builder internals (Shadow, Face, Rivet, Bracket) and UI modifiers are left out.",
+ "_note": "Menu, EndScreens and Overlay. Paths are instance paths inside the ScreenGui. Builder internals (Shadow, Face, Rivet, Bracket) and UI modifiers are left out. Since T3 the pause menu is the Pause ScreenGui (manifest.Pause.json) and EndScreens is built by Screens_build.py (manifest.EndScreens.json); both are left out here.",
  "screenGuis": {
   "Menu": {
    "displayOrder": 30,
@@ -379,164 +379,6 @@
     }
    ]
   },
-  "EndScreens": {
-   "displayOrder": 40,
-   "file": "src/ui/EndScreens.model.json",
-   "elements": [
-    {
-     "path": "DeathScreen",
-     "class": "Frame",
-     "visible": false
-    },
-    {
-     "path": "DeathScreen/DeathTitle",
-     "class": "TextLabel"
-    },
-    {
-     "path": "DeathScreen/DeathJoke",
-     "class": "TextLabel"
-    },
-    {
-     "path": "DeathScreen/HeroViewport",
-     "class": "ViewportFrame"
-    },
-    {
-     "path": "DeathScreen/ConfirmButton",
-     "class": "TextButton"
-    },
-    {
-     "path": "DeathScreen/ConfirmButton/Focus",
-     "class": "Frame"
-    },
-    {
-     "path": "DeathScreen/ConfirmButton/Label",
-     "class": "TextLabel"
-    },
-    {
-     "path": "Results",
-     "class": "Frame",
-     "visible": false
-    },
-    {
-     "path": "Results/Panel",
-     "class": "Frame"
-    },
-    {
-     "path": "Results/ResultTitle",
-     "class": "TextLabel"
-    },
-    {
-     "path": "Results/StatTable",
-     "class": "Frame"
-    },
-    {
-     "path": "Results/StatTable/Kills",
-     "class": "Frame"
-    },
-    {
-     "path": "Results/StatTable/Kills/Label",
-     "class": "TextLabel"
-    },
-    {
-     "path": "Results/StatTable/Kills/Value",
-     "class": "TextLabel"
-    },
-    {
-     "path": "Results/StatTable/Level",
-     "class": "Frame"
-    },
-    {
-     "path": "Results/StatTable/Level/Label",
-     "class": "TextLabel"
-    },
-    {
-     "path": "Results/StatTable/Level/Value",
-     "class": "TextLabel"
-    },
-    {
-     "path": "Results/StatTable/Time",
-     "class": "Frame"
-    },
-    {
-     "path": "Results/StatTable/Time/Label",
-     "class": "TextLabel"
-    },
-    {
-     "path": "Results/StatTable/Time/Value",
-     "class": "TextLabel"
-    },
-    {
-     "path": "Results/StatTable/BossTime",
-     "class": "Frame"
-    },
-    {
-     "path": "Results/StatTable/BossTime/Label",
-     "class": "TextLabel"
-    },
-    {
-     "path": "Results/StatTable/BossTime/Value",
-     "class": "TextLabel"
-    },
-    {
-     "path": "Results/ColumnHeads",
-     "class": "Frame"
-    },
-    {
-     "path": "Results/ColumnHeads/HeadPlayer",
-     "class": "TextLabel"
-    },
-    {
-     "path": "Results/ColumnHeads/HeadKills",
-     "class": "TextLabel"
-    },
-    {
-     "path": "Results/ColumnHeads/HeadDamage",
-     "class": "TextLabel"
-    },
-    {
-     "path": "Results/ColumnHeads/HeadSilver",
-     "class": "TextLabel"
-    },
-    {
-     "path": "Results/PlayerRows",
-     "class": "Frame"
-    },
-    {
-     "path": "Results/PlayerRows/PlayerRow",
-     "class": "Frame"
-    },
-    {
-     "path": "Results/PlayerRows/PlayerRow/Portrait",
-     "class": "ImageLabel",
-     "icon": "PortraitKnight"
-    },
-    {
-     "path": "Results/PlayerRows/PlayerRow/Name",
-     "class": "TextLabel"
-    },
-    {
-     "path": "Results/PlayerRows/PlayerRow/Kills",
-     "class": "TextLabel"
-    },
-    {
-     "path": "Results/PlayerRows/PlayerRow/Damage",
-     "class": "TextLabel"
-    },
-    {
-     "path": "Results/PlayerRows/PlayerRow/Silver",
-     "class": "TextLabel"
-    },
-    {
-     "path": "Results/PlayerRows/PlayerRow/Silver/Icon",
-     "class": "ImageLabel",
-     "icon": "IconSilver"
-    },
-    {
-     "path": "Results/ContinueLabel",
-     "class": "TextLabel"
-    }
-   ]
-  },
   "Overlay": {
    "displayOrder": 50,
    "file": "src/ui/Overlay.model.json",
@@ -589,104 +431,6 @@
      "class": "TextLabel"
     },
     {
-     "path": "PauseMenu",
-     "class": "Frame",
-     "visible": false
-    },
-    {
-     "path": "PauseMenu/Panel",
-     "class": "Frame"
-    },
-    {
-     "path": "PauseMenu/Panel/Header",
-     "class": "Frame"
-    },
-    {
-     "path": "PauseMenu/Panel/Header/Title",
-     "class": "TextLabel"
-    },
-    {
-     "path": "PauseMenu/ResumeButton",
-     "class": "TextButton"
-    },
-    {
-     "path": "PauseMenu/ResumeButton/Label",
-     "class": "TextLabel"
-    },
-    {
-     "path": "PauseMenu/MusicLabel",
-     "class": "TextLabel"
-    },
-    {
-     "path": "PauseMenu/MusicSlider",
-     "class": "Frame"
-    },
-    {
-     "path": "PauseMenu/MusicSlider/Fill",
-     "class": "Frame"
-    },
-    {
-     "path": "PauseMenu/MusicSlider/Knob",
-     "class": "Frame"
-    },
-    {
-     "path": "PauseMenu/SfxLabel",
-     "class": "TextLabel"
-    },
-    {
-     "path": "PauseMenu/SfxSlider",
-     "class": "Frame"
-    },
-    {
-     "path": "PauseMenu/SfxSlider/Fill",
-     "class": "Frame"
-    },
-    {
-     "path": "PauseMenu/SfxSlider/Knob",
-     "class": "Frame"
-    },
-    {
-     "path": "PauseMenu/SensitivityLabel",
-     "class": "TextLabel"
-    },
-    {
-     "path": "PauseMenu/SensitivitySlider",
-     "class": "Frame"
-    },
-    {
-     "path": "PauseMenu/SensitivitySlider/Fill",
-     "class": "Frame"
-    },
-    {
-     "path": "PauseMenu/SensitivitySlider/Knob",
-     "class": "Frame"
-    },
-    {
-     "path": "PauseMenu/DamageNumbersToggle",
-     "class": "TextButton"
-    },
-    {
-     "path": "PauseMenu/DamageNumbersToggle/Box",
-     "class": "Frame"
-    },
-    {
-     "path": "PauseMenu/DamageNumbersToggle/Check",
-     "class": "ImageLabel",
-     "icon": "IconCheck"
-    },
-    {
-     "path": "PauseMenu/DamageNumbersToggle/Label",
-     "class": "TextLabel"
-    },
-    {
-     "path": "PauseMenu/LeaveButton",
-     "class": "TextButton"
-    },
-    {
-     "path": "PauseMenu/LeaveButton/Label",
-     "class": "TextLabel"
-    },
-    {
      "path": "TouchControls",
      "class": "Frame",
      "visible": false
@@ -730,23 +474,19 @@
   "PortraitKnight": [
    "Menu/MainMenu/SquadList/SquadRow/Portrait",
    "Menu/CharacterSelect/CharacterGrid/PortraitTile/Portrait",
-   "Menu/CharacterSelect/DetailCard/Portrait",
-   "EndScreens/Results/PlayerRows/PlayerRow/Portrait"
+   "Menu/CharacterSelect/DetailCard/Portrait"
   ],
   "PortraitFox": [
    "Menu/MainMenu/SquadList/SquadRow/Portrait",
-   "Menu/CharacterSelect/CharacterGrid/PortraitTile/Portrait",
-   "EndScreens/Results/PlayerRows/PlayerRow/Portrait"
+   "Menu/CharacterSelect/CharacterGrid/PortraitTile/Portrait"
   ],
   "PortraitFrostling": [
    "Menu/MainMenu/SquadList/SquadRow/Portrait",
-   "Menu/CharacterSelect/CharacterGrid/PortraitTile/Portrait",
-   "EndScreens/Results/PlayerRows/PlayerRow/Portrait"
+   "Menu/CharacterSelect/CharacterGrid/PortraitTile/Portrait"
   ],
   "IconSilver": [
    "Menu/MainMenu/SilverTotal/Icon",
-   "Menu/CharacterSelect/DetailCard/UnlockButton/Icon",
-   "EndScreens/Results/PlayerRows/PlayerRow/Silver/Icon"
+   "Menu/CharacterSelect/DetailCard/UnlockButton/Icon"
   ],
   "IconPadlock": [
    "Menu/CharacterSelect/CharacterGrid/LockedTile/Padlock"
@@ -789,9 +529,6 @@
   ],
   "IconMapTeammate": [
    "Overlay/BigMap/Legend/LegendItem/Icon"
-  ],
-  "IconCheck": [
-   "Overlay/PauseMenu/DamageNumbersToggle/Check"
   ]
  }
 }

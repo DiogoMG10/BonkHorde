@@ -6,12 +6,19 @@
 -- what makes a balance pass a data edit.
 
 local GameConfig = {
-	BuildStamp = "bonk-0.21.0-t2",
+	BuildStamp = "bonk-0.22.0-t3",
 
 	-- squad
 	MaxPlayers = 3,
 	IntroSeconds = 3,
+	EndHoldSeconds = 2.5, -- the server holds Victory / Wipe this long before Results...
+	-- ...and Results this long at most: the fallback for whoever does not press
+	-- CONTINUE (T3). Once every player still here has pressed, the squad goes at once
 	ResultsSeconds = 12,
+	DeathScreenSeconds = 4, -- the death screen gives way to the results by itself (SKIP for sooner)
+	-- SKIP and CONTINUE ignore every input this long when their screen lands, then
+	-- answer only a press begun after it: a click meant for the fight never skips (T1's rule)
+	EndScreenLockSeconds = 0.5,
 	ExitCountdownSeconds = 4,
 
 	-- stage clock

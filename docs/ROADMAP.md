@@ -117,8 +117,15 @@ Wardwood, native grass; no publishing or permanent uploads without authorization
   top centre; minimap top right; build tray bottom centre); a safe-area root on Roblox's
   CoreUISafeInsets, compact layout on small screens (`Core/HudLayout`). Offline checks only;
   needs a human Studio playtest (solo, co-op, phone emulator). Details: `assets/ui/NOTES.Hud.md`.
-- **T3** Pause menu: inventory, item descriptions, weapon levels, tomes, current stats
-  (three columns: inventory, actions, stats).
+- **T3 — in review.** Pause menu, inspector and end of run (`feat/t3-pause-results`, on top
+  of T2, `bonk-0.22.0-t3`), not merged: a three-column menu in the T2 look (build with a
+  details card, actions with the run card, the stats sheet in sections; tabs on small
+  screens) with map and settings inside; solo P pauses, co-op P opens it with the world
+  still running (GAME STILL RUNNING; REQUEST PAUSE is the existing vote, closing keeps it).
+  Death screen SKIP; results with the Silver breakdown and CONTINUE: solo back to the lobby
+  at once, co-op when everyone still here has pressed or the old fallback ends
+  (`Core/EndVote`, run-numbered). PLAY AGAIN waits for T7. Offline checks only; needs a
+  human Studio playtest (solo, co-op, phone emulator). Details: `assets/ui/NOTES.Pause.md`.
 - **T4** Audio audit and references for a softer sound direction.
 - **T5** SFX, ambience and music redone; volume balance, nothing harsh or fatiguing.
 - **T6** Solo and co-op runs isolated: joiners never enter or disturb a running run; parties

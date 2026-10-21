@@ -411,13 +411,19 @@ function PlayerStateService:GrantTome(rec, id: string, lines): boolean
 		return false
 	end
 	if not entry then
-		entry = { id = id, level = 0 }
+		-- gained: what this tome's level-ups have added to its stat, rarity
+		-- included, so the pause menu can show the real total (T3)
+		entry = { id = id, level = 0, gained = 0 }
 		rec.tomeIndex[id] = entry
 		table.insert(rec.tomes, entry)
 	end
 	entry.level += 1
+	local stat = Roster.Tomes[id] and Roster.Tomes[id].stat
 	for _, line in lines do
 		Stats.add(rec.bonus, line.stat, line.amount)
+		if line.stat == stat then
+			entry.gained += line.amount
+		end
 	end
 	self:UpdateComplete(rec)
 	self:Recompute(rec)

@@ -43,6 +43,8 @@
 --                      (mob, slimes, escort, pincer, boneline, stampede, ring,
 --                      ghosts, wall); `clock 300` reaches the later packs
 --   pace               where the horde's rhythm is, and when the next surge comes
+--   endrun [win]       end the run now as a wipe (or a victory): the death
+--                      screen, the results and CONTINUE (T3)
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -420,6 +422,11 @@ function DevService:KnitStart()
 	end
 	function commands.mini(_, name)
 		bosses:SpawnMini(name or "BoulderBro", director:Now())
+	end
+	-- T3: end the run now, to try the death screen, the results and CONTINUE
+	-- (rewards are paid exactly as for a real ending)
+	function commands.endrun(_, how)
+		director:_endRun(how == "win")
 	end
 	function commands.bosshp(_, fraction)
 		for slot in bosses._bosses do

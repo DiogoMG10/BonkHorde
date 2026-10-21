@@ -1,5 +1,11 @@
 # NOTES: Menu, EndScreens, Overlay
 
+> **T3 (`bonk-0.22.0-t3`):** the pause menu is now its own ScreenGui, `Pause`, and
+> EndScreens is built by `design/ui_specs/Screens_build.py`; see `NOTES.Pause.md`. The
+> old pause sheet was removed from `Overlay.model.json` and EndScreens' old specs,
+> builder and mockups are deleted. What follows describes the original Menu, EndScreens
+> and Overlay build and is history for EndScreens and the pause sheet.
+
 Built by `design/ui_specs/Menu_build.py` (run with `D:\Forge\system\python\python.exe`).
 One run writes the 8 spec files, the 8 mockups, the 3 `.model.json`, the 3 Luau
 builders and `assets/ui/manifest.Menu.json`, then runs `verify_ui` and a contract
@@ -127,7 +133,13 @@ so the model and the Luau still come from the same node.
 - The Luau builders live in `design/ui_specs/*.build.lua`, which is outside the
   file list given in the brief (`src/ui` would have synced them into StarterGui).
 
-## Known drift: the Overlay pause sheet (checked 2026-10-16)
+## Known drift: the Overlay pause sheet (checked 2026-10-16; superseded by T3)
+
+Since T3 `Menu_build.py` refuses to run unless given `--overwrite-anyway`: it would put
+the old pause sheet back into Overlay, overwrite EndScreens and drop the features below.
+The sheet's settings (Master, Music, SFX, sensitivity, damage numbers, enemy outlines)
+live on in the Pause ScreenGui's `SettingsView`; the pause notice and the 3-2-1 stay in
+Overlay.
 
 `Menu_build.py` is behind `src/ui/Overlay.model.json`. M2.A (`bonk-0.5.x-m2a`) built the
 pause sheet's Master slider, pause notice and 3-2-1 countdown straight into the model
