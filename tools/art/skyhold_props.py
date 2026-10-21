@@ -147,8 +147,9 @@ def portal(coll, centre_height, inner=13.4, outer=17.2, seed=11):
         for g in range(14):
             a = g / 14 * math.tau + math.pi / 14
             cx, cz = math.cos(a) * (inner + outer) / 2, math.sin(a) * (inner + outer) / 2
+            # (the ring still lies flat here: x, y round it, z out of its face)
             for dx, dz, sx, sz in ((0, 0, 0.2, 1.1), (0.26, 0.3, 0.5, 0.16), (-0.24, -0.34, 0.44, 0.16), (0.0, 0.62, 0.4, 0.14)):
-                U.box(bm, cx + dx, face_y, cz + dz, sx, 0.08, sz, rot=0)
+                U.box(bm, cx + dx, cz + dz, face_y, sx, sz, 0.08, rot=0)
     # (before the ring is stood up: y is up the ring, z out of its face)
     for face in (1, -1):
         U.offset(U.lathe(bm, [(0.0, -0.9), (0.95, 0.0), (0.0, 0.9)], 6), 0, outer + 0.85, face * 2.45)
