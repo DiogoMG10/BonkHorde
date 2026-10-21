@@ -42,8 +42,9 @@ decisions.
 - Tiago and Diogo work on the same feature one after the other, taking turns with Claude Code.
   One active line of development by default; parallel work only when both decide it.
 - One branch per feature, no permanent per-developer branches. GitHub is the source of truth.
-- One developer's approval in a human Studio playtest is enough to integrate a feature into
-  `main`, after the gates. Its roadmap line says who approved it and what is still unverified.
+- One developer's approval after playtesting a feature in Studio is enough to integrate it into
+  `main`, after the gates; the other developer may review it later and suggest improvements.
+  Its roadmap line says who approved it and what is still unverified.
 - Each developer has their own local `.rbxl` and Rojo session. Never switch branches while Rojo
   is connected.
 - Local Claude Code sessions do not share context. Start from `git pull`, the roadmap and the

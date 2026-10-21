@@ -111,22 +111,22 @@ Wardwood, native grass; no publishing or permanent uploads without authorization
   Refresh, Ignore, keys 1-9); Dan's Leave is never locked; one answer in flight at a time;
   the gamepad selects only on unlock; a soft tick; co-op timers get the lock back
   (`Core/InputGuard`).
-- **T2 — done.** HUD overhaul (`feat/t2-hud-overhaul`, `bonk-0.21.0-t2`), approved in Studio
-  by Tiago and merged to `main`: Wardwood storybook look (moss panels, thin gold rim); corners
+- **T2 — done.** HUD overhaul (`feat/t2-hud-overhaul`, `bonk-0.21.0-t2`), visually approved
+  in Studio by Tiago and merged to `main`: Wardwood storybook look (moss panels, thin gold rim); corners
   by role (vitals card, purse, objectives and team top left; countdown plate, overtime pill,
   boss bars, banner and toasts top centre; minimap top right; build tray bottom centre); a
   safe-area root on Roblox's CoreUISafeInsets, compact layout on small screens
   (`Core/HudLayout`). Details: `assets/ui/NOTES.Hud.md`.
 - **T3 — done.** Pause menu, inspector and end of run (`feat/t3-pause-results`, on top of
-  T2, `bonk-0.22.0-t3`), approved in Studio by Tiago and merged to `main`: a three-column
-  menu in the T2 look (build with a details card, actions with the run card, the stats sheet
-  in sections; tabs on small screens) with map and settings inside; solo P pauses, co-op P
-  opens it with the world still running (GAME STILL RUNNING; REQUEST PAUSE is the existing
-  vote, closing keeps it). Death screen SKIP; results with the Silver breakdown and
-  CONTINUE: solo back to the lobby at once (verified in Studio), co-op when everyone still
-  here has pressed or the old fallback ends (`Core/EndVote`, run-numbered). PLAY AGAIN waits
-  for T7. **Not yet verified in Studio:** the co-op flows (REQUEST PAUSE from the menu, the
-  results vote). Details: `assets/ui/NOTES.Pause.md`.
+  T2, `bonk-0.22.0-t3`), visually approved in Studio by Tiago and merged to `main`: a
+  three-column menu in the T2 look (build with a details card, actions with the run card,
+  the stats sheet in sections; tabs on small screens) with map and settings inside; solo P
+  pauses, co-op P opens it with the world still running (GAME STILL RUNNING; REQUEST PAUSE
+  is the existing vote, closing keeps it). Death screen SKIP; results with the Silver
+  breakdown and CONTINUE: solo back to the lobby at once (verified in Studio by Tiago),
+  co-op when everyone still here has pressed or the old fallback ends (`Core/EndVote`,
+  run-numbered). PLAY AGAIN waits for T7. **Not yet human-validated:** the co-op pause flow
+  and the co-op end-of-run vote. Details: `assets/ui/NOTES.Pause.md`.
 - **T4** Audio audit and references for a softer sound direction.
 - **T5** SFX, ambience and music redone; volume balance, nothing harsh or fatiguing.
 - **T6 — next, together with T7.** Solo and co-op runs isolated: joiners never enter or
