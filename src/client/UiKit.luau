@@ -240,6 +240,7 @@ end
 local screens = {} -- name -> ScreenGui, or false when it never arrived
 local loading = {}
 local scaled = {} -- ScreenGui -> { scale = UIScale, tops = { [GuiObject] = { size, position } } }
+local custom = {} -- ScreenGui -> its own layout function, run instead of the shared scale
 local viewportConn: RBXScriptConnection? = nil
 
 local function currentScale(): number
@@ -261,7 +262,11 @@ local function applyScale()
 	local s = currentScale()
 	local compensate = playerGui:GetAttribute("BonkUiScaleCompensate") == true
 	local k = if compensate then 1 / s else 1
-	for _, entry in scaled do
+	for screen, entry in scaled do
+		if custom[screen] then
+			UiKit.safe(screen.Name, custom[screen])
+			continue
+		end
 		entry.scale.Scale = s
 		for object, original in entry.tops do
 			if object.Parent then
@@ -365,6 +370,133 @@ end
 
 function UiKit.playerGui(): PlayerGui
 	return playerGui
+end
+
+-- ---------------------------------------------------------------- safe areas
+
+-- Roblox knows where its top bar and the device's cut-outs are: a ScreenGui
+-- with ScreenInsets = CoreUISafeInsets keeps clear of both, DeviceSafeInsets of
+-- the cut-outs alone. Three empty probe ScreenGuis, each holding one full-size
+-- frame, turn that into numbers: the difference between a probe's frame and
+-- the inset-free one is the inset on each side. GuiService.TopbarInset is the
+-- part of the top bar Roblox leaves free.
+
+local probes = nil
+local insetListeners = {}
+local insetQueued = false
+
+local function insetsChanged()
+	if insetQueued then
+		return
+	end
+	insetQueued = true
+	task.defer(function()
+		insetQueued = false
+		for _, fn in insetListeners do
+			UiKit.safe("UiKit.insets", fn)
+		end
+		for screen, fn in custom do
+			if screen.Parent then
+				UiKit.safe(screen.Name, fn)
+			end
+		end
+	end)
+end
+
+local function probe(name: string, ignoreInset: boolean, insets: string): Frame
+	local gui = Instance.new("ScreenGui")
+	gui.Name = name
+	gui.ResetOnSpawn = false
+	gui.DisplayOrder = -100
+	gui.IgnoreGuiInset = ignoreInset
+	pcall(function()
+		(gui :: any).ScreenInsets = (Enum :: any).ScreenInsets[insets]
+	end)
+	local area = Instance.new("Frame")
+	area.Name = "Area"
+	area.Size = UDim2.fromScale(1, 1)
+	area.BackgroundTransparency = 1
+	area.Active = false
+	area.Parent = gui
+	gui.Parent = playerGui
+	area:GetPropertyChangedSignal("AbsoluteSize"):Connect(insetsChanged)
+	area:GetPropertyChangedSignal("AbsolutePosition"):Connect(insetsChanged)
+	return area
+end
+
+local function ensureProbes()
+	if probes then
+		return probes
+	end
+	probes = {
+		full = probe("BonkInsetFull", true, "None"),
+		core = probe("BonkInsetCore", false, "CoreUISafeInsets"),
+		device = probe("BonkInsetDevice", true, "DeviceSafeInsets"),
+	}
+	pcall(function()
+		GuiService:GetPropertyChangedSignal("TopbarInset"):Connect(insetsChanged)
+	end)
+	return probes
+end
+
+--- The screen as Roblox lays it out: its size in pixels, the core-UI and
+--- device insets on each side, the free part of the top bar (or nil), and
+--- `origin`, what AbsolutePosition reads at the screen's top-left corner.
+function UiKit.insets()
+	local p = ensureProbes()
+	local full = p.full
+	local fp, fs = full.AbsolutePosition, full.AbsoluteSize
+	if fs.X < 1 or fs.Y < 1 then
+		local camera = Workspace.CurrentCamera
+		fs = if camera then camera.ViewportSize else UiKit.DesignSize
+	end
+	local function inset(area: Frame)
+		local ap, as = area.AbsolutePosition, area.AbsoluteSize
+		if as.X < 1 or as.Y < 1 or full.AbsoluteSize.X < 1 then
+			return nil
+		end
+		return {
+			left = math.max(0, ap.X - fp.X),
+			top = math.max(0, ap.Y - fp.Y),
+			right = math.max(0, fp.X + fs.X - ap.X - as.X),
+			bottom = math.max(0, fp.Y + fs.Y - ap.Y - as.Y),
+		}
+	end
+	-- until the probes are laid out, the classic top-bar inset is the best guess
+	local guiInset = GuiService:GetGuiInset()
+	local core = inset(p.core) or { left = 0, top = guiInset.Y, right = 0, bottom = 0 }
+	-- never less than the classic top-bar inset, whatever the probes report
+	core.top = math.max(core.top, guiInset.Y)
+	local device = inset(p.device) or { left = 0, top = 0, right = 0, bottom = 0 }
+	local topbar = nil
+	local ok, rect = pcall(function()
+		return (GuiService :: any).TopbarInset
+	end)
+	if ok and typeof(rect) == "Rect" and rect.Width > 0 and rect.Height > 0 then
+		topbar = { x0 = rect.Min.X, y0 = rect.Min.Y, x1 = rect.Max.X, y1 = rect.Max.Y }
+	end
+	return { width = fs.X, height = fs.Y, core = core, device = device, topbar = topbar, origin = fp }
+end
+
+--- Run `fn` whenever the insets, the free top bar or the screen size change.
+function UiKit.onInsets(fn: () -> ())
+	ensureProbes()
+	table.insert(insetListeners, fn)
+end
+
+--- Hand one ScreenGui's scale to its own controller: `layout` runs instead of
+--- the shared scale (and its top-level reset) whenever the screen or its
+--- insets change, and once now. It sets the screen's UIScale itself.
+function UiKit.ownScale(screen: ScreenGui, layout: () -> ())
+	ensureProbes()
+	custom[screen] = layout
+	UiKit.safe(screen.Name, layout)
+end
+
+--- The UIScale UiKit installed on a screen.
+function UiKit.scaleOf(screen: ScreenGui): UIScale?
+	local entry = scaled[screen]
+	return entry and entry.scale
 end
 
 -- ---------------------------------------------------------------- buttons and gamepad focus

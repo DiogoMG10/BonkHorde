@@ -22,9 +22,8 @@ local MinimapController = Knit.CreateController({ Name = "MinimapController" })
 
 local player = Players.LocalPlayer
 
-local MINIMAP_RADIUS_PX = 114 -- Dots is a 228 px square; the circle is cut by code
 local MINIMAP_RANGE_STUDS = 120 -- how far the rim is from the hero
-local RIM_LETTER_PX = 122
+local RIM_INSET_PX = 4 -- Dots is the minimap less this on each side; the circle is cut by code
 local DOT_PX = 10
 local BIG_DOT_PX = 14
 
@@ -106,7 +105,8 @@ function MinimapController:_start()
 	local overlay = UiKit.gui("Overlay")
 	local state = self._state
 
-	local mini = UiKit.find(hud, "Minimap")
+	local mini = UiKit.find(hud, "Safe.TopRight.Minimap")
+	self._miniHolder = UiKit.find(hud, "Safe.TopRight") -- HudController sizes it per screen
 	local miniDots = UiKit.find(mini, "Dots")
 	local template = UiKit.template(miniDots, "MapDot")
 	self._mini = mini
@@ -240,13 +240,17 @@ function MinimapController:_frame()
 		-- camera space: forward is up on the map, right is right
 		local yaw = self._camera:Yaw()
 		local sin, cos = math.sin(yaw), math.cos(yaw)
-		local scale = MINIMAP_RADIUS_PX / MINIMAP_RANGE_STUDS
+		local holder = self._miniHolder
+		local side = if holder and holder:IsA("GuiObject") then holder.Size.X.Offset else 220
+		local radius = side / 2 - RIM_INSET_PX
+		local rimLetter = side / 2 - 2
+		local scale = radius / MINIMAP_RANGE_STUDS
 		local pool = self._miniPool
 		for _, dot in dots do
 			local dx, dz = dot.x - px, dot.z - pz
 			local right = (dx * cos - dz * sin) * scale
 			local forward = (-dx * sin - dz * cos) * scale
-			local limit = MINIMAP_RADIUS_PX - dot.size * 0.5 - 1
+			local limit = radius - dot.size * 0.5 - 1
 			local distance = math.sqrt(right * right + forward * forward)
 			if distance <= limit then
 				poolPut(pool, right, -forward, dot.colour, dot.size)
@@ -260,8 +264,8 @@ function MinimapController:_frame()
 
 		-- north is world -Z, east is world +X
 		local letters = self._miniLetters
-		local nx, ny = sin * RIM_LETTER_PX, -cos * RIM_LETTER_PX
-		local ex, ey = cos * RIM_LETTER_PX, sin * RIM_LETTER_PX
+		local nx, ny = sin * rimLetter, -cos * rimLetter
+		local ex, ey = cos * rimLetter, sin * rimLetter
 		if letters.N then
 			letters.N.Position = UDim2.new(0.5, nx, 0.5, ny)
 		end

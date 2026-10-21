@@ -111,7 +111,12 @@ Wardwood, native grass; no publishing or permanent uploads without authorization
   Refresh, Ignore, keys 1-9); Dan's Leave is never locked; one answer in flight at a time;
   the gamepad selects only on unlock; a soft tick; co-op timers get the lock back
   (`Core/InputGuard`).
-- **T2** HUD/UI overhaul: clarity, consistency, Roblox top-bar safe area, responsive, readable.
+- **T2 — in review.** HUD overhaul (`feat/t2-hud-overhaul`, `bonk-0.21.0-t2`), not merged:
+  Wardwood storybook look (moss panels, thin gold rim); corners by role (vitals card, purse,
+  objectives and team top left; countdown plate, overtime pill, boss bars, banner and toasts
+  top centre; minimap top right; build tray bottom centre); a safe-area root on Roblox's
+  CoreUISafeInsets, compact layout on small screens (`Core/HudLayout`). Offline checks only;
+  needs a human Studio playtest (solo, co-op, phone emulator). Details: `assets/ui/NOTES.Hud.md`.
 - **T3** Pause menu: inventory, item descriptions, weapon levels, tomes, current stats
   (three columns: inventory, actions, stats).
 - **T4** Audio audit and references for a softer sound direction.
