@@ -12,10 +12,17 @@
 -- screens get a compact arrangement at a legible size. The full-screen layers
 -- (HurtFlash, DownedOverlay, Letterbox) stay outside it, edge to edge.
 --
---   top left     Vitals (level, shield, HP, XP), Purse, objectives, team
---   top centre   timer plate, overtime pill, boss bars, banner, toast
+--   top edge     the XP strip (its own ScreenGui, XpBar, over the level-up
+--                panels): in the free part of Roblox's top bar, or under it
+--   top left     Vitals (level, shield, HP), Purse, objectives, team
+--   top centre   one column: timer plate, LEVEL UP!, overtime pill, boss bars,
+--                banner, toast, pickup popup; nothing there can cover anything
 --   top right    minimap (MinimapController draws in it)
 --   bottom       interact prompt over the build tray (items, weapons | tomes)
+--
+-- The XP strip wears a flowing rainbow for as long as a level-up waits for
+-- this player's choice (Core/XpStrip): from the offer arriving until the last
+-- waiting one is answered, through Refresh, Banish and a panel opened over it.
 
 local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
@@ -29,8 +36,10 @@ local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local HudLayout = require(ReplicatedStorage.Shared.Core.HudLayout)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Roster = require(ReplicatedStorage.Shared.Config.Roster)
+local Signal = require(ReplicatedStorage.Packages.Signal)
 local Spawn = require(ReplicatedStorage.Shared.Core.Spawn)
 local Stats = require(ReplicatedStorage.Shared.Core.Stats)
+local XpStrip = require(ReplicatedStorage.Shared.Core.XpStrip)
 local UiFonts = require(script.Parent.Parent.UiFonts)
 local UiKit = require(script.Parent.Parent.UiKit)
 
@@ -42,17 +51,22 @@ local BANNER_SECONDS = 3.2
 local SURGE_BANNER_SECONDS = 2
 local TOAST_SECONDS = 4
 local PICKUP_SECONDS = 1.6
-local LEVELUP_SECONDS = 1.6
+local LEVELUP_SECONDS = 1.6 -- the LEVEL UP! popup; the strip's rainbow follows the choice instead
 local TITLE_LINGER = 1.5
 local LOW_HP = 0.3 -- the HP bar's rim pulses below this share
 local SLOT_GAP = 6
 local ITEM_GAP = 4
+local RAINBOW_TURN = 2.4 -- seconds for the rainbow's colours to flow one full turn
+local RAINBOW_STEP = 1 / 30 -- how often the flow is redrawn
+local RAINBOW_IN = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+local RAINBOW_OUT = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
 
 local INK = Color3.fromHex("#FFF7E8")
 local SOFT = Color3.fromHex("#D7CFBC")
 local TAN = Color3.fromHex("#D9B45A")
 local RIM = Color3.fromHex("#D9B85C")
 local GOLD = Color3.fromHex("#FFCB45")
+local XP = Color3.fromHex("#45A3FF")
 local HP = Color3.fromHex("#F2554D")
 local DONE = Color3.fromHex("#7BD957")
 local TRACK = Color3.fromHex("#0A110D")
@@ -129,6 +143,10 @@ local function setOffset(inst: Instance?, prop: string, x: number, y: number)
 end
 
 function HudController:KnitInit()
+	-- the top centre column moved or grew (OverlayController keeps its notice under it)
+	self.TopChanged = Signal.new()
+	self._latch = XpStrip.latch()
+	self._rainbowOn = false
 	self._e = {}
 	self._templates = {}
 	self._clones = { weapons = {}, tomes = {}, quests = {}, mates = {}, items = {}, minis = {} }
@@ -145,9 +163,22 @@ end
 function HudController:KnitStart()
 	self._state = Knit.GetController("StateController")
 	self._world = Knit.GetController("WorldController")
+	self._choices = Knit.GetController("ChoiceController")
 	UiKit.safe("HudController", function()
 		self:_start()
 	end)
+end
+
+--- Where the top centre column ends, in pixels from the top of the screen, or
+--- nil while the HUD is off. Anything drawn under it from another screen (the
+--- pause notice) starts there.
+function HudController:TopBottom(): number?
+	local column = self._e.topCenter
+	if not (self._hud and self._hud.Enabled and column) then
+		return nil
+	end
+	local origin = UiKit.insets().origin
+	return column.AbsolutePosition.Y + column.AbsoluteSize.Y - origin.Y
 end
 
 function HudController:_start()
@@ -175,8 +206,6 @@ function HudController:_start()
 	e.hpFill = f("Safe.TopLeft.Vitals.Bars.HPBar.Fill")
 	e.hpTrail = f("Safe.TopLeft.Vitals.Bars.HPBar.Trail")
 	e.hpText = f("Safe.TopLeft.Vitals.Bars.HPBar.Text")
-	e.xpFill = f("Safe.TopLeft.Vitals.Bars.XPBar.Fill")
-	e.rainbow = f("Safe.TopLeft.Vitals.Bars.XPBar.Rainbow")
 	e.goldIcon = f("Safe.TopLeft.Purse.Gold.Icon")
 	e.gold = f("Safe.TopLeft.Purse.Gold.GoldCount")
 	e.nextChest = f("Safe.TopLeft.Purse.NextChest")
@@ -218,8 +247,8 @@ function HudController:_start()
 	e.loadout = f("Safe.BottomCenter.BuildTray.Loadout")
 	e.weaponRow = f("Safe.BottomCenter.BuildTray.Loadout.WeaponRow")
 	e.tomeRow = f("Safe.BottomCenter.BuildTray.Loadout.TomeRow")
-	e.pickupToast = f("Safe.PickupToast")
-	e.levelUp = f("Safe.LevelUpText")
+	e.pickupToast = f("Safe.TopCenter.PickupToast")
+	e.levelUp = f("Safe.TopCenter.LevelUpText")
 	e.stageTitle = f("Safe.StageTitle")
 	e.stageTier = f("Safe.StageTitle.TierLabel")
 	e.stageName = f("Safe.StageTitle.StageName")
@@ -229,6 +258,15 @@ function HudController:_start()
 	e.reviveFill = f("DownedOverlay.ReviveBack.ReviveFill")
 	e.spectate = f("DownedOverlay.SpectateName")
 	e.hurt = f("HurtFlash")
+
+	-- the XP strip: its own screen, drawn over the level-up panels
+	local xpGui = UiKit.gui("XpBar")
+	self._xpGui = xpGui
+	e.strip = UiKit.find(xpGui, "Strip")
+	e.xpBack = UiKit.find(xpGui, "Strip.Back")
+	e.xpFill = UiKit.find(xpGui, "Strip.Fill")
+	e.rainbow = UiKit.find(xpGui, "Strip.Rainbow")
+	e.rainbowGradient = UiKit.find(xpGui, "Strip.Rainbow.Gradient")
 
 	local t = self._templates
 	t.weapon = UiKit.template(e.weaponRow, "LoadoutSlot")
@@ -278,8 +316,10 @@ function HudController:_start()
 			if key == "phase" then
 				self:_renderPhase()
 				self:_renderQuests()
+				self:_updateRainbow()
 			elseif key == "me" then
 				self:_renderMe()
+				self:_updateRainbow()
 			elseif key == "squad" or key == "roster" then
 				self:_renderSquad()
 			elseif key == "xp" then
@@ -289,6 +329,29 @@ function HudController:_start()
 			end
 		end)
 	end)
+	self._choices.OfferChanged:Connect(function()
+		UiKit.safe("HudController.offer", function()
+			self:_updateRainbow()
+		end)
+	end)
+
+	-- the top centre column grows and shrinks as its parts come and go
+	local topQueued = false
+	local function topMoved()
+		if topQueued then
+			return
+		end
+		topQueued = true
+		task.defer(function()
+			topQueued = false
+			self.TopChanged:Fire()
+		end)
+	end
+	if e.topCenter then
+		e.topCenter:GetPropertyChangedSignal("AbsoluteSize"):Connect(topMoved)
+		e.topCenter:GetPropertyChangedSignal("AbsolutePosition"):Connect(topMoved)
+	end
+	hud:GetPropertyChangedSignal("Enabled"):Connect(topMoved)
 
 	self._world.PromptChanged:Connect(function(text)
 		UiKit.safe("HudController", function()
@@ -356,6 +419,12 @@ function HudController:_watchLayout()
 	UiKit.ownScale(self._hud, function()
 		self:_layout()
 	end)
+	if self._xpGui then
+		-- the strip is laid out with the rest of the HUD
+		UiKit.ownScale(self._xpGui, function()
+			self:_queueLayout()
+		end)
+	end
 end
 
 function HudController:_queueLayout()
@@ -429,15 +498,24 @@ function HudController:_layout()
 	setOffset(e.safe, "Position", layout.safe.x, layout.safe.y)
 	setOffset(e.safe, "Size", layout.safe.w, layout.safe.h)
 
+	-- the XP strip, on its own screen at the same scale
+	local xpScale = self._xpGui and UiKit.scaleOf(self._xpGui)
+	if xpScale and math.abs(xpScale.Scale - layout.scale) > 1e-4 then
+		xpScale.Scale = layout.scale
+	end
+	setOffset(e.strip, "Position", layout.xp.x, layout.xp.y)
+	setOffset(e.strip, "Size", layout.xp.w, layout.xp.h)
+
+	setOffset(e.topLeft, "Position", m, layout.topLeft)
 	setOffset(e.topLeft, "Size", sizes.column, 0)
-	setOffset(e.vitals, "Size", sizes.column, 108)
+	setOffset(e.vitals, "Size", sizes.column, sizes.vitals)
 	for _, panel in { e.questTracker, e.teammates } do
 		setOffset(panel, "Size", math.min(380, sizes.column - 20), 0)
 	end
 
 	local centre = layout.centreWidth
 	if e.topCenter then
-		e.topCenter.Position = UDim2.new(0.5, 0, 0, math.floor(m - layout.liftCentre + 0.5))
+		e.topCenter.Position = UDim2.new(0.5, 0, 0, math.floor(layout.topCentre + 0.5))
 	end
 	setOffset(e.topCenter, "Size", centre, 0)
 	setOffset(e.plate, "Size", sizes.plate, sizes.plateHeight)
@@ -450,7 +528,7 @@ function HudController:_layout()
 	setOffset(e.toast, "Size", math.min(400, centre), 70)
 
 	if e.topRight then
-		e.topRight.Position = UDim2.new(1, -math.floor(m + layout.shiftRight + 0.5), 0, math.floor(m - layout.liftRight + 0.5))
+		e.topRight.Position = UDim2.new(1, -math.floor(m + layout.shiftRight + 0.5), 0, math.floor(layout.topRight + 0.5))
 	end
 	setOffset(e.topRight, "Size", sizes.minimap, sizes.minimap)
 
@@ -695,18 +773,127 @@ function HudController:_levelUpFx()
 	if me and me.complete then
 		return -- the server does not send it to a finished build; a late packet is ignored too
 	end
+	-- the popup is brief; the strip's rainbow lasts until the choice is made
 	local stamp = os.clock()
 	self._levelStamp = stamp
-	UiKit.show(e.rainbow, true)
 	self:_fade(e.levelUp, true)
 	pop(e.levelUp, 0.5)
 	pop(e.level, 1.6)
 	flashRim(e.badge, GOLD)
 	flashRim(e.vitals, GOLD)
+	flashRim(e.xpBack, WHITE)
+	self:_updateRainbow()
 	task.delay(LEVELUP_SECONDS, function()
 		if self._levelStamp == stamp then
 			self:_fade(e.levelUp, false)
-			UiKit.show(e.rainbow, false)
+		end
+	end)
+end
+
+-- ---------------------------------------------------------------- the strip's rainbow
+
+--- Is a level-up waiting for this player's choice? The server's count in
+--- PlayerState, or an offer open here (it arrives a moment before the count).
+function HudController:_waitingFacts(): XpStrip.Facts
+	local state = self._state
+	local me = state.me
+	local phase = state.phase
+	return {
+		live = me ~= nil and (phase == "Playing" or phase == "Overtime"),
+		complete = me ~= nil and me.complete == true,
+		pending = if me then tonumber(me.levelUps) or 0 else 0,
+		offer = self._choices ~= nil and self._choices:HasOffer(),
+	}
+end
+
+--- Put the rainbow on or off the strip as the choice waits or is made.
+function HudController:_updateRainbow()
+	local facts = self:_waitingFacts()
+	local waiting = XpStrip.waiting(facts)
+	local hard = not facts.live or facts.complete
+	local on = XpStrip.step(self._latch, waiting, os.clock(), nil, hard)
+	if on ~= self._rainbowOn then
+		self._rainbowOn = on
+		self:_showRainbow(on, hard)
+	end
+end
+
+function HudController:_showRainbow(on: boolean, instant: boolean?)
+	local e = self._e
+	local band, gradient = e.rainbow, e.rainbowGradient
+	if not (band and band:IsA("GuiObject")) then
+		return
+	end
+	local stamp = os.clock()
+	self._rainbowStamp = stamp
+	if self._rainbowFade then
+		self._rainbowFade:Cancel()
+		self._rainbowFade = nil
+	end
+	local rim = e.xpBack and e.xpBack:FindFirstChild("Stroke")
+	if on then
+		if not band.Visible then
+			band.BackgroundTransparency = 1
+			band.Visible = true
+		end
+		self._rainbowFade = tween(band, RAINBOW_IN, { BackgroundTransparency = 0 })
+		self:_flowRainbow(true, gradient, rim)
+	elseif instant then
+		band.Visible = false
+		band.BackgroundTransparency = 1
+		self:_flowRainbow(false, gradient, rim)
+	else
+		-- back to the plain bar: the rainbow fades off what the fill now shows
+		self._rainbowFade = tween(band, RAINBOW_OUT, { BackgroundTransparency = 1 })
+		task.delay(RAINBOW_OUT.Time, function()
+			if self._rainbowStamp == stamp then
+				band.Visible = false
+				self:_flowRainbow(false, gradient, rim)
+			end
+		end)
+	end
+end
+
+--- The rainbow's colours flow along the strip and its rim breathes, redrawn a
+--- few dozen times a second while it shows; nothing runs while it does not.
+function HudController:_flowRainbow(on: boolean, gradient: Instance?, rim: Instance?)
+	if self._flowConn then
+		self._flowConn:Disconnect()
+		self._flowConn = nil
+	end
+	local stroke = if rim and rim:IsA("UIStroke") then rim else nil
+	if stroke then
+		if stroke:GetAttribute("BaseColor") == nil then
+			stroke:SetAttribute("BaseColor", stroke.Color)
+			stroke:SetAttribute("BaseTransparency", stroke.Transparency)
+		end
+		stroke.Color = stroke:GetAttribute("BaseColor")
+		stroke.Transparency = stroke:GetAttribute("BaseTransparency")
+		stroke.Thickness = 1.5
+	end
+	if not on or not (gradient and gradient:IsA("UIGradient")) then
+		return
+	end
+	local acc = RAINBOW_STEP
+	local started = os.clock()
+	self._flowConn = RunService.RenderStepped:Connect(function(dt)
+		acc += dt
+		if acc < RAINBOW_STEP then
+			return
+		end
+		acc = 0
+		local t = os.clock() - started
+		local keys = XpStrip.rainbow(t / RAINBOW_TURN) -- flowing the way the bar fills
+		local points = table.create(#keys)
+		for i, k in keys do
+			points[i] = ColorSequenceKeypoint.new(k[1], Color3.new(k[2], k[3], k[4]))
+		end
+		gradient.Color = ColorSequence.new(points)
+		if stroke then
+			local glow = 0.5 + 0.5 * math.sin(t * math.pi * 2 / 1.2)
+			stroke.Color = GOLD:Lerp(WHITE, glow)
+			stroke.Transparency = 0.25 - 0.2 * glow
+			stroke.Thickness = 1.5 + glow
 		end
 	end)
 end
@@ -745,8 +932,15 @@ function HudController:_renderPhase()
 		table.clear(self._barState)
 		self._seen = {}
 		self._bannerStamp, self._toastStamp, self._pickupStamp, self._levelStamp = nil, nil, nil, nil
-		for _, key in { "banner", "toast", "pickupToast", "levelUp", "rainbow", "prompt", "downed", "pill" } do
+		for _, key in { "banner", "toast", "pickupToast", "levelUp", "prompt", "downed", "pill" } do
 			UiKit.show(e[key], false)
+		end
+		-- no level-up waits on the island: the strip is plain for the next run
+		self._latch = XpStrip.latch()
+		self._xpLevel = nil
+		if self._rainbowOn then
+			self._rainbowOn = false
+			self:_showRainbow(false, true)
 		end
 		self:_renderBosses()
 		self:_renderMe()
@@ -762,6 +956,12 @@ function HudController:_applyEnabled()
 	if self._hud.Enabled ~= enabled then
 		self._hud.Enabled = enabled
 	end
+	-- the strip waits for the intro's letterbox to lift
+	local strip = self._xpGui
+	local stripOn = enabled and state.phase ~= "Intro"
+	if strip and strip.Enabled ~= stripOn then
+		strip.Enabled = stripOn
+	end
 end
 
 function HudController:_renderProfile()
@@ -772,7 +972,13 @@ end
 function HudController:_renderXp()
 	local e = self._e
 	local state = self._state
-	if state.me and state.me.complete then
+	local complete = state.me ~= nil and state.me.complete == true
+	if complete ~= self._xpGold then
+		-- a finished build wears a full gold strip
+		self._xpGold = complete
+		UiKit.colour(e.xpFill, if complete then GOLD else XP)
+	end
+	if complete then
 		-- a finished build: the squad's XP still runs for teammates, not for this bar
 		self:_bar("xp", e.xpFill, nil, 1, true)
 		UiKit.text(e.level, "MAX")
@@ -791,7 +997,7 @@ function HudController:_renderXp()
 	self:_bar("xp", e.xpFill, nil, fraction)
 	UiKit.text(e.level, tostring(state.level))
 	if e.level and e.level:IsA("TextLabel") then
-		e.level.TextSize = if state.level >= 100 then 28 else 36
+		e.level.TextSize = if state.level >= 100 then 26 else 34
 	end
 end
 
@@ -1232,6 +1438,9 @@ function HudController:_tick(dt: number)
 	local e = self._e
 	local state = self._state
 	self:_applyEnabled()
+	if self._rainbowOn then
+		self:_updateRainbow() -- the hold after the last choice runs out here
+	end
 	if not self._hud.Enabled then
 		return
 	end

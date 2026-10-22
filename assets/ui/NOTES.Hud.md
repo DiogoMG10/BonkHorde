@@ -1,6 +1,8 @@
-# Hud notes (T2)
+# Hud notes (T2; the top of the screen redone on the T6/T7 line)
 
-The in-run HUD was rebuilt in T2 (`bonk-0.21.0-t2`). The old pipeline (`Hud_gen.py`,
+The in-run HUD was rebuilt in T2 (`bonk-0.21.0-t2`). On the T6/T7 line (`bonk-0.24.0-t6t7`)
+XP moved to a strip along the top of the screen, every top-centre element went into one
+column, and the strip wears a rainbow while a level-up waits for the player's choice. The old pipeline (`Hud_gen.py`,
 `Hud_post.py`, the roblox-ui skill's `ui_build.py`) is gone: running it would have
 overwritten this HUD.
 
@@ -11,7 +13,9 @@ overwritten this HUD.
 | `design/ui_specs/Hud_build.py` | the one source: builds the tree, writes the model, the manifest and the previews |
 | `design/ui_specs/hud_cases.luau` | the preview screens (1080p, 1366x768 laptop, notched phone), laid out by the game's own `Core/HudLayout` through Lune |
 | `src/ui/Hud.model.json` | the shipped ScreenGui |
-| `src/shared/Core/HudLayout.luau` | scale, compact mode, top-bar rise and touch-button clearance; specs in `tests/HudLayout.spec.luau` |
+| `src/ui/XpBar.model.json` | the XP strip's own ScreenGui (DisplayOrder 21, over the level-up panels) |
+| `src/shared/Core/HudLayout.luau` | scale, compact mode, the XP strip, where each column starts, touch-button clearance; specs in `tests/HudLayout.spec.luau` |
+| `src/shared/Core/XpStrip.luau` | when the strip wears its rainbow, and its colours as they flow; specs in `tests/XpStrip.spec.luau` |
 | `assets/ui/manifest.Hud.json` | every named element with its path, class and default `Visible` |
 | `assets/ui/mockups/Hud_play.png`, `Hud_boss.png`, `Hud_levelup.png`, `Hud_phone.png`, `Hud_sheet.png` | previews over a Wardwood backdrop with the real icons and fonts |
 
@@ -33,11 +37,12 @@ Everything else sits in `Safe`, which `HudController._layout` places over Roblox
 
 | Cluster | Holds |
 |---|---|
-| `Safe.TopLeft` | `Vitals` (`LevelBadge`, `Bars.ShieldBar`, `Bars.HPBar`, `Bars.XPBar`), `Purse` (gold, `NextChest`, silver, kills), `QuestTracker`, `TeammateBars` |
-| `Safe.TopCenter` | `TimerPlate` (`TimerCaption`, `StageTimer`, `RunClock`), `DifficultyPill`, `BossBars`, `Banner`, `Toast` |
+| `Safe.TopLeft` | `Vitals` (`LevelBadge`, `Bars.ShieldBar`, `Bars.HPBar`), `Purse` (gold, `NextChest`, silver, kills), `QuestTracker`, `TeammateBars` |
+| `Safe.TopCenter` | one column: `TimerPlate` (`TimerCaption`, `StageTimer`, `RunClock`), `LevelUpText`, `DifficultyPill`, `BossBars`, `Banner`, `Toast`, `PickupToast` |
 | `Safe.TopRight` | `Minimap` (MinimapController reads its size for the radius) |
 | `Safe.BottomCenter` | `InteractPrompt` over `BuildTray` (`ItemStrip`, `Loadout.WeaponRow`, `Loadout.TomeRow`) |
-| `Safe` | `PickupToast`, `LevelUpText`, `StageTitle` |
+| `Safe` | `StageTitle` |
+| `XpBar.Strip` (own ScreenGui) | `Back`, `Fill` (`Shine`), `Rainbow` (`Gradient`) |
 
 Every contract name is kept; the paths changed (see `design/ui_contract.md`). New names:
 `Safe`, the four clusters, `Vitals`, `LevelBadge`, `LevelCaption`, `Bars`, `HPBar.Trail`,
@@ -47,10 +52,21 @@ Every contract name is kept; the paths changed (see `design/ui_contract.md`). Ne
 
 ## Layout rules
 
-- The left column always starts under Roblox's top bar. The timer plate and the minimap
-  may rise into the bar where `GuiService.TopbarInset` reports that span free; whatever
-  is stacked under the plate still starts below the bar. `Hud:SetAttribute("BonkTopbarRise",
-  false)` (on PlayerGui's copy) turns the rise off.
+- The XP strip runs along the top of the screen in the part of Roblox's top bar that
+  `GuiService.TopbarInset` reports free, beside Roblox's buttons, when that span holds the
+  timer plate and its clock; the plate (and the minimap, when its part of the bar is free
+  too, compass letters clear) sit under the strip. Otherwise (no free bar, Roblox's buttons
+  spread over the centre, or `Hud:SetAttribute("BonkTopbarRise", false)` on PlayerGui's
+  copy) the strip runs just under the bar across the safe width and every column starts
+  under it.
+- The left column always starts under Roblox's top bar. Whatever is stacked under the plate
+  starts below the bar.
+- The top centre is one list: plate, LEVEL UP!, overtime pill, boss bars, banner, toast,
+  pickup popup. Nothing there is placed by a share of the screen any more, so nothing can
+  cover anything else; LEVEL UP! sits right under the plate, above the level-up panel. The
+  co-op pause notice (Overlay) is placed under the column (`HudController:TopBottom`).
+- The timer plate is 76 tall: the caption keeps to its top 22 px and the digits' box starts
+  at 30, because LuckiestGuy's digits stand taller than their line and used to cover it.
 - Scale: the plain 1920x1080 fit, raised to at least 0.6 so a 20 px label stays 12 px,
   capped where the layout still fits the safe area; times 1.08 to 1.25 for a larger
   `PreferredTextSize`, 1.15 on a TV. Compact arrangement (narrower column, 160 px minimap,
@@ -62,12 +78,32 @@ Every contract name is kept; the paths changed (see `design/ui_contract.md`). Ne
 
 Moss panels `#16231B` at 0.2 to 0.32 transparency, a 1.5 px gold rim `#D9B85C`, 10 to 14 px
 corners, a soft top-to-bottom shade. HP `#F2554D` with a pale trail, shield ice `#9EE6F7`,
-XP gem blue `#45A3FF` (the gems' colour), gold `#FFCB45`, captions tan `#D9B45A`. Weapon
+XP gem blue `#45A3FF` (the gems' colour; a full gold strip at LVL MAX), gold `#FFCB45`, captions tan `#D9B45A`. Weapon
 tiles have gold rims, tome tiles teal, item tiles their rarity colour. LuckiestGuy for
 numbers and titles, Fredoka One for captions and body text.
 
+## The level-up rainbow
+
+The strip's `Rainbow` shows from the moment an upgrade offer reaches the player until the
+last level-up waiting for their choice is answered: the server's count (`levelUps` in
+PlayerState, kept by UpgradeService) or an offer open on the client (ChoiceController
+`HasOffer`, `OfferChanged`). Refresh and Banish re-deal the offer and keep it; a panel
+opened over the offer keeps it; a 0.3 s hold stops a blink between two queued offers; the
+run ending turns it off at once; a finished build never shows it. It fades in over 0.2 s
+and out over 0.5 s; while it shows, its colours flow along the strip (one turn in 2.4 s,
+the gradient redrawn 30 times a second, nothing rebuilt) and the strip's rim breathes gold
+to white. LEVEL UP! itself still goes after 1.6 s.
+
 ## Checks
 
-Offline only: `rojo build`, `lune run test` (HudLayout specs), `selene src`, `stylua --check`,
+Offline (T2): `rojo build`, `lune run test` (HudLayout specs), `selene src`, `stylua --check`,
 and a path check that every element HudController and MinimapController bind exists in the
 model. Nothing here was run in Studio by Claude; see the T2 commit for the playtest list.
+
+Run in Studio by Claude for the top-of-screen pass (one player, a disposable place built
+from disk, 1593x792 and the iPhone 16 Pro simulator): the plate's caption clear of the
+digits; the strip beside Roblox's buttons; LEVEL UP! above the level-up panel; the rainbow
+through two queued offers without a blink, through REFRESH and BANISH clicked on the panel,
+off with a fade after the last pick and at once when the run ended under an open offer;
+plate, pill, boss bar, four miniboss bars and a banner stacked without overlap; LVL MAX
+full and gold; the strip hidden on Skyhold and under the intro's letterbox.

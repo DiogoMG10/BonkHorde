@@ -68,7 +68,19 @@ function UpgradeService:QueueFor(rec, levels: number)
 		return
 	end
 	self._pending[rec] = (self._pending[rec] or 0) + levels
+	self:_count(rec)
 	self:_present(rec)
+end
+
+--- Keep the player's own count of level-ups waiting for a choice in their
+--- state (PlayerState `levelUps`): the HUD's XP strip wears its rainbow for
+--- exactly as long as it is above zero.
+function UpgradeService:_count(rec)
+	local waiting = self._pending[rec] or 0
+	if rec.levelUps ~= waiting then
+		rec.levelUps = waiting
+		rec.dirty = true
+	end
 end
 
 function UpgradeService:_roll(rec)
@@ -112,6 +124,7 @@ function UpgradeService:_present(rec, followUp: boolean?)
 		-- levels out in gold instead of an empty panel
 		self._players:MaxedOut(rec, self._pending[rec])
 		self._pending[rec] = 0
+		self:_count(rec)
 		return
 	end
 	local solo = #self._players:All() <= 1
@@ -211,6 +224,7 @@ end
 function UpgradeService:_resolve(rec)
 	self._open[rec] = nil
 	self._pending[rec] = math.max((self._pending[rec] or 1) - 1, 0)
+	self:_count(rec)
 	rec.dirty = true
 	self._offersEvent:FireClient(rec.player, nil) -- close the panel
 	if self._pending[rec] > 0 then

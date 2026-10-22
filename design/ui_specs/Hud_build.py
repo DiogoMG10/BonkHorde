@@ -277,10 +277,11 @@ def bar(name, size, pos, colour, radius, z, children=(), trail=False, fraction=0
 
 
 def vitals():
+    """Level, shield and HP. XP runs along the top of the screen (xp_bar)."""
     badge = frame(
         "LevelBadge",
-        (0, 84, 0, 84),
-        (0, 12, 0.5, 0),
+        (0, 76, 0, 76),
+        (0, 10, 0.5, 0),
         (0, 0.5),
         z=2,
         fill="#0E1712",
@@ -289,32 +290,32 @@ def vitals():
             corner("pill"),
             shade(0.7),
             stroke(RIM, 2.5, 0.05),
-            label("LevelCaption", "LVL", (1, 0, 0, 16), (0.5, 0, 0, 12), (0.5, 0), z=3, font=BODY, px=15, colour=TAN, outline=0),
-            label("LevelLabel", "12", (1, -8, 0, 40), (0.5, 0, 0.5, 8), (0.5, 0.5), z=3, px=36, outline=2.5),
+            label("LevelCaption", "LVL", (1, 0, 0, 16), (0.5, 0, 0, 10), (0.5, 0), z=3, font=BODY, px=14, colour=TAN, outline=0),
+            label("LevelLabel", "12", (1, -8, 0, 38), (0.5, 0, 0.5, 8), (0.5, 0.5), z=3, px=34, outline=2.5),
         ],
     )
     bars = frame(
         "Bars",
-        (1, -124, 0, 84),
-        (0, 110, 0.5, 0),
+        (1, -114, 0, 76),
+        (0, 100, 0.5, 0),
         (0, 0.5),
         z=2,
         children=[
             listing("Vertical", 6, v="Center"),
             bar(
                 "ShieldBar",
-                (1, 0, 0, 16),
+                (1, 0, 0, 18),
                 (0, 0, 0, 0),
                 SHIELD,
                 "pill",
                 3,
                 fraction=0.75,
                 order=1,
-                children=[label("Text", "45 / 60", (1, -12, 1, 0), (0.5, 0, 0.5, 0), (0.5, 0.5), z=6, px=14, align="Right", outline=1.5)],
+                children=[label("Text", "45 / 60", (1, -12, 1, 0), (0.5, 0, 0.5, 0), (0.5, 0.5), z=6, px=15, align="Right", outline=1.5)],
             ),
             bar(
                 "HPBar",
-                (1, 0, 0, 30),
+                (1, 0, 0, 34),
                 (0, 0, 0, 0),
                 HP,
                 8,
@@ -324,56 +325,84 @@ def vitals():
                 order=2,
                 children=[
                     stroke(OUTLINE, 1.5, 0.35),
-                    label("Text", "156 / 200", (1, 0, 1, 0), z=6, px=21),
-                ],
-            ),
-            bar(
-                "XPBar",
-                (1, 0, 0, 12),
-                (0, 0, 0, 0),
-                XP,
-                "pill",
-                3,
-                fraction=0.62,
-                order=3,
-                children=[
-                    frame(
-                        "Rainbow",
-                        (1, 0, 1, 0),
-                        z=7,
-                        fill="#FFFFFF",
-                        visible=False,
-                        children=[
-                            corner("pill"),
-                            node(
-                                "UIGradient",
-                                "Gradient",
-                                {
-                                    "Color": {
-                                        "ColorSequence": {
-                                            "keypoints": [
-                                                {"time": t, "color": C3(c)["Color3"]}
-                                                for t, c in [
-                                                    (0, "#35D04A"),
-                                                    (0.17, "#11B4F4"),
-                                                    (0.33, "#E040FB"),
-                                                    (0.5, "#E5121B"),
-                                                    (0.67, "#FF9F1A"),
-                                                    (0.83, "#FFD23A"),
-                                                    (1, "#35D04A"),
-                                                ]
-                                            ]
-                                        }
-                                    }
-                                },
-                            ),
-                        ],
-                    )
+                    label("Text", "156 / 200", (1, 0, 1, 0), z=6, px=23),
                 ],
             ),
         ],
     )
-    return panel("Vitals", (0, 440, 0, 108), order=1, z=1, children=[badge, bars])
+    return panel("Vitals", (0, 440, 0, 96), order=1, z=1, children=[badge, bars])
+
+
+RAINBOW = ["#35D04A", "#11B4F4", "#B04DFF", "#FF4D9A", "#FF9F1A", "#FFD23A"]  # Core/XpStrip.Colours
+
+
+def rainbow_keys(phase=0.0, blend=0.35):
+    """Core/XpStrip.rainbow, for the model's resting gradient and the previews."""
+    n = len(RAINBOW)
+    cols = [C3(c)["Color3"] for c in RAINBOW]
+
+    def at(u):
+        x = ((u - phase) * n) % n
+        k = min(int(math.floor(x)), n - 1)
+        f = x - k
+        a = cols[k]
+        if f <= 1 - blend:
+            return a
+        b = cols[(k + 1) % n]
+        t = (f - (1 - blend)) / blend
+        return [round(a[i] + (b[i] - a[i]) * t, 4) for i in range(3)]
+
+    times = {0.0, 1.0}
+    for k in range(n):
+        for edge in ((k + 1 - blend) / n, (k + 1) / n):
+            u = (edge + phase) % 1
+            if 1e-4 < u < 1 - 1e-4:
+                times.add(round(u, 5))
+    return [{"time": t, "color": at(t)} for t in sorted(times)]
+
+
+def xp_bar():
+    """The XpBar ScreenGui: one thin strip along the top of the screen, over the
+    level-up panels (DisplayOrder 21), so its rainbow shows while a choice waits.
+    HudController places it from Core/HudLayout (the free part of Roblox's top
+    bar, or just under it) and draws the fill and the rainbow."""
+    strip = frame(
+        "Strip",
+        (0, 1644, 0, 14),
+        (0, 262, 0, 6),
+        z=1,
+        children=[
+            frame("Back", (1, 0, 1, 0), z=1, fill=TRACK, alpha=0.18, children=[corner("pill"), shade(0.8), stroke(RIM, 1.5, 0.3)]),
+            frame(
+                "Fill",
+                (0.62, 0, 1, 0),
+                z=2,
+                fill=XP,
+                children=[
+                    corner("pill"),
+                    shade(0.7),
+                    frame("Shine", (1, -10, 0, 3), (0, 5, 0, 2), z=3, fill="#FFFFFF", alpha=0.55, children=[corner("pill")]),
+                ],
+            ),
+            frame(
+                "Rainbow",
+                (1, 0, 1, 0),
+                z=4,
+                fill="#FFFFFF",
+                visible=False,
+                children=[
+                    corner("pill"),
+                    node("UIGradient", "Gradient", {"Color": {"ColorSequence": {"keypoints": rainbow_keys()}}}),
+                ],
+            ),
+        ],
+    )
+    return node(
+        "ScreenGui",
+        "XpBar",
+        {"DisplayOrder": 21, "ResetOnSpawn": False, "ZIndexBehavior": "Sibling", "IgnoreGuiInset": True, "Enabled": True},
+        [strip],
+    )
 
 
 def chip(name, key, value_name, value, colour, px=20, order=0, icon_px=24):
@@ -578,16 +607,18 @@ def timer_plate():
         fill_alpha=0.35,
         children=[corner("pill"), padding(30, 0, 12, 0), icon("Icon", "IconClock", 20, (0, -24, 0.5, 0), (0, 0.5), z=3)],
     )
+    # LuckiestGuy's digits stand taller than their line: the caption keeps to the
+    # top 22 px and the digits' box starts at 30, so they never touch
     return panel(
         "TimerPlate",
-        (0, 248, 0, 72),
+        (0, 248, 0, 76),
         z=1,
         radius=14,
         rim_alpha=0.4,
         order=1,
         children=[
-            label("TimerCaption", "FINAL HORDE IN", (1, 0, 0, 17), (0.5, 0, 0, 7), (0.5, 0), z=2, font=BODY, px=15, colour=TAN, outline=0),
-            label("StageTimer", "5:37", (1, 0, 0, 46), (0.5, 0, 1, -4), (0.5, 1), z=2, px=44, outline=3),
+            label("TimerCaption", "FINAL HORDE IN", (1, 0, 0, 16), (0.5, 0, 0, 6), (0.5, 0), z=2, font=BODY, px=14, colour=TAN, outline=0),
+            label("StageTimer", "5:37", (1, 0, 0, 42), (0.5, 0, 1, -4), (0.5, 1), z=2, px=40, outline=3),
             run_clock,
         ],
     )
@@ -598,7 +629,7 @@ def difficulty_pill():
         "DifficultyPill",
         (0, 0, 0, 32),
         z=1,
-        order=2,
+        order=3,
         auto="X",
         visible=False,
         fill=DANGER_BG,
@@ -661,7 +692,7 @@ def boss_bars():
         "BossBars",
         (0, 760, 0, 0),
         z=1,
-        order=3,
+        order=4,
         auto="Y",
         visible=False,
         children=[listing("Vertical", 8, h="Center"), main, minis],
@@ -673,7 +704,7 @@ def banner():
         "Banner",
         (0, 900, 0, 96),
         z=3,
-        order=4,
+        order=5,
         visible=False,
         children=[
             frame("Band", (1, 0, 1, 0), z=1, fill=PANEL, alpha=0.1, children=[fade()]),
@@ -693,7 +724,7 @@ def toast():
         radius=12,
         rim_alpha=0.45,
         alpha=0.12,
-        order=5,
+        order=6,
         visible=False,
         children=[
             frame(
@@ -724,6 +755,12 @@ def toast():
 
 
 def top_centre():
+    """One column for everything in the top centre, so nothing there can cover
+    anything else: the plate, LEVEL UP! right under it (above the level-up
+    panel), the overtime pill, boss bars, banner and toast, and last the pickup
+    popup, which therefore never moves what is above it."""
+    level_up = label("LevelUpText", "LEVEL UP!", (1, 0, 0, 58), z=5, px=52, colour=GOLD, outline=4, order=2, visible=False, scaled=52)
+    pickup = label("PickupToast", "MAGNET", (1, 0, 0, 48), z=5, px=40, colour=GOLD, outline=3, order=10, visible=False, scaled=40)
     return frame(
         "TopCenter",
         (0, 900, 0, 0),
@@ -731,7 +768,7 @@ def top_centre():
         (0.5, 0),
         z=3,
         auto="Y",
-        children=[listing("Vertical", 8, h="Center"), timer_plate(), difficulty_pill(), boss_bars(), banner(), toast()],
+        children=[listing("Vertical", 8, h="Center"), timer_plate(), level_up, difficulty_pill(), boss_bars(), banner(), toast(), pickup],
     )
 
 
@@ -951,8 +988,6 @@ def build_tree():
             top_centre(),
             minimap(),
             bottom_centre(),
-            label("PickupToast", "MAGNET", (0, 520, 0, 48), (0.5, 0, 0.36, 0), (0.5, 0.5), z=5, px=40, colour=GOLD, outline=3, visible=False),
-            label("LevelUpText", "LEVEL UP!", (0, 800, 0, 76), (0.5, 0, 0.27, 0), (0.5, 0.5), z=5, px=64, colour=GOLD, outline=4, visible=False),
             stage_title(),
         ],
     )
@@ -1052,7 +1087,7 @@ def find_fonts(folder):
             FONT_FILES[BODY] = os.path.join(folder, f)
 
 
-def apply_layout(tree, L, margin):
+def apply_layout(tree, L, margin, strip=None):
     """What HudController._layout does at runtime, for the previews."""
     sz = L["sizes"]
     safe = find(tree, "Safe")
@@ -1060,13 +1095,20 @@ def apply_layout(tree, L, margin):
     safe["properties"]["Position"] = U2(0, s["x"], 0, s["y"])
     safe["properties"]["Size"] = U2(0, s["w"], 0, s["h"])
     col = sz["column"]
-    find(tree, "TopLeft")["properties"]["Size"] = U2(0, col, 0, 0)
-    find(tree, "Vitals")["properties"]["Size"] = U2(0, col, 0, 108)
+    top_left = find(tree, "TopLeft")
+    top_left["properties"]["Position"] = U2(0, margin, 0, L["topLeft"])
+    top_left["properties"]["Size"] = U2(0, col, 0, 0)
+    find(tree, "Vitals")["properties"]["Size"] = U2(0, col, 0, sz["vitals"])
     for name in ("QuestTracker", "TeammateBars"):
         find(tree, name)["properties"]["Size"] = U2(0, min(380, col - 20), 0, 0)
     centre = find(tree, "TopCenter")
-    centre["properties"]["Position"] = U2(0.5, 0, 0, margin - L["liftCentre"])
+    centre["properties"]["Position"] = U2(0.5, 0, 0, L["topCentre"])
     centre["properties"]["Size"] = U2(0, L["centreWidth"], 0, 0)
+    if strip is not None:
+        xp = L["xp"]
+        bar = find(strip, "Strip")
+        bar["properties"]["Position"] = U2(0, xp["x"], 0, xp["y"])
+        bar["properties"]["Size"] = U2(0, xp["w"], 0, xp["h"])
     find(tree, "TimerPlate")["properties"]["Size"] = U2(0, sz["plate"], 0, sz["plateHeight"])
     find(tree, "BossBars")["properties"]["Size"] = U2(0, min(760, L["centreWidth"]), 0, 0)
     for mini in find_all(tree, "MiniBar"):
@@ -1074,7 +1116,7 @@ def apply_layout(tree, L, margin):
     find(tree, "Banner")["properties"]["Size"] = U2(0, L["centreWidth"], 0, 96)
     find(tree, "Toast")["properties"]["Size"] = U2(0, min(400, L["centreWidth"]), 0, 70)
     right = find(tree, "TopRight")
-    right["properties"]["Position"] = U2(1, -(margin + L["shiftRight"]), 0, margin - L["liftRight"])
+    right["properties"]["Position"] = U2(1, -(margin + L["shiftRight"]), 0, L["topRight"])
     right["properties"]["Size"] = U2(0, sz["minimap"], 0, sz["minimap"])
     tray_layout(tree, sz)
     if L["compact"]:
@@ -1579,9 +1621,19 @@ def state_boss(tree):
 def state_levelup(tree):
     state_play(tree)
     show(tree, "LevelUpText")
-    show(tree, "Rainbow")
     show(tree, "Toast")
     find(tree, "LevelLabel")["properties"]["Text"] = "13"
+
+
+STRIP_STATES = {"Hud_levelup": "rainbow", "Hud_play": 0.62, "Hud_boss": 0.35, "Hud_phone": 0.8}
+
+
+def strip_state(strip, how):
+    """The strip in a preview: a fill share, or the level-up rainbow."""
+    if how == "rainbow":
+        find(strip, "Rainbow")["properties"]["Visible"] = True
+    else:
+        find(strip, "Fill")["properties"]["Size"] = U2(how, 0, 1, 0)
 
 
 def draw_chrome(img, ImageDraw, screen, phone=False):
@@ -1625,17 +1677,20 @@ def main():
 
     load_icon_ids()
     tree = build_tree()
+    strip = xp_bar()
     # the shipped samples sit where the runtime would put them on a 1080p screen
     tray_layout(tree, {"slot": 56, "item": 40, "itemRows": 2})
 
-    model_path = os.path.join(ROOT, "src/ui/Hud.model.json")
-    with open(model_path, "w", encoding="utf-8", newline="\n") as f:
-        json.dump(strip_names(tree), f, indent=1, ensure_ascii=False)
-        f.write("\n")
+    for model, name in ((tree, "Hud"), (strip, "XpBar")):
+        model_path = os.path.join(ROOT, f"src/ui/{name}.model.json")
+        with open(model_path, "w", encoding="utf-8", newline="\n") as f:
+            json.dump(strip_names(model), f, indent=1, ensure_ascii=False)
+            f.write("\n")
+        print(f"wrote {model_path}")
+    rows = manifest(tree) + [dict(r, path="XpBar." + r["path"]) for r in manifest(strip)]
     with open(os.path.join(ROOT, "assets/ui/manifest.Hud.json"), "w", encoding="utf-8", newline="\n") as f:
-        json.dump(manifest(tree), f, indent=1)
+        json.dump(rows, f, indent=1)
         f.write("\n")
-    print(f"wrote {model_path}")
 
     if args.no_png:
         return
@@ -1662,12 +1717,16 @@ def main():
         screen, L = c["screen"], c["layout"]
         W, H = int(screen["width"] * dpr), int(screen["height"] * dpr)
         t = copy.deepcopy(tree)
+        st = copy.deepcopy(strip)
         state(t)
-        apply_layout(t, L, margin)
+        strip_state(st, STRIP_STATES.get(name, 0.62))
+        apply_layout(t, L, margin, st)
         hud = renderer.render(t, (W, H), L["scale"] * dpr)
+        bar = renderer.render(st, (W, H), L["scale"] * dpr)
         img = tile.resize((W, H), Image.LANCZOS).convert("RGBA")
         draw_chrome(img, ImageDraw, screen, phone=(case == "phone"))
         img.alpha_composite(hud)
+        img.alpha_composite(bar)
         path = os.path.join(out_dir, name + ".png")
         img.convert("RGB").save(path)
         shots.append((name, img))

@@ -172,7 +172,7 @@
           ],
           [
            0,
-           108
+           96
           ]
          ]
         },
@@ -276,11 +276,11 @@
            "UDim2": [
             [
              0,
-             84
+             76
             ],
             [
              0,
-             84
+             76
             ]
            ]
           },
@@ -288,7 +288,7 @@
            "UDim2": [
             [
              0,
-             12
+             10
             ],
             [
              0.5,
@@ -373,7 +373,7 @@
             "BackgroundTransparency": 1,
             "BorderSizePixel": 0,
             "Text": "LVL",
-            "TextSize": 15,
+            "TextSize": 14,
             "TextScaled": false,
             "FontFace": {
              "Font": {
@@ -411,7 +411,7 @@
               ],
               [
                0,
-               12
+               10
               ]
              ]
             },
@@ -432,7 +432,7 @@
             "BackgroundTransparency": 1,
             "BorderSizePixel": 0,
             "Text": "12",
-            "TextSize": 36,
+            "TextSize": 34,
             "TextScaled": false,
             "FontFace": {
              "Font": {
@@ -458,7 +458,7 @@
               ],
               [
                0,
-               40
+               38
               ]
              ]
             },
@@ -515,11 +515,11 @@
            "UDim2": [
             [
              1,
-             -124
+             -114
             ],
             [
              0,
-             84
+             76
             ]
            ]
           },
@@ -527,7 +527,7 @@
            "UDim2": [
             [
              0,
-             110
+             100
             ],
             [
              0.5,
@@ -582,7 +582,7 @@
               ],
               [
                0,
-               16
+               18
               ]
              ]
             },
@@ -719,7 +719,7 @@
               "BackgroundTransparency": 1,
               "BorderSizePixel": 0,
               "Text": "45 / 60",
-              "TextSize": 14,
+              "TextSize": 15,
               "TextScaled": false,
               "FontFace": {
                "Font": {
@@ -813,7 +813,7 @@
               ],
               [
                0,
-               30
+               34
               ]
              ]
             },
@@ -1029,7 +1029,7 @@
               "BackgroundTransparency": 1,
               "BorderSizePixel": 0,
               "Text": "156 / 200",
-              "TextSize": 21,
+              "TextSize": 23,
               "TextScaled": false,
               "FontFace": {
                "Font": {
@@ -1095,290 +1095,6 @@
                 "Transparency": 0.1,
                 "ApplyStrokeMode": "Contextual",
                 "LineJoinMode": "Round"
-               },
-               "children": []
-              }
-             ]
-            }
-           ]
-          },
-          {
-           "className": "Frame",
-           "name": "XPBar",
-           "properties": {
-            "BackgroundTransparency": 0.15,
-            "BorderSizePixel": 0,
-            "BackgroundColor3": {
-             "Color3": [
-              0.0392,
-              0.0667,
-              0.051
-             ]
-            },
-            "Size": {
-             "UDim2": [
-              [
-               1,
-               0
-              ],
-              [
-               0,
-               12
-              ]
-             ]
-            },
-            "Position": {
-             "UDim2": [
-              [
-               0,
-               0
-              ],
-              [
-               0,
-               0
-              ]
-             ]
-            },
-            "AnchorPoint": {
-             "Vector2": [
-              0,
-              0
-             ]
-            },
-            "ZIndex": 3,
-            "LayoutOrder": 3
-           },
-           "children": [
-            {
-             "className": "UICorner",
-             "name": "Corner",
-             "properties": {
-              "CornerRadius": {
-               "UDim": [
-                0.5,
-                0
-               ]
-              }
-             },
-             "children": []
-            },
-            {
-             "className": "Frame",
-             "name": "Fill",
-             "properties": {
-              "BackgroundTransparency": 0.0,
-              "BorderSizePixel": 0,
-              "BackgroundColor3": {
-               "Color3": [
-                0.2706,
-                0.6392,
-                1.0
-               ]
-              },
-              "Size": {
-               "UDim2": [
-                [
-                 0.62,
-                 0
-                ],
-                [
-                 1,
-                 0
-                ]
-               ]
-              },
-              "Position": {
-               "UDim2": [
-                [
-                 0,
-                 0
-                ],
-                [
-                 0,
-                 0
-                ]
-               ]
-              },
-              "AnchorPoint": {
-               "Vector2": [
-                0,
-                0
-               ]
-              },
-              "ZIndex": 5
-             },
-             "children": [
-              {
-               "className": "UICorner",
-               "name": "Corner",
-               "properties": {
-                "CornerRadius": {
-                 "UDim": [
-                  0.5,
-                  0
-                 ]
-                }
-               },
-               "children": []
-              },
-              {
-               "className": "UIGradient",
-               "name": "Shade",
-               "properties": {
-                "Rotation": 90,
-                "Color": {
-                 "ColorSequence": {
-                  "keypoints": [
-                   {
-                    "time": 0,
-                    "color": [
-                     1,
-                     1,
-                     1
-                    ]
-                   },
-                   {
-                    "time": 1,
-                    "color": [
-                     0.72,
-                     0.72,
-                     0.72
-                    ]
-                   }
-                  ]
-                 }
-                }
-               },
-               "children": []
-              }
-             ]
-            },
-            {
-             "className": "Frame",
-             "name": "Rainbow",
-             "properties": {
-              "BackgroundTransparency": 0.0,
-              "BorderSizePixel": 0,
-              "BackgroundColor3": {
-               "Color3": [
-                1.0,
-                1.0,
-                1.0
-               ]
-              },
-              "Size": {
-               "UDim2": [
-                [
-                 1,
-                 0
-                ],
-                [
-                 1,
-                 0
-                ]
-               ]
-              },
-              "Position": {
-               "UDim2": [
-                [
-                 0,
-                 0
-                ],
-                [
-                 0,
-                 0
-                ]
-               ]
-              },
-              "AnchorPoint": {
-               "Vector2": [
-                0,
-                0
-               ]
-              },
-              "ZIndex": 7,
-              "Visible": false
-             },
-             "children": [
-              {
-               "className": "UICorner",
-               "name": "Corner",
-               "properties": {
-                "CornerRadius": {
-                 "UDim": [
-                  0.5,
-                  0
-                 ]
-                }
-               },
-               "children": []
-              },
-              {
-               "className": "UIGradient",
-               "name": "Gradient",
-               "properties": {
-                "Color": {
-                 "ColorSequence": {
-                  "keypoints": [
-                   {
-                    "time": 0,
-                    "color": [
-                     0.2078,
-                     0.8157,
-                     0.2902
-                    ]
-                   },
-                   {
-                    "time": 0.17,
-                    "color": [
-                     0.0667,
-                     0.7059,
-                     0.9569
-                    ]
-                   },
-                   {
-                    "time": 0.33,
-                    "color": [
-                     0.8784,
-                     0.251,
-                     0.9843
-                    ]
-                   },
-                   {
-                    "time": 0.5,
-                    "color": [
-                     0.898,
-                     0.0706,
-                     0.1059
-                    ]
-                   },
-                   {
-                    "time": 0.67,
-                    "color": [
-                     1.0,
-                     0.6235,
-                     0.102
-                    ]
-                   },
-                   {
-                    "time": 0.83,
-                    "color": [
-                     1.0,
-                     0.8235,
-                     0.2275
-                    ]
-                   },
-                   {
-                    "time": 1,
-                    "color": [
-                     0.2078,
-                     0.8157,
-                     0.2902
-                    ]
-                   }
-                  ]
-                 }
-                }
                },
                "children": []
               }
@@ -4727,7 +4443,7 @@
           ],
           [
            0,
-           72
+           76
           ]
          ]
         },
@@ -4821,7 +4537,7 @@
           "BackgroundTransparency": 1,
           "BorderSizePixel": 0,
           "Text": "FINAL HORDE IN",
-          "TextSize": 15,
+          "TextSize": 14,
           "TextScaled": false,
           "FontFace": {
            "Font": {
@@ -4847,7 +4563,7 @@
             ],
             [
              0,
-             17
+             16
             ]
            ]
           },
@@ -4859,7 +4575,7 @@
             ],
             [
              0,
-             7
+             6
             ]
            ]
           },
@@ -4880,7 +4596,7 @@
           "BackgroundTransparency": 1,
           "BorderSizePixel": 0,
           "Text": "5:37",
-          "TextSize": 44,
+          "TextSize": 40,
           "TextScaled": false,
           "FontFace": {
            "Font": {
@@ -4906,7 +4622,7 @@
             ],
             [
              0,
-             46
+             42
             ]
            ]
           },
@@ -5129,6 +4845,95 @@
        ]
       },
       {
+       "className": "TextLabel",
+       "name": "LevelUpText",
+       "properties": {
+        "BackgroundTransparency": 1,
+        "BorderSizePixel": 0,
+        "Text": "LEVEL UP!",
+        "TextSize": 52,
+        "TextScaled": true,
+        "FontFace": {
+         "Font": {
+          "family": "rbxasset://fonts/families/LuckiestGuy.json",
+          "weight": "Regular",
+          "style": "Normal"
+         }
+        },
+        "TextColor3": {
+         "Color3": [
+          1.0,
+          0.7961,
+          0.2706
+         ]
+        },
+        "TextXAlignment": "Center",
+        "TextYAlignment": "Center",
+        "Size": {
+         "UDim2": [
+          [
+           1,
+           0
+          ],
+          [
+           0,
+           58
+          ]
+         ]
+        },
+        "Position": {
+         "UDim2": [
+          [
+           0,
+           0
+          ],
+          [
+           0,
+           0
+          ]
+         ]
+        },
+        "AnchorPoint": {
+         "Vector2": [
+          0,
+          0
+         ]
+        },
+        "ZIndex": 5,
+        "Visible": false,
+        "LayoutOrder": 2
+       },
+       "children": [
+        {
+         "className": "UIStroke",
+         "name": "Stroke",
+         "properties": {
+          "Color": {
+           "Color3": [
+            0.051,
+            0.0784,
+            0.0627
+           ]
+          },
+          "Thickness": 4,
+          "Transparency": 0.1,
+          "ApplyStrokeMode": "Contextual",
+          "LineJoinMode": "Round"
+         },
+         "children": []
+        },
+        {
+         "className": "UITextSizeConstraint",
+         "name": "Fit",
+         "properties": {
+          "MaxTextSize": 52,
+          "MinTextSize": 12
+         },
+         "children": []
+        }
+       ]
+      },
+      {
        "className": "Frame",
        "name": "DifficultyPill",
        "properties": {
@@ -5173,7 +4978,7 @@
         },
         "ZIndex": 1,
         "Visible": false,
-        "LayoutOrder": 2,
+        "LayoutOrder": 3,
         "AutomaticSize": "X"
        },
        "children": [
@@ -5532,7 +5337,7 @@
         },
         "ZIndex": 1,
         "Visible": false,
-        "LayoutOrder": 3,
+        "LayoutOrder": 4,
         "AutomaticSize": "Y"
        },
        "children": [
@@ -6844,7 +6649,7 @@
         },
         "ZIndex": 3,
         "Visible": false,
-        "LayoutOrder": 4
+        "LayoutOrder": 5
        },
        "children": [
         {
@@ -7302,7 +7107,7 @@
         },
         "ZIndex": 3,
         "Visible": false,
-        "LayoutOrder": 5
+        "LayoutOrder": 6
        },
        "children": [
         {
@@ -7647,6 +7452,95 @@
            "children": []
           }
          ]
+        }
+       ]
+      },
+      {
+       "className": "TextLabel",
+       "name": "PickupToast",
+       "properties": {
+        "BackgroundTransparency": 1,
+        "BorderSizePixel": 0,
+        "Text": "MAGNET",
+        "TextSize": 40,
+        "TextScaled": true,
+        "FontFace": {
+         "Font": {
+          "family": "rbxasset://fonts/families/LuckiestGuy.json",
+          "weight": "Regular",
+          "style": "Normal"
+         }
+        },
+        "TextColor3": {
+         "Color3": [
+          1.0,
+          0.7961,
+          0.2706
+         ]
+        },
+        "TextXAlignment": "Center",
+        "TextYAlignment": "Center",
+        "Size": {
+         "UDim2": [
+          [
+           1,
+           0
+          ],
+          [
+           0,
+           48
+          ]
+         ]
+        },
+        "Position": {
+         "UDim2": [
+          [
+           0,
+           0
+          ],
+          [
+           0,
+           0
+          ]
+         ]
+        },
+        "AnchorPoint": {
+         "Vector2": [
+          0,
+          0
+         ]
+        },
+        "ZIndex": 5,
+        "Visible": false,
+        "LayoutOrder": 10
+       },
+       "children": [
+        {
+         "className": "UIStroke",
+         "name": "Stroke",
+         "properties": {
+          "Color": {
+           "Color3": [
+            0.051,
+            0.0784,
+            0.0627
+           ]
+          },
+          "Thickness": 3,
+          "Transparency": 0.1,
+          "ApplyStrokeMode": "Contextual",
+          "LineJoinMode": "Round"
+         },
+         "children": []
+        },
+        {
+         "className": "UITextSizeConstraint",
+         "name": "Fit",
+         "properties": {
+          "MaxTextSize": 40,
+          "MinTextSize": 12
+         },
+         "children": []
         }
        ]
       }
@@ -11316,164 +11210,6 @@
          ]
         }
        ]
-      }
-     ]
-    },
-    {
-     "className": "TextLabel",
-     "name": "PickupToast",
-     "properties": {
-      "BackgroundTransparency": 1,
-      "BorderSizePixel": 0,
-      "Text": "MAGNET",
-      "TextSize": 40,
-      "TextScaled": false,
-      "FontFace": {
-       "Font": {
-        "family": "rbxasset://fonts/families/LuckiestGuy.json",
-        "weight": "Regular",
-        "style": "Normal"
-       }
-      },
-      "TextColor3": {
-       "Color3": [
-        1.0,
-        0.7961,
-        0.2706
-       ]
-      },
-      "TextXAlignment": "Center",
-      "TextYAlignment": "Center",
-      "Size": {
-       "UDim2": [
-        [
-         0,
-         520
-        ],
-        [
-         0,
-         48
-        ]
-       ]
-      },
-      "Position": {
-       "UDim2": [
-        [
-         0.5,
-         0
-        ],
-        [
-         0.36,
-         0
-        ]
-       ]
-      },
-      "AnchorPoint": {
-       "Vector2": [
-        0.5,
-        0.5
-       ]
-      },
-      "ZIndex": 5,
-      "Visible": false
-     },
-     "children": [
-      {
-       "className": "UIStroke",
-       "name": "Stroke",
-       "properties": {
-        "Color": {
-         "Color3": [
-          0.051,
-          0.0784,
-          0.0627
-         ]
-        },
-        "Thickness": 3,
-        "Transparency": 0.1,
-        "ApplyStrokeMode": "Contextual",
-        "LineJoinMode": "Round"
-       },
-       "children": []
-      }
-     ]
-    },
-    {
-     "className": "TextLabel",
-     "name": "LevelUpText",
-     "properties": {
-      "BackgroundTransparency": 1,
-      "BorderSizePixel": 0,
-      "Text": "LEVEL UP!",
-      "TextSize": 64,
-      "TextScaled": false,
-      "FontFace": {
-       "Font": {
-        "family": "rbxasset://fonts/families/LuckiestGuy.json",
-        "weight": "Regular",
-        "style": "Normal"
-       }
-      },
-      "TextColor3": {
-       "Color3": [
-        1.0,
-        0.7961,
-        0.2706
-       ]
-      },
-      "TextXAlignment": "Center",
-      "TextYAlignment": "Center",
-      "Size": {
-       "UDim2": [
-        [
-         0,
-         800
-        ],
-        [
-         0,
-         76
-        ]
-       ]
-      },
-      "Position": {
-       "UDim2": [
-        [
-         0.5,
-         0
-        ],
-        [
-         0.27,
-         0
-        ]
-       ]
-      },
-      "AnchorPoint": {
-       "Vector2": [
-        0.5,
-        0.5
-       ]
-      },
-      "ZIndex": 5,
-      "Visible": false
-     },
-     "children": [
-      {
-       "className": "UIStroke",
-       "name": "Stroke",
-       "properties": {
-        "Color": {
-         "Color3": [
-          0.051,
-          0.0784,
-          0.0627
-         ]
-        },
-        "Thickness": 4,
-        "Transparency": 0.1,
-        "ApplyStrokeMode": "Contextual",
-        "LineJoinMode": "Round"
-       },
-       "children": []
       }
      ]
     },

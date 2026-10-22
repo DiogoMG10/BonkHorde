@@ -13,8 +13,11 @@
 --            one row of items, two objectives
 --   safe     the Safe frame: Roblox's CoreUISafeInsets (top bar and device
 --            cut-outs), in design pixels
---   lift     how far the centre and right columns may rise into the top bar,
---            where Roblox reports that part of it free
+--   xp       the XP strip along the top of the screen: in the part of Roblox's
+--            top bar it leaves free when the timer can sit under it there,
+--            otherwise just under the bar across the whole safe width
+--   tops     where the left, centre and right columns start, under the strip
+--            and never in the top bar where Roblox has its buttons
 --   shift    how far the right column steps left to clear the touch buttons
 
 local HudLayout = {}
@@ -24,15 +27,20 @@ HudLayout.DesignHeight = 1080
 HudLayout.Legible = 0.6 -- the smallest scale chosen on purpose: a 20 px label stays 12 px
 HudLayout.Margin = 16 -- design pixels between the safe area's edge and a column
 HudLayout.Gap = 8 -- design pixels between stacked elements
+HudLayout.StripTop = 6 -- design pixels above the XP strip
+HudLayout.StripPad = 10 -- design pixels between the strip and Roblox's buttons beside it
+HudLayout.RingLetter = 12 -- design pixels the minimap's compass letters stand out of its ring
 
 export type Sizes = {
 	width: number, -- the safe area this arrangement needs, design pixels
 	height: number,
 	column: number, -- the left column
+	vitals: number, -- the vitals card's height
 	minimap: number,
 	plate: number, -- the timer plate
 	plateHeight: number,
 	clock: number, -- the elapsed clock beside the plate
+	xp: number, -- the XP strip's height
 	slot: number, -- a weapon or tome tile
 	item: number, -- an item tile
 	itemRows: number,
@@ -43,10 +51,12 @@ HudLayout.Regular = {
 	width = 1500,
 	height = 660,
 	column = 440,
+	vitals = 96,
 	minimap = 220,
 	plate = 248,
-	plateHeight = 72,
+	plateHeight = 76,
 	clock = 110,
+	xp = 14,
 	slot = 56,
 	item = 40,
 	itemRows = 2,
@@ -57,10 +67,12 @@ HudLayout.Compact = {
 	width = 1240,
 	height = 500,
 	column = 400,
+	vitals = 96,
 	minimap = 160,
 	plate = 220,
-	plateHeight = 72,
+	plateHeight = 76,
 	clock = 96,
+	xp = 16,
 	slot = 50,
 	item = 36,
 	itemRows = 1,
@@ -85,8 +97,14 @@ export type Layout = {
 	compact: boolean,
 	sizes: Sizes,
 	safe: { x: number, y: number, w: number, h: number },
-	liftCentre: number,
-	liftRight: number,
+	-- the XP strip, design pixels from the screen's top-left corner
+	xp: { x: number, y: number, w: number, h: number },
+	xpInBar: boolean, -- the strip sits in the free part of Roblox's top bar
+	-- where each column starts, design pixels below the Safe frame's top
+	-- (negative: risen into the top bar)
+	topLeft: number,
+	topCentre: number,
+	topRight: number,
 	shiftRight: number,
 	centreWidth: number, -- room between the left column and its mirror, for boss bars and banners
 }
@@ -125,8 +143,8 @@ function HudLayout.compute(screen: Screen): Layout
 		end
 	end
 
-	local m, gap = HudLayout.Margin, HudLayout.Gap
-	local roomTop = math.max(0, core.top - device.top) -- the top bar's height, pixels
+	local m, gap = HudLayout.Margin * scale, HudLayout.Gap * scale -- pixels from here on
+	local roomTop = math.max(0, core.top - device.top) -- the top bar's height
 	local free = screen.topbar
 
 	--- Whether a span of screen pixels lies wholly in the free part of the top bar.
@@ -134,32 +152,56 @@ function HudLayout.compute(screen: Screen): Layout
 		return free ~= nil and free.y1 - free.y0 > 0 and x0 >= free.x0 + 4 and x1 <= free.x1 - 4
 	end
 
-	-- centre: the timer plate (and the elapsed clock to its right) may sit in the
-	-- bar, but whatever is stacked under it must start below the bar
-	local liftCentre = 0
+	-- the XP strip runs along the top of the screen in the free part of the top
+	-- bar, with the timer plate under it, when that part spans the plate and its
+	-- clock; otherwise (Roblox's buttons spread over the centre, no free bar
+	-- reported, or the rise switched off) it runs just under the bar, the whole
+	-- safe width, and every column starts below it
 	local centreX = core.left + safeW / 2
 	local plateLeft = centreX - sizes.plate / 2 * scale
-	local plateRight = centreX + (sizes.plate / 2 + gap + sizes.clock) * scale
-	if roomTop > 0 and inFreeBar(plateLeft, plateRight) then
-		liftCentre = math.min(roomTop, (sizes.plateHeight + gap) * scale)
+	local plateRight = centreX + (sizes.plate / 2 + HudLayout.Gap + sizes.clock) * scale
+	local stripTop, stripH = HudLayout.StripTop * scale, sizes.xp * scale
+	local inBar = free ~= nil and roomTop >= stripTop + stripH + gap and inFreeBar(plateLeft, plateRight)
+	local strip: Rect
+	if inBar and free then
+		local pad = HudLayout.StripPad * scale
+		local y0 = math.max(free.y0, device.top) + stripTop
+		strip = {
+			x0 = math.max(free.x0 + pad, device.left + m),
+			y0 = y0,
+			x1 = math.min(free.x1 - pad, screen.width - device.right - m),
+			y1 = y0 + stripH,
+		}
+	else
+		local y0 = core.top + stripTop
+		strip = { x0 = core.left + m, y0 = y0, x1 = screen.width - core.right - m, y1 = y0 + stripH }
 	end
+	local under = strip.y1 + gap -- the first row under the strip
 
-	-- right: the minimap, stepped left of any touch button it would cover
+	-- left: always under the bar, and under the strip when it runs there
+	local leftTop = if inBar then core.top + m else under
+	-- centre: the plate sits under the strip; whatever is stacked under the
+	-- plate starts below the bar
+	local centreTop = math.max(under, core.top - (sizes.plateHeight * scale + gap))
+
+	-- right: the minimap rises beside the plate when its part of the bar is free
+	-- too (its compass letters clear of the strip), and steps left of any touch
+	-- button it would cover
 	local shiftRight = 0
-	local function rightRect(lift: number): Rect
-		local x1 = screen.width - core.right - (m + shiftRight) * scale
-		local y0 = core.top - lift + m * scale
-		return { x0 = x1 - sizes.minimap * scale, y0 = y0, x1 = x1, y1 = y0 + sizes.minimap * scale }
+	local function rightRect(top: number): Rect
+		local x1 = screen.width - core.right - m - shiftRight * scale
+		return { x0 = x1 - sizes.minimap * scale, y0 = top, x1 = x1, y1 = top + sizes.minimap * scale }
 	end
-	local liftRight = 0
+	local underRight = strip.y1 + (HudLayout.RingLetter + 2) * scale
+	local rightTop = underRight
 	for _ = 1, 3 do
-		local rect = rightRect(0)
-		liftRight = if roomTop > 0 and inFreeBar(rect.x0, rect.x1) then roomTop else 0
-		rect = rightRect(liftRight)
+		local rect = rightRect(underRight)
+		rightTop = if not inBar or inFreeBar(rect.x0, rect.x1) then underRight else math.max(underRight, core.top + m)
+		rect = rightRect(rightTop)
 		local moved = false
 		for _, button in screen.avoid or {} do
 			if overlaps(rect, button) then
-				shiftRight += (rect.x1 - button.x0) / scale + gap
+				shiftRight += (rect.x1 - button.x0) / scale + HudLayout.Gap
 				moved = true
 			end
 		end
@@ -169,15 +211,23 @@ function HudLayout.compute(screen: Screen): Layout
 	end
 
 	local canvasW = safeW / scale
-	local centreWidth = math.clamp(canvasW - 2 * (m + sizes.column + 24), 340, 900)
+	local centreWidth = math.clamp(canvasW - 2 * (HudLayout.Margin + sizes.column + 24), 340, 900)
 
 	return {
 		scale = scale,
 		compact = compact,
 		sizes = sizes,
 		safe = { x = core.left / scale, y = core.top / scale, w = canvasW, h = safeH / scale },
-		liftCentre = liftCentre / scale,
-		liftRight = liftRight / scale,
+		xp = {
+			x = strip.x0 / scale,
+			y = strip.y0 / scale,
+			w = math.max(0, strip.x1 - strip.x0) / scale,
+			h = sizes.xp,
+		},
+		xpInBar = inBar,
+		topLeft = (leftTop - core.top) / scale,
+		topCentre = (centreTop - core.top) / scale,
+		topRight = (rightTop - core.top) / scale,
 		shiftRight = shiftRight,
 		centreWidth = centreWidth,
 	}

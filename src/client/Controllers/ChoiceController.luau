@@ -22,6 +22,7 @@ local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local InputGuard = require(ReplicatedStorage.Shared.Core.InputGuard)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Roster = require(ReplicatedStorage.Shared.Config.Roster)
+local Signal = require(ReplicatedStorage.Packages.Signal)
 local Stats = require(ReplicatedStorage.Shared.Core.Stats)
 local UiKit = require(script.Parent.Parent.UiKit)
 
@@ -77,6 +78,8 @@ local function signature(list, a: string, b: string): string
 end
 
 function ChoiceController:KnitInit()
+	-- an upgrade offer opened, was re-dealt or closed (the HUD's XP strip follows it)
+	self.OfferChanged = Signal.new()
 	self._e = {}
 	self._templates = {}
 	self._clones = { offers = {}, shrine = {}, shop = {}, statue = {}, items = {} }
@@ -111,6 +114,12 @@ end
 --- Is an offer or a panel on screen?
 function ChoiceController:IsOpen(): boolean
 	return self._showing ~= nil
+end
+
+--- Is an upgrade offer waiting for this player's choice (on screen, or under a
+--- chest or shrine panel)? Refresh and Banish re-deal it without closing it.
+function ChoiceController:HasOffer(): boolean
+	return self._offers ~= nil
 end
 
 -- ---------------------------------------------------------------- text
@@ -354,6 +363,7 @@ function ChoiceController:_start()
 				self._deadline = if self._offers and (tonumber(data.seconds) or 0) > 0 then os.clock() + data.seconds else nil
 				self:_refresh()
 			end)
+			self.OfferChanged:Fire(self._offers ~= nil)
 		end)
 	end
 	local panelEvent = Net.client("Panel")
@@ -388,9 +398,13 @@ function ChoiceController:_start()
 				end
 			elseif key == "phase" and not state:IsLive() and (self._offers or self._panel) then
 				-- the run ended under an open panel: the server has already dropped it
+				local hadOffer = self._offers ~= nil
 				self._offers, self._panel = nil, nil
 				self:_lockView(nil)
 				self:_refresh()
+				if hadOffer then
+					self.OfferChanged:Fire(false)
+				end
 			end
 		end)
 	end)

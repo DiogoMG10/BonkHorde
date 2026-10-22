@@ -672,6 +672,7 @@ function PlayerStateService:Push(rec)
 		charges = rec.charges,
 		chestPrice = self:ChestPrice(rec),
 		complete = rec.complete,
+		levelUps = rec.levelUps or 0, -- level-ups waiting for this player's choice (UpgradeService)
 	})
 end
 

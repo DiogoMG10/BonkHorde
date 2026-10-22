@@ -56,6 +56,10 @@ local DEFAULTS = {
 }
 local VOLUMES = { master = "MasterVolume", music = "MusicVolume", sfx = "SfxVolume" }
 local AMBER = Color3.fromHex("#FFB23A")
+-- the notice's own place (design pixels from the top), and its gap under the
+-- HUD's top centre column when that reaches further down
+local NOTICE_TOP = 140
+local NOTICE_GAP = 10
 -- the paused world: how far colour and light drop at full strength
 local GRADE_SATURATION, GRADE_BRIGHTNESS, GRADE_CONTRAST = -0.6, -0.07, -0.05
 
@@ -92,6 +96,7 @@ function OverlayController:KnitStart()
 	self._world = Knit.GetController("WorldController")
 	self._menu = Knit.GetController("PauseMenuController")
 	self._choices = Knit.GetController("ChoiceController")
+	self._hud = Knit.GetController("HudController")
 	UiKit.safe("OverlayController", function()
 		self:_start()
 	end)
@@ -325,6 +330,28 @@ function OverlayController:_renderNotice()
 		UiKit.textColour(n.sub, subColour)
 		UiKit.show(n.action, action ~= nil)
 		UiKit.text(n.actionLabel, action or "")
+		self:_placeNotice()
+	end
+end
+
+--- The notice sits under everything in the HUD's top centre column (timer,
+--- boss bars, banners), never over it.
+function OverlayController:_placeNotice()
+	local frame = self._notice and self._notice.frame
+	if not frame or not frame:IsA("GuiObject") then
+		return
+	end
+	local overlay = frame:FindFirstAncestorOfClass("ScreenGui")
+	local scale = overlay and UiKit.scaleOf(overlay)
+	local s = if scale and scale.Scale > 0 then scale.Scale else 1
+	local top = NOTICE_TOP
+	local bottom = self._hud and self._hud:TopBottom()
+	if bottom then
+		top = math.max(top, bottom / s + NOTICE_GAP)
+	end
+	local position = UDim2.new(0.5, 0, 0, math.floor(top + 0.5))
+	if frame.Position ~= position then
+		frame.Position = position
 	end
 end
 
@@ -411,6 +438,11 @@ function OverlayController:_start()
 	UiKit.show(notice, false)
 	UiKit.button(self._notice.action, function()
 		self:_noticePressed()
+	end)
+	self._hud.TopChanged:Connect(function()
+		UiKit.safe("OverlayController.notice", function()
+			self:_placeNotice()
+		end)
 	end)
 
 	self._askRemote = Net.client("PauseAsk")

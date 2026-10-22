@@ -75,21 +75,6 @@
   "visible": true
  },
  {
-  "path": "Safe.TopLeft.Vitals.Bars.XPBar",
-  "class": "Frame",
-  "visible": true
- },
- {
-  "path": "Safe.TopLeft.Vitals.Bars.XPBar.Fill",
-  "class": "Frame",
-  "visible": true
- },
- {
-  "path": "Safe.TopLeft.Vitals.Bars.XPBar.Rainbow",
-  "class": "Frame",
-  "visible": false
- },
- {
   "path": "Safe.TopLeft.Purse",
   "class": "Frame",
   "visible": true
@@ -350,6 +335,11 @@
   "visible": true
  },
  {
+  "path": "Safe.TopCenter.LevelUpText",
+  "class": "TextLabel",
+  "visible": false
+ },
+ {
   "path": "Safe.TopCenter.DifficultyPill",
   "class": "Frame",
   "visible": false
@@ -513,6 +503,11 @@
   "path": "Safe.TopCenter.Toast.ToastText",
   "class": "TextLabel",
   "visible": true
+ },
+ {
+  "path": "Safe.TopCenter.PickupToast",
+  "class": "TextLabel",
+  "visible": false
  },
  {
   "path": "Safe.TopRight",
@@ -780,16 +775,6 @@
   "visible": true
  },
  {
-  "path": "Safe.PickupToast",
-  "class": "TextLabel",
-  "visible": false
- },
- {
-  "path": "Safe.LevelUpText",
-  "class": "TextLabel",
-  "visible": false
- },
- {
   "path": "Safe.StageTitle",
   "class": "Frame",
   "visible": false
@@ -858,5 +843,30 @@
   "path": "Letterbox.Bottom",
   "class": "Frame",
   "visible": true
+ },
+ {
+  "path": "XpBar.Strip",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "XpBar.Strip.Back",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "XpBar.Strip.Fill",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "XpBar.Strip.Fill.Shine",
+  "class": "Frame",
+  "visible": true
+ },
+ {
+  "path": "XpBar.Strip.Rainbow",
+  "class": "Frame",
+  "visible": false
  }
 ]

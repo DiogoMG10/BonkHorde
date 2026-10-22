@@ -60,17 +60,26 @@ not TextScaled, except the banner, stage and boss names. Paths are from the Scre
 | `HurtFlash` | Frame | full screen, `BackgroundTransparency=1`, under the HUD; VitalsController builds the hit and low-HP edges in it |
 | `Safe` | Frame | the safe area: placed by code over Roblox's CoreUISafeInsets, in design pixels |
 | `Safe.TopLeft` | Frame | vertical list, AutomaticSize Y |
-| `Safe.TopLeft.Vitals` | Frame | panel: `LevelBadge` (`LevelCaption` "LVL", `LevelLabel` "12" or "MAX"), `Bars` with `ShieldBar` (`Fill`, `Text`), `HPBar` (`Trail`, `Fill`, `Text`), `XPBar` (`Fill`, `Rainbow` hidden). Fills use X scale |
+| `Safe.TopLeft.Vitals` | Frame | panel: `LevelBadge` (`LevelCaption` "LVL", `LevelLabel` "12" or "MAX"), `Bars` with `ShieldBar` (`Fill`, `Text`), `HPBar` (`Trail`, `Fill`, `Text`). Fills use X scale. XP is the `XpBar` screen's strip |
 | `Safe.TopLeft.Purse` | Frame | `Gold.GoldCount`, `NextChest` (`Icon`, `Price`), `Silver.SilverCount`, `Kills.KillCount`, each chip with its `Icon` |
 | `Safe.TopLeft.QuestTracker` | Frame | panel, hidden with no objectives: `Header`, `QuestLine` samples (`Box`, `Check`, `Text`) |
 | `Safe.TopLeft.TeammateBars` | Frame | panel, hidden in solo: `Header`, `Teammate` samples (`Portrait`, `Name`, `HPBack.HPFill`, `HPBack.ShieldFill`, `DownedTag` "DOWN"/"REVIVING") |
-| `Safe.TopCenter` | Frame | vertical list: `TimerPlate` (`TimerCaption`, `StageTimer`, `RunClock` with `Icon`), `DifficultyPill` (`TierName`, `TierMult` with `Icon`, hidden), `BossBars` (hidden; `Main` with `Name`, `Back.Trail`, `Back.Fill`, `Text`; `Minis` of `MiniBar` samples with `Name`, `Back.Fill`, `Text`), `Banner` (hidden; `Band`, `RuleTop`, `RuleBottom`, `BannerText`, `BannerSub`), `Toast` (hidden; `ToastPortrait`, `ToastTitle`, `ToastText`) |
+| `Safe.TopCenter` | Frame | one vertical list, so nothing in the top centre covers anything else: `TimerPlate` (`TimerCaption`, `StageTimer`, `RunClock` with `Icon`), `LevelUpText` (hidden; LEVEL UP!), `DifficultyPill` (`TierName`, `TierMult` with `Icon`, hidden), `BossBars` (hidden; `Main` with `Name`, `Back.Trail`, `Back.Fill`, `Text`; `Minis` of `MiniBar` samples with `Name`, `Back.Fill`, `Text`), `Banner` (hidden; `Band`, `RuleTop`, `RuleBottom`, `BannerText`, `BannerSub`), `Toast` (hidden; `ToastPortrait`, `ToastTitle`, `ToastText`), `PickupToast` (hidden; last, so it never moves what is above it) |
 | `Safe.TopRight.Minimap` | Frame | `Ring`, `Field`, `Dots` (clips; `MapDot` samples, also the big map's template), `PlayerArrow`, `N` `E` `S` `W`; the radius follows `Safe.TopRight`'s size |
 | `Safe.BottomCenter` | Frame | vertical list from the bottom: `InteractPrompt` (hidden; `KeyCap.Key`, `Text`), `BuildTray` (`ItemStrip` of `ItemSlot` samples with `Icon`, `Count`; `Loadout` with `WeaponRow` and `TomeRow` of `LoadoutSlot` samples with `Tile`, `Icon`, `Level`) |
-| `Safe.PickupToast`, `Safe.LevelUpText` | TextLabel | hidden; centre-screen popups |
 | `Safe.StageTitle` | Frame | hidden; `TierLabel`, `StageName`, `StageJoke` between two rules |
 | `DownedOverlay` | Frame | full screen dim, hidden: `DownedLabel`, `ReviveBack.ReviveFill`, `SpectateName` |
 | `Letterbox` | Frame | hidden: `Top`, `Bottom` black bars, 110 px |
+
+## ScreenGui `XpBar` (DisplayOrder 21)
+
+Generated with the Hud by `design/ui_specs/Hud_build.py`; laid out by `HudController`
+(Core/HudLayout) and drawn over the level-up panels, so its rainbow shows while a choice
+waits (Core/XpStrip).
+
+| Path | Class | Notes |
+|---|---|---|
+| `Strip` | Frame | the XP strip along the top of the screen: `Back` (track, `Stroke`), `Fill` (X scale; `Shine`), `Rainbow` (hidden; `Gradient`, redrawn as it flows) |
 
 ## ScreenGui `Choices` (DisplayOrder 20)
 

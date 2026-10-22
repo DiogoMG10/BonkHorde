@@ -1,0 +1,493 @@
+{
+ "className": "ScreenGui",
+ "properties": {
+  "DisplayOrder": 21,
+  "ResetOnSpawn": false,
+  "ZIndexBehavior": "Sibling",
+  "IgnoreGuiInset": true,
+  "Enabled": true
+ },
+ "children": [
+  {
+   "className": "Frame",
+   "name": "Strip",
+   "properties": {
+    "BackgroundTransparency": 1,
+    "BorderSizePixel": 0,
+    "Size": {
+     "UDim2": [
+      [
+       0,
+       1644
+      ],
+      [
+       0,
+       14
+      ]
+     ]
+    },
+    "Position": {
+     "UDim2": [
+      [
+       0,
+       262
+      ],
+      [
+       0,
+       6
+      ]
+     ]
+    },
+    "AnchorPoint": {
+     "Vector2": [
+      0,
+      0
+     ]
+    },
+    "ZIndex": 1
+   },
+   "children": [
+    {
+     "className": "Frame",
+     "name": "Back",
+     "properties": {
+      "BackgroundTransparency": 0.18,
+      "BorderSizePixel": 0,
+      "BackgroundColor3": {
+       "Color3": [
+        0.0392,
+        0.0667,
+        0.051
+       ]
+      },
+      "Size": {
+       "UDim2": [
+        [
+         1,
+         0
+        ],
+        [
+         1,
+         0
+        ]
+       ]
+      },
+      "Position": {
+       "UDim2": [
+        [
+         0,
+         0
+        ],
+        [
+         0,
+         0
+        ]
+       ]
+      },
+      "AnchorPoint": {
+       "Vector2": [
+        0,
+        0
+       ]
+      },
+      "ZIndex": 1
+     },
+     "children": [
+      {
+       "className": "UICorner",
+       "name": "Corner",
+       "properties": {
+        "CornerRadius": {
+         "UDim": [
+          0.5,
+          0
+         ]
+        }
+       },
+       "children": []
+      },
+      {
+       "className": "UIGradient",
+       "name": "Shade",
+       "properties": {
+        "Rotation": 90,
+        "Color": {
+         "ColorSequence": {
+          "keypoints": [
+           {
+            "time": 0,
+            "color": [
+             1,
+             1,
+             1
+            ]
+           },
+           {
+            "time": 1,
+            "color": [
+             0.8,
+             0.8,
+             0.8
+            ]
+           }
+          ]
+         }
+        }
+       },
+       "children": []
+      },
+      {
+       "className": "UIStroke",
+       "name": "Stroke",
+       "properties": {
+        "Color": {
+         "Color3": [
+          0.851,
+          0.7216,
+          0.3608
+         ]
+        },
+        "Thickness": 1.5,
+        "Transparency": 0.3,
+        "ApplyStrokeMode": "Border",
+        "LineJoinMode": "Round"
+       },
+       "children": []
+      }
+     ]
+    },
+    {
+     "className": "Frame",
+     "name": "Fill",
+     "properties": {
+      "BackgroundTransparency": 0.0,
+      "BorderSizePixel": 0,
+      "BackgroundColor3": {
+       "Color3": [
+        0.2706,
+        0.6392,
+        1.0
+       ]
+      },
+      "Size": {
+       "UDim2": [
+        [
+         0.62,
+         0
+        ],
+        [
+         1,
+         0
+        ]
+       ]
+      },
+      "Position": {
+       "UDim2": [
+        [
+         0,
+         0
+        ],
+        [
+         0,
+         0
+        ]
+       ]
+      },
+      "AnchorPoint": {
+       "Vector2": [
+        0,
+        0
+       ]
+      },
+      "ZIndex": 2
+     },
+     "children": [
+      {
+       "className": "UICorner",
+       "name": "Corner",
+       "properties": {
+        "CornerRadius": {
+         "UDim": [
+          0.5,
+          0
+         ]
+        }
+       },
+       "children": []
+      },
+      {
+       "className": "UIGradient",
+       "name": "Shade",
+       "properties": {
+        "Rotation": 90,
+        "Color": {
+         "ColorSequence": {
+          "keypoints": [
+           {
+            "time": 0,
+            "color": [
+             1,
+             1,
+             1
+            ]
+           },
+           {
+            "time": 1,
+            "color": [
+             0.7,
+             0.7,
+             0.7
+            ]
+           }
+          ]
+         }
+        }
+       },
+       "children": []
+      },
+      {
+       "className": "Frame",
+       "name": "Shine",
+       "properties": {
+        "BackgroundTransparency": 0.55,
+        "BorderSizePixel": 0,
+        "BackgroundColor3": {
+         "Color3": [
+          1.0,
+          1.0,
+          1.0
+         ]
+        },
+        "Size": {
+         "UDim2": [
+          [
+           1,
+           -10
+          ],
+          [
+           0,
+           3
+          ]
+         ]
+        },
+        "Position": {
+         "UDim2": [
+          [
+           0,
+           5
+          ],
+          [
+           0,
+           2
+          ]
+         ]
+        },
+        "AnchorPoint": {
+         "Vector2": [
+          0,
+          0
+         ]
+        },
+        "ZIndex": 3
+       },
+       "children": [
+        {
+         "className": "UICorner",
+         "name": "Corner",
+         "properties": {
+          "CornerRadius": {
+           "UDim": [
+            0.5,
+            0
+           ]
+          }
+         },
+         "children": []
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "className": "Frame",
+     "name": "Rainbow",
+     "properties": {
+      "BackgroundTransparency": 0.0,
+      "BorderSizePixel": 0,
+      "BackgroundColor3": {
+       "Color3": [
+        1.0,
+        1.0,
+        1.0
+       ]
+      },
+      "Size": {
+       "UDim2": [
+        [
+         1,
+         0
+        ],
+        [
+         1,
+         0
+        ]
+       ]
+      },
+      "Position": {
+       "UDim2": [
+        [
+         0,
+         0
+        ],
+        [
+         0,
+         0
+        ]
+       ]
+      },
+      "AnchorPoint": {
+       "Vector2": [
+        0,
+        0
+       ]
+      },
+      "ZIndex": 4,
+      "Visible": false
+     },
+     "children": [
+      {
+       "className": "UICorner",
+       "name": "Corner",
+       "properties": {
+        "CornerRadius": {
+         "UDim": [
+          0.5,
+          0
+         ]
+        }
+       },
+       "children": []
+      },
+      {
+       "className": "UIGradient",
+       "name": "Gradient",
+       "properties": {
+        "Color": {
+         "ColorSequence": {
+          "keypoints": [
+           {
+            "time": 0.0,
+            "color": [
+             0.2078,
+             0.8157,
+             0.2902
+            ]
+           },
+           {
+            "time": 0.10833,
+            "color": [
+             0.2078,
+             0.8157,
+             0.2902
+            ]
+           },
+           {
+            "time": 0.16667,
+            "color": [
+             0.0667,
+             0.7059,
+             0.9569
+            ]
+           },
+           {
+            "time": 0.275,
+            "color": [
+             0.0667,
+             0.7059,
+             0.9569
+            ]
+           },
+           {
+            "time": 0.33333,
+            "color": [
+             0.6902,
+             0.302,
+             1.0
+            ]
+           },
+           {
+            "time": 0.44167,
+            "color": [
+             0.6902,
+             0.302,
+             1.0
+            ]
+           },
+           {
+            "time": 0.5,
+            "color": [
+             1.0,
+             0.302,
+             0.6039
+            ]
+           },
+           {
+            "time": 0.60833,
+            "color": [
+             1.0,
+             0.302,
+             0.6039
+            ]
+           },
+           {
+            "time": 0.66667,
+            "color": [
+             1.0,
+             0.6235,
+             0.102
+            ]
+           },
+           {
+            "time": 0.775,
+            "color": [
+             1.0,
+             0.6235,
+             0.102
+            ]
+           },
+           {
+            "time": 0.83333,
+            "color": [
+             1.0,
+             0.8235,
+             0.2275
+            ]
+           },
+           {
+            "time": 0.94167,
+            "color": [
+             1.0,
+             0.8235,
+             0.2275
+            ]
+           },
+           {
+            "time": 1.0,
+            "color": [
+             0.2078,
+             0.8157,
+             0.2902
+            ]
+           }
+          ]
+         }
+        }
+       },
+       "children": []
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
