@@ -572,7 +572,8 @@ function HubController:_refreshPlates()
 				if plate then
 					plate:Destroy()
 				end
-				plate = HubUi.billboard(head, UDim2.fromOffset(240, 74), Vector3.new(0, 3.4, 0), 80)
+				-- wide enough for "Sir Clonk · leads circle III · READY"
+				plate = HubUi.billboard(head, UDim2.fromOffset(340, 74), Vector3.new(0, 3.4, 0), 80)
 				plate.Name = `Plate{entry.userId}`
 				HubUi.label(
 					plate,

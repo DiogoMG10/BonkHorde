@@ -127,9 +127,33 @@ solo run), `island` (back to the meadow), `party` (circles and run state), `sky 
 - **Fixed in that pass:** grass through the paving; the camera inside a banner; a
   re-dress killed the character (the hero's "Head" part became the humanoid's head); the
   mouse was locked on the island, so the party card and MENU could not be clicked.
-- **Not validated yet (needs people):** co-op (joining, READY, leader handoff, someone
-  leaving mid-countdown, a second party waiting for the portal), that island players see
-  and hear nothing of a run, the end-of-run vote with several players, phone and gamepad.
+- **Run in Studio by Claude, multiplayer (2026-10-23):** a local server test started with
+  `StudioTestService:ExecuteMultiplayerTestAsync` (two simulated players, two more added
+  mid-test with `AddPlayers`; one machine, so no real latency), each window driven through
+  the Studio MCP with real key presses and clicks where timing allowed, and a recorder on
+  each client logging every run message it received:
+  - OPEN SQUAD with F at circle I, JOIN with E, BEGIN with E, READY with E: the squad's
+    countdown and both players into one Wardwood run together;
+  - NOT READY during the countdown: back to preparing, no run; LEAVE (the card's button)
+    during preparation: the squad forming again with the leader alone; the leader leaving:
+    the lead passes to the other member;
+  - a second party (solo) while a run was on: "The portal is in use: you go next", then its
+    short countdown and its run as soon as the first party pressed CONTINUE;
+  - the player left on Skyhold during another's run received no run message at all (not
+    even the half-second clock), kept the island's light (ClockTime 16.9, brightness 3.1)
+    and the menu music while the runner had the forest's; a player joining mid-run arrived
+    on the island and heard nothing of the run either;
+  - in a squad run: per-player level-up choices (the XP strip's rainbow followed each
+    player's own choice), the co-op pause (REQUEST PAUSE, P to agree, PAUSED, READY 1/2 and
+    2/2, the 3-2-1), the end-of-run vote (1/2, 2/2, back to Skyhold together, squad kept),
+    and a player disconnecting mid-run (the run went on for the other, the party dropped
+    them, the team panel emptied).
+- **Fixed in the multiplayer pass:** the run HUD blinked off for a moment as every run left
+  its intro (no PlayerState reached the client before play began: it is now sent during the
+  intro); a READY leader's nameplate was cut off ("leads circle I · READY"). Added
+  `god all` (every hero in the run) for co-op playtests.
+- **Not validated yet (needs people):** all of the above with real players and real
+  latency, phone and gamepad, and the feel of it.
 
 ## Limits of this milestone
 

@@ -468,6 +468,9 @@ function RunDirectorService:_frame(dt: number)
 	if phase == RunState.Lobby then
 		return -- a run starts only when a party enters the portal (StartRun)
 	elseif phase == RunState.Intro then
+		-- each hero's state reaches its player during the intro, so the HUD is
+		-- already filled (and does not blink off) when play begins
+		self._players:Flush(now)
 		if now >= self._phaseUntil then
 			self:_setPhase(RunState.Playing)
 		end

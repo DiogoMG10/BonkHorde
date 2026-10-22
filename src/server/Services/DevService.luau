@@ -5,7 +5,7 @@
 -- playtest needs a way in. Setting the Workspace attribute `BonkDev` to a command
 -- string runs it here, and `status` prints one line of state to the Output.
 --
---   gold 500 | level 3 | clock 590 | god | hurt 50 | killall | item Nightlight
+--   gold 500 | level 3 | clock 590 | god [all] | hurt 50 | killall | item Nightlight
 --   weapon Axe | tp 120 -40 | goto Chest | goto ChargeShrine | goto BossPortal
 --   spawn Skeleton 40 | boss | mini Hamlet | bosshp 0.05 | status
 -- From the lobby too:
@@ -299,9 +299,12 @@ function DevService:KnitStart()
 	function commands.clock(_, n)
 		director._clock = tonumber(n) or 0
 	end
-	function commands.god(rec)
-		rec.god = not rec.god
-		rec.invulnUntil = if rec.god then math.huge else 0
+	function commands.god(rec, who)
+		-- `god all`: every hero in the run (a co-op playtest), else the first
+		for _, r in if who == "all" then players:All() else { rec } do
+			r.god = not r.god
+			r.invulnUntil = if r.god then math.huge else 0
+		end
 	end
 	function commands.hurt(rec, n)
 		rec.invulnUntil = 0
