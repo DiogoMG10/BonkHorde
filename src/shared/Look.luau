@@ -54,20 +54,22 @@ end
 
 Look.Skies = {
 	skyhold = {
-		clock = 16.25,
+		clock = 16.9, -- tuned in Studio: lower and warmer than the first 16.25, which read as noon
 		brightness = 3.1,
-		ambient = rgb(92, 100, 110),
-		outdoor = rgb(138, 146, 150),
-		shiftTop = rgb(18, 11, 2),
+		ambient = rgb(100, 96, 96),
+		outdoor = rgb(150, 142, 132),
+		shiftTop = rgb(44, 26, 4),
 		shiftBottom = rgb(4, 10, 16),
-		exposure = 0.08,
+		exposure = 0.12,
 		sunSize = 15,
-		-- above the weather: little haze, a warm glow towards the sun
-		haze = { density = 0.18, offset = 0.06, color = rgb(222, 212, 190), decay = rgb(118, 160, 186), glare = 0.45, haze = 0.9 },
-		grade = { saturation = 0.12, contrast = 0.07, tint = rgb(255, 245, 228) },
+		-- above the weather: a golden glow along the horizon towards the sun
+		haze = { density = 0.26, offset = 0.12, color = rgb(238, 214, 176), decay = rgb(196, 160, 128), glare = 0.7, haze = 1.4 },
+		grade = { saturation = 0.04, contrast = 0.07, tint = rgb(255, 238, 210) },
 		bloom = 0.45,
 		rays = 0.08,
 		clouds = { cover = 0.4, density = 0.45, color = rgb(255, 240, 222) },
+		-- the island's grass a touch more olive than the Wardwood's, which goes lime in this sun
+		grass = rgb(122, 146, 64),
 	},
 	golden = {
 		clock = 16.6,
@@ -166,6 +168,7 @@ Look.Skies = {
 }
 
 local current: string? = nil
+local grassBase: Color3? = nil -- the Grass tint a sky with its own `grass` covered
 
 --- The sky in use.
 function Look.current(): string?
@@ -221,6 +224,15 @@ function Look.sky(name: string): boolean
 		clouds.Cover = preset.clouds.cover
 		clouds.Density = preset.clouds.density
 		clouds.Color = preset.clouds.color
+	end
+	-- a sky can tint the grass (on this client only); the next sky puts it back
+	local terrain = Workspace.Terrain
+	if preset.grass then
+		grassBase = grassBase or terrain:GetMaterialColor(Enum.Material.Grass)
+		terrain:SetMaterialColor(Enum.Material.Grass, preset.grass)
+	elseif grassBase then
+		terrain:SetMaterialColor(Enum.Material.Grass, grassBase)
+		grassBase = nil
 	end
 	return true
 end

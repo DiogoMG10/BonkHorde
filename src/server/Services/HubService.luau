@@ -196,6 +196,14 @@ function HubService:Spawn(player: Player, where: string, slot: number?)
 	character:PivotTo(cf)
 	applyMovement(character, hero)
 	self._chars[player] = character
+	-- characters do not respawn on their own here (CharacterAutoLoads is off):
+	-- should an island character ever die, it comes back on the meadow
+	humanoid.Died:Connect(function()
+		task.wait(2)
+		if self._chars[player] == character and player.Character == character then
+			self:Spawn(player, "spawn")
+		end
+	end)
 end
 
 -- a new hero chosen at a plinth: the same character, re-dressed where it stands

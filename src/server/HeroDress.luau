@@ -113,6 +113,10 @@ function HeroDress.dress(character: Model, heroId: string): number?
 			weld.Part1 = part
 			weld.C0 = restOf(character, limb, root):ToObjectSpace(part.CFrame)
 			weld.Parent = part
+			-- never under a limb's own name: a second "Head" in the character
+			-- becomes the humanoid's head, and undressing it (a re-dress at a
+			-- plinth) would kill the character
+			part.Name = "Hero" .. part.Name
 			part.Parent = character
 		end
 	end

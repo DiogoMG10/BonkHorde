@@ -129,12 +129,17 @@ Wardwood, native grass; no publishing or permanent uploads without authorization
   and the co-op end-of-run vote. Details: `assets/ui/NOTES.Pause.md`.
 - **T4** Audio audit and references for a softer sound direction.
 - **T5** SFX, ambience and music redone; volume balance, nothing harsh or fatiguing.
-- **T6 + T7 — in progress** (`feat/t6-t7-island-hub`, design approved by Tiago 2026-10-21).
-  Skyhold, a floating-island hub built mostly in Blender, replaces the 2D menu flow: players
-  walk it as their hero, choose heroes at plinths, form parties of up to 3 at rune circles
-  and start runs through the portal. Locally one server holds the hub and at most one
-  Wardwood run; only the party enters it and the hub never sees it. Reserved run servers are
-  documented, not built. Details: `docs/T6-T7-island-hub.md`.
+- **T6 + T7 — built, awaiting human playtest** (`feat/t6-t7-island-hub`, `bonk-0.23.0-t6t7`,
+  design approved by Tiago 2026-10-21; not merged). Skyhold, a floating-island hub built
+  mostly in Blender, replaces the 2D menu flow: players walk it as their hero, choose heroes
+  at plinths, form parties of up to 3 at rune circles and start runs through the portal.
+  Locally one server holds the hub and at most one Wardwood run; only the party enters it
+  and the hub never sees it. Reserved run servers are documented, not built. **Run in Studio
+  by Claude (one player, 2026-10-22):** spawn as the hero, hero card and re-dress in place,
+  solo and lone-squad start, cancel and leave, run, results, back out of the portal, fall
+  catch. **Not yet validated by a person; not run at all:** co-op circles (join, READY,
+  leader handoff, a second party waiting), what hub players see while a run is on, phone
+  layout. Details: `docs/T6-T7-island-hub.md`.
 - **T8** A short portal-arrival sequence into Wardwood.
 - **T9** Replayability: build variety, unlocks, challenges, persistent progression, no
   excessive power creep.

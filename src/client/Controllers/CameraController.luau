@@ -4,8 +4,10 @@
 -- Third person, mouse-look: the camera orbits the hero, movement is relative to
 -- it, and the hero faces where they run. In menus and panels the mouse is free.
 --
--- On the island hub (T6/T7) it is the same camera on the same hero. A plinth
--- in the Hall of Heroes can borrow it (SetShot): it eases to that framing and
+-- On the island hub (T6/T7) it is the same camera on the same hero, but the
+-- mouse stays free for the hub's buttons (the party card, the menu) and the
+-- right button held turns the camera, as in most Roblox worlds. A plinth in
+-- the Hall of Heroes can borrow it (SetShot): it eases to that framing and
 -- back. With no hero yet (the first moments, or between a run and the island)
 -- it takes a slow wide look at Skyhold.
 
@@ -29,6 +31,7 @@ function CameraController:KnitInit()
 	self._uiOpen = 0
 	self._lookTouch = nil
 	self._stick = Vector2.zero
+	self._dragging = false -- the right mouse button held, on the island
 	self._distance = GameConfig.CameraDistance
 	self._shot = nil -- a borrowed framing (CFrame), eased to and from
 	self._blend = 0 -- 0 the hero's camera, 1 the borrowed shot
@@ -76,7 +79,8 @@ function CameraController:KnitStart()
 
 	UserInputService.InputChanged:Connect(function(input, processed)
 		if input.UserInputType == Enum.UserInputType.MouseMovement then
-			if UserInputService.MouseBehavior == Enum.MouseBehavior.LockCenter then
+			local behaviour = UserInputService.MouseBehavior
+			if behaviour == Enum.MouseBehavior.LockCenter or behaviour == Enum.MouseBehavior.LockCurrentPosition then
 				turn(input.Delta.X, input.Delta.Y)
 			end
 		elseif input.UserInputType == Enum.UserInputType.MouseWheel then
@@ -89,6 +93,9 @@ function CameraController:KnitStart()
 		end
 	end)
 	UserInputService.InputBegan:Connect(function(input, processed)
+		if input.UserInputType == Enum.UserInputType.MouseButton2 and not processed then
+			self._dragging = true
+		end
 		if input.UserInputType == Enum.UserInputType.Touch and not processed and not self._lookTouch then
 			-- the right half of the screen looks; the left half is the move stick
 			local camera = Workspace.CurrentCamera
@@ -98,6 +105,9 @@ function CameraController:KnitStart()
 		end
 	end)
 	UserInputService.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton2 then
+			self._dragging = false
+		end
 		if input == self._lookTouch then
 			self._lookTouch = nil
 		end
@@ -125,8 +135,15 @@ function CameraController:KnitStart()
 		camera.FieldOfView = GameConfig.CameraFOV + movement:SpeedFeel() * GameConfig.SpeedFovKick
 		local root = self._state:Root()
 		local hasHero = root ~= nil
-		local wantLock = hasHero and self._uiOpen == 0 and not UserInputService.TouchEnabled
-		UserInputService.MouseBehavior = if wantLock then Enum.MouseBehavior.LockCenter else Enum.MouseBehavior.Default
+		local looking = hasHero and self._uiOpen == 0 and not UserInputService.TouchEnabled
+		-- in the Wardwood the mouse aims (locked to the centre); on the island it
+		-- is free, and the right button held turns the camera
+		local hub = self._state:OnIsland()
+		local wantLock = looking and not hub
+		UserInputService.MouseBehavior = if wantLock
+			then Enum.MouseBehavior.LockCenter
+			elseif looking and self._dragging then Enum.MouseBehavior.LockCurrentPosition
+			else Enum.MouseBehavior.Default
 		UserInputService.MouseIconEnabled = not wantLock
 		camera.CameraType = Enum.CameraType.Scriptable
 

@@ -68,6 +68,8 @@ telescope in the south-west, a trophy wall with empty niches in the north-east, 
 market islet over a rope bridge (stalls closed until there is something to sell),
 floating isles, a waterfall off the east cliff, a sea of clouds below and a far peak.
 An invisible wall follows the rim; anyone who still falls is put back on the meadow.
+The ground under the kit's paving (plaza, dais, stairs, hall terrace: `Config/Skyhold.Paving`)
+is bare earth, so Roblox's grass blades do not grow through it.
 
 **Server.**
 - `RunAudience`: every run broadcast goes to the run's party only (it replaced every
@@ -85,8 +87,11 @@ An invisible wall follows the rim; anyone who still falls is put back on the mea
 **Client.** `HubController` (circle glow and slots, the party boards, prompts, party card,
 nameplates, portal state, the white crossing), `HeroHallController` (statues, plinth
 prompts, the hero card, the borrowed camera shot), `HubDecorController` (clouds, far
-scenery, the orbiting monoliths), `SkyController` (each player's own sky). The camera
-follows the hero on the island; slides read the island's slopes; the old 2D menus are gone.
+scenery, the orbiting monoliths), `SkyController` (each player's own sky and, on the
+island, its own grass tint). The camera follows the hero on the island with the mouse free
+for the hub's buttons (right button held turns it; the Wardwood keeps its locked aim); the
+canopy fader also ghosts the island's trees and banners in its way; slides read the
+island's slopes; the old 2D menus are gone.
 
 **Art pipeline (Blender is the source).**
 
@@ -108,6 +113,23 @@ included); nothing is uploaded. A Blender render shows shape and palette only.
 **Dev commands** (Workspace attribute `BonkDev`, Studio only): `solo` (straight into a
 solo run), `island` (back to the meadow), `party` (circles and run state), `sky <name>` /
 `sky off` (every client's sky).
+
+## Validation (2026-10-22)
+
+- **Offline:** the four gates; specs for the party rules (`HubParty`), the island's ground
+  (`Skyhold`, paving included) and the exported kit (`SkyholdKit`).
+- **Run in Studio by Claude** (Studio MCP, Tiago's unpublished local place, one player):
+  the island builds with no errors (341 kit pieces); spawn on the meadow as the saved hero;
+  hero card, CHOOSE and back, re-dressed in place twice; solo start, countdown, the run
+  under its own sky, results, CONTINUE, back out of the portal with the party kept; a lone
+  squad's BEGIN, CALL IT OFF and LEAVE; walking across a circle joins nothing; a fall off
+  the rim lands on the meadow. The look was tuned there (golden light, clouds, cliffs).
+- **Fixed in that pass:** grass through the paving; the camera inside a banner; a
+  re-dress killed the character (the hero's "Head" part became the humanoid's head); the
+  mouse was locked on the island, so the party card and MENU could not be clicked.
+- **Not validated yet (needs people):** co-op (joining, READY, leader handoff, someone
+  leaving mid-countdown, a second party waiting for the portal), that island players see
+  and hear nothing of a run, the end-of-run vote with several players, phone and gamepad.
 
 ## Limits of this milestone
 

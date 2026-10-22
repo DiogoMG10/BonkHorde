@@ -66,7 +66,7 @@ local Skyhold = {
 	MeadowRoll = 0.9, -- studs of gentle unevenness on the open meadow
 	RimDip = 1.6, -- the ground sinks this much over the last RimWidth studs to the edge
 	RimWidth = 7,
-	CrustDepth = 16, -- terrain this deep under the surface; the Blender rock is below and around it
+	CrustDepth = 10, -- terrain this deep under the surface; the Blender rock is below and around it (deeper shows past its apron)
 	-- worn earth paths, as polylines of { x, z } with a width
 	Paths = {
 		{ width = 7, points = { { 0, 104 }, { 0, 60 }, { 0, 14 }, { 0, -4 } } },

@@ -359,7 +359,7 @@ def layout():
     # the banks keep off the sun's side (west): seen against the sun, Roblox
     # shades them a flat grey
     for k in range(14):
-        a = rnd.uniform(-0.62, 0.62) * math.pi
+        a = rnd.uniform(-0.45, 0.45) * math.pi
         r = rnd.uniform(420, 900)
         decor(rnd.choice(["CloudB", "CloudC", "CloudA"]), math.cos(a) * r, rnd.uniform(-60, 120), math.sin(a) * r, rnd.uniform(0, 360), round(rnd.uniform(0.7, 1.3), 2))
     decor("FarPeak", -900, -40, -1500, 30, 1.6)
