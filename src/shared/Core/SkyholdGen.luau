@@ -165,6 +165,14 @@ end
 --- The ground's surface key (Config/Wardwood.Surfaces) at (x, z).
 function SkyholdGen.surfaceAt(plan: Plan, x: number, z: number): string
 	local cfg = plan.cfg
+	for _, pave in cfg.Paving do
+		local under = if pave.r
+			then (x - pave.x) ^ 2 + (z - pave.z) ^ 2 <= pave.r * pave.r
+			else x >= pave.x0 and x <= pave.x1 and z >= pave.z0 and z <= pave.z1
+		if under then
+			return "Path"
+		end
+	end
 	for _, path in cfg.Paths do
 		if pathDistance(path.points, x, z) <= path.width / 2 then
 			return "Path"

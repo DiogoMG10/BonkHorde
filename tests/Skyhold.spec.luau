@@ -131,4 +131,11 @@ return {
 		assert(SkyholdGen.surfaceAt(plan, 0, 60) == "Path")
 		assert(SkyholdGen.surfaceAt(plan, -60, 60) == "Turf")
 	end,
+
+	["no grass grows through the paving"] = function()
+		for _, p in { { 0, -40 }, { 30, -40 }, { 0, -88 }, { 6, 2 }, { -96, -18 }, { -120, 20 } } do
+			assert(SkyholdGen.surfaceAt(plan, p[1], p[2]) == "Path", `grass under the paving at {p[1]}, {p[2]}`)
+		end
+		assert(SkyholdGen.surfaceAt(plan, 50, -40) == "Turf", "the meadow past the plaza is turf")
+	end,
 }

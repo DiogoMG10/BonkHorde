@@ -586,13 +586,13 @@ function MenuController:_renderStatus()
 	local caption, line
 	if not self._continued then
 		caption = "CONTINUE"
-		line = if solo or ready == 0 then `Back to the lobby in {left}` else `{ready}/{need} ready  ·  back to the lobby in {left}`
+		line = if solo or ready == 0 then `Back to Skyhold in {left}` else `{ready}/{need} ready  ·  back to Skyhold in {left}`
 	elseif solo then
-		caption, line = "CONTINUE", "Back to the lobby..."
+		caption, line = "CONTINUE", "Back to Skyhold..."
 	else
 		caption = `READY  {ready}/{need}`
 		local waiting = need - ready
-		line = if waiting > 0 then `Waiting for {waiting} more  ·  back in {left}` else "Back to the lobby..."
+		line = if waiting > 0 then `Waiting for {waiting} more  ·  back in {left}` else "Back to Skyhold..."
 	end
 	UiKit.text(r.continueText, caption)
 	UiKit.text(r.continue, line)

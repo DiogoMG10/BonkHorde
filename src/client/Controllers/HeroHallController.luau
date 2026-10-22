@@ -33,7 +33,7 @@ local player = Players.LocalPlayer
 local C = HubUi.Colours
 
 local STATUE_LIFT = 3.2 -- the plinth's top above the ground
-local STATUE_SCALE = 1.25 -- a little larger than life, on a pedestal
+local STATUE_SCALE = 1.5 -- larger than life, on a pedestal, so it reads across the hall
 local VIEW_RANGE = 10
 local CLOSE_RANGE = 16 -- walking further than this from the plinth closes the card
 local LOCKED_TINT = Color3.fromRGB(196, 190, 176)
@@ -133,7 +133,7 @@ function HeroHallController:_makePlinth(i: number, spot, heroId: string)
 	local over = anchor:Clone()
 	over:ClearAllChildren() -- not a second prompt
 	over.Name = `PlinthSign{i}`
-	over.CFrame = base * CFrame.new(0, 9.2, 0)
+	over.CFrame = base * CFrame.new(0, 10.4, 0)
 	over.Parent = self._folder
 	local sign = HubUi.billboard(over, UDim2.fromOffset(260, 70), Vector3.zero, 70)
 	sign.Name = "Sign"
@@ -149,6 +149,7 @@ function HeroHallController:_makePlinth(i: number, spot, heroId: string)
 		TextColor3 = C.ink,
 	})
 	sign.Parent = over
+	entry.sign = sign
 end
 
 function HeroHallController:_statueModel(heroId: string, locked: boolean): Model?
@@ -332,10 +333,11 @@ function HeroHallController:_openCard(i: number)
 	self._gui.Enabled = true
 	-- the hero framed from in front of the plinth, a touch below eye level
 	-- (aimed a little to the hero's left, so they stand left of the card)
-	local look = (entry.base * CFrame.new(2.6, 3.6, 0)).Position
-	local eye = (entry.base * CFrame.new(1.4, 4.6, 13)).Position
+	local look = (entry.base * CFrame.new(2.6, 4.2, 0)).Position
+	local eye = (entry.base * CFrame.new(1.4, 5.4, 14)).Position
 	self._camera:SetShot(CFrame.lookAt(eye, look))
 	self:_hideSelf(true)
+	self:_quiet(true)
 	self:_renderCard()
 	UiKit.focus(self._e.main)
 end
@@ -348,7 +350,18 @@ function HeroHallController:_close()
 	self._gui.Enabled = false
 	self._camera:SetShot(nil)
 	self:_hideSelf(false)
+	self:_quiet(false)
 	UiKit.unfocus(self._gui)
+end
+
+-- while the card is up, nothing else speaks over it: the hall's signs, the hub's hint
+function HeroHallController:_quiet(quiet: boolean)
+	for _, entry in self._statues do
+		if entry.sign then
+			entry.sign.Enabled = not quiet
+		end
+	end
+	Knit.GetController("HubController"):SetQuiet(quiet)
 end
 
 -- our own hero stands in front of the plinth: out of the shot while it is borrowed

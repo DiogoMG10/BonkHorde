@@ -8,7 +8,7 @@
    "colliders": 0
   },
   "IsletRock": {
-   "tris": 2979,
+   "tris": 3099,
    "parts": 3,
    "colliders": 0
   },
@@ -28,22 +28,22 @@
    "colliders": 0
   },
   "CloudA": {
-   "tris": 2214,
+   "tris": 2576,
    "parts": 1,
    "colliders": 0
   },
   "CloudB": {
-   "tris": 3108,
+   "tris": 3404,
    "parts": 1,
    "colliders": 0
   },
   "CloudC": {
-   "tris": 2978,
+   "tris": 3212,
    "parts": 1,
    "colliders": 0
   },
   "CloudD": {
-   "tris": 2808,
+   "tris": 3298,
    "parts": 1,
    "colliders": 0
   },
@@ -83,7 +83,7 @@
    "colliders": 2
   },
   "Colonnade": {
-   "tris": 2770,
+   "tris": 3026,
    "parts": 1,
    "colliders": 11
   },
@@ -207,6 +207,6 @@
    "parts": 1,
    "colliders": 0
   },
-  "_total_tris": 75302
+  "_total_tris": 77060
  }
 }

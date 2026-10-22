@@ -75,6 +75,14 @@ local Skyhold = {
 		{ width = 5, points = { { 8, 26 }, { 44, 14 }, { 66, 2 }, { 82, -6 } } },
 		{ width = 4, points = { { -40, 70 }, { -80, 92 }, { -106, 108 } } },
 	},
+	-- bare earth under the kit's paving, so Roblox's grass blades do not grow
+	-- through it: the plaza (a disc), the portal's dais, the stairs, the hall terrace
+	Paving = {
+		{ x = 0, z = -40, r = 35 },
+		{ x0 = -21, x1 = 21, z0 = -98, z1 = -78 },
+		{ x0 = -8, x1 = 8, z0 = -5, z1 = 9 },
+		{ x0 = -126, x1 = -77, z0 = -65, z1 = 29 },
+	},
 
 	-- ---------------------------------------------------------------- places
 	-- yaw in degrees about y: a character at 0 faces north (-z); a kit asset

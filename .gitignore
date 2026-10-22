@@ -36,3 +36,6 @@ work/art/*.png
 
 # the island hub plan the Blender kit reads (lune run tools/art/skyhold_plan.luau)
 work/skyhold/
+
+# Python bytecode from the Blender scripts
+__pycache__/

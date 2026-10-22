@@ -8,6 +8,8 @@
 -- recognised by its material and shape (Core/Blueprints: LeafyGrass, and
 -- Grass on rounded or wedge parts; moss bands are Grass cylinders and blocks),
 -- and kept in a coarse grid as it streams in. Purely local and cosmetic.
+-- On Skyhold (T6/T7) the same goes for its trees and for the kit's pieces
+-- tagged CameraFade (the banners over the paths).
 
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -27,8 +29,8 @@ local function isFoliage(d: Instance): boolean
 	if not d:IsA("BasePart") then
 		return false
 	end
-	if CollectionService:HasTag(d, "WWFoliage") then
-		return true -- the M3.B art kit's leaf and needle meshes (server/Wardwood/ArtKit)
+	if CollectionService:HasTag(d, "WWFoliage") or CollectionService:HasTag(d, "CameraFade") then
+		return true -- the M3.B art kit's leaf and needle meshes (server/Wardwood/ArtKit), Skyhold's banners
 	end
 	local m = d.Material
 	if m == Enum.Material.LeafyGrass then
@@ -110,8 +112,12 @@ function CanopyController:KnitStart()
 	if art then
 		self:_watch(art)
 	end
+	local island = Workspace:FindFirstChild("Skyhold")
+	if island then
+		self:_watch(island)
+	end
 	Workspace.ChildAdded:Connect(function(child)
-		if child.Name == "Map" or child.Name == "WardwoodArt" then
+		if child.Name == "Map" or child.Name == "WardwoodArt" or child.Name == "Skyhold" then
 			self:_watch(child)
 		end
 	end)
@@ -125,7 +131,7 @@ function CanopyController:KnitStart()
 		if since >= CHECK_EVERY then
 			since = 0
 			table.clear(inWay)
-			if camera and root and state.phase ~= "Lobby" then
+			if camera and root and (state.phase ~= "Lobby" or state:OnIsland()) then
 				local a = camera.CFrame.Position
 				local b = root.Position + Vector3.new(0, 2, 0)
 				local ab = b - a

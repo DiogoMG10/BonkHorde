@@ -104,15 +104,15 @@ def rim_points(key):
     return [(p[0], -p[1], p[2]) for p in PLAN[key]]
 
 
-asset("IslandRock")(lambda c: LAND.rock_mass(c, "Rock", rim_points("outline"), depth=150, seed=3, crystals=16, vines=90))
-asset("IsletRock")(lambda c: LAND.rock_mass(c, "Rock", rim_points("islet"), depth=70, seed=9, scale=0.7, spikes=4, crystals=4, vines=24))
+asset("IslandRock")(lambda c: LAND.rock_mass(c, "Rock", rim_points("outline"), depth=150, seed=3, crystals=16, vines=90, apron=2.8))
+asset("IsletRock")(lambda c: LAND.rock_mass(c, "Rock", rim_points("islet"), depth=70, seed=9, scale=0.7, spikes=4, crystals=4, vines=24, apron=2.8))
 asset("FloatIsleA")(lambda c: LAND.float_isle(c, "Isle", 22, 101))
 asset("FloatIsleB")(lambda c: LAND.float_isle(c, "Isle", 14, 102))
 asset("FloatIsleC")(lambda c: LAND.float_isle(c, "Isle", 9, 103))
-asset("CloudA")(lambda c: LAND.cloud(c, "Cloud", 120, 201, flat=0.3))
-asset("CloudB")(lambda c: LAND.cloud(c, "Cloud", 80, 202, flat=0.48))
-asset("CloudC")(lambda c: LAND.cloud(c, "Cloud", 54, 203, flat=0.6))
-asset("CloudD")(lambda c: LAND.cloud(c, "Cloud", 170, 204, flat=0.22))
+asset("CloudA")(lambda c: LAND.cloud(c, "Cloud", 120, 201, flat=0.42))
+asset("CloudB")(lambda c: LAND.cloud(c, "Cloud", 80, 202, flat=0.55))
+asset("CloudC")(lambda c: LAND.cloud(c, "Cloud", 54, 203, flat=0.65))
+asset("CloudD")(lambda c: LAND.cloud(c, "Cloud", 170, 204, flat=0.3))
 asset("FarPeak")(lambda c: LAND.far_peak(c, "Peak", 301))
 asset("Falls")(lambda c: LAND.waterfall(c, "Water", 70, 5, 401))
 asset("Portal")(lambda c: PROPS.portal(c, A["portalCentreHeight"]))
@@ -186,7 +186,7 @@ def layout():
     ph = ground(portal["x"], portal["z"])
     for k in range(8):
         a = k / 8 * math.tau
-        put("RuneStone", portal["x"] + math.cos(a) * 23, portal["z"] - 1.0, y=ph + A["portalCentreHeight"] + math.sin(a) * 23, name=f"Orbit{k + 1}", collide=False)
+        put("RuneStone", portal["x"] + math.cos(a) * 23, portal["z"] - 1.0, y=ph + A["portalCentreHeight"] + math.sin(a) * 23, name=f"Orbit{k + 1}", collide=False, scale=1.4)
     for side in (-1, 1):
         put("Brazier", portal["x"] + side * 16, portal["z"] + 11.5)
     put("Plaza", plaza["x"], plaza["z"], name="Plaza")
@@ -350,15 +350,18 @@ def layout():
             put("PineA", x - 8 * s, z + 5 * s, y=top, kit="wardwood", scale=0.6 * s, collide=False)
             put("Falls", x + 20 * s, z, y=y - 1, yaw=90, scale=0.6 * s, collide=False)
 
-    # far scenery the clients draw: a sea of clouds, banks at mid height, the peak
-    for k in range(40):
-        a = k / 40 * math.tau + rnd.uniform(-0.1, 0.1)
-        r = rnd.uniform(40, 620)
-        decor(rnd.choice(["CloudA", "CloudD", "CloudD"]), math.cos(a) * r, rnd.uniform(-205, -175), math.sin(a) * r, rnd.uniform(0, 360), round(rnd.uniform(1.2, 2.2), 2))
+    # far scenery the clients draw: a sea of clouds well under the island's
+    # rock (its tip is near -200), banks at mid height, the peak
+    for k in range(48):
+        a = k / 48 * math.tau + rnd.uniform(-0.1, 0.1)
+        r = rnd.uniform(60, 760)
+        decor(rnd.choice(["CloudA", "CloudD", "CloudD"]), math.cos(a) * r, rnd.uniform(-300, -270), math.sin(a) * r, rnd.uniform(0, 360), round(rnd.uniform(1.1, 1.9), 2))
+    # the banks keep off the sun's side (west): seen against the sun, Roblox
+    # shades them a flat grey
     for k in range(14):
-        a = rnd.uniform(0, math.tau)
-        r = rnd.uniform(380, 900)
-        decor(rnd.choice(["CloudB", "CloudC", "CloudA"]), math.cos(a) * r, rnd.uniform(-60, 120), math.sin(a) * r, rnd.uniform(0, 360), round(rnd.uniform(0.8, 1.6), 2))
+        a = rnd.uniform(-0.62, 0.62) * math.pi
+        r = rnd.uniform(420, 900)
+        decor(rnd.choice(["CloudB", "CloudC", "CloudA"]), math.cos(a) * r, rnd.uniform(-60, 120), math.sin(a) * r, rnd.uniform(0, 360), round(rnd.uniform(0.7, 1.3), 2))
     decor("FarPeak", -900, -40, -1500, 30, 1.6)
     decor("FarPeakRock", -900, -40, -1500, 30, 1.6)
     decor("FloatIsleA", 700, 60, -900, 0, 2.2)

@@ -197,7 +197,8 @@ function HubController:_choices(circle: number)
 	local phase = party.phase
 	if phase == "forming" then
 		if leader then
-			return { "prepare", if #party.members > 1 then "Begin preparation" else "Begin alone" }, leave
+			local text = if party.mode == "solo" then "Go again" elseif #party.members > 1 then "Begin preparation" else "Begin alone"
+			return { "prepare", text }, leave
 		end
 		return nil, leave
 	elseif phase == "preparing" then
@@ -312,6 +313,9 @@ function HubController:_statusText(party, mine: boolean): string
 	local phase = party.phase
 	if phase == "forming" then
 		if mine and party.leader == player.UserId then
+			if party.mode == "solo" then
+				return "Back from the Wardwood. Go again when you like"
+			end
 			return if #party.members > 1 then "Begin the preparation when your squad is in" else "Others can join. Begin when you like"
 		end
 		return "Waiting for the leader to begin"
@@ -459,7 +463,7 @@ function HubController:_makeUi()
 		Name = "Hint",
 		AnchorPoint = Vector2.new(0.5, 1),
 		Position = UDim2.new(0.5, 0, 1, -28),
-		Size = UDim2.fromOffset(900, 34),
+		Size = UDim2.fromOffset(1400, 34),
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextColor3 = C.ink,
 	})
@@ -485,6 +489,12 @@ function HubController:_makeUi()
 	})
 end
 
+--- Hush the hub's hint while another screen (the hero card) has the player's attention.
+function HubController:SetQuiet(quiet: boolean)
+	self._quiet = quiet
+	self:_refreshCard()
+end
+
 function HubController:_refreshCard()
 	local state = self._state
 	local card = self._card
@@ -496,7 +506,7 @@ function HubController:_refreshCard()
 	self._silver.Text = UiKit.commas(profile and profile.silver or 0)
 	if not party then
 		self._hint.Text = "Choose your hero in the Hall of Heroes   ·   Start a run at a rune circle before the portal"
-		self._hint.Visible = true
+		self._hint.Visible = not self._quiet
 		return
 	end
 	self._hint.Visible = false
@@ -526,7 +536,7 @@ function HubController:_refreshCard()
 	local me = player.UserId
 	local action, text, kind = nil, nil, "gold"
 	if party.phase == "forming" and party.leader == me then
-		action, text = "prepare", "BEGIN"
+		action, text = "prepare", if party.mode == "solo" then "GO AGAIN" else "BEGIN"
 	elseif party.phase == "preparing" or party.phase == "countdown" or party.phase == "waiting" then
 		if party.leader == me then
 			action, text, kind = "cancel", "CALL IT OFF", "quiet"

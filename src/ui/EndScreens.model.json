@@ -6387,7 +6387,7 @@
          "properties": {
           "BackgroundTransparency": 1,
           "BorderSizePixel": 0,
-          "Text": "Back to the lobby in 12",
+          "Text": "Back to Skyhold in 12",
           "TextSize": 18,
           "TextScaled": false,
           "FontFace": {

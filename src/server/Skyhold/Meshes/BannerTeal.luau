@@ -9,6 +9,7 @@ return {
 			color = { 255, 255, 255 },
 			material = "Fabric",
 			vc = true,
+			tag = "CameraFade",
 			verts = 132,
 			tris = 132,
 			min = { -1.1, 5.5623, -0.0352 },

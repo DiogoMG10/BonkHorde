@@ -69,9 +69,11 @@ def _normals(points):
     return out
 
 
-def rock_mass(coll, name, rim, depth, seed, lip=1.25, bulge=3.0, spikes=10, scale=1.0, grass_top=False, crystals=0, vines=0, tip=1.15, rounding=1.6):
+def rock_mass(coll, name, rim, depth, seed, lip=1.25, bulge=3.0, spikes=10, scale=1.0, grass_top=False, crystals=0, vines=0, tip=1.15, rounding=1.6, apron=0.0):
     """The rock under a piece of floating land whose ground ends at `rim`
-    ((x, y, h) in Blender space). Returns the object."""
+    ((x, y, h) in Blender space). `apron` studs push the lip and the first
+    studs of cliff out past the rim, over the Terrain's own edge (its 4-stud
+    voxels reach past the rim and would show as a dark band). Returns the object."""
     rnd = random.Random(seed)
     pts = _ccw(_resample(rim, 2.4 * scale))
     nrm = _normals(pts)
@@ -90,8 +92,8 @@ def rock_mass(coll, name, rim, depth, seed, lip=1.25, bulge=3.0, spikes=10, scal
 
     # under the grass (hidden), the lip's crest, the overhang
     ring(lambda i, p: (p[0] - nrm[i][0] * 3.6 * scale, p[1] - nrm[i][1] * 3.6 * scale, p[2] - 1.8 * scale))
-    ring(lambda i, p: (p[0] + nrm[i][0] * 0.4 * scale, p[1] + nrm[i][1] * 0.4 * scale, p[2] + lip * (0.7 + 0.6 * n3((p[0], p[1], 0), 6, seed))))
-    ring(lambda i, p: (p[0] + nrm[i][0] * 1.6 * scale, p[1] + nrm[i][1] * 1.6 * scale, p[2] - 1.2 * scale))
+    ring(lambda i, p: (p[0] + nrm[i][0] * (0.4 * scale + apron), p[1] + nrm[i][1] * (0.4 * scale + apron), p[2] + lip * (0.7 + 0.6 * n3((p[0], p[1], 0), 6, seed))))
+    ring(lambda i, p: (p[0] + nrm[i][0] * (1.6 * scale + apron), p[1] + nrm[i][1] * (1.6 * scale + apron), p[2] - 1.2 * scale))
 
     levels = [3, 6, 10, 15, 21, 28, 36, 45, 55, 66, 78, 91, 105, 120, 136, 152, 168]
     levels = [d / levels[-1] * depth for d in levels]
@@ -104,9 +106,12 @@ def rock_mass(coll, name, rim, depth, seed, lip=1.25, bulge=3.0, spikes=10, scal
             lobe = n3((math.cos(ang) * 3, math.sin(ang) * 3, 0), 1.0, seed)
             reach = 0.55 + 0.75 * lobe
             te = min(1.0, t / reach)
-            shrink = 0.04 + 0.96 * te**rounding
+            # (with an apron the cliff holds its line under the lip before it tapers)
+            lead = 0.04 * (smooth(d / (30 * scale)) if apron else 1.0)
+            shrink = lead + 0.96 * te**rounding
             # a bulge under the rim, then the taper
             out = bulge * scale * math.sin(math.pi * min(1.0, t * 3.2)) * (1 - te)
+            out += apron * (1 - smooth((d - 18) / 16))
             # sedimentary steps: a ledge every few studs
             ledge = -0.9 * scale if ((d + 3 * n3(p, 9, seed)) % (7 * scale)) < 1.4 * scale else 0.0
             k = 1 - shrink
@@ -181,7 +186,7 @@ def rock_mass(coll, name, rim, depth, seed, lip=1.25, bulge=3.0, spikes=10, scal
     if crystals:
         _crystals(coll, name + "Crystals", ob, base, depth, crystals, seed)
     if vines:
-        _vines(coll, name + "Vines", pts, nrm, vines, seed, scale)
+        _vines(coll, name + "Vines", pts, nrm, vines, seed, scale, apron)
     return ob
 
 
@@ -213,7 +218,7 @@ def _crystals(coll, name, rock, base, depth, count, seed):
     return ob
 
 
-def _vines(coll, name, pts, nrm, count, seed, scale):
+def _vines(coll, name, pts, nrm, count, seed, scale, apron=0.0):
     """Roots and ivy hanging from the lip."""
     rnd = random.Random(seed + 13)
     bm = bmesh.new()
@@ -222,7 +227,7 @@ def _vines(coll, name, pts, nrm, count, seed, scale):
         i = rnd.randrange(n)
         p, nn = pts[i], nrm[i]
         length = rnd.uniform(4, 13) * scale
-        start = Vector((p[0] + nn[0] * 0.9 * scale, p[1] + nn[1] * 0.9 * scale, p[2] + 0.3))
+        start = Vector((p[0] + nn[0] * (0.9 * scale + apron), p[1] + nn[1] * (0.9 * scale + apron), p[2] + 0.3))
         path = []
         for k in range(7):
             t = k / 6
@@ -287,7 +292,7 @@ def cloud(coll, name, size, seed, flat=0.45):
         r = size * rnd.uniform(0.18, 0.34) * (1.25 if k == 0 else 1)
         x = rnd.uniform(-0.5, 0.5) * size
         y = rnd.uniform(-0.32, 0.32) * size
-        z = rnd.uniform(0, 0.12) * size + r * 0.3
+        z = rnd.uniform(0, 0.2) * size + r * 0.3  # puffs at different heights: relief seen from above
         geom = bmesh.ops.create_icosphere(bm, subdivisions=2, radius=r)
         bmesh.ops.scale(bm, vec=(1, 1, flat), verts=geom["verts"])
         bmesh.ops.translate(bm, vec=(x, y, z), verts=geom["verts"])
@@ -306,10 +311,11 @@ def cloud(coll, name, size, seed, flat=0.45):
 
     def colour(p, nn, c):
         h = (p.z - lo) / max(top - lo, 0.01)
-        base = mix(rgb(200, 212, 232), rgb(255, 255, 252), smooth(h * 1.4))
+        base = mix(rgb(196, 208, 230), rgb(248, 248, 250), smooth(h * 1.4))
         if nn.z < -0.2:
-            base = mix(base, rgb(186, 198, 222), 0.6)
-        return mix(base, rgb(255, 238, 222), max(0.0, nn.x) * 0.25)  # the warm sun side
+            base = mix(base, rgb(182, 194, 220), 0.6)
+        # the warm side faces the afternoon sun, in the west (-x)
+        return mix(base, rgb(255, 232, 210), max(0.0, -nn.x) * 0.3)
 
     U.paint(ob, colour)
     ob["rbx_shadow"] = False

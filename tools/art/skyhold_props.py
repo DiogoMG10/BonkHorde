@@ -451,13 +451,13 @@ def colonnade(coll, seed=61):
     for k in (1, 2):
         spots.append((-22.0 + k * 11.0, -39.0))
         spots.append((-22.0 + k * 11.0, 39.0))
-    broken = {3, 8}
+    broken = {2, 8}  # not behind a plinth: a broken column there reads as a gravestone
     tops = {}
     for i, (x, y) in enumerate(spots):
         tops[i] = column(bm, x, y, height, broken=i in broken, seed=seed + i)
         collider(coll, f"Col{i}", (x, y, tops[i] / 2), (2.4, 2.4, tops[i]), shape="cyl")
     links = [(i, i + 1) for i in range(6)] + [(0, 7), (7, 9), (6, 8), (8, 10)]
-    missing = {(3, 4), (2, 3), (8, 10)}
+    missing = {(3, 4), (8, 10)}
     for a, b in links:
         if (a, b) in missing or a in broken or b in broken:
             continue
@@ -467,8 +467,8 @@ def colonnade(coll, seed=61):
         U.box(bm, cx, cy, height + 0.9, 2.4 if x0 == x1 else length, length if x0 == x1 else 2.4, 1.8)
     # fallen drums by the broken column
     for k in range(3):
-        x, y = spots[3]
-        geom = U.lathe(bm, [(1.0, 0.0), (1.0, 1.6)], 10)
+        x, y = spots[2]
+        geom = U.lathe(bm, [(0.0, 0.0), (1.0, 0.0), (1.0, 1.6), (0.0, 1.6)], 10)
         for ring_ in geom:
             for v in ring_:
                 v.co = Matrix.Rotation(math.pi / 2, 3, "Y") @ v.co
@@ -728,7 +728,8 @@ def banner_pole(coll, cloth, seed):
     tip = bm.verts.new((0, -0.35, 5.6))
     bm.faces.new((rows[-1][0], tip, rows[-1][1]))
     bm.faces.new((rows[-1][1], tip, rows[-1][2]))
-    flag = U.obj_from_bm("Flag", bm, coll, part="cloth", material="Fabric", recalc=False)
+    # tagged so the camera's fader ghosts it when it hangs between the camera and the hero
+    flag = U.obj_from_bm("Flag", bm, coll, part="cloth", material="Fabric", recalc=False, tag="CameraFade")
     solid = flag.modifiers.new("Solidify", "SOLIDIFY")
     solid.thickness = 0.1
     main = CLOTH[cloth]
