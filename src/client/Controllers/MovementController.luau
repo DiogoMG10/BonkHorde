@@ -32,6 +32,7 @@ local Workspace = game:GetService("Workspace")
 local Knit = require(ReplicatedStorage.Packages.Knit)
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local Hop = require(ReplicatedStorage.Shared.Core.Hop)
+local ControlLock = require(script.Parent.Parent.ControlLock)
 
 local MovementController = Knit.CreateController({ Name = "MovementController" })
 
@@ -182,7 +183,7 @@ function MovementController:KnitStart()
 		local character = player.Character
 		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 		local root = character and character:FindFirstChild("HumanoidRootPart")
-		if not humanoid or not root or character:GetAttribute("Downed") then
+		if not humanoid or not root or character:GetAttribute("Downed") or ControlLock.held() then
 			return
 		end
 		local state = humanoid:GetState()
@@ -241,6 +242,14 @@ function MovementController:_frame(dt: number)
 	if base <= 0 or root.Anchored then
 		self:_still() -- frozen or downed: nothing carries over to the moment it ends
 		self._speedFeel = 0
+		return
+	end
+	if ControlLock.held() then
+		-- held still for a moment (the portal crossing): standing, no momentum kept
+		self:_still()
+		self._speedFeel = 0
+		humanoid.WalkSpeed = 0
+		humanoid:Move(Vector3.zero, false)
 		return
 	end
 	local velocity = root.AssemblyLinearVelocity

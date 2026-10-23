@@ -88,6 +88,16 @@ function AudioController:Play(role: string, pitchVary: number?, pitch: number?):
 	return sound
 end
 
+--- Play a one-shot from a place in the world (a part or attachment), heard
+--- nearer or further as the listener is.
+function AudioController:PlayAt(role: string, parent: Instance, pitchVary: number?): Sound?
+	local sound = Sfx.play(role, parent, pitchVary)
+	if sound then
+		sound.SoundGroup = self._sfxGroup
+	end
+	return sound
+end
+
 function AudioController:_setMusic(role: string?)
 	if role == self._musicRole then
 		return

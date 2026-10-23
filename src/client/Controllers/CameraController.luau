@@ -9,7 +9,8 @@
 -- right button held turns the camera, as in most Roblox worlds. A plinth in
 -- the Hall of Heroes can borrow it (SetShot): it eases to that framing and
 -- back. With no hero yet (the first moments, or between a run and the island)
--- it takes a slow wide look at Skyhold.
+-- it takes a slow wide look at Skyhold. The portal crossing (T8, PortalController)
+-- leans it towards a framing of its own for a moment (SetCrossing).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -44,6 +45,16 @@ function CameraController:SetShot(cframe: CFrame?)
 	self._shot = cframe or self._shot
 	self._wantShot = cframe ~= nil
 	self:SetUiOpen("shot", cframe ~= nil)
+end
+
+--- The portal crossing leans the camera `weight` (0..1) of the way towards
+--- `goal` and `fov`, set every frame while it plays; nil gives it back.
+function CameraController:SetCrossing(goal: CFrame?, fov: number?, weight: number?)
+	if goal and (weight or 0) > 0 then
+		self._crossing = { goal = goal, fov = fov, weight = math.clamp(weight or 0, 0, 1) }
+	else
+		self._crossing = nil
+	end
 end
 
 --- Panels call this so the mouse is released while they are open.
@@ -179,6 +190,13 @@ function CameraController:KnitStart()
 			camera.FieldOfView = camera.FieldOfView + (50 - camera.FieldOfView) * k
 		else
 			camera.CFrame = follow
+		end
+		local crossing = self._crossing
+		if crossing then
+			camera.CFrame = camera.CFrame:Lerp(crossing.goal, crossing.weight)
+			if crossing.fov then
+				camera.FieldOfView += (crossing.fov - camera.FieldOfView) * crossing.weight
+			end
 		end
 		camera.Focus = CFrame.new(focus)
 	end)

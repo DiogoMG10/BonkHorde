@@ -11,10 +11,10 @@
 --   party card    top left while in a party: members, leader, READY, what
 --                 happens next, and the same choices as buttons
 --   nameplates    over everyone else on the island: name, hero, party
---   portal        its face brightens and swirls while a party counts down,
---                 dims while the run is taken; a board above it says so
---   the crossing  a party entering the portal fades to white into the run,
---                 and back from white onto the island afterwards
+--   countdown     this player's own, big, top centre
+--
+-- The portal itself and the crossing through it (its surge, the departure,
+-- the arrival in the Wardwood and the way home) are PortalController's (T8).
 --
 -- Everything here only asks (PartyAction): the server decides (PartyService,
 -- Core/HubParty) and every client redraws from what it sends back.
@@ -22,7 +22,6 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
-local TweenService = game:GetService("TweenService")
 local Workspace = game:GetService("Workspace")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
@@ -33,7 +32,6 @@ local Skyhold = require(ReplicatedStorage.Shared.Config.Skyhold)
 local SkyholdGen = require(ReplicatedStorage.Shared.Core.SkyholdGen)
 local HubUi = require(script.Parent.Parent.HubUi)
 local UiKit = require(script.Parent.Parent.UiKit)
-local Vfx = require(script.Parent.Parent.Vfx)
 
 local HubController = Knit.CreateController({ Name = "HubController" })
 
@@ -48,8 +46,6 @@ local WAIT_GLOW = Color3.fromRGB(255, 160, 70)
 local AWAY_GLOW = Color3.fromRGB(110, 140, 220)
 local EMPTY_SLOT = Color3.fromRGB(70, 96, 92)
 local PROMPT_RANGE = Skyhold.JoinRange - 2.5
-local FADE_IN = TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
-local FADE_OUT = TweenInfo.new(0.9, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
 local function heroColour(heroId: string?): Color3
 	local def = heroId and Roster.Heroes[heroId]
@@ -61,7 +57,6 @@ function HubController:KnitInit()
 	self._plan = SkyholdGen.build(Skyhold)
 	self._circles = {} -- circle -> { anchor, primary, secondary, model? }
 	self._plates = {} -- userId -> BillboardGui
-	self._fading = false
 end
 
 function HubController:KnitStart()
@@ -73,16 +68,12 @@ function HubController:KnitStart()
 
 	self:_makeCircles()
 	self:_makeUi()
-	self:_makeFade()
 
 	local state = self._state
 	state.Changed:Connect(function(key)
 		UiKit.safe("HubController", function()
 			if key == "hub" or key == "roster" or key == "phase" or key == "profile" then
 				self:_refresh()
-			end
-			if key == "phase" then
-				self:_onPhase()
 			end
 		end)
 	end)
@@ -593,6 +584,13 @@ function HubController:_refreshPlates()
 				self._plates[entry.userId] = plate
 			end
 			plate.PlayerName.Text = entry.name
+			-- a party stands together: its members' plates stack instead of overlapping
+			local party = entry.circle and state:PartyAt(entry.circle)
+			local slot = party and table.find(party.members, entry.userId) or 1
+			local lift = Vector3.new(0, 3.4 + (slot - 1) * 2.1, 0)
+			if plate.StudsOffsetWorldSpace ~= lift then
+				plate.StudsOffsetWorldSpace = lift
+			end
 			local def = Roster.Heroes[entry.hero]
 			local bits = { if def then def.name else "" }
 			if entry.circle then
@@ -611,68 +609,6 @@ function HubController:_refreshPlates()
 			self._plates[uid] = nil
 		end
 	end
-end
-
--- ------------------------------------------------------------------ the crossing
-
-function HubController:_makeFade()
-	local gui = Instance.new("ScreenGui")
-	gui.Name = "HubFade"
-	gui.ResetOnSpawn = false
-	gui.IgnoreGuiInset = true
-	gui.DisplayOrder = 50
-	gui.Parent = player:WaitForChild("PlayerGui")
-	local white = Instance.new("Frame")
-	white.BackgroundColor3 = Color3.fromRGB(255, 250, 236)
-	white.BackgroundTransparency = 1
-	white.BorderSizePixel = 0
-	white.Size = UDim2.fromScale(1, 1)
-	white.Visible = false
-	white.Parent = gui
-	self._white = white
-end
-
-function HubController:_fade(toWhite: boolean)
-	local white = self._white
-	if toWhite then
-		white.Visible = true
-		TweenService:Create(white, FADE_IN, { BackgroundTransparency = 0 }):Play()
-	else
-		local t = TweenService:Create(white, FADE_OUT, { BackgroundTransparency = 1 })
-		t.Completed:Connect(function()
-			if white.BackgroundTransparency >= 0.99 then
-				white.Visible = false
-			end
-		end)
-		t:Play()
-	end
-end
-
--- into the run: white while the Wardwood hero appears; back from it: white
--- while the island hero appears, then clear
-function HubController:_onPhase()
-	local state = self._state
-	if state.phase == "Intro" then
-		task.delay(0.6, function()
-			self:_fade(false)
-		end)
-	elseif state.phase == "Lobby" and self._wasInRun then
-		self._white.Visible = true
-		self._white.BackgroundTransparency = 0
-		task.spawn(function()
-			local deadline = os.clock() + 6
-			while os.clock() < deadline do
-				local root = state:Root()
-				if root and root.Position.Y > Skyhold.Origin[2] - 60 then
-					break
-				end
-				task.wait(0.1)
-			end
-			task.wait(0.3)
-			self:_fade(false)
-		end)
-	end
-	self._wasInRun = state.phase ~= "Lobby"
 end
 
 -- ------------------------------------------------------------------ every frame
@@ -734,39 +670,15 @@ function HubController:_animate()
 		end
 	end
 
-	-- the portal: brighter while a party counts down, dim while the run is taken
-	local face = self:_art("PortalFace")
-	if face and face:IsA("BasePart") then
-		local busy = state.hub.run ~= nil
-		local level = if anyCounting then 0.05 + math.sin(t * 10) * 0.05 elseif busy then 0.7 else 0.3 + math.sin(t * 1.3) * 0.06
-		face.Transparency = level
-		face.Color = if busy and not anyCounting then AWAY_GLOW else IDLE_GLOW:Lerp(PREP_GLOW, if anyCounting then 0.6 else 0)
-	end
-
-	-- this player's own countdown, big
+	-- this player's own countdown, big (the portal and the crossing: PortalController)
 	local myParty = mine and mine.circle and state:PartyAt(mine.circle)
 	if onIsland and myParty and myParty.phase == "countdown" then
 		local left = state:CountdownLeft(myParty) or 0
 		self._countdown.Visible = true
 		self._countdown.Text = `INTO THE WARDWOOD   {math.max(1, math.ceil(left))}`
 		self._card.status.Text = self:_statusText(myParty, true)
-		if left <= 0.5 and not self._fading then
-			self._fading = true
-			self:_fade(true)
-			Vfx.burst("LevelUpBurst", self:_ground(Skyhold.Portal.x, Skyhold.Portal.z) + Vector3.new(0, Skyhold.PortalCentreHeight, 0))
-		end
 	else
 		self._countdown.Visible = false
-		if self._fading and not (myParty and myParty.phase == "run") then
-			-- the countdown was called off, or the portal is busy after all
-			self._fading = false
-			if onIsland then
-				self:_fade(false)
-			end
-		end
-	end
-	if myParty and myParty.phase == "run" then
-		self._fading = false
 	end
 	-- the boards count down too
 	if anyCounting then

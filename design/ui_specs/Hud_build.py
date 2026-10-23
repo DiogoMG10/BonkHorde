@@ -963,7 +963,7 @@ def stage_title():
     return frame(
         "StageTitle",
         (0, 1000, 0, 208),
-        (0.5, 0, 0.45, 0),
+        (0.5, 0, 0.3, 0),  # above the hero stepping out of the portal (T8)
         (0.5, 0.5),
         z=6,
         visible=False,

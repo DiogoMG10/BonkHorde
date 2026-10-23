@@ -120,6 +120,22 @@ local Skyhold = {
 	SoloCountdownSeconds = 3,
 	ActionGap = 0.25, -- seconds between two party messages a player may send
 
+	-- ---------------------------------------------------------------- the crossing (T8)
+	-- the party's way through the portal into the Wardwood and back
+	-- (client/Controllers/PortalController, Core/Crossing); seconds
+	Crossing = {
+		lead = 1.3, -- before the countdown ends: the portal surges, the party is held still
+		flash = 0.45, -- the last of it, turning to light
+		hold = 1.6, -- at most this long in the light while the Wardwood hero appears
+		reveal = 0.7, -- the light clearing round the hero on arrival
+		settle = 1.15, -- the camera dropping in to its place behind the hero
+		release = 0.85, -- controls back this long after the light starts clearing
+		materialise = 0.4, -- the heroes taking shape out of the light
+		homeHold = 6, -- coming home: at most this long in the light
+		homeReveal = 0.8,
+	},
+	PortalSpin = { 0.35, 1.6 }, -- the vortex's turns a second, idle and at full surge
+
 	-- ---------------------------------------------------------------- safety
 	FallDepth = 90, -- below the island's ground by this much: back to the meadow
 	RimWallHeight = 11, -- the invisible wall around the edge, above the ground there

@@ -6,7 +6,8 @@
 --               height, the far peak and isles on the horizon (Config/SkyholdDecor,
 --               drawn from the kit's templates in ReplicatedStorage.SkyholdArt)
 --   the portal  its rune monoliths (Orbit1..8) circling the ring, slowly, each
---               with its own bob
+--               with its own bob; faster and drawn in while the portal surges
+--               (PortalController's charge, T8)
 --
 -- Purely cosmetic: nothing here collides, is queried or touches gameplay, and
 -- it is all put away while this player is in the Wardwood.
@@ -24,10 +25,14 @@ local HubDecorController = Knit.CreateController({ Name = "HubDecorController" }
 
 local DRIFT = 0.004 -- radians a second the cloud sea turns round the island
 local ORBIT_SPEED = 0.12 -- radians a second the portal's monoliths travel
+local ORBIT_SURGE = 1.6 -- added at the portal's full surge
 local ORBIT_RADIUS = 23
+local ORBIT_PULL = 2.5 -- studs they draw in at full surge
 
 function HubDecorController:KnitStart()
 	self._state = Knit.GetController("StateController")
+	self._portal = Knit.GetController("PortalController")
+	self._orbit = 0
 	local origin = Vector3.new(Skyhold.Origin[1], Skyhold.Origin[2], Skyhold.Origin[3])
 	self._origin = origin
 	local folder = Instance.new("Folder")
@@ -91,12 +96,12 @@ function HubDecorController:KnitStart()
 	place()
 
 	local broken = false
-	RunService.RenderStepped:Connect(function()
+	RunService.RenderStepped:Connect(function(dt)
 		if broken or not self._state:OnIsland() then
 			return
 		end
 		local ok, err = pcall(function()
-			self:_step(os.clock())
+			self:_step(os.clock(), dt)
 		end)
 		if not ok then
 			broken = true
@@ -105,8 +110,11 @@ function HubDecorController:KnitStart()
 	end)
 end
 
-function HubDecorController:_step(t: number)
+function HubDecorController:_step(t: number, dt: number)
 	local origin = self._origin
+	local charge = self._portal:Charge()
+	self._orbit = (self._orbit + dt * (ORBIT_SPEED + ORBIT_SURGE * charge * charge)) % (math.pi * 2)
+	local radius = ORBIT_RADIUS - ORBIT_PULL * charge * charge
 	for _, piece in self._pieces do
 		local a = piece.angle + (if piece.drifts then t * DRIFT else 0)
 		local at = origin + Vector3.new(math.cos(a) * piece.radius, piece.y, math.sin(a) * piece.radius)
@@ -119,9 +127,9 @@ function HubDecorController:_step(t: number)
 		for k = 1, 8 do
 			local stone = art:FindFirstChild(`Orbit{k}`)
 			if stone and stone:IsA("Model") then
-				local a = (k - 1) / 8 * math.pi * 2 + t * ORBIT_SPEED
+				local a = (k - 1) / 8 * math.pi * 2 + self._orbit
 				local bob = math.sin(t * 1.3 + k) * 0.6
-				local at = self._ringCentre + Vector3.new(math.cos(a) * ORBIT_RADIUS, math.sin(a) * ORBIT_RADIUS + bob, 0)
+				local at = self._ringCentre + Vector3.new(math.cos(a) * radius, math.sin(a) * radius + bob, 0)
 				stone:PivotTo(CFrame.new(at) * CFrame.Angles(0, 0, a - math.pi / 2) * CFrame.new(0, -1.6, 0))
 			end
 		end
