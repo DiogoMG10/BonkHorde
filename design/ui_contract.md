@@ -79,7 +79,7 @@ waits (Core/XpStrip).
 
 | Path | Class | Notes |
 |---|---|---|
-| `Strip` | Frame | the XP strip along the top of the screen: `Back` (track, `Stroke`), `Fill` (X scale; `Shine`), `Rainbow` (hidden; `Gradient`, redrawn as it flows) |
+| `Strip` | Frame | the XP strip, the whole width of the screen just under Roblox's bar (the screen ignores insets): `Back` (track, `Stroke`), `Fill` (X scale; `Shine`), `Rainbow` (hidden; `Gradient`, redrawn as it flows); square ends |
 
 ## ScreenGui `Choices` (DisplayOrder 20)
 

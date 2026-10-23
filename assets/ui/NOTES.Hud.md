@@ -2,7 +2,9 @@
 
 The in-run HUD was rebuilt in T2 (`bonk-0.21.0-t2`). On the T6/T7 line (`bonk-0.24.0-t6t7`)
 XP moved to a strip along the top of the screen, every top-centre element went into one
-column, and the strip wears a rainbow while a level-up waits for the player's choice. The old pipeline (`Hud_gen.py`,
+column, and the strip wears a rainbow while a level-up waits for the player's choice. After
+the playtest (`bonk-0.26.0-ux`) the strip spans the whole screen, edge to edge, just under
+Roblox's bar, and the HUD steps aside for the end screens. The old pipeline (`Hud_gen.py`,
 `Hud_post.py`, the roblox-ui skill's `ui_build.py`) is gone: running it would have
 overwritten this HUD.
 
@@ -52,15 +54,16 @@ Every contract name is kept; the paths changed (see `design/ui_contract.md`). Ne
 
 ## Layout rules
 
-- The XP strip runs along the top of the screen in the part of Roblox's top bar that
-  `GuiService.TopbarInset` reports free, beside Roblox's buttons, when that span holds the
-  timer plate and its clock; the plate (and the minimap, when its part of the bar is free
-  too, compass letters clear) sit under the strip. Otherwise (no free bar, Roblox's buttons
-  spread over the centre, or `Hud:SetAttribute("BonkTopbarRise", false)` on PlayerGui's
-  copy) the strip runs just under the bar across the safe width and every column starts
-  under it.
-- The left column always starts under Roblox's top bar. Whatever is stacked under the plate
-  starts below the bar.
+- The XP strip spans the whole screen, from its left edge to its right, 4 design px under
+  Roblox's top bar (`CoreUISafeInsets.top`), 14 px thick (16 compact). Its ScreenGui
+  ignores every inset (`ScreenInsets` None), so the strip is `UDim2(1, 0)` wide from x 0:
+  centred by construction at any size and scale. It carries no text, so a phone's
+  rounded corners or cut-out can only trim its very ends. (It used to sit in the free part
+  of the top bar beside Roblox's buttons, which left it short and off-centre.)
+- Every column starts under the strip: left column and timer plate one gap below it, the
+  minimap far enough down that its compass letters clear it.
+- The HUD and the strip are hidden in the lobby and behind the end screens (Victory, Wipe,
+  Results: the death screen and the results take the whole screen).
 - The top centre is one list: plate, LEVEL UP!, overtime pill, boss bars, banner, toast,
   pickup popup. Nothing there is placed by a share of the screen any more, so nothing can
   cover anything else; LEVEL UP! sits right under the plate, above the level-up panel. The
@@ -102,8 +105,13 @@ model. Nothing here was run in Studio by Claude; see the T2 commit for the playt
 
 Run in Studio by Claude for the top-of-screen pass (one player, a disposable place built
 from disk, 1593x792 and the iPhone 16 Pro simulator): the plate's caption clear of the
-digits; the strip beside Roblox's buttons; LEVEL UP! above the level-up panel; the rainbow
+digits; the strip then beside Roblox's buttons; LEVEL UP! above the level-up panel; the rainbow
 through two queued offers without a blink, through REFRESH and BANISH clicked on the panel,
 off with a fade after the last pick and at once when the run ended under an open offer;
 plate, pill, boss bar, four miniboss bars and a banner stacked without overlap; LVL MAX
 full and gold; the strip hidden on Skyhold and under the intro's letterbox.
+
+Run in Studio by Claude for the full-width strip (`bonk-0.26.0-ux`, one player, 1593x752):
+the strip measured from x 0 to 1593 (the whole viewport) at y 60.6 to 70.3, under the 58 px
+bar; its blue fill, the rainbow over the level-up panel and the gold LVL MAX strip all edge
+to edge; nothing under it overlapping.

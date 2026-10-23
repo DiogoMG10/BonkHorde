@@ -7,14 +7,12 @@ local function near(a: number, b: number, eps: number?): boolean
 	return math.abs(a - b) <= (eps or 1e-3)
 end
 
--- a 1080p desktop: Roblox's 58 px top bar, its buttons on the left up to x 250
+-- a desktop window under Roblox's 58 px top bar
 local function desktop(width: number, height: number)
 	return {
 		width = width,
 		height = height,
 		core = { left = 0, top = 58, right = 0, bottom = 0 },
-		device = { left = 0, top = 0, right = 0, bottom = 0 },
-		topbar = { x0 = 250, y0 = 0, x1 = width, y1 = 58 },
 	}
 end
 
@@ -24,9 +22,21 @@ local function phone()
 		width = 844,
 		height = 390,
 		core = { left = 47, top = 58, right = 47, bottom = 21 },
-		device = { left = 47, top = 0, right = 47, bottom = 21 },
-		topbar = { x0 = 180, y0 = 0, x1 = 844, y1 = 58 },
 	}
+end
+
+local SCREENS = {
+	desktop = desktop(1920, 1080),
+	laptop = desktop(1366, 768),
+	small = desktop(1024, 576),
+	ultrawide = desktop(2560, 1080),
+	phone = phone(),
+}
+
+-- the strip in screen pixels
+local function stripOf(l)
+	local s = l.scale
+	return { x0 = l.xp.x * s, y0 = l.xp.y * s, x1 = (l.xp.x + l.xp.w) * s, y1 = (l.xp.y + l.xp.h) * s }
 end
 
 return {
@@ -38,93 +48,29 @@ return {
 		assert(near(l.safe.h, 1022) and near(l.safe.w, 1920))
 	end,
 
-	["the XP strip runs along the free top bar, the timer and minimap under it, the left column under the bar"] = function()
-		local l = HudLayout.compute(desktop(1920, 1080))
-		local s = l.scale
-		assert(l.xpInBar, "the strip sits in the free top bar")
-		local strip = { x0 = l.xp.x * s, y0 = l.xp.y * s, x1 = (l.xp.x + l.xp.w) * s, y1 = (l.xp.y + l.xp.h) * s }
-		assert(strip.x0 >= 250 and strip.x1 <= 1920 - HudLayout.Margin, `strip from {strip.x0} to {strip.x1}`)
-		assert(strip.y0 >= 0 and strip.y1 <= 58, `strip from y {strip.y0} to {strip.y1}`)
-		assert(l.xp.w > 1500, "about the screen's width")
-		local plateTop = (l.safe.y + l.topCentre) * s
-		assert(plateTop >= strip.y1 + HudLayout.Gap * s - 1e-6, `plate at {plateTop}, strip ends {strip.y1}`)
-		assert(plateTop < 58, "the plate still rises into the bar")
-		-- whatever is stacked under the plate starts below the bar
-		local under = plateTop + (l.sizes.plateHeight + HudLayout.Gap) * s
-		assert(under >= 58, `under the plate at {under}`)
-		local mapTop = (l.safe.y + l.topRight) * s
-		assert(mapTop < 58, "the minimap rises beside the plate")
-		assert(mapTop - HudLayout.RingLetter * s >= strip.y1, "its compass letters clear the strip")
-		assert(near(l.topLeft, HudLayout.Margin), "the left column starts under the bar")
-	end,
-
-	["no free top bar reported: the strip runs under the bar and every column under it"] = function()
-		local screen = desktop(1920, 1080)
-		screen.topbar = nil
-		local l = HudLayout.compute(screen)
-		local s = l.scale
-		assert(not l.xpInBar)
-		assert(l.xp.y * s >= 58, "under Roblox's bar")
-		assert(l.xp.x * s >= HudLayout.Margin - 1e-6 and (l.xp.x + l.xp.w) * s <= 1920 - HudLayout.Margin + 1e-6)
-		local stripEnd = (l.xp.y + l.xp.h) * s
-		for _, top in { l.topLeft, l.topCentre, l.topRight } do
-			assert((l.safe.y + top) * s >= stripEnd + HudLayout.Gap * s - 1e-6, `a column at {(l.safe.y + top) * s}`)
+	["the XP strip spans the whole screen, edge to edge, just under Roblox's top bar"] = function()
+		for name, screen in SCREENS do
+			local l = HudLayout.compute(screen)
+			local strip = stripOf(l)
+			assert(near(strip.x0, 0) and near(strip.x1, screen.width), `{name}: strip from {strip.x0} to {strip.x1}`)
+			assert(near((strip.x0 + strip.x1) / 2, screen.width / 2), `{name}: centred`)
+			assert(strip.y0 >= screen.core.top - 1e-6, `{name}: under the top bar, at {strip.y0}`)
+			assert(strip.y0 <= screen.core.top + 8 * l.scale, `{name}: right under it, at {strip.y0}`)
+			assert(near(strip.y1 - strip.y0, l.sizes.xp * l.scale), `{name}: as thin as designed`)
 		end
 	end,
 
-	["Roblox's buttons spreading over the centre put the strip and the timer below the bar"] = function()
-		local screen = desktop(1920, 1080)
-		screen.topbar = { x0 = 1100, y0 = 0, x1 = 1920, y1 = 58 } -- the unibar opened wide
-		local l = HudLayout.compute(screen)
-		local s = l.scale
-		assert(not l.xpInBar, "no room for the plate in the bar")
-		assert(l.xp.y * s >= 58)
-		assert((l.safe.y + l.topCentre) * s >= (l.xp.y + l.xp.h) * s)
-		assert((l.safe.y + l.topRight) * s >= (l.xp.y + l.xp.h) * s, "the minimap under the strip too")
-	end,
-
-	["nothing at the top overlaps the XP strip, on any screen"] = function()
-		local wide = desktop(1920, 1080)
-		wide.topbar = { x0 = 1100, y0 = 0, x1 = 1920, y1 = 58 }
-		local bare = desktop(1366, 768)
-		bare.topbar = nil
-		for name, screen in
-			{
-				desktop = desktop(1920, 1080),
-				laptop = desktop(1366, 768),
-				small = desktop(1024, 576),
-				phone = phone(),
-				wide = wide,
-				bare = bare,
-			}
-		do
+	["every column starts under the strip, the minimap's compass letters too"] = function()
+		for name, screen in SCREENS do
 			local l = HudLayout.compute(screen)
 			local s = l.scale
-			local strip = { x0 = l.xp.x * s, y0 = l.xp.y * s, x1 = (l.xp.x + l.xp.w) * s, y1 = (l.xp.y + l.xp.h) * s }
-			local safeX, safeY, safeW = l.safe.x * s, l.safe.y * s, l.safe.w * s
-			local m = HudLayout.Margin * s
-			local rows = {
-				left = { x0 = safeX + m, y0 = safeY + l.topLeft * s, x1 = safeX + m + l.sizes.column * s },
-				centre = {
-					x0 = safeX + safeW / 2 - l.sizes.plate / 2 * s,
-					y0 = safeY + l.topCentre * s,
-					x1 = safeX + safeW / 2 + (l.sizes.plate / 2 + HudLayout.Gap + l.sizes.clock) * s,
-				},
-				-- the compass letters stand out of the ring
-				right = {
-					x0 = safeX + safeW - m - (l.shiftRight + l.sizes.minimap + HudLayout.RingLetter) * s,
-					y0 = safeY + (l.topRight - HudLayout.RingLetter) * s,
-					x1 = safeX + safeW - m - (l.shiftRight - HudLayout.RingLetter) * s,
-				},
-			}
-			for which, row in rows do
-				local sideBySide = row.x1 <= strip.x0 or row.x0 >= strip.x1
-				assert(
-					sideBySide or row.y0 >= strip.y1 - 1e-6,
-					`{name}: the {which} column at y {row.y0} under a strip ending at {strip.y1}`
-				)
+			local strip = stripOf(l)
+			for which, top in { left = l.topLeft, centre = l.topCentre } do
+				local y = (l.safe.y + top) * s
+				assert(y >= strip.y1 + HudLayout.Gap * s - 1e-6, `{name}: the {which} column at {y}, the strip ends {strip.y1}`)
 			end
-			assert(strip.x1 > strip.x0, `{name}: an empty strip`)
+			local letters = (l.safe.y + l.topRight - HudLayout.RingLetter) * s
+			assert(letters >= strip.y1 - 1e-6, `{name}: the minimap's letters at {letters}, the strip ends {strip.y1}`)
 		end
 	end,
 
@@ -149,7 +95,6 @@ return {
 		assert(l.scale >= 0.55, `scale {l.scale}: text would be too small`)
 		assert(l.scale > math.min(844 / 1920, 390 / 1080), "larger than the plain fit")
 		assert(near(l.safe.x * l.scale, 47) and near(l.safe.y * l.scale, 58), "inside the notch and under the bar")
-		assert(l.xp.x * l.scale >= 180 and (l.xp.x + l.xp.w) * l.scale <= 844 - 47, "the strip clear of the buttons and the notch")
 		-- the compact arrangement fits the safe area at that scale
 		assert(l.safe.w + 1e-6 >= HudLayout.Compact.width and l.safe.h + 1e-6 >= HudLayout.Compact.height)
 	end,
@@ -165,7 +110,6 @@ return {
 
 	["the minimap steps left of a touch button it would cover"] = function()
 		local screen = desktop(1280, 720)
-		screen.topbar = nil
 		local l = HudLayout.compute(screen)
 		local s = l.scale
 		local x1 = 1280 - HudLayout.Margin * s

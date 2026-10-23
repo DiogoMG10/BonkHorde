@@ -13,7 +13,7 @@
 -- (HurtFlash, DownedOverlay, Letterbox) stay outside it, edge to edge.
 --
 --   top edge     the XP strip (its own ScreenGui, XpBar, over the level-up
---                panels): in the free part of Roblox's top bar, or under it
+--                panels): the whole width of the screen, just under Roblox's bar
 --   top left     Vitals (level, shield, HP), Purse, objectives, team
 --   top centre   one column: timer plate, LEVEL UP!, overtime pill, boss bars,
 --                banner, toast, pickup popup; nothing there can cover anything
@@ -413,9 +413,6 @@ function HudController:_watchLayout()
 			self:_queueLayout()
 		end)
 	end)
-	self._hud:GetAttributeChangedSignal("BonkTopbarRise"):Connect(function()
-		self:_queueLayout()
-	end)
 	UiKit.ownScale(self._hud, function()
 		self:_layout()
 	end)
@@ -483,9 +480,6 @@ function HudController:_layout()
 	local screen = UiKit.insets()
 	screen.avoid = self:_touchRects(screen.origin)
 	screen.boost = textBoost()
-	if hud:GetAttribute("BonkTopbarRise") == false then
-		screen.topbar = nil -- Studio switch: keep the timer and minimap under Roblox's bar too
-	end
 	local layout = HudLayout.compute(screen)
 	local old = self._layoutNow
 	self._layoutNow = layout
@@ -498,13 +492,17 @@ function HudController:_layout()
 	setOffset(e.safe, "Position", layout.safe.x, layout.safe.y)
 	setOffset(e.safe, "Size", layout.safe.w, layout.safe.h)
 
-	-- the XP strip, on its own screen at the same scale
+	-- the XP strip, on its own screen (the whole viewport, no insets) at the
+	-- same scale: the full width of that screen, from its left edge
 	local xpScale = self._xpGui and UiKit.scaleOf(self._xpGui)
 	if xpScale and math.abs(xpScale.Scale - layout.scale) > 1e-4 then
 		xpScale.Scale = layout.scale
 	end
-	setOffset(e.strip, "Position", layout.xp.x, layout.xp.y)
-	setOffset(e.strip, "Size", layout.xp.w, layout.xp.h)
+	local strip = e.strip
+	if strip and strip:IsA("GuiObject") then
+		strip.Position = UDim2.fromOffset(0, math.floor(layout.xp.y + 0.5))
+		strip.Size = UDim2.new(1, 0, 0, layout.xp.h)
+	end
 
 	setOffset(e.topLeft, "Position", m, layout.topLeft)
 	setOffset(e.topLeft, "Size", sizes.column, 0)

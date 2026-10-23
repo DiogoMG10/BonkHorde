@@ -362,26 +362,27 @@ def rainbow_keys(phase=0.0, blend=0.35):
 
 
 def xp_bar():
-    """The XpBar ScreenGui: one thin strip along the top of the screen, over the
-    level-up panels (DisplayOrder 21), so its rainbow shows while a choice waits.
-    HudController places it from Core/HudLayout (the free part of Roblox's top
-    bar, or just under it) and draws the fill and the rainbow."""
+    """The XpBar ScreenGui: one thin strip the whole width of the screen, edge to
+    edge just under Roblox's top bar, over the level-up panels (DisplayOrder 21)
+    so its rainbow shows while a choice waits. Its screen ignores every inset, so
+    the strip's left edge is the screen's; square ends, as it runs off both
+    sides. HudController places it from Core/HudLayout and draws the fill and
+    the rainbow."""
     strip = frame(
         "Strip",
-        (0, 1644, 0, 14),
-        (0, 262, 0, 6),
+        (1, 0, 0, 14),
+        (0, 0, 0, 62),
         z=1,
         children=[
-            frame("Back", (1, 0, 1, 0), z=1, fill=TRACK, alpha=0.18, children=[corner("pill"), shade(0.8), stroke(RIM, 1.5, 0.3)]),
+            frame("Back", (1, 0, 1, 0), z=1, fill=TRACK, alpha=0.18, children=[shade(0.8), stroke(RIM, 1.5, 0.3)]),
             frame(
                 "Fill",
                 (0.62, 0, 1, 0),
                 z=2,
                 fill=XP,
                 children=[
-                    corner("pill"),
                     shade(0.7),
-                    frame("Shine", (1, -10, 0, 3), (0, 5, 0, 2), z=3, fill="#FFFFFF", alpha=0.55, children=[corner("pill")]),
+                    frame("Shine", (1, 0, 0, 3), (0, 0, 0, 2), z=3, fill="#FFFFFF", alpha=0.55),
                 ],
             ),
             frame(
@@ -391,7 +392,6 @@ def xp_bar():
                 fill="#FFFFFF",
                 visible=False,
                 children=[
-                    corner("pill"),
                     node("UIGradient", "Gradient", {"Color": {"ColorSequence": {"keypoints": rainbow_keys()}}}),
                 ],
             ),
@@ -400,7 +400,7 @@ def xp_bar():
     return node(
         "ScreenGui",
         "XpBar",
-        {"DisplayOrder": 21, "ResetOnSpawn": False, "ZIndexBehavior": "Sibling", "IgnoreGuiInset": True, "Enabled": True},
+        {"DisplayOrder": 21, "ResetOnSpawn": False, "ZIndexBehavior": "Sibling", "IgnoreGuiInset": True, "ScreenInsets": "None", "Enabled": True},
         [strip],
     )
 
@@ -1108,7 +1108,7 @@ def apply_layout(tree, L, margin, strip=None):
         xp = L["xp"]
         bar = find(strip, "Strip")
         bar["properties"]["Position"] = U2(0, xp["x"], 0, xp["y"])
-        bar["properties"]["Size"] = U2(0, xp["w"], 0, xp["h"])
+        bar["properties"]["Size"] = U2(0, xp["w"], 0, xp["h"])  # the runtime sets (1 / scale) of the screen
     find(tree, "TimerPlate")["properties"]["Size"] = U2(0, sz["plate"], 0, sz["plateHeight"])
     find(tree, "BossBars")["properties"]["Size"] = U2(0, min(760, L["centreWidth"]), 0, 0)
     for mini in find_all(tree, "MiniBar"):
