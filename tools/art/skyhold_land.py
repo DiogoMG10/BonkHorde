@@ -354,28 +354,65 @@ def far_peak(coll, name, seed):
     return ob
 
 
+FOAM = rgb(246, 252, 255)
+SPRAY = rgb(196, 230, 246)
+POOL = rgb(78, 150, 194)
+
+
 def waterfall(coll, name, drop, width, seed):
-    """A ribbon of falling water, curving out from a ledge."""
+    """Water pouring off a ledge: a main sheet that rolls over the lip, bows out
+    and fans wider as it falls, its edges wavering more the further down, with
+    two thinner strands split off behind it either side. Each lane of a sheet
+    gives out at its own height, so the bottom frays into tongues of water (the
+    game puts its spray there) instead of stopping on a straight cut. Painted in
+    lanes of deep water and foam running down the fall, foaming at the lip and
+    where it breaks up, so it reads as falling water and not as a strip."""
+    rnd = random.Random(seed)
     bm = bmesh.new()
-    rows = []
-    steps = 14
-    for k in range(steps + 1):
-        t = k / steps
-        y = -(1 - (1 - t) ** 2) * 6  # out from the ledge
-        z = -drop * t
-        w = width * (1 + 0.5 * t)
-        rows.append([bm.verts.new((x * w / 2, y, z)) for x in (-1, -0.33, 0.33, 1)])
-    for a, b in zip(rows, rows[1:]):
-        for i in range(3):
-            bm.faces.new((a[i], a[i + 1], b[i + 1], b[i]))
-    ob = U.obj_from_bm(name, bm, coll, part="water", recalc=False, transparency=0.25, shadow=False, tag="WWMist")
+    steps, cols = 24, 9
+
+    def sheet(cx, w0, w1, back, reach, start, phase, sway, fray):
+        # where each lane gives out: the edges sooner, the middle further down
+        ends = []
+        for i in range(cols):
+            u = i / (cols - 1) * 2 - 1
+            ends.append(1.0 - rnd.uniform(0.0, fray) * (0.4 + 0.6 * abs(u)))
+        rows = []
+        for k in range(steps + 1):
+            row = []
+            for i in range(cols):
+                t = min(start + (1 - start) * k / steps, ends[i])
+                u = i / (cols - 1) * 2 - 1
+                # over the lip (a short roll up and out), then curving out as it falls
+                y = -(1 - (1 - t) ** 2) * reach - math.sin(min(t * 7, math.pi)) * 0.7 * (1 - t) + back
+                z = -drop * t
+                w = w0 + (w1 - w0) * t**0.8
+                wobble = math.sin(t * 8.5 + phase) * sway * t
+                bow = (1 - u * u) * (0.25 + 0.6 * t)  # the middle bulges outward
+                x = cx + u * w / 2 + wobble * (0.5 + 0.5 * abs(u)) + math.sin(u * 3 + t * 5 + phase) * 0.15 * t
+                row.append(bm.verts.new((x, y - bow, z)))
+            rows.append(row)
+        for a, b in zip(rows, rows[1:]):
+            for i in range(cols - 1):
+                bm.faces.new((a[i], a[i + 1], b[i + 1], b[i]))
+
+    sheet(0.0, width, width * 1.8, 0.0, 6.0, 0.0, rnd.uniform(0, 6), 0.6, 0.2)
+    sheet(-width * 0.62, width * 0.34, width * 0.66, 0.45, 5.2, 0.07, rnd.uniform(0, 6), 0.9, 0.3)
+    sheet(width * 0.66, width * 0.3, width * 0.6, 0.5, 5.6, 0.1, rnd.uniform(0, 6), 0.9, 0.3)
+    ob = U.obj_from_bm(name, bm, coll, part="water", recalc=False, transparency=0.14, shadow=False, tag="WWMist")
     solid = ob.modifiers.new("Solidify", "SOLIDIFY")
-    solid.thickness = 0.3
+    solid.thickness = 0.25
     U.bake(ob)
     U.shade(ob, flat=False, angle=None)
 
     def colour(p, nn, c):
-        return mix(rgb(236, 248, 255), rgb(170, 214, 236), n3(c, 3, seed) * 0.6)
+        t = max(0.0, min(1.0, -p[2] / drop))  # down the fall
+        # lanes: the noise changes fast across the sheet and slowly down it
+        lane = n3((p[0] * 2.2, p[1] * 2.2, p[2] * 0.05), 1.0, seed)
+        col = mix(POOL, SPRAY, smooth(lane * 1.9 - 0.45))
+        # foam: rolling over the lip, white lanes, and breaking up lower down
+        foam = max(1 - t / 0.1, smooth((t - 0.6) / 0.4) * 0.85) + max(0.0, lane - 0.68) * 2.6
+        return mix(col, FOAM, foam)
 
     U.paint(ob, colour)
     return ob

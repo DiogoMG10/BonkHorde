@@ -878,6 +878,27 @@ local ATTACHED: { [string]: { any } } = {
 			}),
 		},
 	},
+	-- foam streaking down a waterfall from its lip (AmbienceController sizes the
+	-- lifetime to the fall)
+	FallsFlow = {
+		{
+			tex = "streak",
+			rate = 16,
+			colour = ColorSequence.new(rgb(255, 255, 255), rgb(214, 238, 248)),
+			size = grow(1.1, 1.8),
+			life = { 1.6, 1.9 },
+			speed = { 14, 20 },
+			facing = "velocity",
+			glow = 0.35,
+			accel = Vector3.new(0, -26, 0),
+			alpha = NumberSequence.new({
+				NumberSequenceKeypoint.new(0, 0.55),
+				NumberSequenceKeypoint.new(0.15, 0.25),
+				NumberSequenceKeypoint.new(0.8, 0.35),
+				NumberSequenceKeypoint.new(1, 1),
+			}),
+		},
+	},
 	-- the foot of the falls: spray rising and drifting off
 	FallsMist = {
 		{

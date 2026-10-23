@@ -65,7 +65,58 @@ function AmbienceController:_glow(part: BasePart)
 end
 
 function AmbienceController:_mist(part: BasePart)
+	local size = part.Size
+	if size.Y >= size.X and size.Y >= 12 then
+		-- a tall falling sheet (Skyhold's): the spray where it breaks up at the
+		-- bottom, wide enough to swallow its frayed end, and foam down its face
+		local cf = part.CFrame
+		local foot = (cf * CFrame.new(0, -size.Y / 2 + size.Y * 0.08, size.Z / 2 - 0.5)).Position
+		local ok, host = pcall(Vfx.place, "FallsMist", CFrame.new(foot), 1, part)
+		if ok and host then
+			host.Size = Vector3.new(size.X * 1.2, size.Y * 0.12, size.X * 1.2)
+			-- puffs as big as the water is wide
+			local k = math.max(size.X / 6, 1)
+			for _, e in host:GetChildren() do
+				if e:IsA("ParticleEmitter") then
+					e.Size = NumberSequence.new(2.6 * k, 7 * k)
+					e.Rate = 10 + 4 * k
+				end
+			end
+		end
+		self:_flow(part)
+		return
+	end
 	upright("FallsMist", part, 7, 1)
+end
+
+-- foam streaking down a fall from its lip: the part is the falling sheet, its
+-- height the drop, its lip at the top of its back face
+function AmbienceController:_flow(part: BasePart)
+	local size = part.Size
+	if size.Y < size.X or size.Y < 12 then
+		return -- not a tall fall
+	end
+	local cf = part.CFrame
+	local outward = -cf.LookVector -- the sheet curves out along its +z
+	local lip = (cf * CFrame.new(0, size.Y / 2 - 0.5, -size.Z / 2 + 0.6)).Position
+	local ok, host = pcall(Vfx.place, "FallsFlow", CFrame.new(lip), 1, part)
+	if not ok or not host then
+		return
+	end
+	host.Size = Vector3.new(math.max(size.X * 0.55, 1), 0.5, math.max(size.X * 0.55, 1))
+	-- lifetime: long enough to fall the whole drop, from the emitter's speed and pull
+	local v0, a = 17, 26
+	local t = (-v0 + math.sqrt(v0 * v0 + 2 * a * size.Y)) / a
+	for _, e in host:GetChildren() do
+		if e:IsA("ParticleEmitter") then
+			e.EmissionDirection = Enum.NormalId.Bottom
+			e.SpreadAngle = Vector2.new(4, 4)
+			e.Lifetime = NumberRange.new(t * 0.92, t)
+			-- out with the sheet as it falls
+			e.Acceleration = Vector3.new(0, -a, 0) + outward * (2 * size.Z / math.max(t * t, 0.1))
+			e.Rate = math.clamp(size.X * 1.6, 6, 22)
+		end
+	end
 end
 
 function AmbienceController:_forestMist(part: BasePart)

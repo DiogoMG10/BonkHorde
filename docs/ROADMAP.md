@@ -126,10 +126,11 @@ Wardwood, native grass; no publishing or permanent uploads without authorization
   breakdown and CONTINUE: solo back to the lobby at once (verified in Studio by Tiago),
   co-op when everyone still here has pressed or the old fallback ends (`Core/EndVote`,
   run-numbered). PLAY AGAIN waits for T7. **Not yet human-validated:** the co-op pause flow
-  and the co-op end-of-run vote. Details: `assets/ui/NOTES.Pause.md`.
+  and the co-op end-of-run vote (both run in Studio by Claude with simulated players on the
+  T6/T7 line, 2026-10-23). Details: `assets/ui/NOTES.Pause.md`.
 - **T4** Audio audit and references for a softer sound direction.
 - **T5** SFX, ambience and music redone; volume balance, nothing harsh or fatiguing.
-- **T6 + T7 — built, awaiting human playtest** (`feat/t6-t7-island-hub`, `bonk-0.23.0-t6t7`,
+- **T6 + T7 — built, awaiting human playtest** (`feat/t6-t7-island-hub`, now `bonk-0.25.1-t8`,
   design approved by Tiago 2026-10-21; not merged). Skyhold, a floating-island hub built
   mostly in Blender, replaces the 2D menu flow: players walk it as their hero, choose heroes
   at plinths, form parties of up to 3 at rune circles and start runs through the portal.
@@ -137,10 +138,25 @@ Wardwood, native grass; no publishing or permanent uploads without authorization
   and the hub never sees it. Reserved run servers are documented, not built. **Run in Studio
   by Claude (one player, 2026-10-22):** spawn as the hero, hero card and re-dress in place,
   solo and lone-squad start, cancel and leave, run, results, back out of the portal, fall
-  catch. **Not yet validated by a person; not run at all:** co-op circles (join, READY,
-  leader handoff, a second party waiting), what hub players see while a run is on, phone
-  layout. Details: `docs/T6-T7-island-hub.md`.
-- **T8** A short portal-arrival sequence into Wardwood.
+  catch. **Run in Studio by Claude, multiplayer (2026-10-23, a local test with simulated
+  players):** squads joined, readied and launched together, NOT READY and LEAVE cancelling
+  safely, the lead handed on, a second party waiting its turn, players on Skyhold (and one
+  joining mid-run) receiving nothing from the run, co-op level-ups, pause and end-of-run
+  vote, a disconnect mid-run; fixed the HUD blinking as a run begins and cut nameplates.
+  The same line carries the HUD rework (`bonk-0.24.0-t6t7`: XP strip along the top with a
+  rainbow until the level-up is chosen, one top-centre column, the timer no longer covering
+  its caption; `assets/ui/NOTES.Hud.md`), T8 below, and an art pass (Hall of Heroes
+  contrast, the waterfall). **Not yet validated by a person:** all of it with real players
+  and latency, phone and gamepad. Details: `docs/T6-T7-island-hub.md`.
+- **T8 — built, awaiting human playtest** (on `feat/t6-t7-island-hub`, `bonk-0.25.1-t8`;
+  not merged). The portal crossing: Skyhold's portal is a vortex that surges through a
+  party's countdown; the last 1.3 s hold the party still while the camera frames the portal
+  and the heroes turn to light; the Wardwood arrival clears the light, drops the camera in and
+  forms every member over a swirl of light; the way home steps out of the portal. About 2.5
+  seconds, server untouched. **Run in Studio by Claude:** solo and in a local multiplayer test
+  (a squad of two together, a watcher on the plaza unaffected, cancelling mid-departure).
+  **Not validated by a person:** the feel, phones, gamepad, low graphics. Details:
+  `docs/T8-portal-crossing.md`.
 - **T9** Replayability: build variety, unlocks, challenges, persistent progression, no
   excessive power creep.
 - **T10** Reliable published playtest builds: runtime Blender assets, multi-place testing.

@@ -55,17 +55,19 @@ end
 Look.Skies = {
 	skyhold = {
 		clock = 16.9, -- tuned in Studio: lower and warmer than the first 16.25, which read as noon
-		brightness = 3.1,
+		-- eased a touch after the Hall of Heroes read as overexposed (its pale paving
+		-- and statues glared): the same golden light, a little less of it
+		brightness = 2.85,
 		ambient = rgb(100, 96, 96),
 		outdoor = rgb(150, 142, 132),
 		shiftTop = rgb(44, 26, 4),
 		shiftBottom = rgb(4, 10, 16),
-		exposure = 0.12,
+		exposure = 0.0,
 		sunSize = 15,
 		-- above the weather: a golden glow along the horizon towards the sun
-		haze = { density = 0.26, offset = 0.12, color = rgb(238, 214, 176), decay = rgb(196, 160, 128), glare = 0.7, haze = 1.4 },
-		grade = { saturation = 0.04, contrast = 0.07, tint = rgb(255, 238, 210) },
-		bloom = 0.45,
+		haze = { density = 0.26, offset = 0.12, color = rgb(238, 214, 176), decay = rgb(196, 160, 128), glare = 0.55, haze = 1.4 },
+		grade = { saturation = 0.06, contrast = 0.09, tint = rgb(255, 238, 210) },
+		bloom = 0.36,
 		rays = 0.08,
 		clouds = { cover = 0.4, density = 0.45, color = rgb(255, 240, 222) },
 		-- the island's grass a touch more olive than the Wardwood's, which goes lime in this sun

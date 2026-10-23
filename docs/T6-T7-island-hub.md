@@ -155,6 +155,26 @@ solo run), `island` (back to the meadow), `party` (circles and run state), `sky 
 - **Not validated yet (needs people):** all of the above with real players and real
   latency, phone and gamepad, and the feel of it.
 
+## Art pass after the first look (2026-10-23)
+
+Run in Studio by Claude, against three things seen in the screenshots:
+
+- **The Hall of Heroes read as overexposed** and its statues were hard to tell apart: the
+  island's light is eased a touch (`Look.skyhold`: brightness 2.85, exposure 0, bloom
+  0.36, glare 0.55, a little more contrast and saturation; the same golden afternoon);
+  locked heroes are carved in slate instead of a pale stone the colour of the paving; every
+  statue has a soft dark outline; the banners behind them wear a deep shade of the hero's
+  colour.
+- **The waterfall looked like a straight strip:** the kit's `Falls` is rebuilt in Blender
+  (`skyhold_land.waterfall`): a wider sheet that rolls over its lip, bows out and fans as
+  it falls, two strands split off behind it, a bottom that frays into tongues instead of a
+  straight cut, lanes of deep water and foam down its face; spray where it breaks up and
+  foam streaking down it from the lip (AmbienceController; the spray used to sit halfway
+  down). Only the falls changed in the kit export (1,920 to 2,688 triangles each).
+- **The portal's face was flat:** see T8 (`docs/T8-portal-crossing.md`), its vortex.
+
+Not validated by people; the lighter light and the slate statues are a matter of taste.
+
 ## Limits of this milestone
 
 - Locally one Wardwood run per server: a second ready party waits for the portal.
