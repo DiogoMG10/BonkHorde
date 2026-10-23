@@ -125,14 +125,19 @@ local Skyhold = {
 	-- (client/Controllers/PortalController, Core/Crossing); seconds
 	Crossing = {
 		lead = 1.3, -- before the countdown ends: the portal surges, the party is held still
-		flash = 0.45, -- the last of it, turning to light
-		hold = 1.6, -- at most this long in the light while the Wardwood hero appears
-		reveal = 0.7, -- the light clearing round the hero on arrival
-		settle = 1.15, -- the camera dropping in to its place behind the hero
-		release = 0.85, -- controls back this long after the light starts clearing
+		flash = 0.55, -- the last of it, turning to light
+		reveal = 0.85, -- the light clearing round the hero on arrival
+		settle = 1.25, -- the camera dropping in to its place behind the hero
+		release = 0.9, -- controls back this long after the light starts clearing
 		materialise = 0.4, -- the heroes taking shape out of the light
-		homeHold = 6, -- coming home: at most this long in the light
-		homeReveal = 0.8,
+		homeReveal = 0.9, -- coming home: the light clearing on the plaza
+		-- how long each cover stays up (Core/Crossing.step): at least `min`; until
+		-- the hero is set down and the world round them has streamed in, then
+		-- `steady` more; the finishing touches (the art near them, the portal,
+		-- the rest of the party) waited for up to `detail`; never past `max`
+		arrive = { min = 0.45, steady = 0.15, detail = 2.5, max = 8 }, -- into the Wardwood
+		home = { min = 0.35, steady = 0.15, detail = 2, max = 8 }, -- back on the island
+		join = { min = 0.6, steady = 0.25, detail = 6, max = 40 }, -- the loading screen
 	},
 	PortalSpin = { 0.35, 1.6 }, -- the vortex's turns a second, idle and at full surge
 

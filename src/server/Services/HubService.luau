@@ -19,6 +19,7 @@ local Roster = require(ReplicatedStorage.Shared.Config.Roster)
 local Skyhold = require(ReplicatedStorage.Shared.Config.Skyhold)
 local SkyholdGen = require(ReplicatedStorage.Shared.Core.SkyholdGen)
 
+local ArtKit = require(script.Parent.Parent.Wardwood.ArtKit)
 local Builder = require(script.Parent.Parent.Skyhold.Builder)
 local HeroDress = require(script.Parent.Parent.HeroDress)
 local RunAudience = require(script.Parent.Parent.RunAudience)
@@ -33,6 +34,9 @@ function HubService:KnitInit()
 	self._waiting = {} -- players to spawn once the island is built: player -> where
 	self._chars = {} -- player -> their island character
 	self._spawning = {}
+	-- nobody can play until the island stands: its trees and rocks are baked
+	-- before the rest of the Wardwood's kit (MapService bakes it all at start)
+	ArtKit.bakeFirst(Builder.wardwoodAssets())
 end
 
 function HubService:KnitStart()
@@ -48,9 +52,10 @@ function HubService:KnitStart()
 		while not map:IsTerrainReady() do
 			task.wait(0.2)
 		end
-		-- the island's trees come from the Wardwood's kit: wait for them (a while at most)
+		-- the island's trees come from the Wardwood's kit: wait for those (a while
+		-- at most); the rest of the kit goes on baking behind it
 		local deadline = os.clock() + 60
-		while not map:IsArtReady() and os.clock() < deadline do
+		while not (map:IsArtReady() or ArtKit.firstReady()) and os.clock() < deadline do
 			task.wait(0.2)
 		end
 		local ok, err = pcall(function()
@@ -194,6 +199,8 @@ function HubService:Spawn(player: Player, where: string, slot: number?)
 		warn(`[HubService] hero dressing failed, walking as the avatar: {errDress}`)
 	end
 	character:PivotTo(cf)
+	-- where it was set down: the client's cover waits until it stands there
+	character:SetAttribute("PlacedAt", cf.Position)
 	applyMovement(character, hero)
 	self._chars[player] = character
 	-- characters do not respawn on their own here (CharacterAutoLoads is off):

@@ -4,6 +4,11 @@
   "blockedPlaceIds": [125855916502243],
   "tree": {
     "$className": "DataModel",
+    "ReplicatedFirst": {
+      "Loading": {
+        "$path": "src/first/Loading.client.luau"
+      }
+    },
     "ReplicatedStorage": {
       "Packages": {
         "$path": "Packages"

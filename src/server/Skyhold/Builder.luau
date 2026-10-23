@@ -436,6 +436,21 @@ end
 
 --- Build Skyhold's scenery under Workspace.Skyhold: the kit's layout, colliders,
 --- the stand-ins it may need, the portal face and the rim wall.
+--- The Wardwood kit's assets the island is dressed with (its trees, bushes,
+--- ferns and rocks), so they can be baked before the rest of the kit.
+function Builder.wardwoodAssets(): { string }
+	local layout = script.Parent:FindFirstChild("Layout")
+	local ok, entries = pcall(require, layout)
+	local seen, out = {}, {}
+	for _, entry in if ok and typeof(entries) == "table" then entries else {} do
+		if entry.kit == "wardwood" and entry.asset and not seen[entry.asset] then
+			seen[entry.asset] = true
+			table.insert(out, entry.asset)
+		end
+	end
+	return out
+end
+
 function Builder.build(plan)
 	local cfg = plan.cfg
 	local root = CFrame.new(origin(cfg))

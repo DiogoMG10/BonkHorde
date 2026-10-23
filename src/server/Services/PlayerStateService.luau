@@ -188,6 +188,8 @@ function PlayerStateService:_spawnCharacter(rec)
 		rec.rootHeight = height -- root above feet, for contact and camping
 	end
 	character:PivotTo(CFrame.new(at))
+	-- where it was set down: the client's cover waits until it stands there
+	character:SetAttribute("PlacedAt", at)
 	rec.x, rec.y, rec.z = at.X, at.Y, at.Z
 	self:_applyMovement(rec)
 end

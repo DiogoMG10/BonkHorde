@@ -17,6 +17,10 @@
 
 local ArtKit = {}
 
+-- assets someone needs before the rest (the island hub's trees, T6/T7): baked
+-- first, and the folder's `FirstReady` attribute turns true once they are
+local first: { [string]: boolean } = {}
+
 local B64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 local LOOKUP = {}
 for i = 1, 64 do
@@ -192,10 +196,13 @@ function ArtKit.build(name: string): Model?
 	return model
 end
 
--- the enemies first (a run can start any moment), then the horizon and far
--- trees, so the whole wood stands at once; then the close-up trees and the rest
+-- what was asked for first (nobody can play until the island stands), then
+-- the enemies (a run can start soon after), then the horizon and far trees, so
+-- the whole wood stands at once; then the close-up trees and the rest
 local function priority(name: string): number
-	if string.find(name, "^KitEnemy") then
+	if first[name] then
+		return -1
+	elseif string.find(name, "^KitEnemy") then
 		return 0
 	elseif string.find(name, "_FAR$") then
 		return 1
@@ -205,9 +212,23 @@ local function priority(name: string): number
 	return 3
 end
 
+--- Bake these assets before any other (call before bakeAll starts).
+function ArtKit.bakeFirst(names: { string })
+	for _, name in names do
+		first[name] = true
+	end
+end
+
+--- Have the assets asked for first been baked (or tried)?
+function ArtKit.firstReady(): boolean
+	local folder = game:GetService("ReplicatedStorage"):FindFirstChild("WardwoodArt")
+	return folder ~= nil and (folder:GetAttribute("FirstReady") == true or folder:GetAttribute("Ready") == true)
+end
+
 --- Bake every asset into ReplicatedStorage.WardwoodArt, a few at a time.
 --- Returns the names that failed. The folder's `Ready` attribute turns true
---- at the end, with `Failed` listing any that did not bake.
+--- at the end, with `Failed` listing any that did not bake; `FirstReady` as
+--- soon as those asked for first are done.
 function ArtKit.bakeAll(): { string }
 	local ReplicatedStorage = game:GetService("ReplicatedStorage")
 	local folder = ReplicatedStorage:FindFirstChild("WardwoodArt")
@@ -218,11 +239,17 @@ function ArtKit.bakeAll(): { string }
 	end
 	folder:SetAttribute("Ready", false)
 	local names = {}
+	local firstLeft = 0
 	for _, m in script.Parent.ArtMeshes:GetChildren() do
 		if not folder:FindFirstChild(m.Name) then
 			table.insert(names, m.Name)
+			if first[m.Name] then
+				firstLeft += 1
+			end
 		end
 	end
+	local firstCount = firstLeft
+	folder:SetAttribute("FirstReady", firstLeft == 0)
 	table.sort(names, function(a, b)
 		local pa, pb = priority(a), priority(b)
 		return if pa == pb then a < b else pa < pb
@@ -235,6 +262,13 @@ function ArtKit.bakeAll(): { string }
 			model.Parent = folder
 		else
 			table.insert(failed, name)
+		end
+		if first[name] then
+			firstLeft -= 1
+			if firstLeft == 0 then
+				folder:SetAttribute("FirstReady", true)
+				print(`[ArtKit] the {firstCount} models asked for first baked in {string.format("%.1f", os.clock() - started)}s`)
+			end
 		end
 	end
 	folder:SetAttribute("Failed", table.concat(failed, ","))

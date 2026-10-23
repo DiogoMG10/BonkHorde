@@ -162,9 +162,9 @@ Run in Studio by Claude, against three things seen in the screenshots:
 - **The Hall of Heroes read as overexposed** and its statues were hard to tell apart: the
   island's light is eased a touch (`Look.skyhold`: brightness 2.85, exposure 0, bloom
   0.36, glare 0.55, a little more contrast and saturation; the same golden afternoon);
-  locked heroes are carved in slate instead of a pale stone the colour of the paving; every
-  statue has a soft dark outline; the banners behind them wear a deep shade of the hero's
-  colour.
+  locked heroes are carved in slate instead of a pale stone the colour of the paving; the
+  banners behind them wear a deep shade of the hero's colour. (A soft dark outline on every
+  statue was tried here and removed after the playtest, `bonk-0.26.1-ux`.)
 - **The waterfall looked like a straight strip:** the kit's `Falls` is rebuilt in Blender
   (`skyhold_land.waterfall`): a wider sheet that rolls over its lip, bows out and fans as
   it falls, two strands split off behind it, a bottom that frays into tongues instead of a
@@ -174,6 +174,37 @@ Run in Studio by Claude, against three things seen in the screenshots:
 - **The portal's face was flat:** see T8 (`docs/T8-portal-crossing.md`), its vortex.
 
 Not validated by people; the lighter light and the slate statues are a matter of taste.
+
+## Joining: the loading screen (after the playtest, `bonk-0.26.3-ux`)
+
+A player joining used to watch the island being built: the camera's slow wide look at
+Skyhold while the server wrote the terrain and placed the kit, then the world streaming in.
+
+- **Why it was slow:** the server spawns nobody until Skyhold stands, and the island waited
+  for the whole Wardwood art kit (86 models, about 15 s of EditableMesh baking in Studio)
+  because its trees come from that kit. The island needs 18 of them: those are now baked
+  first (`ArtKit.bakeFirst`, `Builder.wardwoodAssets`), the island builds as soon as they
+  are done, and the rest of the kit bakes on behind it. Server start to "Skyhold is ready"
+  went from about 18.2 s to 9.4 s in Studio.
+- **The loading screen** (`src/first/Loading.client.luau`, mapped to ReplicatedFirst so it
+  draws before the rest of the game has arrived): BONK HORDE in gold over a dark moss field,
+  a slowly turning ring of the portal's light with a swirl inside, motes drifting up, a line
+  on what it waits for ("Waking your hero", "Raising the island", "Lighting the portal") and a
+  tip. Nothing new uploaded: the textures are the portal's own. It replaces Roblox's default
+  loading screen at once and stays until PortalController says the island is ready (the
+  `join` gate in `docs/T8-portal-crossing.md`: the hero set down on the island, the ground
+  round them streamed in, the controllers started, the profile known, the portal lit and its
+  textures loaded), at least 1.2 s; then the ring swells as it fades into the island. After
+  15 s it admits it is taking longer; after 40 s the game shows the island whatever is
+  missing, and the screen itself gives up at 45 s. The hero is held still under it.
+- **Run in Studio by Claude:** solo (the island shown 9.9 to 10.1 s after the client started,
+  all of it the server's build) and at 0.5 s replication lag; a two-player local test whose
+  clients joined a server that was ready (shown after 4.2 to 4.7 s, mostly fetching the
+  portal's five textures in a cold client); the iPhone 16 Pro simulator (a shorter layout
+  without the tip on short screens). No frame of the unfinished island or the wide camera
+  was captured before or as it faded.
+- **Rojo:** `default.project.json` gained a ReplicatedFirst entry; a running `rojo serve`
+  should be restarted after pulling, so the plugin sees the new script.
 
 ## Limits of this milestone
 

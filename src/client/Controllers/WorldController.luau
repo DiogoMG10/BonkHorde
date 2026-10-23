@@ -16,6 +16,7 @@ local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Roster = require(ReplicatedStorage.Shared.Config.Roster)
 local Signal = require(ReplicatedStorage.Packages.Signal)
+local ControlLock = require(script.Parent.Parent.ControlLock)
 local UiFonts = require(script.Parent.Parent.UiFonts)
 local Vfx = require(script.Parent.Parent.Vfx)
 
@@ -65,7 +66,12 @@ end
 
 --- The id of the interactable the prompt is offering right now, if any. Touch
 --- and on-screen buttons send it with the Interact remote, as the E key does.
+--- What USE would open now: nothing while the controls are held (the portal's
+--- crossing).
 function WorldController:PromptId(): number?
+	if ControlLock.held() then
+		return nil
+	end
 	return self._prompt and self._prompt.id
 end
 
@@ -270,8 +276,9 @@ function WorldController:KnitStart()
 	end
 
 	ContextActionService:BindAction("BonkInteract", function(_, inputState)
-		if inputState == Enum.UserInputState.Begin and self._prompt and interact then
-			interact:FireServer(self._prompt.id)
+		local id = self:PromptId()
+		if inputState == Enum.UserInputState.Begin and id and interact then
+			interact:FireServer(id)
 		end
 		return Enum.ContextActionResult.Pass
 	end, true, Enum.KeyCode.E, Enum.KeyCode.ButtonX)

@@ -15,7 +15,10 @@
 --
 -- Purely visual and local: the server never sees any of it. `BonkArt` off (the
 -- `art off` dev command) or a family listed in `BonkArtClassic` leaves the old
--- props showing instead.
+-- props showing instead. Arriving in the Wardwood, the portal's light holds
+-- until Prepare has drawn everything round the hero (PortalController), so the
+-- wood is whole when it clears; otherwise a few dozen swaps a tick keep the
+-- level of detail following the camera.
 
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -34,6 +37,7 @@ local LOD = Wardwood.ArtLod
 local TREE_EVERY = 0.2 -- seconds between detail checks
 local HIDE_BEYOND = 1500 -- studs from the Wardwood's centre: past this its art is put away
 local SWAPS_PER_TICK = 60
+local SWAPS_PREPARING = 400 -- a frame's swaps while a cover hides the work (Prepare)
 local SUFFIX = { [0] = "", [1] = "_LOD", [2] = "_FAR" }
 
 function ArtController:KnitInit()
@@ -115,6 +119,26 @@ function ArtController:KnitStart()
 			end
 		end)
 	end)
+end
+
+--- Bring the art round `eye` up to date now, many swaps a frame (called every
+--- frame while a cover hides it). True once nothing is left to draw, or there
+--- is no art to draw.
+function ArtController:Prepare(eye: Vector3): boolean
+	if not self._on or not self._templates then
+		return true
+	end
+	local away = eye.X * eye.X + eye.Z * eye.Z > HIDE_BEYOND * HIDE_BEYOND
+	if away then
+		return true
+	end
+	if self._away then
+		self._away = false
+		if self._folder then
+			self._folder.Parent = Workspace
+		end
+	end
+	return self:_updateTrees(eye, SWAPS_PREPARING) == 0
 end
 
 function ArtController:_readClassic()
@@ -215,7 +239,10 @@ function ArtController:_nameFor(item, level: number): string?
 	return nil
 end
 
-function ArtController:_updateTrees(eye: Vector3)
+--- Swap in the level of detail each prop wants seen from `eye`, nearest first,
+--- at most `budget` swaps. Returns how many are left for later.
+function ArtController:_updateTrees(eye: Vector3, budget: number?): number
+	local most = budget or SWAPS_PER_TICK
 	local changes = {}
 	local dirty = self._dirty
 	self._dirty = false
@@ -231,13 +258,13 @@ function ArtController:_updateTrees(eye: Vector3)
 			table.insert(changes, { item = item, d = d, name = self:_nameFor(item, level), level = level })
 		end
 	end
-	if #changes > SWAPS_PER_TICK then
+	if #changes > most then
 		table.sort(changes, function(a, b)
 			return a.d < b.d
 		end)
 		self._dirty = self._dirty or dirty
 	end
-	for i = 1, math.min(#changes, SWAPS_PER_TICK) do
+	for i = 1, math.min(#changes, most) do
 		local c = changes[i]
 		local item = c.item
 		if item.name ~= c.name then
@@ -261,6 +288,7 @@ function ArtController:_updateTrees(eye: Vector3)
 		end
 		item.level = c.level
 	end
+	return math.max(0, #changes - most)
 end
 
 return ArtController

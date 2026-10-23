@@ -69,4 +69,63 @@ return {
 		assert(near(Crossing.home(cfg.homeReveal, cfg), 0))
 		assert(Crossing.home(cfg.homeReveal / 2, cfg) < 0.5, "it clears quickly at first")
 	end,
+
+	["a cover waits for the hero, then the world, then the finishing touches"] = function()
+		local gate = { min = 0.5, steady = 0.2, detail = 3, max = 8 }
+		local w = Crossing.wait(10)
+		local none = { placed = false, streamed = false, detail = false }
+		local ok, why = Crossing.step(w, none, 11, gate)
+		assert(not ok and why == "hero", why)
+		ok, why = Crossing.step(w, { placed = true, streamed = false, detail = false }, 11.5, gate)
+		assert(not ok and why == "world", why)
+		ok, why = Crossing.step(w, { placed = true, streamed = true, detail = false }, 12, gate)
+		assert(not ok and why == "detail", why)
+		local all = { placed = true, streamed = true, detail = true }
+		ok, why = Crossing.step(w, all, 12.1, gate)
+		assert(not ok and why == "steady", "it holds a moment once everything is there")
+		ok, why = Crossing.step(w, all, 12.31, gate)
+		assert(ok and why == "ready", why)
+	end,
+
+	["a fast world still shows the cover for its minimum, and a moment steady"] = function()
+		local gate = { min = 0.5, steady = 0.2, detail = 3, max = 8 }
+		local w = Crossing.wait(0)
+		local all = { placed = true, streamed = true, detail = true }
+		assert(not Crossing.step(w, all, 0.05, gate))
+		assert(not Crossing.step(w, all, 0.3, gate), "not before the minimum")
+		assert(Crossing.step(w, all, 0.51, gate))
+	end,
+
+	["the finishing touches are given up on; the hero and the world only at the maximum"] = function()
+		local gate = { min = 0.5, steady = 0.2, detail = 3, max = 8 }
+		local w = Crossing.wait(0)
+		local rough = { placed = true, streamed = true, detail = false }
+		assert(not Crossing.step(w, rough, 2.9, gate))
+		local ok = Crossing.step(w, rough, 3.0, gate)
+		assert(not ok, "steady first")
+		assert(Crossing.step(w, rough, 3.25, gate), "shown without the detail")
+		local stuck = Crossing.wait(0)
+		local nothing = { placed = false, streamed = false, detail = false }
+		assert(not Crossing.step(stuck, nothing, 7.9, gate))
+		local done, why = Crossing.step(stuck, nothing, 8, gate)
+		assert(done and why == "timeout", "never past the maximum")
+	end,
+
+	["something going missing again starts the steady moment over"] = function()
+		local gate = { min = 0, steady = 0.2, detail = 3, max = 8 }
+		local w = Crossing.wait(0)
+		local all = { placed = true, streamed = true, detail = true }
+		assert(not Crossing.step(w, all, 1, gate))
+		assert(not Crossing.step(w, { placed = true, streamed = false, detail = true }, 1.1, gate))
+		assert(not Crossing.step(w, all, 1.25, gate), "the world went: steady again from here")
+		assert(Crossing.step(w, all, 1.46, gate))
+	end,
+
+	["every cover has a firm maximum, the loading screen the longest"] = function()
+		for name, gate in { arrive = cfg.arrive, home = cfg.home, join = cfg.join } do
+			assert(gate.min < gate.detail and gate.detail < gate.max, name)
+			assert(gate.max <= 60, `{name}: nobody waits forever`)
+		end
+		assert(cfg.join.max > cfg.arrive.max and cfg.arrive.max >= cfg.home.max)
+	end,
 }

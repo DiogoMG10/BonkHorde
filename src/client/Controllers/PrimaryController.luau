@@ -23,6 +23,7 @@ local Workspace = game:GetService("Workspace")
 local Knit = require(ReplicatedStorage.Packages.Knit)
 local Net = require(ReplicatedStorage.Shared.Net)
 local Roster = require(ReplicatedStorage.Shared.Config.Roster)
+local ControlLock = require(script.Parent.Parent.ControlLock)
 
 local PrimaryController = Knit.CreateController({ Name = "PrimaryController" })
 
@@ -48,6 +49,10 @@ function PrimaryController:_enabled(): (boolean, string?)
 	local state = self._state
 	local me = state.me
 	if not me or me.downed or state.paused or not state:IsLive() or not state:Root() then
+		return false, nil
+	end
+	-- held through the portal's crossing: nothing is swung under its light
+	if ControlLock.held() then
 		return false, nil
 	end
 	-- a free mouse means a menu or panel is open: clicks belong to it

@@ -10,21 +10,32 @@
 --               camera swinging up to the portal, the light closing in
 --   arrival     the light clearing round the hero in the Wardwood, the camera
 --               dropping in behind them, the heroes taking shape, controls back
+--   gate        how long a cover (the light, or the loading screen on joining)
+--               stays up: until the world behind it is ready to be seen, with a
+--               short minimum and a firm maximum
 --
 -- Timings come from Config/Skyhold.Crossing.
 
 local Crossing = {}
 
+export type Gate = {
+	min: number, -- the cover stays up at least this long
+	steady: number, -- and this long after everything it waits for is there
+	detail: number, -- the finishing touches are waited for this long at most
+	max: number, -- and nothing is waited for past this
+}
+
 export type Config = {
 	lead: number,
 	flash: number,
-	hold: number,
 	reveal: number,
 	settle: number,
 	release: number,
 	materialise: number,
-	homeHold: number,
 	homeReveal: number,
+	arrive: Gate,
+	home: Gate,
+	join: Gate,
 }
 
 local function clamp01(x: number): number
@@ -107,6 +118,71 @@ end
 --- Coming home from a run: the light clears over `homeReveal` seconds.
 function Crossing.home(t: number, cfg: Config): number
 	return 1 - Crossing.out(t / cfg.homeReveal)
+end
+
+-- ------------------------------------------------------------------ the gate
+
+export type Facts = {
+	placed: boolean, -- the hero stands where the server set them down
+	streamed: boolean, -- the world round them has arrived (ground underfoot and around)
+	detail: boolean, -- the finishing touches (the art near them, the portal, the others)
+}
+
+export type Wait = {
+	since: number,
+	steadySince: number?,
+	last: number, -- the previous step
+	spent: { [string]: number }, -- seconds spent awaiting each thing
+}
+
+--- A cover going up at `now`.
+function Crossing.wait(now: number): Wait
+	return { since = now, steadySince = nil, last = now, spent = {} }
+end
+
+--- Where a cover's time went, for the log: "hero 1.20  world 0.31 ...".
+function Crossing.summary(w: Wait): string
+	local parts = {}
+	for _, key in { "hero", "world", "detail", "steady" } do
+		local t = w.spent[key]
+		if t and t > 0.005 then
+			table.insert(parts, string.format("%s %.2f", key, t))
+		end
+	end
+	return table.concat(parts, "  ")
+end
+
+--- May the cover come down at `now`, given what the client sees? The hero and
+--- the world round them are waited for up to `max`; the finishing touches up to
+--- `detail`; once all is there it holds `steady` more (the first frames of the
+--- new place) and never comes down before `min`. The second value is what is
+--- still awaited: "hero", "world", "detail", "steady", or "ready" / "timeout".
+function Crossing.step(w: Wait, facts: Facts, now: number, gate: Gate): (boolean, string)
+	local waited = now - w.since
+	local dt = math.max(0, now - w.last)
+	w.last = now
+	local function awaiting(key: string)
+		w.spent[key] = (w.spent[key] or 0) + dt
+	end
+	if waited >= gate.max then
+		return true, "timeout"
+	end
+	local missing = if not facts.placed
+		then "hero"
+		elseif not facts.streamed then "world"
+		elseif not facts.detail and waited < gate.detail then "detail"
+		else nil
+	if missing then
+		awaiting(missing)
+		w.steadySince = nil
+		return false, missing
+	end
+	w.steadySince = w.steadySince or now
+	if now - (w.steadySince :: number) < gate.steady or waited < gate.min then
+		awaiting("steady")
+		return false, "steady"
+	end
+	return true, "ready"
 end
 
 return Crossing

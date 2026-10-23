@@ -12,17 +12,30 @@
 --                the camera swings up to frame the portal, the heroes glow and
 --                turn to light, and the light closes in from the portal. Others
 --                on the island see the heroes glow and vanish in a burst.
---   arrival      in the Wardwood the light clears round the hero, the camera drops
---                in behind them, every member takes shape over a swirl of light
---                on the ground, and the controls come back.
+--   arrival      in the Wardwood the light holds until the hero is set down and
+--                the wood round them is there (streamed in, its art drawn, the
+--                rest of the party arrived), then clears round the hero, the
+--                camera drops in behind them, every member takes shape over a
+--                swirl of light on the ground, and the controls come back.
 --   home         back from a run: in the light until the island hero stands at
---                the portal, then out of it with a burst.
+--                the portal and the island round them is there, then out of it.
+--   joining      the loading screen (ReplicatedFirst/Loading) stays up until the
+--                hero stands on the island and the island round them is there:
+--                this tells it so (the LocalPlayer's BonkReady and BonkLoading).
+--
+-- Each cover waits on what the client can actually see (Core/Crossing.step:
+-- the hero where the server put them, streaming no longer pausing them, the
+-- ground round them present by WorldProbe, then the finishing touches), for a
+-- short minimum and never past a maximum. Roblox's own "paused" notice is kept
+-- off while a cover is up, since the cover says it better.
 --
 -- The server decides everything (PartyService, RunDirectorService): this only
 -- watches the hub's parties and the run's phase (StateController). Timings are
 -- Config/Skyhold.Crossing, the curves Core/Crossing. Every effect is cosmetic
 -- and pcall-isolated; every hold on the controls has a deadline (ControlLock).
 
+local ContentProvider = game:GetService("ContentProvider")
+local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -35,6 +48,7 @@ local Skyhold = require(ReplicatedStorage.Shared.Config.Skyhold)
 local SkyholdGen = require(ReplicatedStorage.Shared.Core.SkyholdGen)
 local ControlLock = require(script.Parent.Parent.ControlLock)
 local Vfx = require(script.Parent.Parent.Vfx)
+local WorldProbe = require(script.Parent.Parent.WorldProbe)
 
 local PortalController = Knit.CreateController({ Name = "PortalController" })
 
@@ -49,6 +63,8 @@ local DEEP = Color3.fromRGB(16, 92, 112)
 local SLEEP = Color3.fromRGB(90, 120, 200) -- the run is in use
 local CREAM = Color3.fromRGB(255, 238, 196)
 local GLOW_TO = Color3.fromRGB(205, 255, 244) -- what the portal's neon pieces brighten towards
+local PLACED_NEAR = 14 -- studs: a hero this near where the server set it down stands there
+local BELOW_ISLAND = 60 -- studs under the island's origin: the Wardwood
 
 -- Studio only: `Workspace:SetAttribute("BonkCrossingSlow", 4)` plays the
 -- arrival and the homecoming four times slower, to look at them
@@ -75,16 +91,35 @@ function PortalController:KnitInit()
 	self._arriving = nil
 	self._home = nil
 	self._neon = nil
+	-- the loading screen is up from the first frame: the hero is held with it
+	self._joining = { gate = Crossing.wait(os.clock()) }
+	self._knitStarted = false
+	self._preloaded = false
+	self._covered = false
 end
 
 function PortalController:KnitStart()
 	self._state = Knit.GetController("StateController")
 	self._camera = Knit.GetController("CameraController")
 	self._audio = Knit.GetController("AudioController")
+	self._artKit = Knit.GetController("ArtController")
 	self._lite = lite()
 	self:_makeLight()
+	ControlLock.set(LOCK, true, CFG.join.max + 1)
+	Knit.OnStart():andThen(function()
+		self._knitStarted = true
+	end)
+	task.spawn(function()
+		-- what the island shows first: the portal's vortex and its motes (the
+		-- island's own UI is drawn from text and frames)
+		pcall(function()
+			ContentProvider:PreloadAsync({ Vfx.Tex.glow, Vfx.Tex.swirl, Vfx.Tex.ring_thin, Vfx.Tex.dot, Vfx.Tex.star4 })
+		end)
+		self._preloaded = true
+	end)
 
 	local plan = SkyholdGen.build(Skyhold)
+	self._plan = plan
 	local p = Skyhold.Portal
 	local h = SkyholdGen.heightAt(plan, p.x, p.z) or 0
 	self._centre = Vector3.new(SkyholdGen.world(Skyhold, p.x, h + Skyhold.PortalCentreHeight, p.z))
@@ -530,7 +565,7 @@ function PortalController:_departure()
 			end
 			going.hum = hum
 		end
-		ControlLock.set(LOCK, true, CFG.lead + CFG.hold + 1.5)
+		ControlLock.set(LOCK, true, CFG.lead + CFG.arrive.max + 1.5)
 		local root = state:Root()
 		if root then
 			-- behind the hero, a little above, framing the portal over them
@@ -604,19 +639,20 @@ function PortalController:_onPhase()
 		self:_endDeparture(false)
 		self._unwinding = nil
 		self._home = nil
-		ControlLock.set(LOCK, true, CFG.hold + CFG.release + 1.5)
+		ControlLock.set(LOCK, true, CFG.arrive.max + CFG.release + 1.5)
 		-- the light finishes closing in from wherever the departure had got to
 		-- (straight into a run, with no countdown: from nothing, quickly)
-		self._arriving = { since = os.clock(), revealAt = nil, formed = {}, fromLight = self._lightNow or 0 }
+		local now = os.clock()
+		self._arriving = { since = now, gate = Crossing.wait(now), revealAt = nil, formed = {}, fromLight = self._lightNow or 0 }
 	elseif phase == "Lobby" and last ~= "Lobby" then
 		self:_finishArrival()
 		self._flareAt = os.clock()
 		self:_setLight(1)
-		ControlLock.set(LOCK, true, CFG.homeHold + 1)
-		self._home = { since = os.clock(), revealAt = nil }
-	elseif phase ~= "Intro" and self._arriving and self._arriving.revealAt == nil then
-		-- play began (or the run ended) before the hero was seen: show the world
-		self:_reveal()
+		ControlLock.set(LOCK, true, CFG.home.max + 1)
+		self._home = { since = os.clock(), gate = Crossing.wait(os.clock()), revealAt = nil }
+	elseif (phase == "Results" or phase == "Victory" or phase == "Wipe") and self._arriving then
+		-- the run ended before the hero was seen: nothing more to wait for
+		self:_finishArrival()
 	end
 end
 
@@ -637,7 +673,131 @@ function PortalController:_squad(): { Player }
 end
 
 local function inWardwood(root: BasePart?): boolean
-	return root ~= nil and root.Parent ~= nil and root.Position.Y < Skyhold.Origin[2] - 60
+	return root ~= nil and root.Parent ~= nil and root.Position.Y < Skyhold.Origin[2] - BELOW_ISLAND
+end
+
+-- does this character stand where the server set it down (on the island, or in
+-- the Wardwood)?
+local function placed(character: Model?, island: boolean): boolean
+	local root = character and character:FindFirstChild("HumanoidRootPart")
+	local at = character and character:GetAttribute("PlacedAt")
+	if not (root and root:IsA("BasePart") and typeof(at) == "Vector3") then
+		return false
+	end
+	local onIsland = root.Position.Y > Skyhold.Origin[2] - BELOW_ISLAND
+	return onIsland == island and (root.Position - at).Magnitude < PLACED_NEAR
+end
+
+local function streamingPaused(): boolean
+	local ok, paused = pcall(function()
+		return player.GameplayPaused
+	end)
+	return ok and paused == true
+end
+
+-- ------------------------------------------------------------------ what the client can see
+
+--- Is the hero where the server set them down, and the ground round them there?
+--- `island`: on Skyhold, else in the Wardwood.
+function PortalController:_facts(island: boolean): Crossing.Facts
+	local character = player.Character
+	local facts = { placed = placed(character, island), streamed = false, detail = false }
+	if facts.placed and not streamingPaused() then
+		local root = character.HumanoidRootPart
+		local o = Skyhold.Origin
+		local heights, include
+		if island then
+			local plan = self._plan
+			heights = function(x: number, z: number): number?
+				local h = SkyholdGen.heightAt(plan, x - o[1], z - o[3])
+				return h and o[2] + h
+			end
+			include = { Workspace.Terrain, Workspace:FindFirstChild("Skyhold") }
+		else
+			local state = self._state
+			local half = state.map.half - 8
+			heights = function(x: number, z: number): number?
+				if math.abs(x) > half or math.abs(z) > half then
+					return nil
+				end
+				return state:HeightAt(x, z)
+			end
+			include = { Workspace.Terrain }
+		end
+		facts.streamed = WorldProbe.streamed(root.Position, heights, include)
+	end
+	return facts
+end
+
+--- Every other member of the squad stands in the Wardwood where they were set down.
+function PortalController:_squadPlaced(): boolean
+	for _, mate in self:_squad() do
+		if mate ~= player and not placed(mate.Character, false) then
+			return false
+		end
+	end
+	return true
+end
+
+--- Roblox's own notice that streaming paused the player, off while a cover
+--- says it better.
+function PortalController:_cover(on: boolean)
+	if on == self._covered then
+		return
+	end
+	self._covered = on
+	pcall(function()
+		GuiService:SetGameplayPausedNotificationEnabled(not on)
+	end)
+end
+
+--- A cover lifts: one line in the log on how long it waited and for what
+--- (`late`: the finishing touches it waited longest for, if any).
+function PortalController:_shown(what: string, gate: Crossing.Wait, why: string, late: string?)
+	local waited = if late and (gate.spent.detail or 0) > 0.3 then `; last detail: {late}` else ""
+	local line =
+		`[PortalController] {what} shown after {string.format("%.2f", os.clock() - gate.since)}s ({Crossing.summary(gate)}{waited})`
+	if why == "timeout" then
+		warn(`{line}: not ready in time, shown anyway`)
+	else
+		print(line)
+	end
+end
+
+-- joining: the loading screen is told what is still awaited, and when to go
+function PortalController:_join()
+	local j = self._joining
+	local facts = self:_facts(true)
+	if facts.placed and facts.streamed then
+		local missing = {}
+		for name, done in
+			{
+				controllers = self._knitStarted,
+				textures = self._preloaded,
+				profile = self._state.profile ~= nil,
+				portal = self:_vortex() ~= nil,
+			}
+		do
+			if not done then
+				table.insert(missing, name)
+			end
+		end
+		facts.detail = #missing == 0
+		if #missing > 0 then
+			table.sort(missing)
+			j.late = table.concat(missing, ", ")
+		end
+	end
+	local ready, why = Crossing.step(j.gate, facts, os.clock(), CFG.join)
+	if player:GetAttribute("BonkLoading") ~= why then
+		player:SetAttribute("BonkLoading", why)
+	end
+	if ready then
+		self._joining = nil
+		ControlLock.set(LOCK, false)
+		player:SetAttribute("BonkReady", true)
+		self:_shown("Skyhold (joining)", j.gate, why, j.late)
+	end
 end
 
 function PortalController:_reveal()
@@ -666,24 +826,31 @@ function PortalController:_arrival()
 	local now = os.clock()
 	local root = state:Root()
 	if not a.revealAt then
-		-- in the light until this player's Wardwood hero is there (or a while at most)
+		-- in the light until this player's Wardwood hero is set down and the wood
+		-- round them is there: streamed in, its art drawn (all at once, unseen),
+		-- the rest of the party arrived; a while at most (CFG.arrive)
 		local into = math.min(1, a.fromLight + (now - a.since) / 0.2)
-		if into >= 1 and (inWardwood(root) or now - a.since >= CFG.hold) then
-			self:_reveal()
-		else
-			self:_setLight(into)
+		self:_setLight(into)
+		local facts = self:_facts(false)
+		if facts.placed and root then
+			-- the camera already waits where it will drop in from, so what it will
+			-- see is what is drawn and streamed under the light
+			self:_dropIn(root, 1)
+			local drawn = self._artKit:Prepare(root.Position)
+			facts.detail = facts.streamed and drawn and self:_squadPlaced()
+		end
+		local ready, why = Crossing.step(a.gate, facts, now, CFG.arrive)
+		if not (ready and into >= 1) then
 			return
 		end
+		self:_shown("the Wardwood", a.gate, why)
+		self:_reveal()
 	end
 	local t = (now - a.revealAt) / slow()
 	local arc = Crossing.arrival(t, CFG)
 	self:_setLight(arc.light)
 	if inWardwood(root) then
-		-- dropping in from above and behind, onto the hero
-		local yaw = self._camera:Yaw()
-		local back = Vector3.new(math.sin(yaw), 0, math.cos(yaw))
-		local eye = root.Position + back * 19 + Vector3.new(0, 15, 0)
-		self._camera:SetCrossing(CFrame.lookAt(eye, root.Position + Vector3.new(0, 2, 0)), 82, arc.camera)
+		self:_dropIn(root, arc.camera)
 	else
 		self._camera:SetCrossing(nil) -- no hero to drop in on (yet): the camera is its own
 	end
@@ -710,6 +877,15 @@ function PortalController:_arrival()
 	end
 end
 
+-- the arrival's camera: from above and behind the hero, `weight` of the way
+-- there from its own place behind them
+function PortalController:_dropIn(root: BasePart, weight: number)
+	local yaw = self._camera:Yaw()
+	local back = Vector3.new(math.sin(yaw), 0, math.cos(yaw))
+	local eye = root.Position + back * 19 + Vector3.new(0, 15, 0)
+	self._camera:SetCrossing(CFrame.lookAt(eye, root.Position + Vector3.new(0, 2, 0)), 82, weight)
+end
+
 function PortalController:_finishArrival()
 	local a = self._arriving
 	self._arriving = nil
@@ -733,8 +909,15 @@ function PortalController:_homecoming()
 	local now = os.clock()
 	local root = self._state:Root()
 	if not h.revealAt then
-		local home = root and root.Parent and root.Position.Y > Skyhold.Origin[2] - 60
-		if home or now - h.since >= CFG.homeHold then
+		-- in the light until the island hero stands at the portal and the island
+		-- round them is there, the portal lit again; a while at most (CFG.home)
+		local facts = self:_facts(true)
+		if facts.placed and facts.streamed then
+			facts.detail = self:_vortex() ~= nil
+		end
+		local ready, why = Crossing.step(h.gate, facts, now, CFG.home)
+		if ready then
+			self:_shown("Skyhold (home)", h.gate, why)
 			h.revealAt = now
 			self._flareAt = now
 			ControlLock.set(LOCK, false)
@@ -767,6 +950,11 @@ function PortalController:_frame(dt: number)
 	local onIsland = state:OnIsland()
 	self:_drawPortal(dt, onIsland)
 	self:_watchParties()
+	if self._joining then
+		self:_join()
+	end
+	local arriving, home = self._arriving, self._home
+	self:_cover(self._joining ~= nil or (arriving ~= nil and arriving.revealAt == nil) or (home ~= nil and home.revealAt == nil))
 	local phase = state.phase
 	if phase == "Results" or phase == "Victory" or phase == "Wipe" then
 		local root = state:Root()
