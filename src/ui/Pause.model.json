@@ -5,6 +5,7 @@
   "ResetOnSpawn": false,
   "ZIndexBehavior": "Sibling",
   "IgnoreGuiInset": true,
+  "ScreenInsets": "None",
   "Enabled": true
  },
  "children": [

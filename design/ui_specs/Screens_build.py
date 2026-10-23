@@ -692,7 +692,7 @@ def pause_tree(run):
             ),
         ],
     )
-    props = {"DisplayOrder": 45, "ResetOnSpawn": False, "ZIndexBehavior": "Sibling", "IgnoreGuiInset": True, "Enabled": True}
+    props = {"DisplayOrder": 45, "ResetOnSpawn": False, "ZIndexBehavior": "Sibling", "IgnoreGuiInset": True, "ScreenInsets": "None", "Enabled": True}
     return node("ScreenGui", "Pause", props, [root])
 
 
@@ -875,7 +875,7 @@ def results_screen(res):
 
 
 def end_tree(res):
-    props = {"DisplayOrder": 40, "ResetOnSpawn": False, "ZIndexBehavior": "Sibling", "IgnoreGuiInset": True, "Enabled": True}
+    props = {"DisplayOrder": 40, "ResetOnSpawn": False, "ZIndexBehavior": "Sibling", "IgnoreGuiInset": True, "ScreenInsets": "None", "Enabled": True}
     return node("ScreenGui", "EndScreens", props, [death_screen(), results_screen(res)])
 
 

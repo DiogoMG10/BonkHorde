@@ -1041,7 +1041,7 @@ def build_tree():
     return node(
         "ScreenGui",
         "Hud",
-        {"DisplayOrder": 10, "ResetOnSpawn": False, "ZIndexBehavior": "Sibling", "IgnoreGuiInset": True, "Enabled": True},
+        {"DisplayOrder": 10, "ResetOnSpawn": False, "ZIndexBehavior": "Sibling", "IgnoreGuiInset": True, "ScreenInsets": "None", "Enabled": True},
         [hurt, safe, downed, letterbox],
     )
 

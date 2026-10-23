@@ -64,6 +64,11 @@ Every contract name is kept; the paths changed (see `design/ui_contract.md`). Ne
   minimap far enough down that its compass letters clear it.
 - The HUD and the strip are hidden in the lobby and behind the end screens (Victory, Wipe,
   Results: the death screen and the results take the whole screen).
+- The Hud ScreenGui ignores every inset (`ScreenInsets` None) because HudController places
+  the `Safe` frame on Roblox's CoreUISafeInsets itself. With Roblox's default (device
+  insets) a notched phone counted its cut-out twice: the HUD sat ~60 px right and the
+  minimap was cut by the right edge. The Pause and EndScreens screens had the same fault
+  and the same fix; Choices and Overlay lean on the default insets and keep them.
 - The top centre is one list: plate, LEVEL UP!, overtime pill, boss bars, banner, toast,
   pickup popup. Nothing there is placed by a share of the screen any more, so nothing can
   cover anything else; LEVEL UP! sits right under the plate, above the level-up panel. The
