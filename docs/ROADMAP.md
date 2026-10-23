@@ -130,8 +130,8 @@ Wardwood, native grass; no publishing or permanent uploads without authorization
   T6/T7 line, 2026-10-23). Details: `assets/ui/NOTES.Pause.md`.
 - **T4** Audio audit and references for a softer sound direction.
 - **T5** SFX, ambience and music redone; volume balance, nothing harsh or fatiguing.
-- **T6 + T7 — built, awaiting human playtest** (`feat/t6-t7-island-hub`, now `bonk-0.25.1-t8`,
-  design approved by Tiago 2026-10-21; not merged). Skyhold, a floating-island hub built
+- **T6 + T7 — built, first human playtest done, fixes awaiting the next** (`feat/t6-t7-island-hub`,
+  now `bonk-0.26.3-ux`, design approved by Tiago 2026-10-21; not merged). Skyhold, a floating-island hub built
   mostly in Blender, replaces the 2D menu flow: players walk it as their hero, choose heroes
   at plinths, form parties of up to 3 at rune circles and start runs through the portal.
   Locally one server holds the hub and at most one Wardwood run; only the party enters it
@@ -146,15 +146,23 @@ Wardwood, native grass; no publishing or permanent uploads without authorization
   The same line carries the HUD rework (`bonk-0.24.0-t6t7`: XP strip along the top with a
   rainbow until the level-up is chosen, one top-centre column, the timer no longer covering
   its caption; `assets/ui/NOTES.Hud.md`), T8 below, and an art pass (Hall of Heroes
-  contrast, the waterfall). **Not yet validated by a person:** all of it with real players
-  and latency, phone and gamepad. Details: `docs/T6-T7-island-hub.md`.
-- **T8 — built, awaiting human playtest** (on `feat/t6-t7-island-hub`, `bonk-0.25.1-t8`;
-  not merged). The portal crossing: Skyhold's portal is a vortex that surges through a
+  contrast, the waterfall). **After the first playtest (`bonk-0.26.0-ux` to `0.26.3-ux`,
+  run in Studio by Claude 2026-10-23):** the XP strip spans the whole screen under Roblox's
+  bar; the Damage Numbers toggle works (it was never read) and is kept; no overlaps on the
+  death screen or the results, and the HUD hidden behind them; statues without outlines; a
+  notched phone no longer shifts the HUD, pause menu and end screens; a loading screen on
+  joining (ReplicatedFirst) until the island is ready, and the island built ~9 s sooner.
+  **Not yet validated by a person:** all of it with real players and latency, phone and
+  gamepad. Details: `docs/T6-T7-island-hub.md`.
+- **T8 — built, first human playtest done, pacing fix awaiting the next** (on
+  `feat/t6-t7-island-hub`, `bonk-0.26.3-ux`; not merged). The portal crossing: Skyhold's portal is a vortex that surges through a
   party's countdown; the last 1.3 s hold the party still while the camera frames the portal
   and the heroes turn to light; the Wardwood arrival clears the light, drops the camera in and
-  forms every member over a swirl of light; the way home steps out of the portal. About 2.5
-  seconds, server untouched. **Run in Studio by Claude:** solo and in a local multiplayer test
-  (a squad of two together, a watcher on the plaza unaffected, cancelling mid-departure).
+  forms every member over a swirl of light; the way home steps out of the portal. After the
+  playtest each cover of light waits for the world behind it (the hero set down, the ground
+  streamed in, the art drawn; at most 8 s), so the Wardwood is never seen being built.
+  **Run in Studio by Claude:** solo, at 0.5 s replication lag and in local multiplayer tests
+  (a squad together, a watcher unaffected, NOT READY during the departure).
   **Not validated by a person:** the feel, phones, gamepad, low graphics. Details:
   `docs/T8-portal-crossing.md`.
 - **T9** Replayability: build variety, unlocks, challenges, persistent progression, no
