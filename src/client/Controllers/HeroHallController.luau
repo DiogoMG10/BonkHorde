@@ -4,8 +4,8 @@
 -- Each plinth carries one hero (Roster.HeroOrder), drawn here so every player
 -- sees their own locks: a hero they own stands in full colour, turning slowly;
 -- a locked one is cool slate behind a rune veil, its price on the plate. Each
--- statue is drawn with a soft dark edge and stands before its banner in a deep
--- shade of its hero's colour, so it reads in the island's bright sun.
+-- statue stands before its banner in a deep shade of its hero's colour, so it
+-- reads in the island's bright sun without any outline.
 -- Walking up and pressing VIEW (E / gamepad X / a tap) borrows the camera for a
 -- close look and opens the hero's card: starting weapon, passive, runs played,
 -- and CHOOSE, or UNLOCK for Silver. CHOOSE asks the server (PickHero), which
@@ -39,7 +39,6 @@ local STATUE_SCALE = 1.5 -- larger than life, on a pedestal, so it reads across 
 local VIEW_RANGE = 10
 local CLOSE_RANGE = 16 -- walking further than this from the plinth closes the card
 local LOCKED_TINT = Color3.fromRGB(134, 148, 150) -- slate: the paving and the sky are pale already
-local EDGE = Color3.fromRGB(28, 40, 34) -- the statues' soft outline
 local BANNER_SHADE = Color3.fromRGB(26, 38, 32) -- banners deepen towards this behind the statues
 
 function HeroHallController:KnitInit()
@@ -188,14 +187,6 @@ function HeroHallController:_statueModel(heroId: string, locked: boolean): Model
 			part.Transparency = 0.7
 		end
 	end
-	-- a soft dark edge: the statue's shape against the sunlit paving and sky
-	local edge = Instance.new("Highlight")
-	edge.Name = "Edge"
-	edge.FillTransparency = 1
-	edge.OutlineColor = EDGE
-	edge.OutlineTransparency = 0.5
-	edge.DepthMode = Enum.HighlightDepthMode.Occluded
-	edge.Parent = model
 	return model
 end
 

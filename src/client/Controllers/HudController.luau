@@ -949,8 +949,12 @@ end
 
 function HudController:_applyEnabled()
 	local state = self._state
-	-- hidden in the lobby, and for a player who has no hero in a run that is live
-	local enabled = state.phase ~= "Lobby" and (state.me ~= nil or state.phase == "Intro")
+	local phase = state.phase
+	-- hidden in the lobby; behind the end screens once the run is over (the
+	-- death screen and the results take the whole screen, MenuController); and
+	-- for a player who has no hero in a run that is live
+	local over = phase == "Victory" or phase == "Wipe" or phase == "Results"
+	local enabled = phase ~= "Lobby" and not over and (state.me ~= nil or phase == "Intro")
 	if self._hud.Enabled ~= enabled then
 		self._hud.Enabled = enabled
 	end

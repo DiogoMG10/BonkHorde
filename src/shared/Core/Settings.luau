@@ -5,15 +5,16 @@
 --
 --   master, music, sfx   volumes, 0..1 (two decimals)
 --   outlines             enemy outlines on or off (OverlayController's toggle)
+--   numbers              damage numbers on or off (the same)
 --
 -- A key the player never set is simply absent: the client falls back to its
 -- default. A message that carries only some keys changes only those, so
--- saving the volumes can never reset the outlines, or the other way round.
+-- saving the volumes can never reset a toggle, or the other way round.
 
 local Settings = {}
 
 local VOLUMES = { "master", "music", "sfx" }
-local FLAGS = { "outlines" }
+local FLAGS = { "outlines", "numbers" }
 
 --- Only known keys of the right type, volumes clamped: a forged message
 --- stores nothing odd.

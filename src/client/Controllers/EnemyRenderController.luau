@@ -88,6 +88,17 @@ function EnemyRenderController:KnitInit()
 	numbers.Name = "DamageNumbers"
 	numbers.Parent = Workspace
 	self._numberFolder = numbers
+	-- the player's Damage Numbers setting (Settings), applied at once: off, no
+	-- number is made and those on screen go
+	local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+	local function readNumbers()
+		self._showNumbers = playerGui:GetAttribute("DamageNumbers") ~= false
+		if not self._showNumbers then
+			self:_clearNumbers()
+		end
+	end
+	readNumbers()
+	playerGui:GetAttributeChangedSignal("DamageNumbers"):Connect(readNumbers)
 	self:_initClarity()
 end
 
@@ -421,7 +432,7 @@ local NUMBER_SCALE = { [0] = 1, [1] = 1.3, [2] = 1.6 }
 local NUMBER_POP = { [0] = 1.15, [1] = 1.6, [2] = 2.1 } -- how big it starts before it settles
 
 function EnemyRenderController:_number(position: Vector3, amount: number, flags: number)
-	if #self._numbers >= MAX_NUMBERS then
+	if not self._showNumbers or #self._numbers >= MAX_NUMBERS then
 		return
 	end
 	local gui = table.remove(self._numberPool)
@@ -466,6 +477,15 @@ function EnemyRenderController:_number(position: Vector3, amount: number, flags:
 	gui.Enabled = true
 	local jitter = Vector3.new(math.random(-10, 10) / 10, 0, math.random(-10, 10) / 10)
 	table.insert(self._numbers, { gui = gui, part = gui.Adornee, origin = position + jitter, born = os.clock(), pop = NUMBER_POP[crit] })
+end
+
+--- Every number on screen goes back to the pool at once.
+function EnemyRenderController:_clearNumbers()
+	for _, n in self._numbers do
+		n.gui.Enabled = false
+		table.insert(self._numberPool, n.gui)
+	end
+	table.clear(self._numbers)
 end
 
 function EnemyRenderController:_stepNumbers(now: number)

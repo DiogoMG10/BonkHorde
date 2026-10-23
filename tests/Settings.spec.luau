@@ -1,7 +1,7 @@
 --!strict
 -- Specs for the saved player settings (Core/Settings, DataService): the
--- volumes and the enemy-outline toggle survive each other's saves, and a
--- forged message stores nothing odd.
+-- volumes and the toggles (enemy outlines, damage numbers) survive each
+-- other's saves, and a forged message stores nothing odd.
 
 local Settings = require("../src/shared/Core/Settings")
 
@@ -30,6 +30,15 @@ return {
 		local afterToggle = Settings.merge(afterVolumes, { outlines = false })
 		assert(afterToggle.outlines == false, "the toggle did not change")
 		assert(afterToggle.master == 0.2 and afterToggle.music == 0.1 and afterToggle.sfx == 0.3, "a toggle save reset the volumes")
+	end,
+
+	["damage numbers are kept, and saving anything else never turns them back on"] = function()
+		local saved = Settings.merge({}, { master = 0.7, music = 0.45, sfx = 0.55, outlines = false, numbers = false })
+		assert(saved.numbers == false, "the damage numbers toggle was dropped")
+		local after = Settings.merge(saved, { master = 0.3, outlines = true })
+		assert(after.numbers == false, "another save turned the damage numbers back on")
+		assert(Settings.merge(after, { numbers = true }).numbers == true, "turning them on again did not stick")
+		assert(Settings.clean({ numbers = "off" }).numbers == nil, "a forged value was kept")
 	end,
 
 	["a profile from before the toggle loads with outlines unset (off)"] = function()

@@ -131,6 +131,12 @@ def key_cap(z, key="Enter"):
     )
 
 
+# room kept clear for a key cap at each end of a button's caption, so the
+# caption stays centred and keeps a clear gap from the cap ("Enter" is the
+# widest: 12 from the edge, about 52 wide, then 28 of air)
+KEY_ROOM = 92
+
+
 def button(name, caption, size, pos=(0, 0, 0, 0), anchor=(0, 0), z=4, style="moss", px=28, order=None, visible=True, children=()):
     fill, rim, rim_alpha, ink = BUTTON[style]
     props = {
@@ -143,7 +149,9 @@ def button(name, caption, size, pos=(0, 0, 0, 0), anchor=(0, 0), z=4, style="mos
     }
     kids = [corner(12), shade(0.74), stroke(rim, 2, rim_alpha)]
     if caption is not None:
-        kids.append(label("Label", caption, (1, -24, 1, -8), (0.5, 0, 0.5, 0), (0.5, 0.5), z=z + 1, px=px, colour=ink, scaled=px))
+        capped = any(c.get("name") == "KeyCap" for c in children)
+        width = -2 * KEY_ROOM if capped else -24
+        kids.append(label("Label", caption, (1, width, 1, -8), (0.5, 0, 0.5, 0), (0.5, 0.5), z=z + 1, px=px, colour=ink, scaled=px))
     kids += list(children)
     kids.append(focus_ring(z + 3))
     return node("TextButton", name, gui(props, name, size, pos, anchor, z, visible=visible, order=order), kids)
@@ -853,8 +861,8 @@ def results_screen(res):
             ),
             silver_card(res),
             squad,
-            button("ContinueButton", "CONTINUE", (0, 380, 0, 74), (0.5, 0, 1, -18), (0.5, 1), z=4, style="gold", px=32, children=[key_cap(6, "Enter")]),
-            text("ContinueLabel", "Back to the lobby in 12", (0, 360, 0, 24), (1, -40, 1, -55), (1, 0.5), px=18, colour=SOFT, align="Right", valign="Center", wrapped=False),
+            button("ContinueButton", "CONTINUE", (0, 420, 0, 74), (0.5, 0, 1, -18), (0.5, 1), z=4, style="gold", px=32, children=[key_cap(6, "Enter")]),
+            text("ContinueLabel", "Back to Skyhold in 12", (0, 360, 0, 24), (1, -40, 1, -55), (1, 0.5), px=18, colour=SOFT, align="Right", valign="Center", wrapped=False),
         ],
     )
     return frame(
@@ -1341,7 +1349,7 @@ def main():
 
     def results_coop(tree):
         show(tree, "Results")
-        set_props(tree, "ContinueLabel", Text="1/2 ready  ·  back to the lobby in 9")
+        set_props(tree, "ContinueLabel", Text="1/2 ready  ·  back to Skyhold in 9")
 
     def results_solo_phone(tree):
         show(tree, "Results")
@@ -1363,7 +1371,7 @@ def main():
             cap["properties"]["Visible"] = False
         set_props(find(tree, "Time"), "Value", Text="6:12")
         set_props(find(tree, "Kills"), "Value", Text="1,240")
-        set_props(tree, "ContinueLabel", Text="Back to the lobby in 12")
+        set_props(tree, "ContinueLabel", Text="Back to Skyhold in 12")
 
     shoot("Pause_solo", copy.deepcopy(pause), "desktop", 1, pause_case(state_solo))
     shoot("Pause_coop", copy.deepcopy(pause), "desktop", 1, pause_case(state_coop))

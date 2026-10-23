@@ -1602,6 +1602,7 @@ function PauseMenuController:_wireSettings()
 	addSlider("Sensitivity", "Sensitivity", SENS_MIN, SENS_MAX, times)
 
 	UiKit.button(UiKit.find(list, "DamageNumbersToggle"), function()
+		-- takes effect at once; kept in the profile when the menu closes
 		gui:SetAttribute("DamageNumbers", gui:GetAttribute("DamageNumbers") == false)
 		self:_renderSettings()
 	end)

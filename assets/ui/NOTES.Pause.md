@@ -77,12 +77,22 @@ CoreUISafeInsets, as the HUD) holding:
   them at scale 0.6 or more; otherwise a 300 px rail of actions beside BUILD / STATS /
   SETTINGS tabs (`Core/PanelLayout`). At 1080p and 1366x768 every stat fits unscrolled.
 - The end screens are one panel each, drawn as large as fits (results 1300x640, death
-  900x660 design px, margins included).
+  900x660 design px, margins included). While they are up (Victory, Wipe, Results) the
+  in-run HUD and the XP strip are hidden, so nothing of the run shows behind them.
+- A button with a key cap (SKIP, CONTINUE, RESUME, MAP, BACK) keeps its caption out of
+  92 design px at each end (`KEY_ROOM` in `Screens_build.py`): the caption stays centred,
+  shrinks if it must (TextScaled), and never reaches the cap. CONTINUE is 420 wide, so it
+  keeps its full size; READY 2/3 and REQUEST PAUSE shrink instead of running into the cap.
 - Sizes are offsets set by the controllers; full-screen layers are sized in offsets too,
   so they cover the screen whatever the UIScale does to scale components.
 
 ## Checks
 
-Offline only: `rojo build`, `lune run test` (PanelLayout, Inspect, EndVote specs),
+Offline: `rojo build`, `lune run test` (PanelLayout, Inspect, EndVote specs),
 `selene src`, `stylua --check src lune`, and a check that every path the controllers bind
-exists in the models. Nothing here was run in Studio by Claude.
+exists in the models.
+
+Run in Studio by Claude after the playtest (`bonk-0.26.1-ux`, one player, 1593x752): a
+death, SKIP, the results and CONTINUE back to Skyhold, with every drawn text on the end
+screens checked for overlap (none among 4 on the death screen, 32 on the results);
+CONTINUE about 26 px clear of its Enter cap; no HUD behind either screen.

@@ -23,9 +23,9 @@
 -- them and listen for changes:
 --   MasterVolume  0..1   MusicVolume 0..1   SfxVolume 0..1
 --   Sensitivity   0.2..2 (x the configured camera sensitivity; 1 = default)
---   DamageNumbers boolean
+--   DamageNumbers boolean, on by default (EnemyRenderController draws them)
 --   EnemyOutlines boolean, off by default (EnemyRenderController draws them)
--- The volumes and EnemyOutlines are kept in the profile (DataService) between
+-- The volumes and both toggles are kept in the profile (DataService) between
 -- sessions; without a datastore (a local Studio test) they last the session.
 -- The touch buttons do what the keys do. Slide and jump are published as the
 -- attributes BonkSlideHeld and BonkJumpHeld on PlayerGui for MovementController.
@@ -375,6 +375,9 @@ function OverlayController:_loadVolumes()
 	if typeof(saved.outlines) == "boolean" then
 		gui:SetAttribute("EnemyOutlines", saved.outlines)
 	end
+	if typeof(saved.numbers) == "boolean" then
+		gui:SetAttribute("DamageNumbers", saved.numbers)
+	end
 	self._volumesSent = self:_volumeSignature()
 end
 
@@ -382,7 +385,7 @@ function OverlayController:_volumeSignature(): string
 	local gui = UiKit.playerGui()
 	return `{gui:GetAttribute("MasterVolume")}:{gui:GetAttribute("MusicVolume")}:{gui:GetAttribute("SfxVolume")}:{gui:GetAttribute(
 		"EnemyOutlines"
-	)}`
+	)}:{gui:GetAttribute("DamageNumbers")}`
 end
 
 --- Hand changed settings to the profile (on closing the menu).
@@ -398,6 +401,7 @@ function OverlayController:_sendVolumes()
 		out[key] = tonumber(gui:GetAttribute(attribute))
 	end
 	out.outlines = gui:GetAttribute("EnemyOutlines") == true
+	out.numbers = gui:GetAttribute("DamageNumbers") ~= false
 	self._settingsRemote:FireServer(out)
 end
 
