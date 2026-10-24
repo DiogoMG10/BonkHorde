@@ -1,24 +1,29 @@
 --!nonstrict
--- PortalController - Skyhold's portal and the party's crossing through it (T8).
+-- PortalController - the party's way from Skyhold into the Wardwood and back
+-- (T8), and Skyhold's standing portal.
 --
---   the portal   its face is a vortex: turning layers of teal light over a deep
---                core, a rim of light, motes drawn in from the ring and a light
---                on the plaza. Everyone on the island sees it surge through a
---                party's countdown, flare as a party goes through or comes back,
---                and sleep while the run is in use. The ring's runes, the
---                obelisks' crystals, the plaza's inlay and the orbiting stones
---                light with it (HubDecorController speeds the stones up).
---   departure    for the party, the last moments of its countdown: held still,
---                the camera swings up to frame the portal, the heroes glow and
---                turn to light, and the light closes in from the portal. Others
---                on the island see the heroes glow and vanish in a burst.
---   arrival      in the Wardwood the light holds until the hero is set down and
+--   the portal   Skyhold's standing portal: its face is a vortex of teal light
+--                over a deep core, with a rim of light, motes drawn in from the
+--                ring and a light on the plaza. Everyone on the island sees it
+--                surge through any party's countdown, flare as a party sinks
+--                away or comes back, and sleep while the run is in use.
+--   countdown    a portal opens on the ground of the party's rune circle and
+--                grows stronger to the end (everyone on the island sees it); the
+--                party can still move, and hears it hum
+--   departure    the countdown over, the party is held still (the server anchors
+--                them, PartyService); everyone on the island sees them rise a
+--                little and sink into the portal, which closes after them. For
+--                the party the camera frames them and the screen goes black.
+--   arrival      in the Wardwood the black holds until the hero is set down and
 --                the wood round them is there (streamed in, its art drawn, the
---                rest of the party arrived), then clears round the hero, the
---                camera drops in behind them, every member takes shape over a
---                swirl of light on the ground, and the controls come back.
---   home         back from a run: in the light until the island hero stands at
---                the portal and the island round them is there, then out of it.
+--                rest of the party arrived), then until the server says the whole
+--                party is ready (RunDirectorService): then all at once the black
+--                clears, a portal on the ground is open where they start, they
+--                rise out of it, it closes, the camera hands back and the
+--                controls come back as the run begins.
+--   home         back from a run: black until the hero stands on the plaza and
+--                the island round them is there, then the same rise out of a
+--                portal on the plaza; anyone on the island sees the party rise.
 --   joining      the loading screen (ReplicatedFirst/Loading) stays up until the
 --                hero stands on the island and the island round them is there:
 --                this tells it so (the LocalPlayer's BonkReady and BonkLoading).
@@ -29,10 +34,14 @@
 -- short minimum and never past a maximum. Roblox's own "paused" notice is kept
 -- off while a cover is up, since the cover says it better.
 --
--- The server decides everything (PartyService, RunDirectorService): this only
--- watches the hub's parties and the run's phase (StateController). Timings are
--- Config/Skyhold.Crossing, the curves Core/Crossing. Every effect is cosmetic
--- and pcall-isolated; every hold on the controls has a deadline (ControlLock).
+-- Heroes sink and rise through client/Sink (a stand-in of their visible pieces
+-- drawn lower, following their animation; the character itself, its root, the
+-- Humanoid and the physics stay put). The server decides
+-- everything (PartyService, RunDirectorService): this only watches the hub's
+-- parties and the run's phase (StateController). Timings are
+-- Config/Skyhold.Crossing, the curves Core/Crossing, the portal on the ground
+-- client/GroundPortal. Every effect is cosmetic and pcall-isolated; every hold
+-- on the controls has a deadline (ControlLock).
 
 local ContentProvider = game:GetService("ContentProvider")
 local GuiService = game:GetService("GuiService")
@@ -44,9 +53,14 @@ local Workspace = game:GetService("Workspace")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
 local Crossing = require(ReplicatedStorage.Shared.Core.Crossing)
+local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
+local Net = require(ReplicatedStorage.Shared.Net)
 local Skyhold = require(ReplicatedStorage.Shared.Config.Skyhold)
 local SkyholdGen = require(ReplicatedStorage.Shared.Core.SkyholdGen)
 local ControlLock = require(script.Parent.Parent.ControlLock)
+local GroundPortal = require(script.Parent.Parent.GroundPortal)
+local HubUi = require(script.Parent.Parent.HubUi)
+local Sink = require(script.Parent.Parent.Sink)
 local Vfx = require(script.Parent.Parent.Vfx)
 local WorldProbe = require(script.Parent.Parent.WorldProbe)
 
@@ -56,7 +70,8 @@ local player = Players.LocalPlayer
 local CFG = Skyhold.Crossing
 local LOCK = "crossing"
 
-local LIGHT = Color3.fromRGB(226, 255, 246) -- the light the party goes into
+local BLACK = Color3.fromRGB(3, 6, 8) -- the cover
+local LIGHT = Color3.fromRGB(226, 255, 246)
 local MINT = Color3.fromRGB(150, 255, 236)
 local TEAL = Color3.fromRGB(64, 214, 200)
 local DEEP = Color3.fromRGB(16, 92, 112)
@@ -65,9 +80,14 @@ local CREAM = Color3.fromRGB(255, 238, 196)
 local GLOW_TO = Color3.fromRGB(205, 255, 244) -- what the portal's neon pieces brighten towards
 local PLACED_NEAR = 14 -- studs: a hero this near where the server set it down stands there
 local BELOW_ISLAND = 60 -- studs under the island's origin: the Wardwood
+local DEPTH = GameConfig.HeroHeight + 2 -- studs: this far under, a hero is out of sight, weapon and all
+local SHOT_TURN = math.rad(35) -- the arrival's shots look at the party from a little to the side
+local SHOT_SWING = math.rad(50) -- the departure's shot turns at most this far from where the camera looks
+local HOME_NEAR = 14 -- studs from the plaza's return spot: a hero there has just come home
+local WATCH_DELAY = 0.35 -- seconds: someone else coming home rises this long after their portal opens
 
 -- Studio only: `Workspace:SetAttribute("BonkCrossingSlow", 4)` plays the
--- arrival and the homecoming four times slower, to look at them
+-- departure, the arrival and the homecoming four times slower, to look at them
 local function slow(): number
 	local k = RunService:IsStudio() and Workspace:GetAttribute("BonkCrossingSlow")
 	return if typeof(k) == "number" and k > 0 then k else 1
@@ -82,20 +102,25 @@ local function lite(): boolean
 end
 
 function PortalController:KnitInit()
-	self._charge = Crossing.Idle -- shown (eased)
+	self._charge = Crossing.Idle -- the standing portal's, shown (eased)
 	self._flareAt = -math.huge
 	self._totals = {} -- circle -> the countdown's length when it was first seen
-	self._watched = {} -- userId -> { highlight, motes, at } for heroes about to go
 	self._phases = {} -- circle -> the party phase last seen
+	self._departs = {} -- circle -> the portal opening on its ground, and who sinks into it
+	self._rises = {} -- "wardwood" | "home" -> a portal heroes rise out of
+	self._raising = {} -- character -> a hero rising back after a departure called off
+	self._under = {} -- character -> until when a hero who went stays under
+	self._returning = {} -- userId -> when their party came home (hub.run went away)
 	self._departing = nil
 	self._arriving = nil
 	self._home = nil
-	self._neon = nil
 	-- the loading screen is up from the first frame: the hero is held with it
 	self._joining = { gate = Crossing.wait(os.clock()) }
 	self._knitStarted = false
 	self._preloaded = false
 	self._covered = false
+	self._darkNow = 0
+	self._lastRun = nil
 end
 
 function PortalController:KnitStart()
@@ -104,16 +129,25 @@ function PortalController:KnitStart()
 	self._audio = Knit.GetController("AudioController")
 	self._artKit = Knit.GetController("ArtController")
 	self._lite = lite()
-	self:_makeLight()
+	self._ready = Net.client("CrossingReady")
+	self:_makeCover()
 	ControlLock.set(LOCK, true, CFG.join.max + 1)
 	Knit.OnStart():andThen(function()
 		self._knitStarted = true
 	end)
 	task.spawn(function()
-		-- what the island shows first: the portal's vortex and its motes (the
-		-- island's own UI is drawn from text and frames)
+		-- what the island shows first: the portals' vortices and their motes
 		pcall(function()
-			ContentProvider:PreloadAsync({ Vfx.Tex.glow, Vfx.Tex.swirl, Vfx.Tex.ring_thin, Vfx.Tex.dot, Vfx.Tex.star4 })
+			ContentProvider:PreloadAsync({
+				Vfx.Tex.glow,
+				Vfx.Tex.swirl,
+				Vfx.Tex.ring,
+				Vfx.Tex.ring_thin,
+				Vfx.Tex.dot,
+				Vfx.Tex.star4,
+				Vfx.Tex.streak,
+				Vfx.Tex.beam,
+			})
 		end)
 		self._preloaded = true
 	end)
@@ -125,7 +159,7 @@ function PortalController:KnitStart()
 	self._centre = Vector3.new(SkyholdGen.world(Skyhold, p.x, h + Skyhold.PortalCentreHeight, p.z))
 	local r = Skyhold.Return
 	local rh = SkyholdGen.heightAt(plan, r.x, r.z) or 0
-	self._returnAt = Vector3.new(SkyholdGen.world(Skyhold, r.x, rh + 3, r.z))
+	self._returnAt = Vector3.new(SkyholdGen.world(Skyhold, r.x, rh, r.z))
 
 	local state = self._state
 	self._lastPhase = state.phase
@@ -152,77 +186,108 @@ function PortalController:KnitStart()
 		if not ok then
 			broken = true
 			warn(`[PortalController] stopped: {err}`)
-			-- whatever was held is let go, whatever was covered is shown
+			-- whatever was held is let go, whatever was covered is shown, whoever
+			-- was under the ground stands up
 			ControlLock.set(LOCK, false)
 			self._camera:SetCrossing(nil)
-			self:_setLight(0)
+			self:_setDark(0)
+			for _, character in Sink.all() do
+				Sink.clear(character)
+			end
 		end
 	end)
 end
 
---- The portal's charge as drawn now, 0..1 (HubDecorController's stones read it).
+--- The standing portal's charge as drawn now, 0..1 (HubDecorController's stones read it).
 function PortalController:Charge(): number
 	return self._charge
 end
 
--- ------------------------------------------------------------------ the light overlay
+-- ------------------------------------------------------------------ the cover
 
-function PortalController:_makeLight()
+function PortalController:_makeCover()
 	local gui = Instance.new("ScreenGui")
 	gui.Name = "Crossing"
 	gui.ResetOnSpawn = false
 	gui.IgnoreGuiInset = true
+	pcall(function()
+		(gui :: any).ScreenInsets = Enum.ScreenInsets.None
+	end)
 	gui.DisplayOrder = 60 -- over everything the game draws, under Roblox's own menu
 	gui.Enabled = false
 	local fill = Instance.new("Frame")
-	fill.Name = "Light"
-	fill.BackgroundColor3 = LIGHT
+	fill.Name = "Black"
+	fill.BackgroundColor3 = BLACK
 	fill.BackgroundTransparency = 1
 	fill.BorderSizePixel = 0
 	fill.Size = UDim2.fromScale(1, 1)
 	fill.Parent = gui
-	-- the light blooming out of the portal before it fills the screen
-	local bloom = Instance.new("ImageLabel")
-	bloom.Name = "Bloom"
-	bloom.BackgroundTransparency = 1
-	bloom.Image = Vfx.Tex.glow
-	bloom.ImageColor3 = LIGHT
-	bloom.ImageTransparency = 1
-	bloom.AnchorPoint = Vector2.new(0.5, 0.5)
-	bloom.Size = UDim2.fromScale(0, 0)
-	bloom.Parent = gui
+	-- a quiet word, only when the wait runs long: a turning rune and a line
+	local hint = Instance.new("Frame")
+	hint.Name = "Hint"
+	hint.BackgroundTransparency = 1
+	hint.AnchorPoint = Vector2.new(0.5, 1)
+	hint.Position = UDim2.new(0.5, 0, 1, -48)
+	hint.Size = UDim2.fromOffset(420, 40)
+	hint.Visible = false
+	hint.Parent = gui
+	local rune = Instance.new("ImageLabel")
+	rune.Name = "Rune"
+	rune.BackgroundTransparency = 1
+	rune.Image = Vfx.Tex.swirl
+	rune.ImageColor3 = TEAL
+	rune.AnchorPoint = Vector2.new(0.5, 0.5)
+	rune.Position = UDim2.new(0, 20, 0.5, 0)
+	rune.Size = UDim2.fromOffset(34, 34)
+	rune.Parent = hint
+	local text = HubUi.label(hint, "", 22, "body", {
+		Name = "Text",
+		Position = UDim2.fromOffset(46, 0),
+		Size = UDim2.new(1, -46, 1, 0),
+		TextColor3 = Color3.fromRGB(190, 225, 215),
+	})
 	gui.Parent = player:WaitForChild("PlayerGui")
-	self._lightGui, self._lightFill, self._bloom = gui, fill, bloom
+	self._coverGui, self._coverFill = gui, fill
+	self._hintFrame, self._hintRune, self._hintText = hint, rune, text
 end
 
---- How much of the screen is light, 0..1; `bloom` (0..1) grows the glow out of
---- the portal's place on screen first.
-function PortalController:_setLight(amount: number, bloom: number?)
-	local gui = self._lightGui
+--- How much of the screen is black, 0..1.
+function PortalController:_setDark(amount: number)
+	local gui = self._coverGui
 	if not gui then
 		return
 	end
 	amount = math.clamp(amount, 0, 1)
-	bloom = math.clamp(bloom or 0, 0, 1)
-	gui.Enabled = amount > 0.001 or bloom > 0.001
-	self._lightNow = amount
-	self._lightFill.BackgroundTransparency = 1 - amount
-	local image = self._bloom
-	image.ImageTransparency = 1 - bloom * 0.9
-	if bloom > 0 then
-		local camera = Workspace.CurrentCamera
-		local at, onScreen = camera:WorldToViewportPoint(self._centre)
-		if onScreen then
-			image.Position = UDim2.fromOffset(at.X, at.Y)
-		else
-			image.Position = UDim2.fromScale(0.5, 0.45)
-		end
-		local size = 0.2 + 3.2 * bloom * bloom
-		image.Size = UDim2.new(size * 1.2, 0, size * 1.2 * camera.ViewportSize.X / math.max(camera.ViewportSize.Y, 1), 0)
+	gui.Enabled = amount > 0.001
+	self._darkNow = amount
+	self._coverFill.BackgroundTransparency = 1 - amount
+	if amount < 0.99 then
+		self:_hint(nil)
 	end
 end
 
--- ------------------------------------------------------------------ the portal
+--- The quiet line under the black while a wait runs long (nil: none).
+function PortalController:_hint(text: string?)
+	local frame = self._hintFrame
+	if not frame then
+		return
+	end
+	if not text then
+		frame.Visible = false
+		self._hintSince = nil
+		return
+	end
+	local now = os.clock()
+	self._hintSince = self._hintSince or now
+	local k = math.clamp((now - self._hintSince) / 0.5, 0, 1)
+	frame.Visible = true
+	self._hintText.Text = text
+	self._hintText.TextTransparency = 1 - 0.85 * k
+	self._hintRune.ImageTransparency = 1 - 0.8 * k
+	self._hintRune.Rotation = (now * 90) % 360
+end
+
+-- ------------------------------------------------------------------ Skyhold's standing portal
 
 -- the island's art, once it is built
 function PortalController:_art(name: string): Instance?
@@ -329,7 +394,6 @@ function PortalController:_vortex()
 	end
 	self._vortexData = {
 		face = face,
-		faceBase = { colour = face.Color, transparency = face.Transparency },
 		card = card,
 		folder = folder,
 		layers = layers,
@@ -360,6 +424,8 @@ function PortalController:_drawPortal(dt: number, onIsland: boolean)
 			if l and (not left or l < left) then
 				left, total = l, self._totals[party.circle] or l
 			end
+		elseif party.phase == "departing" then
+			left, total = 0, 1 -- a party sinking away: full
 		end
 	end
 	local busy = state.hub.run ~= nil
@@ -410,7 +476,7 @@ end
 
 -- ------------------------------------------------------------------ parties on the island
 
--- countdown lengths, and the moment each party goes through
+-- countdown lengths; the moment a party sinks away; a party coming home
 function PortalController:_onHub()
 	local state = self._state
 	local seen = {}
@@ -420,9 +486,6 @@ function PortalController:_onHub()
 		if party.phase == "countdown" and before ~= "countdown" then
 			self._totals[party.circle] = state:CountdownLeft(party) or Skyhold.CountdownSeconds
 		end
-		if party.phase == "run" and (before == "countdown" or before == "waiting") then
-			self:_partyWent(party)
-		end
 		self._phases[party.circle] = party.phase
 	end
 	for circle in self._phases do
@@ -430,115 +493,187 @@ function PortalController:_onHub()
 			self._phases[circle] = nil
 		end
 	end
-end
-
--- a party went through: the portal surges, its heroes vanish in light
-function PortalController:_partyWent(party)
-	self._flareAt = os.clock()
-	if not self._state:OnIsland() then
-		return
-	end
-	pcall(Vfx.burst, "PortalSurge", self._centre)
-	for _, uid in party.members do
-		local watched = self._watched[uid]
-		local at = watched and watched.at
-		if at then
-			pcall(Vfx.burst, "PortalDepart", at)
+	-- the run is over: its party is on its way back to the plaza
+	local run = state.hub.run
+	local last = self._lastRun
+	if last and not run then
+		local now = os.clock()
+		for _, uid in last.members or {} do
+			self._returning[uid] = now
 		end
 	end
-	local v = self._vortexData
-	if v and not table.find(party.members, player.UserId) then
-		-- heard from the portal by everyone else on the island
-		pcall(function()
-			local sound = self._audio:PlayAt("portal_open", v.card, 0.05)
-			if sound then
-				sound.RollOffMaxDistance = 260
-			end
-		end)
-	end
+	self._lastRun = run
 end
 
-local function setFade(character: Model?, amount: number)
-	if not character then
-		return
-	end
-	for _, d in character:GetDescendants() do
-		if d:IsA("BasePart") or d:IsA("Decal") then
-			d.LocalTransparencyModifier = amount
-		end
-	end
+-- the ground at a place on the island, with whatever stands on it there (a
+-- rune circle's stone), or nil
+local function islandGround(at: Vector3): Vector3?
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Include
+	params.FilterDescendantsInstances = { Workspace.Terrain, Workspace:FindFirstChild("Skyhold") }
+	local hit = Workspace:Raycast(at + Vector3.new(0, 12, 0), Vector3.new(0, -40, 0), params)
+	return hit and hit.Position
 end
 
--- the heroes of a party in its last moments glow and turn to light, everyone
--- on the island seeing it, and are watched so the burst that takes them
--- happens where they stood
-function PortalController:_watchParties()
+-- the Wardwood's ground under (x, z), or nil while it has not streamed in
+local function woodGround(x: number, z: number, near: number): Vector3?
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Include
+	params.FilterDescendantsInstances = { Workspace.Terrain }
+	local hit = Workspace:Raycast(Vector3.new(x, near + 20, z), Vector3.new(0, -60, 0), params)
+	return hit and hit.Position
+end
+
+local function onIslandRoot(character: Model?): BasePart?
+	local root = character and character:FindFirstChild("HumanoidRootPart")
+	if root and root:IsA("BasePart") and root.Position.Y > Skyhold.Origin[2] - BELOW_ISLAND then
+		return root
+	end
+	return nil
+end
+
+-- a portal opening on a circle's ground, for its party's countdown and departure
+function PortalController:_newDepart(circle: number)
+	local c = Skyhold.Circles[circle]
+	local h = SkyholdGen.heightAt(self._plan, c.x, c.z) or 0
+	local guess = Vector3.new(SkyholdGen.world(Skyhold, c.x, h, c.z))
+	local centre = islandGround(guess) or guess
+	local portal = GroundPortal.new(centre, Skyhold.CircleRadius + 0.5, self._lite)
+	portal:flash(false)
+	local g = { portal = portal, centre = centre, circle = circle, members = {}, charge = 0.25, open = 0 }
+	self._departs[circle] = g
+	return g
+end
+
+-- every party counting down, waiting or departing: its portal, and its heroes
+-- sinking into it, as everyone on the island sees them
+function PortalController:_islandDepartures(dt: number)
 	local state = self._state
-	local want = {} -- userId -> how far that party's departure has gone
-	if state:OnIsland() then
+	local onIsland = state:OnIsland()
+	local seen = {}
+	if onIsland then
 		for _, party in state.hub.circles or {} do
-			local left = party.phase == "countdown" and state:CountdownLeft(party)
-			if left and left <= CFG.lead then
-				local d = Crossing.departure(left, CFG)
-				for _, uid in party.members do
-					want[uid] = d
+			local phase = party.phase
+			if phase == "countdown" or phase == "waiting" or phase == "departing" then
+				seen[party.circle] = true
+				local g = self._departs[party.circle]
+				if g and g.closing then
+					g.portal:destroy()
+					g = nil
+				end
+				g = g or self:_newDepart(party.circle)
+				self:_drawDepart(g, party, dt)
+			end
+		end
+	end
+	local now = os.clock()
+	for circle, g in self._departs do
+		if not seen[circle] and not g.closing then
+			-- into the run, or called off: the portal closes either way
+			local party = state:PartyAt(circle)
+			local went = g.departed and party ~= nil and party.phase == "run"
+			g.closing = { since = now, from = g.open, went = went }
+			if not went then
+				g.portal:flash(true)
+			end
+			for character in g.members do
+				if went then
+					self._under[character] = now + 6 -- until the run takes the character away
+				else
+					self._raising[character] = { from = Sink.studs(character), since = now }
 				end
 			end
 		end
+		if g.closing then
+			local k = math.clamp((now - g.closing.since) / 0.45, 0, 1)
+			g.portal:draw(g.closing.from * (1 - Crossing.smooth(k)), g.charge * (1 - k), 0, dt)
+			if k >= 1 then
+				g.portal:destroy()
+				self._departs[circle] = nil
+			end
+		end
 	end
-	for uid, d in want do
+end
+
+function PortalController:_drawDepart(g, party, dt: number)
+	local state = self._state
+	local left = state:CountdownLeft(party) or 0
+	if party.phase == "countdown" then
+		local total = self._totals[party.circle] or left
+		local k = Crossing.gather(left, total, CFG.portal.open)
+		g.open = k.open
+		g.charge += (k.charge - g.charge) * math.min(1, dt * 6)
+		g.portal:draw(g.open, g.charge, 0, dt)
+		return
+	elseif party.phase == "waiting" then
+		-- the portal is busy: this one idles, open, until the party's turn
+		g.open += (1 - g.open) * math.min(1, dt * 4)
+		g.charge += (0.3 - g.charge) * math.min(1, dt * 3)
+		g.portal:draw(g.open, g.charge, 0, dt)
+		return
+	end
+	-- departing: seconds since the countdown ended, by the server's clock
+	local t = (CFG.descent * slow() - left) / slow()
+	local d = Crossing.descent(t, CFG.depart)
+	if not g.departed then
+		g.departed = true
+		self._flareAt = os.clock()
+		pcall(Vfx.burst, "PortalSurge", self._centre)
+		g.portal:flash(false)
+		if not table.find(party.members, player.UserId) then
+			-- heard from the circle by everyone else on the island
+			pcall(function()
+				local sound = self._audio:PlayAt("portal_open", g.portal.folder:FindFirstChild("Card"), 0.05)
+				if sound then
+					sound.RollOffMaxDistance = 220
+				end
+			end)
+		end
+	end
+	if d.gone and not g.swallowed then
+		g.swallowed = true
+		pcall(Vfx.burst, "PortalDepart", g.centre + Vector3.new(0, 1, 0))
+	end
+	g.open = d.open
+	g.charge = d.charge
+	g.portal:draw(d.open, d.charge, if d.gone then d.open else 1, dt)
+	for _, uid in party.members do
 		local other = Players:GetPlayerByUserId(uid)
 		local character = other and other.Character
-		local root = character and character:FindFirstChild("HumanoidRootPart")
-		local w = self._watched[uid]
-		if root then
-			if not w or w.character ~= character then
-				if w then
-					self:_unwatch(uid)
-				end
-				local highlight = Instance.new("Highlight")
-				highlight.FillColor = MINT
-				highlight.OutlineColor = LIGHT
-				highlight.FillTransparency = 1
-				highlight.OutlineTransparency = 1
-				highlight.DepthMode = Enum.HighlightDepthMode.Occluded
-				highlight.Parent = character
-				local motes = if self._lite then {} else Vfx.attach("DepartMotes", root)
-				w = { character = character, highlight = highlight, motes = motes }
-				self._watched[uid] = w
-			end
-			w.at = root.Position
-			w.highlight.FillTransparency = 1 - 0.6 * d.k
-			w.highlight.OutlineTransparency = 1 - 0.85 * d.k
-			setFade(character, d.dissolve * 0.85)
-		end
-	end
-	for uid in self._watched do
-		if not want[uid] then
-			self:_unwatch(uid)
+		if character and onIslandRoot(character) then
+			g.members[character] = true
+			self._raising[character] = nil
+			Sink.set(character, DEPTH * d.sink, DEPTH)
 		end
 	end
 end
 
-function PortalController:_unwatch(uid: number)
-	local w = self._watched[uid]
-	if not w then
-		return
+-- heroes rising back after a departure was called off, and heroes who went
+-- staying under until the run takes their island character away
+function PortalController:_islandSinking()
+	local now = os.clock()
+	for character, r in self._raising do
+		local k = math.clamp((now - r.since) / 0.45, 0, 1)
+		if not character.Parent or k >= 1 then
+			self._raising[character] = nil
+			Sink.clear(character)
+		else
+			Sink.set(character, r.from * (1 - Crossing.smooth(k)), DEPTH)
+		end
 	end
-	self._watched[uid] = nil
-	pcall(function()
-		w.highlight:Destroy()
-		for _, e in w.motes do
-			e:Destroy()
+	for character, untilAt in self._under do
+		if not character.Parent then
+			self._under[character] = nil
+			Sink.clear(character)
+		elseif now > untilAt then
+			-- the run never took them (it could not start): they stand up again
+			self._under[character] = nil
+			self._raising[character] = { from = Sink.studs(character), since = now }
 		end
-		-- called off: the hero is whole again (a hero who went is gone anyway)
-		if w.character.Parent then
-			setFade(w.character, 0)
-		end
-	end)
+	end
 end
 
--- ------------------------------------------------------------------ this player's crossing
+-- ------------------------------------------------------------------ this player's departure
 
 --- My party, if it is on a circle.
 function PortalController:_myParty()
@@ -547,85 +682,201 @@ function PortalController:_myParty()
 	return mine and mine.circle and state:PartyAt(mine.circle)
 end
 
--- the last moments of my party's countdown, on the island
-function PortalController:_departure()
-	local state = self._state
-	local party = self:_myParty()
-	local left = party and party.phase == "countdown" and state:CountdownLeft(party)
-	local d = if left and state:OnIsland() then Crossing.departure(left, CFG) else nil
-	local going = self._departing
-	if d and d.active then
-		if not going then
-			going = { since = os.clock(), opened = false }
-			self._departing = going
-			local hum = self._audio:Play("shrine_charge_loop")
-			if hum then
-				hum.Volume = 0
-				TweenService:Create(hum, TweenInfo.new(0.5), { Volume = 0.32 }):Play()
-			end
-			going.hum = hum
-		end
-		ControlLock.set(LOCK, true, CFG.lead + CFG.arrive.max + 1.5)
-		local root = state:Root()
-		if root then
-			-- behind the hero, a little above, framing the portal over them
-			local away = root.Position - self._centre
-			away = Vector3.new(away.X, 0, away.Z)
-			away = if away.Magnitude > 0.1 then away.Unit else Vector3.zAxis
-			local eye = root.Position + away * 11 + Vector3.new(0, 6.5, 0)
-			self._camera:SetCrossing(CFrame.lookAt(eye, self._centre), 74 + 10 * d.camera, d.camera)
-		end
-		if going.hum then
-			going.hum.PlaybackSpeed = 0.9 + 0.7 * d.k
-		end
-		if d.light > 0 and not going.opened then
-			going.opened = true
-			self._audio:Play("portal_open")
-		end
-		self:_setLight(d.light * d.light, d.light)
-		going.light = d.light
-		return
+--- The departure's shot: the party and its portal, close and from a little
+--- above, from where the camera already looks, turned towards the plaza's side
+--- (Skyhold's portal behind them) by at most SHOT_SWING, so it never swings
+--- across.
+function PortalController:_departShot(g): CFrame
+	local centre = g.centre
+	local function angle(v: Vector3): number
+		return math.atan2(v.X, v.Z)
 	end
-	if not going then
-		return
-	end
-	-- the countdown is over: through the portal (the run's intro takes over), or
-	-- called off (back on the island as we were)
-	local through = (party and party.phase == "run") or state.phase == "Intro"
-	if through then
-		self:_setLight(1)
-		self:_endDeparture(false)
-	else
-		self:_endDeparture(true)
-	end
+	local away = centre - self._centre
+	local camera = Workspace.CurrentCamera
+	local from = if camera then camera.CFrame.Position - centre else away
+	local a, goal = angle(from), angle(away)
+	local turn = (goal - a + math.pi) % (2 * math.pi) - math.pi
+	a += math.clamp(turn, -SHOT_SWING, SHOT_SWING)
+	local dir = Vector3.new(math.sin(a), 0, math.cos(a))
+	local r = g.portal.radius
+	local eye = centre + dir * (8 + r * 0.9) + Vector3.new(0, 4.5 + r * 0.35, 0)
+	return CFrame.lookAt(eye, centre + Vector3.new(0, 2.2, 0))
 end
 
-function PortalController:_endDeparture(restore: boolean)
-	local going = self._departing
-	self._departing = nil
-	if not going then
-		return
-	end
-	if going.hum then
-		local hum = going.hum
+-- the countdown's hum, rising with it, for the party only
+function PortalController:_countdownHum(party)
+	local state = self._state
+	local counting = state:OnIsland() and party ~= nil and party.phase == "countdown"
+	local hum = self._hum
+	if counting then
+		if not hum or not hum.Parent then
+			hum = self._audio:Play("shrine_charge_loop")
+			if hum then
+				hum.Volume = 0
+			end
+			self._hum = hum
+		end
+		if hum then
+			local left = state:CountdownLeft(party) or 0
+			local total = self._totals[party.circle] or Skyhold.CountdownSeconds
+			local k = 1 - math.clamp(left / math.max(total, 0.1), 0, 1)
+			hum.Volume = 0.08 + 0.22 * k
+			hum.PlaybackSpeed = 0.85 + 0.55 * k
+		end
+	elseif hum then
+		self._hum = nil
 		TweenService:Create(hum, TweenInfo.new(0.35), { Volume = 0 }):Play()
 		task.delay(0.4, function()
 			hum:Destroy()
 		end)
 	end
-	if restore then
+end
+
+-- my party sinking into its portal: held, the camera framing us, the black
+function PortalController:_myDeparture()
+	local state = self._state
+	local party = self:_myParty()
+	self:_countdownHum(party)
+	local going = self._departing
+	if state:OnIsland() and party and party.phase == "departing" then
+		local left = state:CountdownLeft(party) or 0
+		local d = Crossing.descent((CFG.descent * slow() - left) / slow(), CFG.depart)
+		if not going then
+			going = { since = os.clock() }
+			self._departing = going
+			self._unwinding = nil
+			self._audio:Play("portal_open")
+		end
+		ControlLock.set(LOCK, true, CFG.descent * slow() + 2)
+		local g = self._departs[party.circle]
+		if g then
+			-- chosen once, from where the camera was when it began
+			going.shot = going.shot or self:_departShot(g)
+			self._camera:SetCrossing(going.shot, 60, d.camera)
+		end
+		self:_setDark(d.dark)
+		going.dark = d.dark
+		return
+	end
+	if not going then
+		return
+	end
+	self._departing = nil
+	if state.phase == "Intro" or (party and party.phase == "run") then
+		self:_setDark(1) -- into the run: the arrival takes it from here
+	else
+		-- called off after all (the run could not start): back as we were
 		ControlLock.set(LOCK, false)
 		self._camera:SetCrossing(nil)
-		-- the light goes back the way it came
-		local from = going.light or 0
-		if from > 0 then
-			local started = os.clock()
-			self._unwinding = { from = from, started = started }
-		else
-			self:_setLight(0)
-		end
+		self._unwinding = { from = going.dark or 0, started = os.clock() }
 	end
 end
+
+-- ------------------------------------------------------------------ portals heroes rise out of
+
+--- A portal on the ground at `centre` that heroes rise out of (`key`:
+--- "wardwood" or "home"), with the curve they rise on.
+function PortalController:_rise(key: string, centre: Vector3, radius: number, cfg: Crossing.Rise)
+	local g = self._rises[key]
+	if g and g.closeFrom then
+		-- a closing portal opens again for whoever comes next
+		g.closeFrom = nil
+	end
+	if not g then
+		g = {
+			portal = GroundPortal.new(centre, radius, self._lite),
+			centre = centre,
+			cfg = cfg,
+			risers = {}, -- character -> { startAt = os.clock()?, done }
+			created = os.clock(),
+		}
+		self._rises[key] = g
+	end
+	return g
+end
+
+--- `character` will rise out of `g`: from `startAt` (os.clock), or held under
+--- until it is given one.
+function PortalController:_riser(g, character: Model, startAt: number?)
+	local r = g.risers[character]
+	if not r then
+		r = { startAt = startAt }
+		g.risers[character] = r
+		Sink.set(character, DEPTH, DEPTH)
+	elseif startAt and not r.startAt then
+		r.startAt = startAt
+	end
+	return r
+end
+
+--- Every portal heroes rise out of: each hero on their own curve, the portal
+--- open while any is still under or rising, then closing after them.
+function PortalController:_stepRises(dt: number)
+	local now = os.clock()
+	for key, g in self._rises do
+		local cfg = g.cfg
+		local busy = false
+		local column = 0
+		for character, r in g.risers do
+			if not character.Parent then
+				g.risers[character] = nil
+			elseif not r.startAt then
+				busy = true
+				Sink.set(character, DEPTH, DEPTH)
+			elseif not r.done then
+				local t = (now - r.startAt) / slow()
+				local e = Crossing.emerge(t, cfg)
+				local u = (t - cfg.riseFrom) / cfg.rise
+				if u >= 1 then
+					r.done = true
+					Sink.clear(character)
+				else
+					busy = true
+					Sink.set(character, DEPTH * e.sink, DEPTH)
+					if u > 0 then
+						column = math.max(column, math.sin(math.clamp(u, 0, 1) * math.pi))
+						if not r.burst then
+							r.burst = true
+							local root = character:FindFirstChild("HumanoidRootPart")
+							if root then
+								pcall(Vfx.burst, "PortalDepart", root.Position - Vector3.new(0, 1.5, 0))
+							end
+						end
+					end
+				end
+			end
+		end
+		local open, charge
+		if busy then
+			open = Crossing.out((now - g.created) / (CFG.portal.open * 0.5))
+			charge = 0.85
+		else
+			if not g.closeFrom then
+				g.closeFrom = now
+				g.portal:flash(true)
+			end
+			local k = math.clamp((now - g.closeFrom) / (cfg.close * slow()), 0, 1)
+			open, charge = 1 - Crossing.smooth(k), 0.85 * (1 - k)
+			if k >= 1 then
+				g.portal:destroy()
+				self._rises[key] = nil
+			end
+		end
+		g.portal:draw(open, charge, column, dt)
+	end
+end
+
+--- The rise's shot: the portal and the heroes in it from behind and above the
+--- way the hero's own camera looks, a little to the side; `weight` of the way
+--- there from the hero's own camera.
+function PortalController:_riseShot(centre: Vector3, radius: number, weight: number)
+	local yaw = self._camera:Yaw() + SHOT_TURN
+	local back = Vector3.new(math.sin(yaw), 0, math.cos(yaw))
+	local eye = centre + back * (10 + radius * 1.2) + Vector3.new(0, 6 + radius * 0.5, 0)
+	self._camera:SetCrossing(CFrame.lookAt(eye, centre + Vector3.new(0, 2, 0)), 70, weight)
+end
+
+-- ------------------------------------------------------------------ the run's phase
 
 -- the run's phase: into the Wardwood, or home
 function PortalController:_onPhase()
@@ -636,23 +887,36 @@ function PortalController:_onPhase()
 		return
 	end
 	if phase == "Intro" then
-		self:_endDeparture(false)
 		self._unwinding = nil
-		self._home = nil
-		ControlLock.set(LOCK, true, CFG.arrive.max + CFG.release + 1.5)
-		-- the light finishes closing in from wherever the departure had got to
-		-- (straight into a run, with no countdown: from nothing, quickly)
+		self._departing = nil -- through: the departure is over, the black stays
+		self:_finishHome()
+		ControlLock.set(LOCK, true, CFG.arriveGate.max + CFG.revealMax + 3)
 		local now = os.clock()
-		self._arriving = { since = now, gate = Crossing.wait(now), revealAt = nil, formed = {}, fromLight = self._lightNow or 0 }
+		-- black from wherever the departure had got to (straight into a run, with
+		-- no departure: from nothing, quickly)
+		self._arriving = { since = now, gate = Crossing.wait(now), fromDark = self._darkNow or 0 }
 	elseif phase == "Lobby" and last ~= "Lobby" then
 		self:_finishArrival()
+		self:_dropRise("wardwood")
 		self._flareAt = os.clock()
-		self:_setLight(1)
-		ControlLock.set(LOCK, true, CFG.home.max + 1)
-		self._home = { since = os.clock(), gate = Crossing.wait(os.clock()), revealAt = nil }
+		self:_setDark(1)
+		ControlLock.set(LOCK, true, CFG.homeGate.max + 3)
+		self._home = { since = os.clock(), gate = Crossing.wait(os.clock()) }
 	elseif (phase == "Results" or phase == "Victory" or phase == "Wipe") and self._arriving then
 		-- the run ended before the hero was seen: nothing more to wait for
 		self:_finishArrival()
+		self:_dropRise("wardwood")
+	end
+end
+
+function PortalController:_dropRise(key: string)
+	local g = self._rises[key]
+	if g then
+		for character in g.risers do
+			Sink.clear(character)
+		end
+		g.portal:destroy()
+		self._rises[key] = nil
 	end
 end
 
@@ -800,24 +1064,20 @@ function PortalController:_join()
 	end
 end
 
-function PortalController:_reveal()
-	local a = self._arriving
-	if not a or a.revealAt then
-		return
-	end
-	a.revealAt = os.clock()
+-- ------------------------------------------------------------------ the arrival in the Wardwood
+
+-- where the party rises in the Wardwood: the spawn's centre (MapService.SpawnPoint)
+function PortalController:_woodPortal()
+	local state = self._state
+	local n = #self:_squad()
+	local spread = if n > 1 then GameConfig.SpawnSpacing else 0
+	local near = state:HeightAt(0, 0)
+	local ground = woodGround(0, 0, near)
+	local centre = if ground then ground else Vector3.new(0, near, 0)
+	return centre, Crossing.radius(spread, CFG.portal)
 end
 
--- a hero stepping out of the light: a swirl on the ground, a ring, a burst
-local function arriveAt(position: Vector3)
-	local ground = position - Vector3.new(0, 2.8, 0)
-	local k = slow()
-	pcall(Vfx.ground, ground, "swirl", MINT, 1.5, 7.5, 1.0 * k, { spin = 220, alpha = 0.15, hold = 0.35 })
-	pcall(Vfx.ground, ground + Vector3.new(0, 0.05, 0), "ring_thin", LIGHT, 2, 16, 0.85 * k, { alpha = 0.1, hold = 0.2 })
-	pcall(Vfx.burst, "PortalArrive", position)
-end
-
-function PortalController:_arrival()
+function PortalController:_arrival(dt: number)
 	local a = self._arriving
 	if not a then
 		return
@@ -826,64 +1086,91 @@ function PortalController:_arrival()
 	local now = os.clock()
 	local root = state:Root()
 	if not a.revealAt then
-		-- in the light until this player's Wardwood hero is set down and the wood
-		-- round them is there: streamed in, its art drawn (all at once, unseen),
-		-- the rest of the party arrived; a while at most (CFG.arrive)
-		local into = math.min(1, a.fromLight + (now - a.since) / 0.2)
-		self:_setLight(into)
+		-- black until this player's Wardwood hero is set down and the wood round
+		-- them is there: streamed in, its art drawn (all at once, unseen), the rest
+		-- of the party arrived; a while at most (CFG.arriveGate)
+		self:_setDark(math.min(1, a.fromDark + (now - a.since) / 0.2))
 		local facts = self:_facts(false)
 		if facts.placed and root then
-			-- the camera already waits where it will drop in from, so what it will
-			-- see is what is drawn and streamed under the light
-			self:_dropIn(root, 1)
+			-- under the black: the portal open where the party starts, every hero
+			-- already set down held under it, the camera where it will look from
+			if facts.streamed and not a.portal then
+				local centre, radius = self:_woodPortal()
+				a.centre, a.radius = centre, radius
+				a.portal = self:_rise("wardwood", centre, radius, CFG.arrive)
+			end
+			if a.portal then
+				for _, mate in self:_squad() do
+					if placed(mate.Character, false) then
+						self:_riser(a.portal, mate.Character, nil)
+					end
+				end
+				self:_riseShot(a.centre, a.radius, 1)
+			end
 			local drawn = self._artKit:Prepare(root.Position)
-			facts.detail = facts.streamed and drawn and self:_squadPlaced()
+			facts.detail = facts.streamed and drawn and self:_squadPlaced() and a.portal ~= nil
 		end
-		local ready, why = Crossing.step(a.gate, facts, now, CFG.arrive)
-		if not (ready and into >= 1) then
+		local ready, why = Crossing.step(a.gate, facts, now, CFG.arriveGate)
+		if ready and not a.readyAt then
+			a.readyAt, a.why = now, why
+			a.run = state.run
+			if self._ready then
+				self._ready:FireServer(a.run)
+			end
+		end
+		-- then the server's word that the whole party is ready (a while at most)
+		local revealed = state.reveal and a.run ~= nil and state.run == a.run
+		if not (ready and (revealed or now - a.readyAt >= CFG.revealMax)) then
+			if a.readyAt then
+				Crossing.waitedFor(a.gate, "party", dt)
+			end
+			if now - a.since > CFG.hint then
+				self:_hint(if a.readyAt then "Waiting for your party..." else "Opening the way...")
+			end
 			return
 		end
-		self:_shown("the Wardwood", a.gate, why)
-		self:_reveal()
+		self:_shown("the Wardwood", a.gate, a.why)
+		a.revealAt = now
+		if not a.portal and root then
+			local centre, radius = self:_woodPortal()
+			a.centre, a.radius = centre, radius
+			a.portal = self:_rise("wardwood", centre, radius, CFG.arrive)
+		end
+		if a.portal then
+			for character, r in a.portal.risers do
+				r.startAt = r.startAt or now
+				if not character.Parent then
+					a.portal.risers[character] = nil
+				end
+			end
+		end
+		pcall(function()
+			self._audio:Play("portal_enter", 0.04)
+		end)
 	end
 	local t = (now - a.revealAt) / slow()
-	local arc = Crossing.arrival(t, CFG)
-	self:_setLight(arc.light)
-	if inWardwood(root) then
-		self:_dropIn(root, arc.camera)
-	else
-		self._camera:SetCrossing(nil) -- no hero to drop in on (yet): the camera is its own
-	end
-	-- every member takes shape as they appear (the server sets them down together)
-	for _, mate in self:_squad() do
-		local character = mate.Character
-		local mateRoot = character and character:FindFirstChild("HumanoidRootPart")
-		if inWardwood(mateRoot) then
-			local formed = a.formed[mate]
-			if not formed or formed.character ~= character then
-				formed = { character = character, at = now }
-				a.formed[mate] = formed
-				arriveAt(mateRoot.Position)
+	local e = Crossing.emerge(t, CFG.arrive)
+	self:_setDark(e.dark)
+	if a.portal then
+		-- anyone set down after the reveal rises on their own
+		for _, mate in self:_squad() do
+			local character = mate.Character
+			if character and placed(character, false) and not a.portal.risers[character] then
+				self:_riser(a.portal, character, now)
 			end
-			local k = Crossing.smooth(((now - formed.at) / slow() - 0.05) / CFG.materialise)
-			setFade(character, 1 - k)
 		end
 	end
-	if not arc.held then
+	if a.centre and inWardwood(root) then
+		self:_riseShot(a.centre, a.radius, e.camera)
+	else
+		self._camera:SetCrossing(nil)
+	end
+	if not e.held then
 		ControlLock.set(LOCK, false)
 	end
-	if arc.done and t > CFG.materialise + 0.3 then
+	if e.done then
 		self:_finishArrival()
 	end
-end
-
--- the arrival's camera: from above and behind the hero, `weight` of the way
--- there from its own place behind them
-function PortalController:_dropIn(root: BasePart, weight: number)
-	local yaw = self._camera:Yaw()
-	local back = Vector3.new(math.sin(yaw), 0, math.cos(yaw))
-	local eye = root.Position + back * 19 + Vector3.new(0, 15, 0)
-	self._camera:SetCrossing(CFrame.lookAt(eye, root.Position + Vector3.new(0, 2, 0)), 82, weight)
 end
 
 function PortalController:_finishArrival()
@@ -892,54 +1179,131 @@ function PortalController:_finishArrival()
 	if not a then
 		return
 	end
-	for _, formed in a.formed do
-		setFade(formed.character, 0)
-	end
 	self._camera:SetCrossing(nil)
 	ControlLock.set(LOCK, false)
-	self:_setLight(0)
+	self:_setDark(0)
 end
 
--- home from a run: in the light until the island hero is at the portal
+-- ------------------------------------------------------------------ home
+
+-- where a party coming home rises: the plaza's return spot
+function PortalController:_homePortal(count: number)
+	local centre = islandGround(self._returnAt) or self._returnAt
+	return centre, Crossing.radius(if count > 1 then 4 else 0, CFG.portal)
+end
+
+-- home from a run: black until the island hero is on the plaza, then up out of
+-- a portal there
 function PortalController:_homecoming()
 	local h = self._home
 	if not h then
 		return
 	end
 	local now = os.clock()
-	local root = self._state:Root()
 	if not h.revealAt then
-		-- in the light until the island hero stands at the portal and the island
-		-- round them is there, the portal lit again; a while at most (CFG.home)
+		-- black until the island hero stands on the plaza and the island round them
+		-- is there, the portal lit again; a while at most (CFG.homeGate)
+		self:_setDark(1)
 		local facts = self:_facts(true)
 		if facts.placed and facts.streamed then
 			facts.detail = self:_vortex() ~= nil
-		end
-		local ready, why = Crossing.step(h.gate, facts, now, CFG.home)
-		if ready then
-			self:_shown("Skyhold (home)", h.gate, why)
-			h.revealAt = now
-			self._flareAt = now
-			ControlLock.set(LOCK, false)
-			if root then
-				arriveAt(root.Position) -- out of the portal, onto the plaza
+			if not h.portal then
+				local party = self:_myParty()
+				local count = if party then #party.members else 1
+				h.centre, h.radius = self:_homePortal(count)
+				h.portal = self:_rise("home", h.centre, h.radius, CFG.home)
 			end
-			pcall(function()
-				local sound = self._audio:Play("portal_enter", 0.04)
-				if sound then
-					sound.Volume *= 0.7
-				end
-			end)
-		else
-			self:_setLight(1)
+			self:_riser(h.portal, player.Character, nil)
+			self:_riseShot(h.centre, h.radius, 1)
+		end
+		local ready, why = Crossing.step(h.gate, facts, now, CFG.homeGate)
+		if not ready then
+			if now - h.since > CFG.hint then
+				self:_hint("Back to Skyhold...")
+			end
 			return
 		end
+		self:_shown("Skyhold (home)", h.gate, why)
+		h.revealAt = now
+		self._flareAt = now
+		if h.portal then
+			for _, r in h.portal.risers do
+				r.startAt = r.startAt or now
+			end
+		end
+		pcall(function()
+			local sound = self._audio:Play("portal_enter", 0.04)
+			if sound then
+				sound.Volume *= 0.7
+			end
+		end)
 	end
-	local light = Crossing.home((now - h.revealAt) / slow(), CFG)
-	self:_setLight(light)
-	if light <= 0 then
-		self._home = nil
-		self:_setLight(0)
+	local e = Crossing.emerge((now - h.revealAt) / slow(), CFG.home)
+	self:_setDark(e.dark)
+	if h.centre and onIslandRoot(player.Character) then
+		self:_riseShot(h.centre, h.radius, e.camera)
+	else
+		self._camera:SetCrossing(nil)
+	end
+	if not e.held then
+		ControlLock.set(LOCK, false)
+	end
+	if e.done then
+		self:_finishHome()
+	end
+end
+
+function PortalController:_finishHome()
+	local h = self._home
+	self._home = nil
+	if not h then
+		return
+	end
+	self._camera:SetCrossing(nil)
+	ControlLock.set(LOCK, false)
+	self:_setDark(0)
+end
+
+-- a party coming home, as everyone on the island sees it: each of them rises
+-- out of the portal on the plaza as they appear there (this player's own mates
+-- with this player, once their own black has cleared)
+function PortalController:_watchHomecomings()
+	local state = self._state
+	if not state:OnIsland() then
+		return
+	end
+	local now = os.clock()
+	local count = 0
+	for _ in self._returning do
+		count += 1
+	end
+	for uid, since in self._returning do
+		if now - since > 12 then
+			self._returning[uid] = nil
+			continue
+		end
+		local other = Players:GetPlayerByUserId(uid)
+		local character = other and other.Character
+		local root = onIslandRoot(character)
+		if other ~= player and root and placed(character, true) then
+			local flat = root.Position - self._returnAt
+			if Vector3.new(flat.X, 0, flat.Z).Magnitude < HOME_NEAR then
+				self._returning[uid] = nil
+				local centre, radius = self:_homePortal(count)
+				local g = self:_rise("home", centre, radius, CFG.home)
+				local mine = self._home
+				local startAt = if mine and not mine.revealAt then nil elseif mine then now else now + WATCH_DELAY
+				self:_riser(g, character, startAt)
+				if not mine then
+					pcall(function()
+						local sound = self._audio:PlayAt("portal_enter", g.portal.folder:FindFirstChild("Card"), 0.05)
+						if sound then
+							sound.RollOffMaxDistance = 200
+						end
+					end)
+				end
+			end
+		end
 	end
 end
 
@@ -949,7 +1313,10 @@ function PortalController:_frame(dt: number)
 	local state = self._state
 	local onIsland = state:OnIsland()
 	self:_drawPortal(dt, onIsland)
-	self:_watchParties()
+	Sink.tidy()
+	self:_islandDepartures(dt)
+	self:_islandSinking()
+	self:_watchHomecomings()
 	if self._joining then
 		self:_join()
 	end
@@ -961,29 +1328,31 @@ function PortalController:_frame(dt: number)
 		if root then
 			self._endRoot = root
 		elseif self._endRoot then
-			-- the run let go of the hero a moment before it says so: the light covers
+			-- the run let go of the hero a moment before it says so: the black covers
 			-- that moment (the way home starts from it)
-			self:_setLight(1)
+			self:_setDark(1)
+			self:_stepRises(dt)
 			return
 		end
 	else
 		self._endRoot = nil
 	end
 	if self._arriving then
-		self:_arrival()
+		self:_arrival(dt)
 	elseif self._home then
 		self:_homecoming()
 	else
-		self:_departure()
+		self:_myDeparture()
 		local unwind = self._unwinding
 		if unwind and not self._departing then
 			local k = math.clamp((os.clock() - unwind.started) / 0.5, 0, 1)
-			self:_setLight(unwind.from * (1 - Crossing.smooth(k)))
+			self:_setDark(unwind.from * (1 - Crossing.smooth(k)))
 			if k >= 1 then
 				self._unwinding = nil
 			end
 		end
 	end
+	self:_stepRises(dt)
 end
 
 return PortalController

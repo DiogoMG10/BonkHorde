@@ -1,52 +1,78 @@
-# T8 The portal crossing: Skyhold to the Wardwood and back
+# T8 The crossing: Skyhold to the Wardwood and back, through the ground
 
-On the T6/T7 line (`feat/t6-t7-island-hub`, `bonk-0.25.0-t8`), since the crossing depends on
-Skyhold. Direction from the 2026-10-22 brief: the existing portal as the centrepiece, its teal
-energy surging, a short departure and a brief arrival, about two to three seconds, the party
-going through together, nothing for the players left on the island but what the island itself
-shows. After the first playtest (`bonk-0.26.3-ux`) each cover of light waits for the world
-behind it, so the Wardwood (and the island, coming home) is never seen being built.
+On the T6/T7 line (`feat/t6-t7-island-hub`). The first version (`bonk-0.25.0-t8`) took the
+party through Skyhold's standing portal in a flash of light; after the playtest it was too
+fast, had no anticipation, and the Wardwood could still be seen loading. The brief of
+2026-10-24 (Diogo) replaced it with this concept, built in `bonk-0.27.0-t8`:
+
+**Skyhold → a portal opens on the ground under the party → five-second countdown → the
+heroes sink into it → black → the Wardwood ready → a portal opens on the ground → the
+heroes rise out of it → it closes → the run begins.** Home again the same way, shorter.
 
 ## What happens
 
-- **The portal** (everyone on Skyhold): its face is a vortex now, not a flat disc: a deep well,
-  three swirls turning against each other, a bright core and a cream rim of light, motes drawn
-  in from the ring, a teal light on the plaza. It idles, sleeps (cool and slow) while the run is
-  in use, and surges through any party's countdown: the swirls speed up, the core and the light
-  grow, the ring's runes, the obelisks' crystals, the plaza's inlay and the orbiting stones'
-  glyphs brighten, and the stones speed up and draw in. When a party goes through, a burst of
-  light, and a portal sound heard from the plaza.
-- **Departure** (the last 1.3 s of the party's countdown): the party is held still; each
-  member's camera swings in behind their hero to frame the portal and widens; the heroes glow
-  mint and turn to light, which the rest of the island also sees; a hum rises; the light
-  blooms out of the portal and fills the screen over the last 0.55 s (`portal_open`).
-- **Arrival** (the run's intro): in the light until the Wardwood behind it is ready (below),
-  the camera already waiting where it will drop in from; then the light clears in 0.85 s while
-  the camera drops in from above and behind over 1.25 s; every member takes shape over a
-  spinning swirl of light on the ground with a ring and a burst (`portal_enter`, as before);
-  controls back 0.9 s in. The intro's stage title sits higher, above the hero stepping out.
-- **Home** (back from the results): in the light until the island round the portal is ready,
-  then out of it onto the plaza with the same swirl and burst, the light clearing in 0.9 s;
-  the portal flares for everyone on the island.
-- **Called off** (NOT READY, CALL IT OFF, LEAVE, a member leaving the server, the portal busy
-  after all): controls, camera, heroes and light go back as they were.
+- **Countdown (5 s, solo or squad):** the moment the party is ready, a portal opens on the
+  ground of its rune circle (0.9 s) and grows stronger to the end: a soft teal pool of light,
+  a dark well, three swirls turning against each other over a bright core, a gold rim, a teal
+  outer ring with twelve runes orbiting between them, motes rising, a teal light on whoever
+  stands in it. Skyhold's standing portal surges with it. The members see a big 5, 4, 3, 2, 1
+  at the top centre, each landing with a pulse and a soft tick, and hear a rising hum. They
+  can still move; anyone off the portal is asked "Step into the portal". Everyone on the
+  island sees the portal.
+- **Departure (1.6 s, committed):** at zero the server holds the party still (anchored) and
+  sets anyone off the portal down just inside it; READY can no longer be taken back.
+  Everyone on the island sees the heroes rise a little, then sink into the portal (their
+  nameplates hidden), rays of light shooting up from its rim, the standing portal flaring;
+  the portal closes after them. For the party: controls held, the camera eases (0.6 s) to a
+  close shot of them in the portal, turned at most 50° from where it looked, the standing
+  portal behind them; the screen fades to black from 0.5 s to 1.3 s; the run takes them
+  at 1.6 s, under full black.
+- **Arrival:** black until this client's Wardwood is ready (below), then until the server
+  says every member's client is (a synced reveal). Under the black a portal is already open
+  at the spawn and every hero is held under it, the camera at its arrival shot. Then the
+  black clears (0.5 s) while every member rises out of the one portal together (from 0.12 s,
+  eased, a small hop at the top, risen at 1.07 s), the portal closes after them (0.45 s), the
+  camera hands back to the hero's own (by 1.55 s); controls back at 1.15 s, when the server
+  starts the run. The stage title and letterbox show over it. A member set down late rises on
+  their own.
+- **Home (from CONTINUE):** black while the run lets go and the plaza round the hero streams
+  in, then the black clears (0.35 s) as the party rises out of a portal at the plaza's return
+  spot; controls back at 0.9 s. Everyone else on the island sees them rise there.
+- **Called off** (NOT READY, CALL IT OFF, LEAVE during the countdown, a member leaving the
+  server before it ends): the portal collapses (0.45 s), the countdown goes, nothing is held.
+  A member leaving the server during the departure just drops out; the rest go on. If the
+  run could not start after all, the party stands up out of the portal again.
 
-## Waiting for the world (readiness)
+A party size picks the portal: one hero 5.2 studs; a party (they start 3.5 studs apart
+round the spawn) 6.7 studs; a rune circle's portal 6.5 studs, which holds a squad of three.
 
-The light (and the loading screen on joining, `docs/T6-T7-island-hub.md`) is a cover: it
-stays up until the client can see that the place behind it is ready, for a short minimum and
-never past a maximum (`Core/Crossing.step`, gates in `Config/Skyhold.Crossing`):
+## How heroes sink and rise (client/Sink)
 
-1. **hero**: the hero stands where the server set them down (the character's `PlacedAt`
-   attribute, written right after the server places it, in the Wardwood or on the island).
-2. **world**: streaming is not pausing the player (`Player.GameplayPaused`) and the ground
-   round them is there: rays straight down at points on rings 18, 55 and 130 studs out, where
-   the client's own plan says there is ground (Core/MapGen, Core/SkyholdGen), all near and 85%
-   far, counting only the terrain and the island's own parts (`client/WorldProbe`).
-3. **detail**, waited for a while at most: in the Wardwood every prop's art drawn round the
-   hero (ArtController.Prepare swaps up to 400 a frame under the light instead of 60 a tick)
-   and the rest of the party set down; on the island the portal's vortex lit again.
-4. **steady**: a moment more for the first frames of the new place.
+The character is never moved. While a hero is lowered, each client hides their character
+(`LocalTransparencyModifier`) and draws a stand-in of its visible pieces (the hero model and
+the weapon) that follows the real pieces every frame, so the hero keeps animating, only
+lower. The ground hides what is under it. The root, the Humanoid, the joints and the
+physics are untouched, so nothing can fall, take damage or desync, and it works the same
+for every client and for both rig kinds: the avatars here use Roblox's newer
+`AnimationConstraint` joints, whose `C0` cannot be moved and whose limbs follow their owner's
+physics, so moving a root joint was not an option.
+
+## The Wardwood is never seen being built
+
+The black is a cover that stays up until the client can see the place behind it is ready,
+for a short minimum and never past a maximum (`Core/Crossing.step`, gates in
+`Config/Skyhold.Crossing`):
+
+1. **hero**: the hero stands where the server set them down (`PlacedAt`).
+2. **world**: streaming is not pausing the player and the ground round them is there (rays
+   on rings 18, 55 and 130 studs out, `client/WorldProbe`).
+3. **detail**, waited for a while at most: every prop's art drawn round the hero (all at
+   once under the cover, `ArtController.Prepare`), the rest of the party set down, the
+   arrival's portal built. On the island: the standing portal lit.
+4. **steady**: a moment more for the first frames.
+5. **the party** (the Wardwood only): the client tells the server (`CrossingReady`, with the
+   run's number); the server reveals to everyone once all members still here have, or after
+   `revealMax` (12 s). A client whose own cover is still up waits for it before showing.
 
 | Cover | min | steady | detail at most | max |
 |---|---|---|---|---|
@@ -54,64 +80,69 @@ never past a maximum (`Core/Crossing.step`, gates in `Config/Skyhold.Crossing`):
 | home (back on Skyhold) | 0.35 s | 0.15 s | 2 s | 8 s |
 | join (the loading screen) | 0.6 s | 0.25 s | 6 s | 40 s |
 
-Each lift prints one line, for example `[PortalController] the Wardwood shown after 0.92s
-(hero 0.34  world 0.30  steady 0.26)`. While a cover is up Roblox's own "gameplay paused"
-notice is off (the cover says it better), and attacks and USE are refused
-(PrimaryController, WorldController) for as long as the controls are held. If the run ends
-before the hero is seen, the arrival simply stops.
+After 2.5 s of black a quiet line appears ("Opening the way...", "Waiting for your
+party...", "Back to Skyhold..."). Each lift prints one line, for example
+`[PortalController] the Wardwood shown after 1.15s (hero 0.34  world 0.29  steady 0.37
+party 0.13)`, and the server `[RunDirectorService] the party is shown the Wardwood 1.16s
+after the run started`.
+
+## The run starts when the controls come back
+
+The run's intro has no fixed length any more (`GameConfig.IntroSeconds` is gone): the stage
+clock does not run and nothing spawns or attacks during it. It lasts until the reveal plus
+the rise's `release` (1.15 s), then `Playing`; held attack input is released at that moment.
+Clients only decide when the party is shown, never anything about rewards. The run's number
+and an unrevealed intro go out with the intro's first message, so a client never acts on the
+last run's reveal.
 
 ## Where it lives
 
 | File | What |
 |---|---|
-| `src/client/Controllers/PortalController.luau` | the portal's vortex and surge, the departure, arrival and way home, the readiness of each cover |
-| `src/shared/Core/Crossing.luau` | the curves (charge, departure, arrival, home) and the gate (`wait`, `step`); specs in `tests/Crossing.spec.luau` |
-| `src/client/WorldProbe.luau` | is the ground round a point streamed in yet |
-| `src/shared/Config/Skyhold.luau` | `Crossing` timings, `PortalSpin` |
-| `src/client/ControlLock.luau` | holds the hero still with a deadline; MovementController keeps them standing |
-| `CameraController:SetCrossing` | the crossing leans the camera towards its own framing |
-| `src/client/Vfx.luau` | `PortalSurge`, `PortalDepart`, `PortalArrive`, `PortalMotes`, `DepartMotes` |
+| `src/client/Controllers/PortalController.luau` | the standing portal, every ground portal on the island, the party's departure, the arrival and the way home, the covers and their readiness |
+| `src/client/GroundPortal.luau` | the portal on the ground (one SurfaceGui card, a light, motes and rays) |
+| `src/client/Sink.luau` | heroes drawn under the ground (stand-ins) |
+| `src/shared/Core/Crossing.luau` | the curves (`charge`, `gather`, `descent`, `emerge`) and the gate; specs in `tests/Crossing.spec.luau` |
+| `src/shared/Core/HubParty.luau` | the committed `departing` phase between the countdown and the run; specs in `tests/HubParty.spec.luau` |
+| `src/server/Services/PartyService.luau` | holds a departing party still, inside its portal |
+| `src/server/Services/RunDirectorService.luau` | the intro's synced reveal, then `Playing` |
+| `src/client/Controllers/HubController.luau` | the countdown's numbers and nudge; nameplates hidden while under |
+| `src/shared/Config/Skyhold.luau` | `Crossing` timings, portal sizes, gates; `CountdownSeconds` 5, `SoloCountdownSeconds` 5, `ResumeCountdownSeconds` 3 |
 
-The run starts exactly as before (PartyService, RunDirectorService); the server only marks
-where it set each hero down (`PlacedAt`).
-Every effect is pcall-isolated and every hold on the controls lets go on its own. On the lowest
-graphics settings the vortex drops a swirl and its motes. Studio only:
-`Workspace:SetAttribute("BonkCrossingSlow", 4)` plays the arrival and the way home four times
-slower, to look at them.
+Every effect is pcall-isolated; every hold on the controls lets go on its own; if the
+controller ever breaks, it shows everything and stands every hero up. On the lowest
+graphics settings the portals drop a swirl, the runes' flicker and the motes. Studio only:
+`Workspace:SetAttribute("BonkCrossingSlow", 3)` (set on the server) plays the departure,
+the arrival and the way home three times slower on every screen, the server waiting with
+them.
 
-## Validation (2026-10-23)
+## Validation (2026-10-24, `bonk-0.27.0-t8`)
 
-- **Offline:** the four gates; `Crossing.spec` (timings stay between two and three seconds,
-  the charge, the departure and arrival curves).
-- **Run in Studio by Claude:** solo (a disposable place built from disk): the vortex idle and
-  surging, the departure, the arrival (slowed and at full speed), the way home, the controls
-  held 1.3 s before the countdown ends until 0.85 s into the arrival and back after it, no
-  errors. Local multiplayer test (three simulated players): a squad's two members through
-  together with the same timings, the watcher on the plaza seeing them glow and turn to light
-  with no light, lock or camera change of their own; NOT READY during the departure putting
-  both members' controls, camera and heroes back within a frame or two.
-- **Fixed on the way:** the departure's surge burst flew into the camera on the way home (the
-  camera stands near the portal there); stars of the arrival burst could reach the camera; a
-  frame of the empty Skyhold view showed between the end of a run and the light; party
-  members' nameplates overlapped (they now stack).
-- **Not validated by people:** the feel and the timing, phones (the camera's framing), gamepad,
-  low graphics settings, real latency.
-
-## Validation of the readiness pass (2026-10-23, `bonk-0.26.3-ux`)
-
-- **Offline:** the four gates; `Crossing.spec` (the gate waits for the hero, then the world,
-  then the detail; a minimum and a steady moment; detail given up, the rest only at the
-  maximum; a fact going missing starts the steady moment over).
-- **Run in Studio by Claude (solo, 1593x752):** recorded every frame at the end of the frame:
-  under full light the hero was set down, the camera moved to its drop-in place and all
-  1,345 art models were drawn before the light cleared; the Wardwood shown 0.7 to 1.2 s after
-  the run started (waiting up to 0.43 s for its ground to stream in), home 0.36 to 0.55 s
-  after the hero left; the frame where the Wardwood hero vanishes is already full light.
-  With 0.5 s of replication lag (Studio's network setting): the arrival waited 1.03 s for the
-  ground, home 0.84 s, both under full light. Five runs in a row without a lock or light left
-  behind.
-- **Local multiplayer test (two simulated players):** a squad through together (shown after
-  0.80 and 0.93 s, the second waiting for its mate to land), home together after the co-op
-  CONTINUE vote; NOT READY with 0.78 s left (held, then released) and with 0.33 s left (the
-  light at 0.3 to 0.4 unwinding to nothing in 0.5 s, controls back at once) on both clients.
-- **Not validated by people:** the new pacing, real networks, phones, gamepad.
+- **Offline:** the four gates; `Crossing.spec` (five-second countdowns, the descent and the
+  rise within 1 to 2 s, black before the world changes, the rise mostly seen after the black
+  clears, ends exactly where the hero stands, the portal sized for its group, the gates) and
+  `HubParty.spec` (departing is committed, a member leaving the server drops out, a departing
+  party holds the portal, a failed start stands the party up).
+- **Run in Studio by Claude**, a disposable place built from disk, 1593x752:
+  - solo, recorded every frame at the end of the frame: countdown 5 to 1; at zero the server
+    anchors, the lift and the sink to 7.4 studs, black 0.5 to 1.3 s; the run under full
+    black; the Wardwood shown 1.1 to 1.2 s after the run started; the black clears in 0.45 s
+    while the hero rises (from 7.4 studs, a 0.27-stud hop, exactly back); controls back;
+    three runs in a row and home each time (shown 0.5 s after), nothing left held, dark,
+    anchored, hidden or drawn; screenshots slowed x3 of the countdown, the descent, the rise
+    and the way home;
+  - CALL IT OFF during the countdown: the portal collapses, controls back at once;
+  - wandering off the portal: "Step into the portal", set down 4.4 studs from the centre at
+    zero;
+  - 0.5 s of replication lag: the Wardwood shown after 3.2 s (1.36 s for the ground, 1.13 s
+    for the reveal), the quiet line after 2.5 s; the forest's art round the hero complete at
+    the first lifted frame (96 parts within 120 studs, as many 3 s later);
+  - iPhone 16 Pro simulator: the countdown readable beside the party card.
+- **Local multiplayer test by Claude** (three simulated players): a squad of two sinking
+  together, both clients revealed together and both heroes rising in sync, controls back on
+  both; the third player on the plaza saw them sink and later rise at the return spot, with
+  no black, camera change or hold of their own; NOT READY at 3 s: countdown and portal gone on
+  all three, nobody held; a member disconnected mid-descent: the other went on alone.
+- **Not validated by people:** the feel and the pacing, real networks, gamepad, low
+  graphics settings, Roblox's own top-bar buttons over the XP strip (Studio's capture leaves
+  them out).

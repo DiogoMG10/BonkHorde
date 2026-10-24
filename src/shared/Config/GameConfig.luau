@@ -6,11 +6,12 @@
 -- what makes a balance pass a data edit.
 
 local GameConfig = {
-	BuildStamp = "bonk-0.26.3-ux",
+	BuildStamp = "bonk-0.27.0-t8",
 
 	-- squad
 	MaxPlayers = 3,
-	IntroSeconds = 3,
+	-- the run's intro has no fixed length: it lasts until every member's client
+	-- shows the Wardwood and they have risen out of the portal (Skyhold.Crossing)
 	EndHoldSeconds = 2.5, -- the server holds Victory / Wipe this long before Results...
 	-- ...and Results this long at most: the fallback for whoever does not press
 	-- CONTINUE (T3). Once every player still here has pressed, the squad goes at once
@@ -129,6 +130,7 @@ local GameConfig = {
 	SpeedFovKick = 10, -- extra degrees of FOV at the hop cap (less below, none at 1x)
 	CameraDistance = 18,
 	SpawnCameraYaw = 180, -- degrees; the first view looks north, past the Ward to the Highwatch
+	SpawnSpacing = 3.5, -- studs from the spawn's centre to each hero of a party (one alone stands on it)
 	CameraHeight = 3.5,
 	CameraFOV = 80,
 	CameraSensitivity = 0.35,

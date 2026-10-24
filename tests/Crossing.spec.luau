@@ -1,5 +1,6 @@
 --!strict
--- Specs for T8: the crossing through Skyhold's portal (Core/Crossing).
+-- Specs for T8: the crossing from Skyhold into the Wardwood and back through
+-- portals on the ground (Core/Crossing).
 
 local Crossing = require("../src/shared/Core/Crossing")
 local Skyhold = require("../src/shared/Config/Skyhold")
@@ -11,14 +12,19 @@ local function near(a: number, b: number, eps: number?): boolean
 end
 
 return {
-	["the whole presentation stays short: about two to three seconds"] = function()
-		local arrive = math.max(cfg.reveal, cfg.settle, cfg.release)
-		assert(cfg.lead + arrive <= 3, `departure {cfg.lead} + arrival {arrive}`)
-		assert(cfg.lead + arrive >= 2, "long enough to be felt")
-		assert(cfg.flash < cfg.lead and cfg.release <= cfg.settle)
+	["a five-second countdown, then a short descent and a short rise"] = function()
+		assert(Skyhold.CountdownSeconds == 5 and Skyhold.SoloCountdownSeconds == 5, "five seconds, solo or squad")
+		assert(cfg.descent >= 1 and cfg.descent <= 2, `the descent takes {cfg.descent} s`)
+		local rise = Crossing.emergeSeconds(cfg.arrive)
+		assert(rise >= 1 and rise <= 2, `the rise takes {rise} s`)
+		assert(Crossing.emergeSeconds(cfg.home) < rise, "coming home is quicker")
+		local d = cfg.depart
+		assert(d.lift + d.sink + d.collapse <= cfg.descent, "the portal has closed before the run takes the party")
+		assert(d.darkTo < cfg.descent, "black before the world changes")
+		assert(d.darkFrom > d.lift, "the first of the descent is seen")
 	end,
 
-	["the portal idles, sleeps while the run is in use, and surges through a countdown"] = function()
+	["the standing portal idles, sleeps while the run is in use, and surges through a countdown"] = function()
 		assert(near(Crossing.charge(nil, nil, false), Crossing.Idle))
 		assert(Crossing.charge(nil, nil, true) < Crossing.Idle, "dimmer while a run is on")
 		local start = Crossing.charge(5, 5, false)
@@ -26,48 +32,77 @@ return {
 		local last = Crossing.charge(0.2, 5, false)
 		assert(start > Crossing.Idle and mid > start and last > mid, `{start} {mid} {last}`)
 		assert(near(Crossing.charge(0, 5, false), 1), "full as the party goes")
-		-- a countdown for the next party while the run is still being left still charges
 		assert(Crossing.charge(1, 3, true) > Crossing.Busy)
-		-- a flare lights it whatever else is going on
-		assert(near(Crossing.charge(nil, nil, true, 0.9), 0.9))
+		assert(near(Crossing.charge(nil, nil, true, 0.9), 0.9), "a flare lights it whatever else is going on")
 	end,
 
-	["nothing happens to the party before the last moments of the countdown"] = function()
-		local d = Crossing.departure(cfg.lead + 0.5, cfg)
-		assert(not d.active and d.camera == 0 and d.light == 0 and d.dissolve == 0)
+	["the ground portal opens at the countdown's start and grows stronger to its end"] = function()
+		local first = Crossing.gather(5, 5, cfg.portal.open)
+		assert(near(first.open, 0), "closed as the countdown begins")
+		local opened = Crossing.gather(5 - cfg.portal.open, 5, cfg.portal.open)
+		assert(near(opened.open, 1), "fully open after its opening time")
+		local last = Crossing.gather(5, 5, cfg.portal.open)
+		for left = 5, 0, -0.1 do
+			local g = Crossing.gather(left, 5, cfg.portal.open)
+			assert(g.open >= last.open - 1e-6 and g.charge >= last.charge - 1e-6, `not growing at {left}`)
+			last = g
+		end
+		assert(last.charge > 0.8, "strongest at the end")
 	end,
 
-	["the departure holds the party, swings the camera, then closes in with light"] = function()
-		local early = Crossing.departure(cfg.lead - 0.05, cfg)
-		assert(early.active and early.light == 0, "held, no light yet")
-		local late = Crossing.departure(0.1, cfg)
-		assert(late.camera > 0.9 and late.light > 0.7 and late.dissolve > 0.6, `{late.camera} {late.light} {late.dissolve}`)
-		local gone = Crossing.departure(0, cfg)
-		assert(near(gone.light, 1) and near(gone.camera, 1) and near(gone.dissolve, 1), "all light as the portal opens")
-		-- monotonic all the way
-		local last = Crossing.departure(cfg.lead, cfg)
-		for left = cfg.lead, 0, -0.05 do
-			local d = Crossing.departure(left, cfg)
-			assert(d.light >= last.light - 1e-6 and d.camera >= last.camera - 1e-6, `not monotonic at {left}`)
-			last = d
+	["the descent: a little rise, then under the surface, the camera framing, the black"] = function()
+		local d = cfg.depart
+		local start = Crossing.descent(0, d)
+		assert(near(start.sink, 0) and near(start.camera, 0) and near(start.dark, 0) and not start.gone)
+		local lifted = Crossing.descent(d.lift, d)
+		assert(lifted.sink < 0, "a little above the ground first")
+		assert(lifted.dark == 0, "the start of the descent is seen")
+		local under = Crossing.descent(d.lift + d.sink, d)
+		assert(under.gone and near(under.sink, 1), "out of sight")
+		assert(under.open > 0.9, "the portal is still open as the last of them goes under")
+		local framed = Crossing.descent(d.frame, d)
+		assert(near(framed.camera, 1), "framed")
+		local black = Crossing.descent(d.darkTo, d)
+		assert(near(black.dark, 1), "black")
+		local closed = Crossing.descent(d.lift + d.sink + d.collapse, d)
+		assert(closed.done and near(closed.open, 0), "the portal has closed after them")
+		-- after the rise, ever deeper; the black only ever thickens
+		local last = lifted
+		for t = d.lift, cfg.descent, 0.02 do
+			local s = Crossing.descent(t, d)
+			assert(s.sink >= last.sink - 1e-6 and s.dark >= last.dark - 1e-6, `not monotonic at {t}`)
+			last = s
 		end
 	end,
 
-	["the arrival clears the light, settles the camera and gives the controls back"] = function()
-		local first = Crossing.arrival(0, cfg)
-		assert(near(first.light, 1) and near(first.camera, 1) and first.held and not first.done)
-		assert(first.form == 0, "the heroes are not there yet")
-		local after = Crossing.arrival(cfg.release + 0.01, cfg)
-		assert(not after.held, "controls back")
-		local settled = Crossing.arrival(cfg.settle, cfg)
-		assert(near(settled.camera, 0) and near(settled.light, 0) and near(settled.form, 1))
-		assert(Crossing.arrival(math.max(cfg.settle, cfg.reveal, cfg.release) + 0.1, cfg).done)
+	["the rise: black clears, heroes come up out of it, it closes, controls back"] = function()
+		for name, r in { arrive = cfg.arrive, home = cfg.home } do
+			local first = Crossing.emerge(0, r)
+			assert(near(first.dark, 1) and near(first.sink, 1) and near(first.camera, 1), name)
+			assert(first.held and not first.done, `{name}: held at first`)
+			assert(near(first.open, 1), `{name}: the portal is open as the black lifts`)
+			local cleared = Crossing.emerge(r.clear, r)
+			assert(near(cleared.dark, 0), `{name}: the black has cleared`)
+			assert(cleared.sink > 0.3, `{name}: the hero is still mostly under as it clears`)
+			local risen = Crossing.emerge(r.riseFrom + r.rise, r)
+			assert(near(risen.sink, 0), `{name}: exactly where they stand`)
+			local peak = -1
+			for t = r.riseFrom, r.riseFrom + r.rise, 0.01 do
+				peak = math.max(peak, -Crossing.emerge(t, r).sink)
+			end
+			assert(peak > 0 and peak < 0.1, `{name}: a small hop out of it, {peak}`)
+			assert(r.release >= r.riseFrom + r.rise, `{name}: controls back only once risen`)
+			local free = Crossing.emerge(r.release + 0.01, r)
+			assert(not free.held, `{name}: controls back`)
+			local over = Crossing.emerge(Crossing.emergeSeconds(r), r)
+			assert(over.done and near(over.open, 0) and near(over.camera, 0), `{name}: closed, the camera handed back`)
+		end
 	end,
 
-	["coming home clears the light"] = function()
-		assert(near(Crossing.home(0, cfg), 1))
-		assert(near(Crossing.home(cfg.homeReveal, cfg), 0))
-		assert(Crossing.home(cfg.homeReveal / 2, cfg) < 0.5, "it clears quickly at first")
+	["the portal is big enough for its group"] = function()
+		assert(near(Crossing.radius(0, cfg.portal), cfg.portal.radius), "one hero")
+		assert(Crossing.radius(3.5, cfg.portal) >= 3.5 + 2.5, "a party a step apart, with room round each")
+		assert(Skyhold.CircleRadius + 0.5 > 4, "the rune circle's portal holds a squad")
 	end,
 
 	["a cover waits for the hero, then the world, then the finishing touches"] = function()
@@ -122,10 +157,11 @@ return {
 	end,
 
 	["every cover has a firm maximum, the loading screen the longest"] = function()
-		for name, gate in { arrive = cfg.arrive, home = cfg.home, join = cfg.join } do
+		for name, gate in { arrive = cfg.arriveGate, home = cfg.homeGate, join = cfg.join } do
 			assert(gate.min < gate.detail and gate.detail < gate.max, name)
 			assert(gate.max <= 60, `{name}: nobody waits forever`)
 		end
-		assert(cfg.join.max > cfg.arrive.max and cfg.arrive.max >= cfg.home.max)
+		assert(cfg.join.max > cfg.arriveGate.max and cfg.arriveGate.max >= cfg.homeGate.max)
+		assert(cfg.revealMax > cfg.arriveGate.max, "the server waits for a slow client's own cover first")
 	end,
 }

@@ -19,8 +19,10 @@ record of those answers and of the plan.
 - **Parties:** rune circles, up to 3 per squad. Joining and leaving are deliberate interactions
   (E / gamepad X / touch); walking across a circle changes nothing. Membership, leader and
   READY are clearly visible. Direct invitations later.
-- **Starting:** the leader starts preparation, every member confirms READY, then a short
-  visible countdown activates the portal. Someone leaving or unreadying cancels it safely.
+- **Starting:** the leader starts preparation, every member confirms READY, then a
+  five-second countdown opens a portal on the ground of their circle and they sink into it
+  (T8, `docs/T8-portal-crossing.md`). Someone leaving or unreadying during the countdown
+  cancels it safely.
 
 ## Local vertical slice (this milestone)
 
@@ -85,7 +87,7 @@ is bare earth, so Roblox's grass blades do not grow through it.
 - `DataService`: remembers `lastHero`.
 
 **Client.** `HubController` (circle glow and slots, the party boards, prompts, party card,
-nameplates, portal state, the white crossing), `HeroHallController` (statues, plinth
+nameplates, portal state, the countdown's numbers), `HeroHallController` (statues, plinth
 prompts, the hero card, the borrowed camera shot), `HubDecorController` (clouds, far
 scenery, the orbiting monoliths), `SkyController` (each player's own sky and, on the
 island, its own grass tint). The camera follows the hero on the island with the mouse free

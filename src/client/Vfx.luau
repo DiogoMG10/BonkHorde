@@ -706,6 +706,36 @@ local ATTACHED: { [string]: { any } } = {
 			spin = { -120, 120 },
 		},
 	},
+	-- T8: motes drifting up off a portal on the ground (rate set by GroundPortal)
+	GroundPortalMotes = {
+		{
+			tex = "star4",
+			rate = 0,
+			colour = ColorSequence.new(rgb(240, 255, 250), rgb(90, 225, 210)),
+			size = grow(0.15, 0.5, 0),
+			life = { 0.9, 1.6 },
+			speed = { 2, 5 },
+			glow = 1,
+			up = true,
+			disc = true,
+			spin = { -90, 90 },
+		},
+	},
+	-- rays of light shooting up out of it while heroes pass through
+	GroundPortalRays = {
+		{
+			tex = "streak",
+			rate = 0,
+			colour = ColorSequence.new(rgb(170, 255, 236), rgb(64, 214, 200)),
+			size = grow(1.1, 0.1),
+			life = { 0.35, 0.6 },
+			speed = { 10, 16 },
+			glow = 1,
+			up = true,
+			disc = "rim",
+			facing = "velocity",
+		},
+	},
 	-- a hero glowing as their party's countdown ends
 	DepartMotes = {
 		{
@@ -965,7 +995,12 @@ local function emitter(layer: any, parent: Instance): ParticleEmitter
 	if layer.facing == "velocity" then
 		e.Orientation = Enum.ParticleOrientation.VelocityParallel
 	end
-	if layer.ring or layer.far then
+	if layer.disc then
+		-- anywhere over the host part's footprint, rising
+		e.Shape = Enum.ParticleEmitterShape.Disc
+		e.ShapeStyle = if layer.disc == "rim" then Enum.ParticleEmitterShapeStyle.Surface else Enum.ParticleEmitterShapeStyle.Volume
+		e.ShapeInOut = Enum.ParticleEmitterShapeInOut.Outward
+	elseif layer.ring or layer.far then
 		-- start on a ring or shell round the point instead of at it
 		e.Shape = Enum.ParticleEmitterShape.Sphere
 		e.ShapeStyle = Enum.ParticleEmitterShapeStyle.Surface

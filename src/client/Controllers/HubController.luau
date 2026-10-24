@@ -10,8 +10,10 @@
 --                 across a circle changes nothing.
 --   party card    top left while in a party: members, leader, READY, what
 --                 happens next, and the same choices as buttons
---   nameplates    over everyone else on the island: name, hero, party
---   countdown     this player's own, big, top centre
+--   nameplates    over everyone else on the island: name, hero, party (hidden
+--                 while their hero is under the ground, T8)
+--   countdown     this player's own, big, top centre: 5, 4, 3, 2, 1, each with a
+--                 soft tick, and a nudge back into the portal for whoever is off it
 --
 -- The portal itself and the crossing through it (its surge, the departure,
 -- the arrival in the Wardwood and the way home) are PortalController's (T8).
@@ -31,6 +33,7 @@ local Roster = require(ReplicatedStorage.Shared.Config.Roster)
 local Skyhold = require(ReplicatedStorage.Shared.Config.Skyhold)
 local SkyholdGen = require(ReplicatedStorage.Shared.Core.SkyholdGen)
 local HubUi = require(script.Parent.Parent.HubUi)
+local Sink = require(script.Parent.Parent.Sink)
 local UiKit = require(script.Parent.Parent.UiKit)
 
 local HubController = Knit.CreateController({ Name = "HubController" })
@@ -44,6 +47,7 @@ local SOLO_GLOW = Color3.fromRGB(255, 205, 96)
 local PREP_GLOW = Color3.fromRGB(255, 214, 120)
 local WAIT_GLOW = Color3.fromRGB(255, 160, 70)
 local AWAY_GLOW = Color3.fromRGB(110, 140, 220)
+local GONE_GLOW = Color3.fromRGB(150, 255, 236) -- a party sinking into its portal
 local EMPTY_SLOT = Color3.fromRGB(70, 96, 92)
 local PROMPT_RANGE = Skyhold.JoinRange - 2.5
 
@@ -61,6 +65,7 @@ end
 
 function HubController:KnitStart()
 	self._state = Knit.GetController("StateController")
+	self._audio = Knit.GetController("AudioController")
 	self._party = Net.client("PartyAction")
 	self._folder = Instance.new("Folder")
 	self._folder.Name = "HubClient"
@@ -317,6 +322,8 @@ function HubController:_statusText(party, mine: boolean): string
 		return `Into the Wardwood in {math.max(1, math.ceil(left or 0))}`
 	elseif phase == "waiting" then
 		return "The portal is in use: you go next"
+	elseif phase == "departing" then
+		return "Into the Wardwood..."
 	elseif phase == "run" then
 		return "In the Wardwood"
 	end
@@ -458,16 +465,40 @@ function HubController:_makeUi()
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextColor3 = C.ink,
 	})
-	-- top centre: the countdown into the Wardwood
-	self._countdown = HubUi.label(gui, "", 64, "display", {
-		Name = "Countdown",
-		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.new(0.5, 0, 0, 90),
-		Size = UDim2.fromOffset(900, 80),
+	-- top centre: the countdown into the Wardwood, one big number at a time
+	local countdown = Instance.new("Frame")
+	countdown.Name = "Countdown"
+	countdown.BackgroundTransparency = 1
+	countdown.AnchorPoint = Vector2.new(0.5, 0)
+	countdown.Position = UDim2.new(0.5, 0, 0, 40)
+	countdown.Size = UDim2.fromOffset(600, 200)
+	countdown.Visible = false
+	countdown.Parent = gui
+	HubUi.label(countdown, "INTO THE WARDWOOD", 26, "display", {
+		Name = "Caption",
+		Size = UDim2.new(1, 0, 0, 32),
+		TextXAlignment = Enum.TextXAlignment.Center,
+		TextColor3 = C.teal,
+	})
+	local number = HubUi.label(countdown, "", 120, "display", {
+		Name = "Number",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.new(0.5, 0, 0, 104),
+		Size = UDim2.fromOffset(240, 136),
 		TextXAlignment = Enum.TextXAlignment.Center,
 		TextColor3 = C.gold,
+	})
+	local pulse = Instance.new("UIScale")
+	pulse.Parent = number
+	local nudge = HubUi.label(countdown, "Step into the portal", 24, "body", {
+		Name = "Nudge",
+		Position = UDim2.fromOffset(0, 172),
+		Size = UDim2.new(1, 0, 0, 28),
+		TextXAlignment = Enum.TextXAlignment.Center,
+		TextColor3 = C.ink,
 		Visible = false,
 	})
+	self._countdown = { frame = countdown, number = number, pulse = pulse, nudge = nudge, shown = nil, at = 0 }
 	-- bottom right: the build, quietly
 	HubUi.label(gui, GameConfig.BuildStamp, 18, "body", {
 		Name = "Build",
@@ -491,7 +522,8 @@ function HubController:_refreshCard()
 	local card = self._card
 	local mine = state:Mine()
 	local party = mine and mine.circle and state:PartyAt(mine.circle)
-	self._gui.Enabled = state:OnIsland()
+	-- sinking into the portal: nothing of the island's interface is left to use
+	self._gui.Enabled = state:OnIsland() and not (party and party.phase == "departing")
 	card.frame.Visible = party ~= nil
 	local profile = state.profile
 	self._silver.Text = UiKit.commas(profile and profile.silver or 0)
@@ -638,6 +670,8 @@ function HubController:_animate()
 			if party then
 				if party.phase == "run" then
 					colour, strength = AWAY_GLOW, 0.3
+				elseif party.phase == "departing" then
+					colour, strength = GONE_GLOW, 0.95
 				elseif party.phase == "waiting" then
 					colour, strength = WAIT_GLOW, 0.5 + math.sin(t * 2.2) * 0.15
 				elseif party.phase == "countdown" then
@@ -670,15 +704,19 @@ function HubController:_animate()
 		end
 	end
 
-	-- this player's own countdown, big (the portal and the crossing: PortalController)
+	-- this player's own countdown, big (the portals and the crossing: PortalController)
 	local myParty = mine and mine.circle and state:PartyAt(mine.circle)
+	self:_drawCountdown(onIsland and myParty or nil, t)
 	if onIsland and myParty and myParty.phase == "countdown" then
-		local left = state:CountdownLeft(myParty) or 0
-		self._countdown.Visible = true
-		self._countdown.Text = `INTO THE WARDWOOD   {math.max(1, math.ceil(left))}`
 		self._card.status.Text = self:_statusText(myParty, true)
-	else
-		self._countdown.Visible = false
+	end
+	-- nobody's nameplate hangs over a hero who is under the ground
+	for uid, plate in self._plates do
+		local other = Players:GetPlayerByUserId(uid)
+		local hidden = other ~= nil and Sink.studs(other.Character) > 0.5
+		if plate.Enabled == hidden then
+			plate.Enabled = not hidden
+		end
 	end
 	-- the boards count down too
 	if anyCounting then
@@ -689,6 +727,46 @@ function HubController:_animate()
 			end
 		end
 	end
+end
+
+-- the big number: 5, 4, 3, 2, 1, each landing with a pulse and a soft tick;
+-- gone as the departure starts
+function HubController:_drawCountdown(party, t: number)
+	local cd = self._countdown
+	local counting = party ~= nil and party.phase == "countdown"
+	cd.frame.Visible = counting
+	if not counting then
+		cd.shown = nil
+		return
+	end
+	local left = self._state:CountdownLeft(party) or 0
+	local n = math.max(1, math.ceil(left))
+	if cd.shown ~= n then
+		cd.shown, cd.at = n, t
+		cd.number.Text = tostring(n)
+		pcall(function()
+			local tick = self._audio:Play("timer_tick")
+			if tick then
+				tick.Volume *= 0.6
+				tick.PlaybackSpeed = 1 + (5 - n) * 0.04
+			end
+		end)
+	end
+	-- each number lands big and settles; the last ones in the portal's own colour
+	local k = math.clamp((t - cd.at) / 0.35, 0, 1)
+	cd.pulse.Scale = 1 + 0.45 * (1 - k) * (1 - k)
+	cd.number.TextTransparency = 0.6 * (1 - math.min(1, k * 3))
+	cd.number.TextColor3 = if n <= 2 then C.teal:Lerp(C.gold, 0.25) else C.gold
+	-- whoever has wandered off the portal is asked back onto it
+	local c = Skyhold.Circles[party.circle]
+	local root = self._state:Root()
+	local off = false
+	if c and root then
+		local at = self:_ground(c.x, c.z)
+		local flat = Vector3.new(root.Position.X - at.X, 0, root.Position.Z - at.Z)
+		off = flat.Magnitude > Skyhold.CircleRadius - 0.6
+	end
+	cd.nudge.Visible = off
 end
 
 return HubController

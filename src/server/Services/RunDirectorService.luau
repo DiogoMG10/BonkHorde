@@ -15,9 +15,17 @@
 -- that party hears it (server/RunAudience): its phase and clock, the horde, its
 -- sky and its results. Nobody joins a run once it is going. When it ends the
 -- party is handed back to the island together (RunEnded).
+--
+-- T8: the intro has no fixed length. The party's clients are black while the
+-- Wardwood is made ready round them; each says when it is (CrossingReady), and
+-- once all still here have (or Skyhold.Crossing.revealMax has passed) the
+-- reveal goes out to all at once: they rise out of a portal on the ground
+-- together, and the run begins when their controls come back. Nothing about a
+-- reward depends on what a client says; it only sets when the clock starts.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
 local Signal = require(ReplicatedStorage.Packages.Signal)
@@ -28,6 +36,7 @@ local Progress = require(ReplicatedStorage.Shared.Core.Progress)
 local Roster = require(ReplicatedStorage.Shared.Config.Roster)
 local RunState = require(ReplicatedStorage.Shared.Core.RunState)
 local SimClock = require(ReplicatedStorage.Shared.Core.SimClock)
+local Skyhold = require(ReplicatedStorage.Shared.Config.Skyhold)
 local Spawn = require(ReplicatedStorage.Shared.Core.Spawn)
 
 local RunAudience = require(script.Parent.Parent.RunAudience)
@@ -60,6 +69,8 @@ function RunDirectorService:KnitInit()
 	self._circle = nil -- the rune circle that party came from
 	self._sky = "golden" -- drawn at the start, worn by the run's players only
 	self._startedAt = 0
+	self._revealed = false -- the intro's reveal has gone out (T8)
+	self._arrived = {} -- userId -> true: that client shows the Wardwood ready
 	self.RunEnded = Signal.new() -- (players still here, circle): the party is back on the island
 	self._accum = 0
 	-- gameplay time: every simulation timestamp is taken from this, never from
@@ -95,6 +106,12 @@ function RunDirectorService:KnitStart()
 	self._party.Launch:Connect(function(players, circle)
 		if not self:StartRun(players, circle) then
 			self._party:LaunchFailed(circle)
+		end
+	end)
+	-- a client showing the Wardwood ready for this run, under its cover
+	Net.server("CrossingReady").OnServerEvent:Connect(function(player: Player, run: unknown)
+		if self._phase == RunState.Intro and run == self._runId and RunAudience.has(player) then
+			self._arrived[player.UserId] = true
 		end
 	end)
 	-- CONTINUE on the results: counted once, for the run it names, from a player
@@ -270,6 +287,8 @@ function RunDirectorService:_payload()
 		kills = self._kills,
 		map = self._party:GetMap(),
 		sky = self._sky,
+		run = self._runId,
+		reveal = self._revealed,
 		quests = RunState.quests(self._portalFound, self._bossSummoned, self._bossDead),
 		portal = if self._portalFound then self:_portalPos() else nil,
 	}
@@ -332,10 +351,14 @@ function RunDirectorService:_startRun()
 	if not self._mapService:IsTerrainReady() then
 		return
 	end
+	-- a new run's number and an unrevealed intro before its first message goes
+	-- out: the party's clients wait for this run's reveal, not the last one's
+	self._runId += 1
+	self._revealed = false
+	table.clear(self._arrived)
 	if not self:_setPhase(RunState.Intro) then
 		return
 	end
-	self._runId += 1
 	self._clock = 0
 	self._tier = 0
 	self._difficulty = 0
@@ -361,7 +384,8 @@ function RunDirectorService:_startRun()
 	self._sky = self._mapService:DrawRunSky()
 	self._startedAt = os.clock()
 	self._players:BeginRun(self._members)
-	self._phaseUntil = os.clock() + GameConfig.IntroSeconds
+	-- the intro waits for the party's clients to show the Wardwood, a while at most
+	self._phaseUntil = os.clock() + Skyhold.Crossing.revealMax
 	self:_sendPhase(nil)
 	local map = Roster.Maps[self._party:GetMap()]
 	RunAudience.fire(self._banner, map.name, "stage", map.joke)
@@ -428,6 +452,34 @@ function RunDirectorService:_endRun(victory: boolean)
 	self._phaseUntil = os.clock() + c.EndHoldSeconds
 end
 
+--- Has every player still in the run said their client shows it ready?
+function RunDirectorService:_allArrived(): boolean
+	for _, id in presentIds() do
+		if not self._arrived[id] then
+			return false
+		end
+	end
+	return true
+end
+
+--- The party rises out of the portal now, all at once; the run begins when
+--- their controls come back.
+function RunDirectorService:_reveal(now: number)
+	self._revealed = true
+	local waited = now - self._startedAt
+	local everyone = self:_allArrived()
+	print(
+		`[RunDirectorService] the party is shown the Wardwood {string.format("%.2f", waited)}s after the run started{if everyone
+			then ""
+			else " (not every client was ready)"}`
+	)
+	-- Studio only: `BonkCrossingSlow` (PortalController) slows the rise; the run waits for it
+	local slow = RunService:IsStudio() and Workspace:GetAttribute("BonkCrossingSlow")
+	local k = if typeof(slow) == "number" and slow > 0 then slow else 1
+	self._phaseUntil = now + Skyhold.Crossing.arrive.release * k
+	self:_sendPhase(nil)
+end
+
 --- The run is over: the party goes back to the island, together.
 function RunDirectorService:_toLobby()
 	self._enemies:Clear()
@@ -471,7 +523,12 @@ function RunDirectorService:_frame(dt: number)
 		-- each hero's state reaches its player during the intro, so the HUD is
 		-- already filled (and does not blink off) when play begins
 		self._players:Flush(now)
-		if now >= self._phaseUntil then
+		if not self._revealed then
+			if self:_allArrived() or now >= self._phaseUntil then
+				self:_reveal(now)
+			end
+		elseif now >= self._phaseUntil then
+			self._combat:ReleaseInputs() -- nothing pressed during the arrival carries into the fight
 			self:_setPhase(RunState.Playing)
 		end
 		return

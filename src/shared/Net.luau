@@ -29,7 +29,8 @@ export type EventName =
 	| "UnlockHero" -- C>S: heroId
 	| "Settings" -- C>S: { master, music, sfx } volumes 0..1, kept in the profile
 	-- run state: every run message goes to the run's party only (server/RunAudience)
-	| "Phase" -- S>C run: { phase, clock, tier, paused, kills, quests, map, sky, members }
+	| "Phase" -- S>C run: { phase, clock, tier, paused, kills, quests, map, sky, run, reveal }
+	| "CrossingReady" -- C>S: run number; this player's client shows the Wardwood ready (T8)
 	| "Clock" -- S>C all: clock seconds, tier, paused, kills
 	| "Banner" -- S>C all: text, style
 	| "Toast" -- S>C one/all: title, text
@@ -120,6 +121,7 @@ Net.All = {
 	"UnlockHero",
 	"Settings",
 	"Phase",
+	"CrossingReady",
 	"Clock",
 	"Banner",
 	"Toast",

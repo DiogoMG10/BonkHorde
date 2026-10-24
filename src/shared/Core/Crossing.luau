@@ -1,19 +1,26 @@
 --!strict
--- Crossing - the party's way through Skyhold's portal into the Wardwood and
--- back (T8): how far each part of it has gone at a given moment. Pure: the
--- client measures the time (the countdown left on the island, the seconds since
--- the light began to clear) and draws what this returns.
+-- Crossing - the party's way from Skyhold into the Wardwood and back (T8): how
+-- far each part of it has gone at a given moment. Pure: the client measures the
+-- time (the countdown left on the island, the seconds since the countdown ended
+-- or since a cover began to lift) and draws what this returns.
 --
---   charge      the portal's surge, 0..1: idle, rising through a countdown,
---               full as the party goes; sleepy while the run is in use
---   departure   the last moments of the countdown: the party held still, the
---               camera swinging up to the portal, the light closing in
---   arrival     the light clearing round the hero in the Wardwood, the camera
---               dropping in behind them, the heroes taking shape, controls back
---   gate        how long a cover (the light, or the loading screen on joining)
+--   charge      Skyhold's standing portal, 0..1: idle, surging through any
+--               party's countdown, full as a party goes; sleepy while the run
+--               is in use
+--   gather      the countdown: a portal opening on the ground under the party,
+--               its magic growing to the end
+--   descent     after the countdown: the party held still, a little rise, then
+--               sinking into the portal as the camera frames them and the
+--               screen goes black; the portal closes after them
+--   emerge      the arrival (and the way home): the black clearing, the heroes
+--               rising out of a portal on the ground, the portal closing, the
+--               camera handed back, the controls back
+--   gate        how long a cover (the black, or the loading screen on joining)
 --               stays up: until the world behind it is ready to be seen, with a
 --               short minimum and a firm maximum
 --
+-- `sink` is how far under the portal's surface a hero is, as a share of their
+-- whole height (1: out of sight; below 0: a little above the ground).
 -- Timings come from Config/Skyhold.Crossing.
 
 local Crossing = {}
@@ -25,17 +32,23 @@ export type Gate = {
 	max: number, -- and nothing is waited for past this
 }
 
-export type Config = {
-	lead: number,
-	flash: number,
-	reveal: number,
-	settle: number,
+export type Depart = {
+	lift: number,
+	sink: number,
+	frame: number,
+	darkFrom: number,
+	darkTo: number,
+	collapse: number,
+}
+
+export type Rise = {
+	clear: number,
+	riseFrom: number,
+	rise: number,
+	cameraFrom: number,
+	camera: number,
+	close: number,
 	release: number,
-	materialise: number,
-	homeReveal: number,
-	arrive: Gate,
-	home: Gate,
-	join: Gate,
 }
 
 local function clamp01(x: number): number
@@ -54,13 +67,22 @@ function Crossing.out(x: number): number
 	return 1 - (1 - x) * (1 - x) * (1 - x)
 end
 
-Crossing.Idle = 0.22 -- the portal's charge with nothing happening
-Crossing.Busy = 0.08 -- while a run is in use and nobody waits on the portal
+--- Rising out of a portal, 0..1: eased in and out, so the black has cleared
+--- while most of the rise is still to come, with a small hop past 1 near the
+--- end before settling on it.
+function Crossing.rise(x: number): number
+	x = clamp01(x)
+	return Crossing.smooth(x) + 0.1 * math.sin(math.pi * clamp01((x - 0.55) / 0.45))
+end
 
---- The portal's charge for this client: `left` and `total` are the seconds left
---- on the countdown nearest its end and its whole length (nil: nobody counts
---- down); `busy` whether the server's run is in use; `flare` 0..1 for a moment
---- of extra light (a party just went through, or came back).
+Crossing.Idle = 0.22 -- the standing portal's charge with nothing happening
+Crossing.Busy = 0.08 -- while a run is in use and nobody waits on the portal
+Crossing.Lift = 0.05 -- how high the little rise before the sink goes (share of the height)
+
+--- The standing portal's charge for this client: `left` and `total` are the
+--- seconds left on the countdown nearest its end and its whole length (nil:
+--- nobody counts down); `busy` whether the server's run is in use; `flare` 0..1
+--- for a moment of extra light (a party just went, or came back).
 function Crossing.charge(left: number?, total: number?, busy: boolean, flare: number?): number
 	local base = if busy then Crossing.Busy else Crossing.Idle
 	if left and total and total > 0 then
@@ -71,53 +93,90 @@ function Crossing.charge(left: number?, total: number?, busy: boolean, flare: nu
 	return math.max(base, clamp01(flare or 0))
 end
 
-export type Departure = {
-	active: boolean, -- inside the last `lead` seconds: the party is held still
-	k: number, -- 0..1 through those seconds
-	camera: number, -- 0..1 of the swing up to the portal
-	light: number, -- 0..1 of the light closing in
-	dissolve: number, -- 0..1 of the hero turning to light
+export type Gather = {
+	open: number, -- 0..1 of the ground portal's full size
+	charge: number, -- 0..1 of its magic
 }
 
---- Where the departure is with `left` seconds on the countdown.
-function Crossing.departure(left: number, cfg: Config): Departure
-	if left > cfg.lead then
-		return { active = false, k = 0, camera = 0, light = 0, dissolve = 0 }
-	end
-	local k = clamp01(1 - left / cfg.lead)
+--- The ground portal through a countdown with `left` of `total` seconds to go:
+--- it opens over `openSeconds` from the start, and its magic grows to the end.
+function Crossing.gather(left: number, total: number, openSeconds: number): Gather
+	local since = math.max(0, total - left)
+	local k = 1 - clamp01(left / math.max(total, 1e-3))
 	return {
-		active = true,
-		k = k,
-		camera = Crossing.smooth(k),
-		light = Crossing.smooth((cfg.flash - left) / cfg.flash),
-		dissolve = Crossing.smooth((0.6 - left) / 0.6),
+		open = Crossing.out(since / math.max(openSeconds, 1e-3)),
+		charge = 0.25 + 0.6 * k * k,
 	}
 end
 
-export type Arrival = {
-	light: number, -- 1 at first, 0 once the light has cleared
-	camera: number, -- 1 at first (high and back), 0 settled behind the hero
-	form: number, -- 0..1 the heroes taking shape
+export type Descent = {
+	sink: number, -- share of the hero's height under the surface
+	camera: number, -- 0..1 of the way to the departure's framing
+	dark: number, -- 0..1 of the screen gone black
+	open: number, -- 0..1 of the portal's size: it closes after them
+	charge: number, -- 0..1 of its magic
+	gone: boolean, -- every hero is out of sight
+	done: boolean, -- the portal has closed
+}
+
+--- Where the departure is `t` seconds after the countdown ended.
+function Crossing.descent(t: number, d: Depart): Descent
+	local sink
+	if t < d.lift then
+		sink = -Crossing.Lift * math.sin(t / d.lift * math.pi / 2)
+	else
+		local u = clamp01((t - d.lift) / d.sink)
+		-- slow out of the rise, swallowed quickly at the end
+		sink = -Crossing.Lift + (1 + Crossing.Lift) * u ^ 1.7
+	end
+	local under = d.lift + d.sink
+	local closing = clamp01((t - under) / d.collapse)
+	return {
+		sink = sink,
+		camera = Crossing.smooth(t / d.frame),
+		dark = Crossing.smooth((t - d.darkFrom) / (d.darkTo - d.darkFrom)),
+		open = 1 - Crossing.smooth(closing),
+		charge = math.clamp(0.85 + 0.15 * clamp01(t / under) - 0.85 * closing, 0, 1),
+		gone = t >= under,
+		done = t >= under + d.collapse,
+	}
+end
+
+export type Emerge = {
+	sink: number, -- share of the hero's height under the surface
+	camera: number, -- 1 at first (the arrival's framing), 0 once the hero's own camera has it
+	dark: number, -- 1 at first, 0 once the black has cleared
+	open: number, -- 0..1 of the portal's size
+	charge: number,
 	held: boolean, -- controls still held
 	done: boolean,
 }
 
---- Where the arrival is `t` seconds after the light began to clear.
-function Crossing.arrival(t: number, cfg: Config): Arrival
-	local light = 1 - Crossing.out(t / cfg.reveal)
-	local camera = 1 - Crossing.smooth(t / cfg.settle)
+--- Where an arrival is `t` seconds after its cover began to lift.
+function Crossing.emerge(t: number, r: Rise): Emerge
+	local up = (t - r.riseFrom) / r.rise
+	local risen = r.riseFrom + r.rise
+	local closing = clamp01((t - risen) / r.close)
 	return {
-		light = light,
-		camera = camera,
-		form = Crossing.smooth((t - 0.05) / cfg.materialise),
-		held = t < cfg.release,
-		done = t >= math.max(cfg.reveal, cfg.settle, cfg.release, cfg.materialise + 0.05),
+		sink = 1 - Crossing.rise(up),
+		camera = 1 - Crossing.smooth((t - r.cameraFrom) / r.camera),
+		dark = 1 - Crossing.out(t / r.clear),
+		open = 1 - Crossing.smooth(closing),
+		charge = 0.9 * (1 - closing),
+		held = t < r.release,
+		done = t >= math.max(risen + r.close, r.cameraFrom + r.camera, r.release),
 	}
 end
 
---- Coming home from a run: the light clears over `homeReveal` seconds.
-function Crossing.home(t: number, cfg: Config): number
-	return 1 - Crossing.out(t / cfg.homeReveal)
+--- How long an arrival takes from the cover lifting to its end.
+function Crossing.emergeSeconds(r: Rise): number
+	return math.max(r.riseFrom + r.rise + r.close, r.cameraFrom + r.camera, r.release)
+end
+
+--- The ground portal's radius round a group whose members stand `spread` studs
+--- at most from its centre.
+function Crossing.radius(spread: number, portal: { radius: number, margin: number }): number
+	return math.max(portal.radius, spread + portal.margin)
 end
 
 -- ------------------------------------------------------------------ the gate
@@ -143,7 +202,7 @@ end
 --- Where a cover's time went, for the log: "hero 1.20  world 0.31 ...".
 function Crossing.summary(w: Wait): string
 	local parts = {}
-	for _, key in { "hero", "world", "detail", "steady" } do
+	for _, key in { "hero", "world", "detail", "steady", "party" } do
 		local t = w.spent[key]
 		if t and t > 0.005 then
 			table.insert(parts, string.format("%s %.2f", key, t))
@@ -183,6 +242,12 @@ function Crossing.step(w: Wait, facts: Facts, now: number, gate: Gate): (boolean
 		return false, "steady"
 	end
 	return true, "ready"
+end
+
+--- Time spent after the cover was ready, waiting for the rest of the party
+--- (the server's word that everyone is ready), for the log.
+function Crossing.waitedFor(w: Wait, key: string, dt: number)
+	w.spent[key] = (w.spent[key] or 0) + math.max(0, dt)
 end
 
 return Crossing

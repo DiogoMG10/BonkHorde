@@ -36,6 +36,8 @@ function StateController:KnitInit()
 	self.hub = { circles = {}, run = nil } -- the rune circles' parties, and the server's run if one is on
 	self.hubAt = os.clock() -- when `hub` arrived (its countdowns run from here)
 	self.sky = nil -- the sky the run drew (Phase), worn while in it
+	self.run = 0 -- the run's number (Phase)
+	self.reveal = false -- the intro's reveal: the whole party rises out of the portal now (T8)
 	self.profile = nil
 	self.me = nil
 	self.squad = {}
@@ -185,6 +187,8 @@ function StateController:KnitStart()
 		self.quests = p.quests
 		self.portal = p.portal
 		self.sky = p.sky
+		self.run = p.run or 0
+		self.reveal = p.reveal == true
 		self.clockAt = os.clock()
 		if p.phase == "Lobby" then
 			self.me = nil

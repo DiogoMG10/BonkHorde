@@ -5,14 +5,18 @@
 -- the wire in byte fields) and the hero they wear. Parties form at the rune
 -- circles by deliberate actions only (PartyAction, rules in Core/HubParty):
 -- start one (PLAY SOLO or OPEN SQUAD), join, leave, the leader's PREPARE, each
--- member's READY. A finished countdown enters the portal through `Launch`,
--- unless the server's one Wardwood run is busy: then the party waits its turn.
--- Joining, starting and readying need the player at that circle; leaving works
--- from anywhere. A player's hero only changes while they are not READY.
+-- member's READY. A finished countdown departs (T8): the party is held still
+-- inside the portal opening on the ground at their circle (anyone who wandered
+-- off it is brought back in) while they sink into it on every screen; then it
+-- enters the run through `Launch`. A busy Wardwood run makes the party wait its
+-- turn. Joining, starting and readying need the player at that circle; leaving
+-- works from anywhere, until the departure (it is committed: only leaving the
+-- server drops a member out). A player's hero only changes while not READY.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
 local GameConfig = require(ReplicatedStorage.Shared.Config.GameConfig)
@@ -37,7 +41,9 @@ function PartyService:KnitInit()
 		#Skyhold.Circles,
 		math.min(Skyhold.SquadSize, GameConfig.MaxPlayers),
 		Skyhold.CountdownSeconds,
-		Skyhold.SoloCountdownSeconds
+		Skyhold.SoloCountdownSeconds,
+		Skyhold.Crossing.descent,
+		Skyhold.ResumeCountdownSeconds
 	)
 	self._lastAction = {}
 	self._sig = nil
@@ -181,8 +187,9 @@ end
 
 function PartyService:_act(player: Player, action: string, circle: unknown, now: number): boolean
 	local hub, uid = self._hub, player.UserId
-	if self:IsInRun(player) then
-		return false
+	local party = HubParty.partyOf(hub, uid)
+	if party and (party.phase == "run" or party.phase == "departing") then
+		return false -- in the run, or on the way into it: nothing to change
 	end
 	if action == "leave" then
 		return HubParty.leave(hub, uid) ~= nil
@@ -204,8 +211,19 @@ function PartyService:_act(player: Player, action: string, circle: unknown, now:
 	return false
 end
 
+-- Studio only: `Workspace:SetAttribute("BonkCrossingSlow", 4)` slows the
+-- crossing on every screen (PortalController); the departure waits as long here
+local function crossingSlow(): number
+	local k = RunService:IsStudio() and Workspace:GetAttribute("BonkCrossingSlow")
+	return if typeof(k) == "number" and k > 0 then k else 1
+end
+
 function PartyService:_step()
-	local launched = HubParty.step(self._hub, os.clock(), self._director:IsRunActive())
+	self._hub.descent = Skyhold.Crossing.descent * crossingSlow()
+	local launched, departed = HubParty.step(self._hub, os.clock(), self._director:IsRunActive())
+	if departed then
+		self:_hold(departed, true)
+	end
 	if launched then
 		local players = self:PlayersOf(launched)
 		if #players == 0 then
@@ -248,9 +266,47 @@ function PartyService:PlayersOf(party): { Player }
 	return out
 end
 
+-- the portal on the ground at a circle: who stands farther than this from
+-- its centre is brought back in for the departure, this far from it
+local INSIDE = Skyhold.CircleRadius - 0.6
+local BROUGHT_TO = Skyhold.CircleRadius - 1.6
+
+--- A party departing (`on`): each member is held still where they stand on
+--- their circle's portal (anyone off it set down just inside, facing the same
+--- way), anchored so nothing moves them while they sink on every screen. Or
+--- let go again (`on` false) when the run could not start after all.
+function PartyService:_hold(party, on: boolean)
+	local centre = circleAt(party.circle)
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Include
+	params.FilterDescendantsInstances = { Workspace.Terrain, Workspace:FindFirstChild("Skyhold") }
+	for _, player in self:PlayersOf(party) do
+		local character = player.Character
+		local root = character and character:FindFirstChild("HumanoidRootPart")
+		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+		if root and root:IsA("BasePart") and root.Position.Y > Skyhold.Origin[2] - 60 then
+			if on and centre and humanoid then
+				local flat = Vector3.new(root.Position.X - centre.X, 0, root.Position.Z - centre.Z)
+				if flat.Magnitude > INSIDE then
+					local to = centre + (if flat.Magnitude > 0.1 then flat.Unit else Vector3.zAxis) * BROUGHT_TO
+					local hit = Workspace:Raycast(to + Vector3.new(0, 10, 0), Vector3.new(0, -30, 0), params)
+					local y = if hit then hit.Position.Y + humanoid.HipHeight + root.Size.Y / 2 else root.Position.Y
+					character:PivotTo(CFrame.new(to.X, y, to.Z) * root.CFrame.Rotation)
+				end
+				root.AssemblyLinearVelocity = Vector3.zero
+			end
+			root.Anchored = on
+		end
+	end
+end
+
 --- The run could not start after all: the party stands on its circle again.
 function PartyService:LaunchFailed(circle: number)
-	HubParty.runEnded(self._hub, circle)
+	local party = self._hub.parties[circle]
+	if party then
+		self:_hold(party, false)
+	end
+	HubParty.launchFailed(self._hub, circle)
 	self:Broadcast()
 end
 

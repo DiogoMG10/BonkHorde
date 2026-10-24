@@ -8,6 +8,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
 
 local Knit = require(ReplicatedStorage.Packages.Knit)
 local Damage = require(ReplicatedStorage.Shared.Core.Damage)
@@ -136,14 +137,15 @@ end
 --- party's players (nobody joins a run once it is going, T6).
 function PlayerStateService:BeginRun(players: { Player })
 	self:EndRun()
-	for _, player in players do
-		self:_join(player)
+	for slot, player in players do
+		self:_join(player, slot, #players)
 	end
 end
 
-function PlayerStateService:_join(player: Player)
+function PlayerStateService:_join(player: Player, slot: number, count: number)
 	local index = self._party:IndexOf(player)
 	local rec = newRecord(player, index, self._party:GetHero(player))
+	rec.spawnSlot, rec.spawnCount = slot, count -- where in the party's group they start
 	self._recs[player] = rec
 	table.insert(self._list, rec)
 	self:GrantWeapon(rec, rec.heroDef.weapon)
@@ -161,7 +163,7 @@ end
 
 function PlayerStateService:_spawnCharacter(rec)
 	local player = rec.player
-	local at = self._map:SpawnPoint(rec.index)
+	local at = self._map:SpawnPoint(rec.spawnSlot, rec.spawnCount)
 	local ok, err = pcall(function()
 		player.ReplicationFocus = nil -- follow the hero from here on
 		player:RequestStreamAroundAsync(at, 4)
@@ -187,11 +189,23 @@ function PlayerStateService:_spawnCharacter(rec)
 	elseif height then
 		rec.rootHeight = height -- root above feet, for contact and camping
 	end
+	-- standing on the ground, not dropped onto it: the hero rises out of a portal
+	-- there (PortalController) and should end exactly where they stand
+	at = self:_standing(at, rec.rootHeight)
 	character:PivotTo(CFrame.new(at))
 	-- where it was set down: the client's cover waits until it stands there
 	character:SetAttribute("PlacedAt", at)
 	rec.x, rec.y, rec.z = at.X, at.Y, at.Z
 	self:_applyMovement(rec)
+end
+
+-- `at` moved onto the terrain under it, the root `rootHeight` above it
+function PlayerStateService:_standing(at: Vector3, rootHeight: number): Vector3
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Include
+	params.FilterDescendantsInstances = { Workspace.Terrain }
+	local hit = Workspace:Raycast(at + Vector3.new(0, 12, 0), Vector3.new(0, -40, 0), params)
+	return if hit then Vector3.new(at.X, hit.Position.Y + rootHeight + 0.05, at.Z) else at
 end
 
 --- A run's end: every hero leaves the Wardwood. The party's players get their
@@ -574,7 +588,7 @@ function PlayerStateService:Step(dt: number, now: number)
 			local p = root.Position
 			if p.Y < -40 then
 				-- fell out of the world: put them back at spawn rather than lose the run
-				local at = self._map:SpawnPoint(rec.index)
+				local at = self._map:SpawnPoint(rec.spawnSlot or 1, rec.spawnCount)
 				character:PivotTo(CFrame.new(at))
 				p = at
 			end

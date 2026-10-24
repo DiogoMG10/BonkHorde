@@ -8,15 +8,18 @@
 -- In a squad the leader starts the preparation (and is ready by doing so);
 -- every member then confirms READY. All ready: a countdown. Anyone leaving, or
 -- unreadying, cancels it safely: a leave ends the preparation, an unready only
--- the countdown. When the countdown ends the party enters the portal, unless a
--- run is already on (one Wardwood run per server): then it waits, still ready,
--- and goes first when the portal is free again, after a short countdown.
--- Joining and leaving are only ever these calls; nothing here knows where a
--- player stands.
+-- the countdown. When the countdown ends the party departs (T8: a few seconds
+-- held still, sinking into a portal on the ground), committed: nobody can
+-- unready or call it off any more, a member leaving the server just drops out.
+-- Then it enters the run. A run already on (one Wardwood run per server) makes
+-- a finished countdown wait, still ready, and go first when the portal is free
+-- again, after a short countdown. With no departure time (`descent` 0) a
+-- countdown goes straight into the run. Joining and leaving are only ever these
+-- calls; nothing here knows where a player stands.
 
 local HubParty = {}
 
-export type Phase = "forming" | "preparing" | "countdown" | "waiting" | "run"
+export type Phase = "forming" | "preparing" | "countdown" | "waiting" | "departing" | "run"
 
 export type Party = {
 	circle: number,
@@ -25,7 +28,7 @@ export type Party = {
 	mode: string, -- "solo" | "squad"
 	phase: Phase,
 	ready: { [number]: boolean },
-	ends: number?, -- the countdown's end
+	ends: number?, -- the countdown's end (or the departure's)
 	waitSince: number?,
 }
 
@@ -34,16 +37,20 @@ export type Hub = {
 	size: number,
 	countdown: number,
 	soloCountdown: number,
+	resume: number, -- the countdown again after waiting for a busy portal
+	descent: number, -- the departure, after the countdown
 	parties: { [number]: Party },
 	memberOf: { [number]: number },
 }
 
-function HubParty.new(circles: number, size: number, countdown: number, soloCountdown: number): Hub
+function HubParty.new(circles: number, size: number, countdown: number, soloCountdown: number, descent: number?, resume: number?): Hub
 	return {
 		circles = circles,
 		size = size,
 		countdown = countdown,
 		soloCountdown = soloCountdown,
+		resume = resume or soloCountdown,
+		descent = descent or 0,
 		parties = {},
 		memberOf = {},
 	}
@@ -140,8 +147,8 @@ function HubParty.leave(hub: Hub, uid: number): number?
 	if party.leader == uid then
 		party.leader = party.members[1]
 	end
-	if party.phase ~= "run" then
-		stand(party)
+	if party.phase ~= "run" and party.phase ~= "departing" then
+		stand(party) -- a departing party is committed: the rest go on
 	end
 	return circle
 end
@@ -214,12 +221,26 @@ function HubParty.isReady(hub: Hub, uid: number): boolean
 end
 
 --- Advance the countdowns. `runActive` is whether the server's one Wardwood
---- run is busy. Returns the party that enters the portal now, if any (at most
---- one: the run it starts makes the portal busy for everyone else).
-function HubParty.step(hub: Hub, now: number, runActive: boolean): Party?
+--- run is busy. Returns the party that enters the run now, if any (at most
+--- one: the run it starts makes the portal busy for everyone else), and the
+--- party that has just begun its departure, if any.
+function HubParty.step(hub: Hub, now: number, runActive: boolean): (Party?, Party?)
 	local launched: Party? = nil
+	local departed: Party? = nil
 	local busy = runActive
-	-- a party already counting down for a free portal has it reserved
+	-- a departing party has the portal, and enters the run when its time is up
+	for circle = 1, hub.circles do
+		local party = hub.parties[circle]
+		if party and party.phase == "departing" then
+			if party.ends and now >= party.ends and not runActive and not launched then
+				party.phase = "run"
+				party.ends = nil
+				launched = party
+			end
+			busy = true
+		end
+	end
+	-- a countdown ending on a free portal departs; on a busy one it waits
 	for circle = 1, hub.circles do
 		local party = hub.parties[circle]
 		if party and party.phase == "countdown" and party.ends and now >= party.ends then
@@ -227,6 +248,11 @@ function HubParty.step(hub: Hub, now: number, runActive: boolean): Party?
 				party.phase = "waiting"
 				party.ends = nil
 				party.waitSince = party.waitSince or now
+			elseif hub.descent > 0 then
+				party.phase = "departing"
+				party.ends = now + hub.descent
+				departed = party
+				busy = true
 			else
 				party.phase = "run"
 				party.ends = nil
@@ -251,10 +277,19 @@ function HubParty.step(hub: Hub, now: number, runActive: boolean): Party?
 			end
 		end
 		if first and not counting then
-			startCountdown(hub, first, now, hub.soloCountdown)
+			startCountdown(hub, first, now, hub.resume)
 		end
 	end
-	return launched
+	return launched, departed
+end
+
+--- The party's run could not start after all: back to standing on its circle
+--- (from its departure or the run).
+function HubParty.launchFailed(hub: Hub, circle: number)
+	local party = hub.parties[circle]
+	if party and (party.phase == "run" or party.phase == "departing") then
+		stand(party)
+	end
 end
 
 --- The party's run is over: it stands on its circle again, nobody ready.

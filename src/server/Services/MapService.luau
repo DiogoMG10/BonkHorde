@@ -185,9 +185,15 @@ function MapService:IsArtReady(): boolean
 	return self._artReady
 end
 
-function MapService:SpawnPoint(index: number): Vector3
-	local angle = (index - 1) * (math.pi * 2 / 3)
-	local x, z = math.cos(angle) * 5, math.sin(angle) * 5
+--- Where the `slot`-th of `count` heroes starts the run: one alone on the
+--- spawn itself, a party round it a step apart (they rise out of one portal).
+function MapService:SpawnPoint(slot: number, count: number?): Vector3
+	local n = math.max(count or 1, slot)
+	local x, z = 0, 0
+	if n > 1 then
+		local angle = (slot - 1) * (math.pi * 2 / n) - math.pi / 2
+		x, z = math.cos(angle) * GameConfig.SpawnSpacing, math.sin(angle) * GameConfig.SpawnSpacing
+	end
 	return Vector3.new(x, self:HeightAt(x, z) + 4, z)
 end
 

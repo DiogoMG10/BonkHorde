@@ -156,4 +156,64 @@ return {
 		assert(e.circle == 3 and e.leader == 5 and #e.members == 2 and #e.ready == 2)
 		assert(e.phase == "countdown" and e.seconds == 3)
 	end,
+
+	-- T8: after the countdown the party departs (sinking into the portal on the
+	-- ground) for `descent` seconds before it enters the run
+	["with a descent, a finished countdown departs, committed, then enters the run"] = function()
+		local h = HubParty.new(4, 3, 5, 5, 1.6, 3)
+		assert(HubParty.start(h, 1, 2, "solo", 0))
+		local p = HubParty.partyOf(h, 1)
+		assert(p and p.ends == 5, "a solo countdown of five seconds")
+		local launched, departed = HubParty.step(h, 5, false)
+		assert(launched == nil and departed == p and p.phase == "departing", "departing, not yet in the run")
+		assert(p.ends and math.abs(p.ends - 6.6) < 1e-9)
+		assert(not HubParty.setReady(h, 1, false, 5.5), "no taking READY back once departing")
+		assert(not HubParty.cancel(h, 1), "nor calling it off")
+		assert(not HubParty.join(h, 9, 2), "nor joining")
+		assert(HubParty.snapshot(h, 6)[1].phase == "departing")
+		assert(HubParty.step(h, 6.5, false) == nil)
+		local through, again = HubParty.step(h, 6.6, false)
+		assert(through == p and again == nil and p.phase == "run")
+	end,
+
+	["a member leaving the server mid-departure drops out; the rest go on"] = function()
+		local h = HubParty.new(4, 3, 5, 5, 1.6, 3)
+		HubParty.start(h, 1, 1, "squad", 0)
+		HubParty.join(h, 2, 1)
+		HubParty.prepare(h, 1, 0)
+		HubParty.setReady(h, 2, true, 0)
+		local _, departed = HubParty.step(h, 5, false)
+		assert(departed)
+		assert(HubParty.leave(h, 1) == 1)
+		local p = HubParty.partyOf(h, 2)
+		assert(p and p.phase == "departing" and p.leader == 2 and p.ready[2], "still on its way, led by the next")
+		assert(HubParty.step(h, 6.7, false) == p and p.phase == "run")
+	end,
+
+	["a departing party has the portal: another countdown ending meanwhile waits"] = function()
+		local h = HubParty.new(4, 3, 5, 5, 1.6, 3)
+		HubParty.start(h, 1, 1, "solo", 0)
+		HubParty.start(h, 2, 2, "solo", 0.5)
+		local _, a = HubParty.step(h, 5, false)
+		assert(a and a.circle == 1)
+		local launched, departed = HubParty.step(h, 5.5, false)
+		assert(launched == nil and departed == nil)
+		local b = HubParty.partyOf(h, 2)
+		assert(b and b.phase == "waiting", "the portal is taken")
+		assert(HubParty.step(h, 6.6, false) == a)
+		HubParty.step(h, 7, true)
+		assert(b.phase == "waiting", "and stays taken while the run is on")
+		HubParty.step(h, 30, false)
+		assert(b.phase == "countdown" and b.ends == 33, "its turn: the short countdown again")
+	end,
+
+	["the run could not start: a departed party stands on its circle again"] = function()
+		local h = HubParty.new(4, 3, 5, 5, 1.6, 3)
+		HubParty.start(h, 1, 3, "solo", 0)
+		HubParty.step(h, 5, false)
+		HubParty.launchFailed(h, 3)
+		local p = HubParty.partyOf(h, 1)
+		assert(p and p.phase == "forming" and next(p.ready) == nil)
+		assert(HubParty.prepare(h, 1, 8), "and can go again")
+	end,
 }

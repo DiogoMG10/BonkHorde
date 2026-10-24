@@ -116,28 +116,64 @@ local Skyhold = {
 	-- ---------------------------------------------------------------- parties
 	SquadSize = 3, -- the most a rune circle holds (GameConfig.MaxPlayers runs it)
 	JoinRange = 13, -- studs from a circle's centre to join it, start a party, or ready up
-	CountdownSeconds = 5, -- everyone READY: this long on the portal before it opens
-	SoloCountdownSeconds = 3,
+	CountdownSeconds = 5, -- everyone READY: this long, a ground portal opening under the party
+	SoloCountdownSeconds = 5,
+	ResumeCountdownSeconds = 3, -- a party that waited for a busy portal counts down this long again
 	ActionGap = 0.25, -- seconds between two party messages a player may send
 
 	-- ---------------------------------------------------------------- the crossing (T8)
-	-- the party's way through the portal into the Wardwood and back
-	-- (client/Controllers/PortalController, Core/Crossing); seconds
+	-- the party's way into the Wardwood and back: a portal opens on the ground
+	-- under them through the countdown, they sink into it as the screen goes
+	-- black, and rise out of another in the Wardwood once it is ready
+	-- (client/Controllers/PortalController, client/GroundPortal, Core/Crossing); seconds
 	Crossing = {
-		lead = 1.3, -- before the countdown ends: the portal surges, the party is held still
-		flash = 0.55, -- the last of it, turning to light
-		reveal = 0.85, -- the light clearing round the hero on arrival
-		settle = 1.25, -- the camera dropping in to its place behind the hero
-		release = 0.9, -- controls back this long after the light starts clearing
-		materialise = 0.4, -- the heroes taking shape out of the light
-		homeReveal = 0.9, -- coming home: the light clearing on the plaza
+		-- after the countdown: the party held still, sinking, the screen going
+		-- black; then the server takes them into the run (Core/HubParty "departing")
+		descent = 1.6,
+		depart = {
+			lift = 0.22, -- a little rise before the sink
+			sink = 0.95, -- under the portal's surface
+			frame = 0.6, -- the camera easing to frame the party and the portal
+			darkFrom = 0.5, -- the black fade, from and to (from the countdown's end)
+			darkTo = 1.3,
+			collapse = 0.3, -- the portal closing once they are under
+		},
+		-- rising out of the portal, seconds from the moment the cover begins to lift
+		arrive = {
+			clear = 0.5, -- the black clearing
+			riseFrom = 0.12, -- the heroes rising out of it
+			rise = 0.95,
+			cameraFrom = 0.45, -- the camera handing back to the hero's own
+			camera = 1.1,
+			close = 0.45, -- the portal closing after them
+			release = 1.15, -- controls back (the server starts the run then)
+		},
+		home = {
+			clear = 0.35,
+			riseFrom = 0.05,
+			rise = 0.8,
+			cameraFrom = 0.3,
+			camera = 0.8,
+			close = 0.4,
+			release = 0.9,
+		},
+		-- the portal on the ground (client/GroundPortal), studs
+		portal = {
+			radius = 5.2, -- around one hero
+			margin = 3.2, -- beyond the farthest of a group
+			open = 0.9, -- seconds it takes to open at the countdown's start
+		},
 		-- how long each cover stays up (Core/Crossing.step): at least `min`; until
 		-- the hero is set down and the world round them has streamed in, then
 		-- `steady` more; the finishing touches (the art near them, the portal,
 		-- the rest of the party) waited for up to `detail`; never past `max`
-		arrive = { min = 0.45, steady = 0.15, detail = 2.5, max = 8 }, -- into the Wardwood
-		home = { min = 0.35, steady = 0.15, detail = 2, max = 8 }, -- back on the island
+		arriveGate = { min = 0.45, steady = 0.15, detail = 2.5, max = 8 }, -- into the Wardwood
+		homeGate = { min = 0.35, steady = 0.15, detail = 2, max = 8 }, -- back on the island
 		join = { min = 0.6, steady = 0.25, detail = 6, max = 40 }, -- the loading screen
+		-- the server holds the run's start until every member's client says the
+		-- Wardwood is ready to be seen, then they all rise together; at most this long
+		revealMax = 12,
+		hint = 2.5, -- black this long: a quiet "opening the way" appears
 	},
 	PortalSpin = { 0.35, 1.6 }, -- the vortex's turns a second, idle and at full surge
 
