@@ -48,29 +48,30 @@ return {
 		assert(near(l.safe.h, 1022) and near(l.safe.w, 1920))
 	end,
 
-	["the XP strip spans the whole screen, edge to edge, just under Roblox's top bar"] = function()
+	["the XP strip spans the whole screen, edge to edge, flush with its top"] = function()
 		for name, screen in SCREENS do
 			local l = HudLayout.compute(screen)
 			local strip = stripOf(l)
 			assert(near(strip.x0, 0) and near(strip.x1, screen.width), `{name}: strip from {strip.x0} to {strip.x1}`)
 			assert(near((strip.x0 + strip.x1) / 2, screen.width / 2), `{name}: centred`)
-			assert(strip.y0 >= screen.core.top - 1e-6, `{name}: under the top bar, at {strip.y0}`)
-			assert(strip.y0 <= screen.core.top + 8 * l.scale, `{name}: right under it, at {strip.y0}`)
+			assert(near(strip.y0, 0), `{name}: at the very top of the viewport, not at {strip.y0}`)
 			assert(near(strip.y1 - strip.y0, l.sizes.xp * l.scale), `{name}: as thin as designed`)
+			assert(strip.y1 <= 16, `{name}: thin enough to sit above Roblox's buttons, {strip.y1} px`)
 		end
 	end,
 
-	["every column starts under the strip, the minimap's compass letters too"] = function()
+	["every column starts under the strip and Roblox's top bar, the minimap's compass letters too"] = function()
 		for name, screen in SCREENS do
 			local l = HudLayout.compute(screen)
 			local s = l.scale
 			local strip = stripOf(l)
+			local clear = math.max(strip.y1, screen.core.top)
 			for which, top in { left = l.topLeft, centre = l.topCentre } do
 				local y = (l.safe.y + top) * s
-				assert(y >= strip.y1 + HudLayout.Gap * s - 1e-6, `{name}: the {which} column at {y}, the strip ends {strip.y1}`)
+				assert(y >= clear + HudLayout.Gap * s - 1e-6, `{name}: the {which} column at {y}, clear from {clear}`)
 			end
 			local letters = (l.safe.y + l.topRight - HudLayout.RingLetter) * s
-			assert(letters >= strip.y1 - 1e-6, `{name}: the minimap's letters at {letters}, the strip ends {strip.y1}`)
+			assert(letters >= clear - 1e-6, `{name}: the minimap's letters at {letters}, clear from {clear}`)
 		end
 	end,
 

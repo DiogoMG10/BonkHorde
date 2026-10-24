@@ -3,8 +3,9 @@
 The in-run HUD was rebuilt in T2 (`bonk-0.21.0-t2`). On the T6/T7 line (`bonk-0.24.0-t6t7`)
 XP moved to a strip along the top of the screen, every top-centre element went into one
 column, and the strip wears a rainbow while a level-up waits for the player's choice. After
-the playtest (`bonk-0.26.0-ux`) the strip spans the whole screen, edge to edge, just under
-Roblox's bar, and the HUD steps aside for the end screens. The old pipeline (`Hud_gen.py`,
+the playtest (`bonk-0.26.0-ux`) the strip spans the whole screen, edge to edge, and the HUD
+steps aside for the end screens; since `bonk-0.27.0-t8` it sits flush with the very top of
+the viewport, not under Roblox's bar. The old pipeline (`Hud_gen.py`,
 `Hud_post.py`, the roblox-ui skill's `ui_build.py`) is gone: running it would have
 overwritten this HUD.
 
@@ -54,14 +55,17 @@ Every contract name is kept; the paths changed (see `design/ui_contract.md`). Ne
 
 ## Layout rules
 
-- The XP strip spans the whole screen, from its left edge to its right, 4 design px under
-  Roblox's top bar (`CoreUISafeInsets.top`), 14 px thick (16 compact). Its ScreenGui
-  ignores every inset (`ScreenInsets` None), so the strip is `UDim2(1, 0)` wide from x 0:
-  centred by construction at any size and scale. It carries no text, so a phone's
-  rounded corners or cut-out can only trim its very ends. (It used to sit in the free part
-  of the top bar beside Roblox's buttons, which left it short and off-centre.)
-- Every column starts under the strip: left column and timer plate one gap below it, the
-  minimap far enough down that its compass letters clear it.
+- The XP strip spans the whole screen, from its left edge to its right, flush with the top
+  of the viewport (y 0), 12 design px thick (14 compact; 7 to 14 px on real screens). Its
+  ScreenGui ignores every inset (`ScreenInsets` None, `IgnoreGuiInset`), so the strip is
+  `UDim2(1, 0)` wide from (0, 0): centred by construction at any size and scale. Roblox's
+  top-bar buttons are CoreGui, always drawn over the game's screens, so they sit over the
+  strip's lower edge at most and are never covered; the strip is thin enough to run in the
+  margin above them, its gold rim along its bottom edge (the rim's other edges are off
+  screen). It carries no text, so a phone's rounded corners or cut-out can only trim its
+  very ends. (It sat beside Roblox's buttons until `0.26.0`, then 4 px under the bar.)
+- Every column starts under both the strip and Roblox's top bar: left column and timer
+  plate one gap below, the minimap far enough down that its compass letters clear them.
 - The HUD and the strip are hidden in the lobby and behind the end screens (Victory, Wipe,
   Results: the death screen and the results take the whole screen).
 - The Hud ScreenGui ignores every inset (`ScreenInsets` None) because HudController places

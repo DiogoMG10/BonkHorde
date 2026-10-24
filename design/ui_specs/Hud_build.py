@@ -363,15 +363,16 @@ def rainbow_keys(phase=0.0, blend=0.35):
 
 def xp_bar():
     """The XpBar ScreenGui: one thin strip the whole width of the screen, edge to
-    edge just under Roblox's top bar, over the level-up panels (DisplayOrder 21)
+    edge and flush with its top (Roblox's top-bar buttons draw over it), over the
+    level-up panels (DisplayOrder 21)
     so its rainbow shows while a choice waits. Its screen ignores every inset, so
     the strip's left edge is the screen's; square ends, as it runs off both
     sides. HudController places it from Core/HudLayout and draws the fill and
     the rainbow."""
     strip = frame(
         "Strip",
-        (1, 0, 0, 14),
-        (0, 0, 0, 62),
+        (1, 0, 0, 12),
+        (0, 0, 0, 0),
         z=1,
         children=[
             frame("Back", (1, 0, 1, 0), z=1, fill=TRACK, alpha=0.18, children=[shade(0.8), stroke(RIM, 1.5, 0.3)]),

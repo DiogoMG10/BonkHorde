@@ -13,8 +13,10 @@
 --            one row of items, two objectives
 --   safe     the Safe frame: Roblox's CoreUISafeInsets (top bar and device
 --            cut-outs), in design pixels
---   xp       the XP strip: the whole width of the screen, edge to edge, just
---            under Roblox's top bar (nothing on it can be lost to a cut-out)
+--   xp       the XP strip: the whole width of the screen, edge to edge, flush
+--            with the top of the viewport. Roblox's top-bar buttons are drawn
+--            over it (CoreGui is always on top), so it never covers them, and
+--            it is thin enough to sit in the margin above them
 --   tops     where the left, centre and right columns start, under the strip
 --            and never in the top bar where Roblox has its buttons
 --   shift    how far the right column steps left to clear the touch buttons
@@ -26,7 +28,6 @@ HudLayout.DesignHeight = 1080
 HudLayout.Legible = 0.6 -- the smallest scale chosen on purpose: a 20 px label stays 12 px
 HudLayout.Margin = 16 -- design pixels between the safe area's edge and a column
 HudLayout.Gap = 8 -- design pixels between stacked elements
-HudLayout.StripTop = 4 -- design pixels between Roblox's top bar and the XP strip
 HudLayout.RingLetter = 12 -- design pixels the minimap's compass letters stand out of its ring
 
 export type Sizes = {
@@ -54,7 +55,7 @@ HudLayout.Regular = {
 	plate = 248,
 	plateHeight = 76,
 	clock = 110,
-	xp = 14,
+	xp = 12,
 	slot = 56,
 	item = 40,
 	itemRows = 2,
@@ -70,7 +71,7 @@ HudLayout.Compact = {
 	plate = 220,
 	plateHeight = 76,
 	clock = 96,
-	xp = 16,
+	xp = 14,
 	slot = 50,
 	item = 36,
 	itemRows = 1,
@@ -135,15 +136,16 @@ function HudLayout.compute(screen: Screen): Layout
 	local m, gap = HudLayout.Margin * scale, HudLayout.Gap * scale -- pixels from here on
 
 	-- the XP strip runs the whole width of the screen, from its left edge to its
-	-- right, just under Roblox's top bar; every column starts below it
-	local y0 = core.top + HudLayout.StripTop * scale
-	local strip: Rect = { x0 = 0, y0 = y0, x1 = screen.width, y1 = y0 + sizes.xp * scale }
-	local under = strip.y1 + gap -- the first row under the strip
+	-- right, along the very top of the viewport; every column starts below both
+	-- it and Roblox's top bar
+	local strip: Rect = { x0 = 0, y0 = 0, x1 = screen.width, y1 = sizes.xp * scale }
+	local clear = math.max(strip.y1, core.top)
+	local under = clear + gap -- the first row under the strip and the top bar
 
-	-- right: the minimap's compass letters clear the strip, and it steps left of
-	-- any touch button it would cover
+	-- right: the minimap's compass letters clear the strip and the top bar, and
+	-- it steps left of any touch button it would cover
 	local shiftRight = 0
-	local rightTop = strip.y1 + (HudLayout.RingLetter + 2) * scale
+	local rightTop = clear + (HudLayout.RingLetter + 2) * scale
 	for _ = 1, 3 do
 		local x1 = screen.width - core.right - m - shiftRight * scale
 		local rect = { x0 = x1 - sizes.minimap * scale, y0 = rightTop, x1 = x1, y1 = rightTop + sizes.minimap * scale }
@@ -167,7 +169,7 @@ function HudLayout.compute(screen: Screen): Layout
 		compact = compact,
 		sizes = sizes,
 		safe = { x = core.left / scale, y = core.top / scale, w = canvasW, h = safeH / scale },
-		xp = { x = 0, y = strip.y0 / scale, w = screen.width / scale, h = sizes.xp },
+		xp = { x = 0, y = 0, w = screen.width / scale, h = sizes.xp },
 		topLeft = (under - core.top) / scale,
 		topCentre = (under - core.top) / scale,
 		topRight = (rightTop - core.top) / scale,
